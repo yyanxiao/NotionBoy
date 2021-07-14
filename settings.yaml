@@ -1,0 +1,14 @@
+SERVICE:
+  NAME: notion-boy
+  HOST: "0.0.0.0"
+  PORT: 8001
+
+WECHAT:
+  APP_ID:
+  APP_SECRET:
+  TOKEN:
+  ENCODING_AES_KEY:
+
+DATABASES:
+  SQLITE:
+    FILE: data.db

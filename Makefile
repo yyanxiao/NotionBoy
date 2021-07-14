@@ -13,4 +13,5 @@ run:
 	go run ./main.go
 
 rund: build
-	docker run --rm --env-file=.env ghcr.io/vaayne/notion-boy
+	docker run --rm ghcr.io/vaayne/notion-boy
+

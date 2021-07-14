@@ -1,10 +1,43 @@
 package config
 
-import "os"
+import (
+	"path"
+
+	"github.com/argoproj/pkg/file"
+	"github.com/sirupsen/logrus"
+	"github.com/spf13/viper"
+)
 
 type Config struct {
-	BearerToken string
-	DatabaseID  string
+	Wechat    Wechat    `mapstructure:"WECHAT"`
+	Service   Service   `mapstructure:"SERVICE"`
+	Databases Databases `mapstructure:"DATABASES"`
+}
+
+type Service struct {
+	Name string `mapstructure:"NAME"`
+	Host string `mapstructure:"HOST"`
+	Port string `mapstructure:"PORT"`
+}
+
+type Notion struct {
+	BearerToken string `mapstructure:"BEARER_TOKEN"`
+	DatabaseID  string `mapstructure:"DATABASE_ID"`
+}
+
+type Databases struct {
+	Sqlite Sqlite `mapstructure:"SQLITE"`
+}
+
+type Sqlite struct {
+	File string `mapstructure:"FILE"`
+}
+
+type Wechat struct {
+	AppID          string `mapstructure:"APP_ID"`
+	AppSecret      string `mapstructure:"APP_SECRET"`
+	Token          string `mapstructure:"TOKEN"`
+	EncodingAESKey string `mapstructure:"ENCODING_AES_KEY"`
 }
 
 var globalConfig = &Config{}
@@ -17,6 +50,26 @@ func GetConfig() *Config {
 }
 
 func LoadConfig(c *Config) {
-	c.DatabaseID = os.Getenv("DATABASE_ID")
-	c.BearerToken = os.Getenv("BEARER_TOKEN")
+	rootPath := "."
+	viper.AddConfigPath(rootPath)
+	viper.SetConfigName("settings")
+
+	err := viper.ReadInConfig()
+	if err != nil {
+		logrus.Error(err)
+	}
+
+	if file.Exists(path.Join(rootPath, "settings_local.yaml")) {
+		viper.SetConfigName("settings_local")
+		err = viper.MergeInConfig()
+		if err != nil {
+			logrus.Error(err)
+		}
+	}
+
+	viper.AutomaticEnv()
+	err = viper.Unmarshal(globalConfig)
+	if err != nil {
+		logrus.Error(err)
+	}
 }
