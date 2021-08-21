@@ -4,7 +4,6 @@ Notion Boy 是一个基于微信公众号和 Notion 快速笔记应用。
 
 完整介绍可以参考 [NotionBoy 的前世今生](https://www.theboys.tech/notion-boy)
 
-
 ---
 ## 使用 NotionBoy 需要三步
 
