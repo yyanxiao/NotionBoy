@@ -27,18 +27,21 @@ Token 是以 "secret_" 开头的字符串，
 DatabaseID 则是分享的 Page 链接的后半部分
 
 --- 下面是具体的格式 ---
-Token: secret_xxx
-DatabaseID: xxxx
+Token: secret_xxx,DatabaseID: xxxx
 `
 	return &message.Reply{MsgType: message.MsgTypeText, MsgData: message.NewText(text)}
 }
 
 func parseBindNotionConfig(text string) (string, string) {
 	log.Warn("----- parseBindNotionConfig ------")
-	r := regexp.MustCompile(`Token: (?P<Token>.*) .*DatabaseID: (?P<DatabaseID>.*)`)
+	r := regexp.MustCompile(`Token:(?P<Token>.*)\W.*DatabaseID:(?P<DatabaseID>.*)`)
 	res := r.FindStringSubmatch(text)
+	if len(res) < 3 {
+		log.Warn("----- parseBindNotionConfig ------")
+		return "", ""
+	}
 	log.Info("Parse TokenL ", res)
-	return res[1], res[2]
+	return strings.TrimSpace(res[1]), strings.TrimSpace(res[2])
 }
 
 func checkNotionBinding(c *gin.Context, token, databaseID string) bool {

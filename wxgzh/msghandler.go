@@ -35,8 +35,7 @@ func messageHandler(c *gin.Context, msg *message.MixMessage) *message.Reply {
 		if token == "" || databaseID == "" {
 			text := `
 错误的 Token 和 DatabaseID，请按如下格式回复：
-Token: secret_xxx
-DatabaseID: xxxx
+Token: secret_xxx,DatabaseID: xxxx
 `
 			return &message.Reply{MsgType: message.MsgTypeText, MsgData: message.NewText(text)}
 		} else {

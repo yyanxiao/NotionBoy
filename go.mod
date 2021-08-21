@@ -10,6 +10,7 @@ require (
 	github.com/silenceper/wechat/v2 v2.0.6
 	github.com/sirupsen/logrus v1.8.1
 	github.com/spf13/viper v1.8.1
+	github.com/stretchr/testify v1.7.0
 	gorm.io/driver/sqlite v1.1.4
 	gorm.io/gorm v1.21.11
 )
