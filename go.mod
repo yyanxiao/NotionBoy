@@ -4,13 +4,17 @@ go 1.17
 
 require (
 	github.com/argoproj/pkg v0.9.0
+	github.com/aws/aws-lambda-go v1.26.0
 	github.com/gin-gonic/gin v1.7.2
-	github.com/kjk/notion v0.1.1-0.20210531202601-d7dea041d977
+	github.com/jomei/notionapi v1.5.0
 	github.com/mattn/go-sqlite3 v1.14.7 // indirect
 	github.com/silenceper/wechat/v2 v2.0.6
 	github.com/sirupsen/logrus v1.8.1
 	github.com/spf13/viper v1.8.1
 	github.com/stretchr/testify v1.7.0
+	golang.org/x/crypto v0.0.0-20210513164829-c07d793c2f9a // indirect
+	golang.org/x/sys v0.0.0-20210809222454-d867a43fc93e // indirect
+	golang.org/x/text v0.3.6 // indirect
 	gorm.io/driver/sqlite v1.1.4
 	gorm.io/gorm v1.21.11
 )
@@ -45,9 +49,6 @@ require (
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/subosito/gotenv v1.2.0 // indirect
 	github.com/ugorji/go/codec v1.1.7 // indirect
-	golang.org/x/crypto v0.0.0-20210513164829-c07d793c2f9a // indirect
-	golang.org/x/sys v0.0.0-20210514084401-e8d321eab015 // indirect
-	golang.org/x/text v0.3.6 // indirect
 	google.golang.org/protobuf v1.26.0 // indirect
 	gopkg.in/ini.v1 v1.62.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
