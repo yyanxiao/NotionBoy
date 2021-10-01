@@ -19,6 +19,8 @@ require (
 	gorm.io/gorm v1.21.11
 )
 
+replace github.com/jomei/notionapi => github.com/Vaayne/notionapi v1.5.1
+
 require (
 	github.com/bradfitz/gomemcache v0.0.0-20190913173617-a41fca850d0b // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
