@@ -7,7 +7,7 @@ import (
 	"regexp"
 	"strings"
 
-	notionapi "github.com/jomei/notionapi"
+	notionapi "github.com/Vaayne/notionapi"
 	"github.com/sirupsen/logrus"
 )
 
@@ -62,7 +62,6 @@ func CreateNewRecord(ctx context.Context, notionConfig *NotionConfig, content *C
 			RichText: []notionapi.RichText{
 				{
 					Type: "text",
-					// PlainText: content.Text,
 					Text: notionapi.Text{
 						Content: content.Text,
 					},
@@ -78,10 +77,8 @@ func CreateNewRecord(ctx context.Context, notionConfig *NotionConfig, content *C
 		}
 	}
 	pageCreateRequest := &notionapi.PageCreateRequest{
-		Parent: notionapi.Parent{
-			Type:       "database_id",
-			DatabaseID: notionapi.DatabaseID(notionConfig.DatabaseID),
-			// DatabasePageProperties: &databasePageProperties,
+		Parent: notionapi.PageCreateDatabaseParent{
+			DatabaseID: notionConfig.DatabaseID,
 		},
 		Properties: databasePageProperties,
 	}
@@ -102,8 +99,15 @@ func CreateNewRecord(ctx context.Context, notionConfig *NotionConfig, content *C
 func UpdateDatabase(ctx context.Context, notionConfig *NotionConfig) (string, error) {
 	databaseUpdateRequest := &notionapi.DatabaseUpdateRequest{
 		Properties: notionapi.PropertyConfigs{
-			"Tags": notionapi.MultiSelectPropertyConfig{},
-			"Text": notionapi.RichTextPropertyConfig{},
+			"Tags": notionapi.MultiSelectPropertyConfig{
+				Type: notionapi.PropertyConfigTypeMultiSelect,
+				MultiSelect: notionapi.Select{
+					Options: []notionapi.Option{},
+				},
+			},
+			"Text": notionapi.RichTextPropertyConfig{
+				Type: notionapi.PropertyConfigTypeRichText,
+			},
 		},
 	}
 
