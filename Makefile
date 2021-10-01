@@ -1,5 +1,8 @@
 .PHONY: build clean
 
+IMAGE_NAME ?= ghcr.io/vaayne/notionboy
+IMAGE_TAG ?= latest
+
 build: build-wxgzh build-netlify
 
 init:
@@ -12,8 +15,8 @@ static: init
 run:
 	go run ./main.go
 
-rund: build
-	docker run --rm ghcr.io/vaayne/notion-boy
+rund: build-docker
+	docker run --rm ${IMAGE_NAME}:${IMAGE_TAG}
 
 build-netlify:
 	export GO111MODULE=on
@@ -24,7 +27,7 @@ build-wxgzh:
 	env GOARCH=amd64 GOOS=linux go build -ldflags="-s -w" -o bin/wxgzh cmd/wxgzh/main.go
 
 build-docker:
-	docker build -t ghcr.io/vaayne/notion-boy .
+	docker build -t ${IMAGE_NAME}:${IMAGE_TAG} .
 
 clean:
 	rm -rf ./bin ./vendor go.sum
