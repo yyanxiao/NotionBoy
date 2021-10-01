@@ -7,7 +7,7 @@ import (
 	"regexp"
 	"strings"
 
-	notionapi "github.com/Vaayne/notionapi"
+	notionapi "github.com/jomei/notionapi"
 	"github.com/sirupsen/logrus"
 )
 
