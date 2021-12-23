@@ -6,7 +6,7 @@ IMAGE_TAG ?= latest
 build: build-wxgzh build-netlify
 
 init:
-	if ! which pre-commit > /dev/null; then sudo pip install pre-commit; fi
+	if ! which pre-commit > /dev/null; then pip install pre-commit; fi
 	pre-commit install
 
 static: init

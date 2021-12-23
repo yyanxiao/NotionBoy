@@ -9,12 +9,34 @@ import (
 	"gorm.io/gorm"
 )
 
+const (
+	UserTypeWechat   = "wechat"
+	UserTypeTelegram = "telegram"
+)
+
 type Account struct {
 	gorm.Model
-	WxUserID     string `gorm:"unique,index,column:wx_user_id"`
-	TgUserID     string `gorm:"unique,index,column:tg_user_id"`
-	NtDatabaseID string `gorm:"uniqueIndex,not null,column:nt_database_id"`
-	NtToken      string `gorm:"not null,column:nt_token"`
+	// UserType wechat or telegram or ...
+	UserType string `gorm:"type:varchar(20);not null"`
+	UserID   string `gorm:"unique,index,column:user_id"`
+
+	// Notion database id
+	DatabaseID string `gorm:"uniqueIndex,not null,column:database_id"`
+	// Notion access token
+	AccessToken string `gorm:"not null,column:access_token"`
+}
+
+type NotionOauthInfo struct {
+	gorm.Model
+	AccessToken   string `gorm:"not null,column:access_token"`
+	WorkspaceID   string `gorm:"not null,column:workspace_id"`
+	WorkspaceName string `gorm:"column:workspace_name"`
+	WorkspaceIcon string `gorm:"column:workspace_icon"`
+	BotID         string `gorm:"not null,column:bot_id"`
+	UserID        string `gorm:"unique,not null,column:user_id"`
+	UserName      string `gorm:"column:user_name"`
+	UserEmail     string `gorm:"column:user_email"`
+	UserInfo      string `gorm:"column:user_info"`
 }
 
 var conn *gorm.DB
@@ -53,13 +75,14 @@ func GetDBConn() *gorm.DB {
 func InitDB() {
 	db := GetDBConn()
 	db.AutoMigrate(&Account{})
+	db.AutoMigrate(&NotionOauthInfo{})
 }
 
 func QueryAccountByWxUser(wxUserID string) *Account {
 	var account Account
 
 	db := GetDBConn()
-	db.Where(&Account{WxUserID: wxUserID}).First(&account)
+	db.Where(&Account{UserID: wxUserID, UserType: UserTypeWechat}).First(&account)
 	return &account
 }
 
@@ -70,5 +93,10 @@ func SaveAccount(account *Account) {
 
 func DeleteWxAccount(wxUserID string) {
 	db := GetDBConn()
-	db.Where(&Account{WxUserID: wxUserID}).Delete(&Account{})
+	db.Where(&Account{UserID: wxUserID, UserType: UserTypeWechat}).Delete(&Account{})
+}
+
+func SaveNotionOauth(info *NotionOauthInfo) {
+	db := GetDBConn()
+	db.Create(info)
 }

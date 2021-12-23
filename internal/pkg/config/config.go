@@ -9,20 +9,30 @@ import (
 )
 
 type Config struct {
-	Wechat    Wechat    `mapstructure:"WECHAT"`
-	Service   Service   `mapstructure:"SERVICE"`
-	Databases Databases `mapstructure:"DATABASES"`
+	Wechat      Wechat      `mapstructure:"WECHAT"`
+	Service     Service     `mapstructure:"SERVICE"`
+	Databases   Databases   `mapstructure:"DATABASES"`
+	NotionOauth NotionOauth `mapstructure:"NOTION_OAUTH"`
 }
 
 type Service struct {
 	Name string `mapstructure:"NAME"`
 	Host string `mapstructure:"HOST"`
 	Port string `mapstructure:"PORT"`
+	URL  string `mapstructure:"URL"`
 }
 
 type Notion struct {
 	BearerToken string `mapstructure:"BEARER_TOKEN"`
 	DatabaseID  string `mapstructure:"DATABASE_ID"`
+}
+
+type NotionOauth struct {
+	ClientID     string `mapstructure:"CLIENT_ID"`
+	ClientSecret string `mapstructure:"CLIENT_SECRET"`
+	RedirectURI  string `mapstructure:"REDIRECT_URI"`
+	AuthURL      string `mapstructure:"AUTH_URL"`
+	TokenURL     string `mapstructure:"TOKEN_URL"`
 }
 
 type Databases struct {

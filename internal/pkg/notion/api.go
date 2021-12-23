@@ -22,7 +22,7 @@ type NotionConfig struct {
 }
 
 func GetNotionClient(token string) *notionapi.Client {
-	return notionapi.NewClient(notionapi.Token(token), nil)
+	return notionapi.NewClient(notionapi.Token(token), func(c *notionapi.Client) {})
 }
 
 type Content struct {
@@ -137,4 +137,20 @@ func BindNotion(ctx context.Context, token, databaseID string) (bool, error) {
 		return false, err
 	}
 	return true, nil
+}
+
+func GetDatabaseID(ctx context.Context, token string) (string, error) {
+	logrus.Debug("Token is: ", token)
+	cli := GetNotionClient(token)
+	res, err := cli.Database.List(ctx, &notionapi.Pagination{PageSize: 10})
+	if err != nil {
+		return "", err
+	}
+	databases := res.Results
+	if len(databases) == 0 {
+		return "", fmt.Errorf("no database found")
+	}
+	database := databases[0]
+	logrus.Info("%#v", database)
+	return databases[0].ID.String(), nil
 }
