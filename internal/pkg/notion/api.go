@@ -151,6 +151,6 @@ func GetDatabaseID(ctx context.Context, token string) (string, error) {
 		return "", fmt.Errorf("no database found")
 	}
 	database := databases[0]
-	logrus.Info("%#v", database)
+	logrus.Infof("%#v", database)
 	return databases[0].ID.String(), nil
 }
