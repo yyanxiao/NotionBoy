@@ -21,3 +21,5 @@ Pipfile
 __debug_bin
 settings*local*
 .env
+data.db
+settings_local.yaml

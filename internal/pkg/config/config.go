@@ -1,9 +1,9 @@
 package config
 
 import (
+	"os"
 	"path"
 
-	"github.com/argoproj/pkg/file"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 )
@@ -13,6 +13,7 @@ type Config struct {
 	Service     Service     `mapstructure:"SERVICE"`
 	Databases   Databases   `mapstructure:"DATABASES"`
 	NotionOauth NotionOauth `mapstructure:"NOTION_OAUTH"`
+	R2Config    R2Config    `mapstructure:"R2_CONFIG"`
 }
 
 type Service struct {
@@ -59,7 +60,17 @@ type Wechat struct {
 	EncodingAESKey string `mapstructure:"ENCODING_AES_KEY"`
 }
 
+type R2Config struct {
+	Token string `mapstructure:"TOKEN"`
+	Url   string `mapstructure:"URL"`
+}
+
 var globalConfig = &Config{}
+
+func init() {
+	logrus.Debug("init config")
+	LoadConfig(globalConfig)
+}
 
 func GetConfig() *Config {
 	if globalConfig == nil {
@@ -78,7 +89,7 @@ func LoadConfig(c *Config) {
 		logrus.Error(err)
 	}
 
-	if file.Exists(path.Join(rootPath, "settings_local.yaml")) {
+	if fileExists(path.Join(rootPath, "settings_local.yaml")) {
 		viper.SetConfigName("settings_local")
 		err = viper.MergeInConfig()
 		if err != nil {
@@ -91,4 +102,9 @@ func LoadConfig(c *Config) {
 	if err != nil {
 		logrus.Error(err)
 	}
+}
+
+func fileExists(path string) bool {
+	_, err := os.Stat(path)
+	return !os.IsNotExist(err)
 }
