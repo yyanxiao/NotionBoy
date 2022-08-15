@@ -27,12 +27,12 @@ type Content struct {
 }
 
 func (c *Content) parseTags() {
-	regexp, _ := regexp.Compile(`#.*? `)
-	match := regexp.FindAllString(c.Text, -1)
+	r, _ := regexp.Compile(`#(.+?)($|\s)`)
+	match := r.FindAllStringSubmatch(c.Text, -1)
 	if len(match) > 0 {
 		tags := make([]string, 0)
 		for _, m := range match {
-			tag := strings.Trim(m, "# ")
+			tag := strings.Trim(m[1], "# ")
 			tags = append(tags, tag)
 		}
 		c.Tags = tags

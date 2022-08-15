@@ -52,3 +52,11 @@ func TestCreateNewRecord(t *testing.T) {
 	respMsg, err := CreateNewRecord(ctx, notionConfig, content)
 	assert.Nil(t, err, respMsg)
 }
+
+func TestParseContent(t *testing.T) {
+	c := Content{
+		Text: "#hello #world\n #我\t#🤔 #end",
+	}
+	c.parseTags()
+	assert.Equal(t, []string{"hello", "world", "我", "🤔", "end"}, c.Tags)
+}
