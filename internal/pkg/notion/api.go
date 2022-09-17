@@ -2,14 +2,17 @@ package notion
 
 import (
 	"context"
-	"time"
-
 	"fmt"
 	"regexp"
 	"strings"
+	"time"
+
+	"notionboy/internal/pkg/config"
 
 	"github.com/jomei/notionapi"
 	"github.com/sirupsen/logrus"
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
 )
 
 type NotionConfig struct {
@@ -21,12 +24,21 @@ func GetNotionClient(token string) *notionapi.Client {
 	return notionapi.NewClient(notionapi.Token(token), func(c *notionapi.Client) {})
 }
 
-type Content struct {
-	Tags []string `json:"tags"`
-	Text string   `json:"text"`
+type FulltextContent struct {
+	URL      string `json:"url"`
+	Title    string `json:"title"`
+	ImageURL string `json:"image_url"`
+	PDFURL   string `json:"pdf_url"`
 }
 
-func (c *Content) parseTags() {
+type Content struct {
+	Tags       []string        `json:"tags"`
+	Text       string          `json:"text"`
+	IsFulltext bool            `json:"is_fulltext"`
+	Fulltext   FulltextContent `json:"fulltext"`
+}
+
+func (c *Content) parseTags(ctx context.Context) {
 	r, _ := regexp.Compile(`#(.+?)($|\s)`)
 	match := r.FindAllStringSubmatch(c.Text, -1)
 	if len(match) > 0 {
@@ -34,14 +46,32 @@ func (c *Content) parseTags() {
 		for _, m := range match {
 			tag := strings.Trim(m[1], "# ")
 			tags = append(tags, tag)
+			if tag == config.CMD_FULLTEXT || tag == config.CMD_FULLTEXT_PDF {
+				c.parseFulltextURL(ctx, tag)
+			}
 		}
 		c.Tags = tags
 	}
 }
 
-func CreateNewRecord(ctx context.Context, notionConfig *NotionConfig, content *Content) (string, error) {
+func (c *Content) parseFulltextURL(ctx context.Context, tag string) {
+	r, _ := regexp.Compile(`https?://(www.)?[-a-zA-Z0-9@:%._+~#=]{2,256}.[a-z]{2,4}\b([-a-zA-Z0-9@:%_+.~#?&//=]*)`)
+	match := r.FindAllStringSubmatch(c.Text, -1)
+	if len(match) > 0 {
+		// only save last url
+		for _, m := range match {
+			c.Fulltext.URL = m[0]
+			c.IsFulltext = true
+		}
+	}
 
-	content.parseTags()
+	if c.IsFulltext {
+		c.processFulltextSnapshot(ctx, tag)
+	}
+}
+
+func CreateNewRecord(ctx context.Context, notionConfig *NotionConfig, content *Content) (string, error) {
+	content.parseTags(ctx)
 
 	var multiSelect []notionapi.Option
 
@@ -50,6 +80,12 @@ func CreateNewRecord(ctx context.Context, notionConfig *NotionConfig, content *C
 			Name: tag,
 		}
 		multiSelect = append(multiSelect, selectOption)
+	}
+
+	title := content.Text
+
+	if content.IsFulltext && content.Fulltext.Title != "" {
+		title = content.Fulltext.Title
 	}
 
 	databasePageProperties := notionapi.Properties{
@@ -70,7 +106,7 @@ func CreateNewRecord(ctx context.Context, notionConfig *NotionConfig, content *C
 				{
 					Type: "text",
 					Text: notionapi.Text{
-						Content: content.Text,
+						Content: title,
 					},
 				},
 			},
@@ -89,6 +125,11 @@ func CreateNewRecord(ctx context.Context, notionConfig *NotionConfig, content *C
 		},
 		Properties: databasePageProperties,
 	}
+
+	if content.IsFulltext && (content.Fulltext.ImageURL != "" || content.Fulltext.PDFURL != "") {
+		buildFulltextContent(pageCreateRequest, content)
+	}
+
 	client := notionapi.NewClient(notionapi.Token(notionConfig.BearerToken), func(c *notionapi.Client) {})
 	page, err := client.Page.Create(ctx, pageCreateRequest)
 	var msg string
@@ -112,7 +153,7 @@ func CreateNewMediaRecord(ctx context.Context, notionConfig *NotionConfig, media
 				{
 					Type: "text",
 					Text: notionapi.Text{
-						Content: strings.Title(mediaType) + " " + time.Now().UTC().In(loc).Format(time.RFC3339),
+						Content: cases.Title(language.English).String(mediaType) + " " + time.Now().UTC().In(loc).Format(time.RFC3339),
 					},
 				},
 			},

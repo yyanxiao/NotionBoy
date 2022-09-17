@@ -2,6 +2,7 @@ package r2
 
 import (
 	"context"
+	"notionboy/internal/pkg/config"
 	"time"
 
 	"github.com/go-resty/resty/v2"
@@ -22,6 +23,10 @@ type R2 interface {
 type R2Client struct {
 	Token string
 	Url   string
+}
+
+func New() R2 {
+	return NewR2Client(config.GetConfig().R2Config.Token, config.GetConfig().R2Config.Url)
 }
 
 func NewR2Client(token, url string) R2 {

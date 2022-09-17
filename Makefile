@@ -16,10 +16,10 @@ static: init
 run:
 	go run ./cmd/notionboy/main.go
 
-rund: build-docker
-	docker run --rm ${IMAGE_NAME}:${IMAGE_TAG}
+rund:
+	docker run --rm -v `pwd`/data.db:/service/data.db -v `pwd`/settings_local.yaml:/service/settings_local.yaml --net=host ${IMAGE_NAME}:${IMAGE_TAG}
 
-build-docker:
+buildd:
 	docker build -t ${IMAGE_NAME}:${IMAGE_TAG} .
 
 clean:

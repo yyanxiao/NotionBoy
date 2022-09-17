@@ -1,11 +1,12 @@
 package wxgzh
 
 import (
+	"time"
+
 	"notionboy/internal/pkg/config"
 	"notionboy/internal/pkg/db"
 	notion "notionboy/internal/pkg/notion"
 	"notionboy/internal/pkg/utils"
-	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/silenceper/wechat/v2/officialaccount/message"
@@ -25,12 +26,17 @@ func (ex *OfficialAccount) messageHandler(c *gin.Context, msg *message.MixMessag
 	content := transformToNotionContent(msg)
 	memCache := utils.GetCache()
 	userCache := memCache.Get(userID)
-	log.Infof("UserID: %s, content: %s, msgType: %s, userCache: %s", userID, content, msg.MsgType, userCache)
+	log.Infof("UserID: %s, content: %v, msgType: %s, userCache: %s", userID, content, msg.MsgType, userCache)
 
-	if msg.Content == config.CMD_BIND {
+	switch msg.Content {
+	case config.CMD_BIND:
 		return bindNotion(c, msg)
-	} else if msg.Content == config.CMD_UNBIND {
+	case config.CMD_UNBIND:
 		return unBindingNotion(c, msg)
+	case config.CMD_HELP:
+		return helpInfo(c, msg)
+	case config.CMD_HELP_ZH:
+		return helpInfo(c, msg)
 	}
 
 	// 获取用户信息
@@ -45,7 +51,9 @@ func (ex *OfficialAccount) messageHandler(c *gin.Context, msg *message.MixMessag
 		notionConfig := &notion.NotionConfig{BearerToken: accountInfo.AccessToken, DatabaseID: accountInfo.DatabaseID}
 		// 如果不是最新的 Scheam，更新 Schema
 		if !accountInfo.IsLatestSchema {
-			notion.UpdateDatabaseProperties(c, notionConfig)
+			if _, err := notion.UpdateDatabaseProperties(c, notionConfig); err != nil {
+				log.Errorf("UpdateDatabaseProperties error: %s", err.Error())
+			}
 			db.UpdateIsLatestSchema(accountInfo.DatabaseID, true)
 		}
 

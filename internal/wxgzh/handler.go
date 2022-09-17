@@ -28,3 +28,7 @@ func bindNotion(c *gin.Context, msg *message.MixMessage) *message.Reply {
 	text += url
 	return &message.Reply{MsgType: message.MsgTypeText, MsgData: message.NewText(text)}
 }
+
+func helpInfo(c *gin.Context, msg *message.MixMessage) *message.Reply {
+	return &message.Reply{MsgType: message.MsgTypeText, MsgData: message.NewText(config.MSG_HELP)}
+}

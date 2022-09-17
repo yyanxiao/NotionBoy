@@ -2,6 +2,7 @@ package db
 
 import (
 	"fmt"
+
 	"notionboy/internal/pkg/config"
 
 	"github.com/sirupsen/logrus"
@@ -77,8 +78,13 @@ func GetDBConn() *gorm.DB {
 
 func InitDB() {
 	db := GetDBConn()
-	db.AutoMigrate(&Account{})
-	db.AutoMigrate(&NotionOauthInfo{})
+	if err := db.AutoMigrate(&Account{}); err != nil {
+		logrus.Fatalf("Account AutoMigrate error: %s", err.Error())
+	}
+
+	if err := db.AutoMigrate(&NotionOauthInfo{}); err != nil {
+		logrus.Fatalf("NotionOauthInfo AutoMigrate error: %s", err.Error())
+	}
 }
 
 func QueryAccountByWxUser(wxUserID string) *Account {
