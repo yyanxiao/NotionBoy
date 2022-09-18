@@ -1,8 +1,6 @@
 package wxgzh
 
 import (
-	"time"
-
 	"notionboy/internal/pkg/config"
 	"notionboy/internal/pkg/db"
 	notion "notionboy/internal/pkg/notion"
@@ -12,6 +10,17 @@ import (
 	"github.com/silenceper/wechat/v2/officialaccount/message"
 	log "github.com/sirupsen/logrus"
 )
+
+var supportMsgTypeMap map[message.MsgType]bool
+
+func init() {
+	supportMsgTypeMap = map[message.MsgType]bool{
+		message.MsgTypeText:  true,
+		message.MsgTypeImage: true,
+		message.MsgTypeVideo: true,
+		message.MsgTypeVoice: true,
+	}
+}
 
 func (ex *OfficialAccount) messageHandler(c *gin.Context, msg *message.MixMessage) *message.Reply {
 	if msg.MsgType == message.MsgType(message.EventSubscribe) {
@@ -44,43 +53,53 @@ func (ex *OfficialAccount) messageHandler(c *gin.Context, msg *message.MixMessag
 	if accountInfo.ID == 0 {
 		return bindNotion(c, msg)
 	}
+	n := &notion.Notion{BearerToken: accountInfo.AccessToken, DatabaseID: accountInfo.DatabaseID}
 
-	// 保存内容到 Notion
-	var ch chan string
-	go func(ch chan string) {
-		notionConfig := &notion.NotionConfig{BearerToken: accountInfo.AccessToken, DatabaseID: accountInfo.DatabaseID}
-		// 如果不是最新的 Scheam，更新 Schema
-		if !accountInfo.IsLatestSchema {
-			if _, err := notion.UpdateDatabaseProperties(c, notionConfig); err != nil {
-				log.Errorf("UpdateDatabaseProperties error: %s", err.Error())
-			}
-			db.UpdateIsLatestSchema(accountInfo.DatabaseID, true)
+	// 如果是不支持的类型，直接返回不支持的错误
+	if _, ok := supportMsgTypeMap[msg.MsgType]; !ok {
+		return &message.Reply{MsgType: message.MsgTypeText, MsgData: message.NewText(config.MSG_UNSUPPOERT)}
+	}
+
+	// 创建初始 Record
+	res, pageID, err := n.CreateRecord(c, &notion.Content{
+		Text: "内容正在更新，请稍等",
+	})
+	if err == nil {
+		n.PageID = pageID
+		go ex.updateNotionContent(c, msg, n, accountInfo, content)
+	}
+	return &message.Reply{MsgType: message.MsgTypeText, MsgData: message.NewText(res)}
+}
+
+func updateLatestSchema(ctx *gin.Context, accountInfo *db.Account, notionConfig *notion.Notion) {
+	// 如果不是最新的 Scheam，更新 Schema
+	if !accountInfo.IsLatestSchema {
+		if _, err := notion.UpdateDatabaseProperties(ctx, notionConfig); err != nil {
+			log.Errorf("UpdateDatabaseProperties error: %s", err.Error())
 		}
+		db.UpdateIsLatestSchema(accountInfo.DatabaseID, true)
+	}
+}
 
-		switch msg.MsgType {
-		case message.MsgTypeText:
-			// 保存文本信息到 Notion
-			res, _ := notion.CreateNewRecord(c, notionConfig, content)
-			ch <- res
-		case message.MsgTypeImage, message.MsgTypeVideo, message.MsgTypeVoice:
-			// 保存媒体信息到 Notion
-			media := NewMedia(ex.officialAccount.GetContext())
-			getMediaResp, err := media.getMedia(c, msg.MediaID, accountInfo.DatabaseID)
-			if err != nil {
-				ch <- err.Error()
-			}
-			res, _ := notion.CreateNewMediaRecord(c, notionConfig, getMediaResp.R2URL, getMediaResp.ContentType)
-			ch <- res
-		default:
-			ch <- config.MSG_UNSUPPOERT
+func (ex *OfficialAccount) updateNotionContent(ctx *gin.Context, msg *message.MixMessage, n *notion.Notion, accountInfo *db.Account, content *notion.Content) {
+	updateLatestSchema(ctx, accountInfo, n)
+	content.Process(ctx)
+	switch msg.MsgType {
+	case message.MsgTypeText:
+		// 保存文本信息到 Notion
+		n.UpdateRecord(ctx, content)
+	case message.MsgTypeImage, message.MsgTypeVideo, message.MsgTypeVoice:
+		// 保存媒体信息到 Notion
+		media := NewMedia(ex.officialAccount.GetContext())
+		getMediaResp, err := media.getMedia(ctx, msg.MediaID, accountInfo.DatabaseID)
+		if err != nil {
+			// todo
+			return
 		}
-	}(ch)
-
-	// 设置超时时间
-	select {
-	case s := <-ch:
-		return &message.Reply{MsgType: message.MsgTypeText, MsgData: message.NewText(s)}
-	case <-time.After(time.Second * 3):
-		return &message.Reply{MsgType: message.MsgTypeText, MsgData: message.NewText(config.MSG_PROCESSING)}
+		content.Media = notion.MediaContent{
+			URL:  getMediaResp.R2URL,
+			Type: getMediaResp.ContentType,
+		}
+		n.UpdateRecord(ctx, content)
 	}
 }

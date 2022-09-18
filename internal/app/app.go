@@ -8,7 +8,7 @@ import (
 	"notionboy/internal/wxgzh"
 
 	"github.com/gin-gonic/gin"
-	"github.com/silenceper/wechat/v2"
+	wechat "github.com/silenceper/wechat/v2"
 	"github.com/sirupsen/logrus"
 )
 

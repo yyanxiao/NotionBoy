@@ -16,15 +16,15 @@ func bindNotion(ctx context.Context, token string) (string, error) {
 	}
 
 	// 第一次绑定的时候自动建立 Text 和 Tags 等 DatabaseProperties，确保绑定成功
-	cfg := &NotionConfig{BearerToken: token, DatabaseID: databaseID}
-	msg, err := UpdateDatabaseProperties(ctx, cfg)
+	n := &Notion{BearerToken: token, DatabaseID: databaseID}
+	msg, err := UpdateDatabaseProperties(ctx, n)
 	logrus.Infof("Update database: %s", msg)
 	if err != nil {
 		return "", err
 	}
 
 	content := &Content{Text: "#NotionBoy 欢迎🎉使用 Notion Boy!"}
-	msg, err = CreateNewRecord(ctx, cfg, content)
+	msg, _, err = n.CreateRecord(ctx, content)
 	logrus.Infof("CreateNewRecord: %s", msg)
 	if err != nil {
 		return "", err
@@ -34,7 +34,7 @@ func bindNotion(ctx context.Context, token string) (string, error) {
 
 func getDatabaseID(ctx context.Context, token string) (string, error) {
 	logrus.Debug("Token is: ", token)
-	cli := GetNotionClient(token)
+	cli := notionapi.NewClient(notionapi.Token(token), func(c *notionapi.Client) {})
 	searchFilter := make(map[string]string)
 	searchFilter["property"] = "object"
 	searchFilter["value"] = "database"
@@ -59,9 +59,8 @@ func getDatabaseID(ctx context.Context, token string) (string, error) {
 	return databaseId, nil
 }
 
-func UpdateDatabaseProperties(ctx context.Context, cfg *NotionConfig) (string, error) {
-	databaseUpdateRequest := defaultDatabaseProperties()
-	return updateDatabase(ctx, cfg, databaseUpdateRequest)
+func UpdateDatabaseProperties(ctx context.Context, cfg *Notion) (string, error) {
+	return cfg.UpdateDatabase(ctx, defaultDatabaseProperties())
 }
 
 func defaultDatabaseProperties() *notionapi.DatabaseUpdateRequest {
@@ -93,17 +92,4 @@ func defaultDatabaseProperties() *notionapi.DatabaseUpdateRequest {
 			},
 		},
 	}
-}
-
-func updateDatabase(ctx context.Context, notionConfig *NotionConfig, req *notionapi.DatabaseUpdateRequest) (string, error) {
-	client := notionapi.NewClient(notionapi.Token(notionConfig.BearerToken), func(c *notionapi.Client) {})
-	database, err := client.Database.Update(ctx, notionapi.DatabaseID(notionConfig.DatabaseID), req)
-	var msg string
-	if err != nil {
-		msg = fmt.Sprintf("Update Database 失败，失败原因, %v", err)
-		logrus.Error(msg)
-	} else {
-		msg = fmt.Sprintf("成功更新 Database: %s", database.ID.String())
-	}
-	return msg, err
 }
