@@ -100,6 +100,7 @@ func (ex *OfficialAccount) updateNotionContent(ctx *gin.Context, msg *message.Mi
 			URL:  getMediaResp.R2URL,
 			Type: getMediaResp.ContentType,
 		}
+		content.IsMedia = true
 		n.UpdateRecord(ctx, content)
 	}
 }
