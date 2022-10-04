@@ -2,11 +2,10 @@ package notion
 
 import (
 	"context"
+	"notionboy/internal/pkg/config"
 	"regexp"
 	"strings"
 	"time"
-
-	"notionboy/internal/pkg/config"
 
 	"github.com/jomei/notionapi"
 

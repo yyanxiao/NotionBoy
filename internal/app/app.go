@@ -2,10 +2,10 @@ package app
 
 import (
 	"fmt"
-
 	"notionboy/internal/pkg/config"
-	notion "notionboy/internal/pkg/notion"
 	"notionboy/internal/wxgzh"
+
+	notion "notionboy/internal/pkg/notion"
 
 	"github.com/gin-gonic/gin"
 	wechat "github.com/silenceper/wechat/v2"
