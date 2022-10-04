@@ -2,7 +2,6 @@ package fulltext
 
 import (
 	"context"
-
 	"notionboy/internal/pkg/config"
 
 	"github.com/chromedp/cdproto/page"

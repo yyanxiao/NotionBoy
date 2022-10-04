@@ -2,7 +2,6 @@ package db
 
 import (
 	"fmt"
-
 	"notionboy/internal/pkg/config"
 
 	"github.com/sirupsen/logrus"

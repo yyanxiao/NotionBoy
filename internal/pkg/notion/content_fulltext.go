@@ -3,7 +3,6 @@ package notion
 import (
 	"context"
 	"net/url"
-
 	"notionboy/internal/pkg/config"
 	"notionboy/internal/pkg/fulltext"
 	"notionboy/internal/pkg/r2"

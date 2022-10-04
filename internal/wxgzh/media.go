@@ -32,7 +32,7 @@ func init() {
 	reg, _ = regexp.Compile(`filename="(.*)"`)
 }
 
-//Media 临时素材管理
+// Media 临时素材管理
 type Media struct {
 	*oactx.Context
 }
