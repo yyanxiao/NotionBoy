@@ -3,8 +3,10 @@ package notion
 import (
 	"fmt"
 	"net/http"
+	"notionboy/db/ent"
+	"notionboy/db/ent/account"
 	"notionboy/internal/pkg/config"
-	"notionboy/internal/pkg/db"
+	"notionboy/internal/pkg/db/dao"
 	"strings"
 
 	"github.com/gin-gonic/gin"
@@ -80,12 +82,15 @@ func (o *oauthManager) OAuthCallback(g *gin.Context) {
 		return
 	}
 
-	db.SaveAccount(&db.Account{
+	if err := dao.SaveAccount(g, &ent.Account{
 		UserID:         userID,
-		UserType:       userType,
+		UserType:       account.UserType(userType),
 		AccessToken:    token,
 		DatabaseID:     databaseID,
 		IsLatestSchema: true,
-	})
-	g.Data(http.StatusOK, "text/html; charset=utf-8", []byte(config.MSG_BIND_SUCCESS))
+	}); err != nil {
+		g.Data(http.StatusInternalServerError, "text/html; charset=utf-8", []byte(err.Error()))
+	} else {
+		g.Data(http.StatusOK, "text/html; charset=utf-8", []byte(config.MSG_BIND_SUCCESS))
+	}
 }

@@ -25,3 +25,4 @@ settings*local*
 .env
 data.db
 settings_local.yaml
+docker-compose.override.yaml

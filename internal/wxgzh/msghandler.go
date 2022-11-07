@@ -1,8 +1,9 @@
 package wxgzh
 
 import (
+	"notionboy/db/ent"
 	"notionboy/internal/pkg/config"
-	"notionboy/internal/pkg/db"
+	"notionboy/internal/pkg/db/dao"
 	notion "notionboy/internal/pkg/notion"
 	"notionboy/internal/pkg/utils"
 
@@ -49,7 +50,11 @@ func (ex *OfficialAccount) messageHandler(c *gin.Context, msg *message.MixMessag
 	}
 
 	// 获取用户信息
-	accountInfo := db.QueryAccountByWxUser(msg.GetOpenID())
+	accountInfo, err := dao.QueryAccountByWxUser(c, msg.GetOpenID())
+	if err != nil {
+		// TODO
+		return &message.Reply{MsgType: message.MsgTypeText, MsgData: message.NewText(err.Error())}
+	}
 	if accountInfo.ID == 0 {
 		return bindNotion(c, msg)
 	}
@@ -71,17 +76,17 @@ func (ex *OfficialAccount) messageHandler(c *gin.Context, msg *message.MixMessag
 	return &message.Reply{MsgType: message.MsgTypeText, MsgData: message.NewText(res)}
 }
 
-func updateLatestSchema(ctx *gin.Context, accountInfo *db.Account, notionConfig *notion.Notion) {
+func updateLatestSchema(ctx *gin.Context, accountInfo *ent.Account, notionConfig *notion.Notion) {
 	// 如果不是最新的 Scheam，更新 Schema
 	if !accountInfo.IsLatestSchema {
 		if _, err := notion.UpdateDatabaseProperties(ctx, notionConfig); err != nil {
 			log.Errorf("UpdateDatabaseProperties error: %s", err.Error())
 		}
-		db.UpdateIsLatestSchema(accountInfo.DatabaseID, true)
+		_ = dao.UpdateIsLatestSchema(ctx, accountInfo.DatabaseID, true)
 	}
 }
 
-func (ex *OfficialAccount) updateNotionContent(ctx *gin.Context, msg *message.MixMessage, n *notion.Notion, accountInfo *db.Account, content *notion.Content) {
+func (ex *OfficialAccount) updateNotionContent(ctx *gin.Context, msg *message.MixMessage, n *notion.Notion, accountInfo *ent.Account, content *notion.Content) {
 	updateLatestSchema(ctx, accountInfo, n)
 	content.Process(ctx)
 	switch msg.MsgType {

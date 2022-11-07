@@ -25,6 +25,7 @@ const (
 `
 
 	MSG_UNBIND_SUCCESS = "成功解除 Notion 绑定！"
+	MSG_UNBIND_FAILED  = "解除 Notion 绑定失败！失败原因: "
 	MSG_UNSUPPOERT     = "不支持的消息类型!"
 	MSG_PROCESSING     = "正在处理，请稍后去 Notion 查看"
 	MSG_HELP           = `
