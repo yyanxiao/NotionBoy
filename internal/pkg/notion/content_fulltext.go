@@ -68,7 +68,7 @@ func (c *FulltextContent) BuildBlocks() []notionapi.Block {
 			RichText: []notionapi.RichText{
 				{
 					Type: "text",
-					Text: notionapi.Text{
+					Text: &notionapi.Text{
 						Content: "\n阅读原文\n",
 						Link: &notionapi.Link{
 							Url: c.URL,
@@ -120,7 +120,7 @@ func (c *FulltextContent) BuildBlocks() []notionapi.Block {
 			RichText: []notionapi.RichText{
 				{
 					Type: "text",
-					Text: notionapi.Text{
+					Text: &notionapi.Text{
 						Content: "打开原始文件",
 						Link: &notionapi.Link{
 							Url: originMediaURL,

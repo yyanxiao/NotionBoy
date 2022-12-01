@@ -26,4 +26,4 @@ clean:
 	rm -rf ./bin ./vendor go.sum
 
 ent:
-	 go generate ./db/ent/
+	go generate ./db/ent/

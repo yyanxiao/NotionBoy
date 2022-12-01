@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"notionboy/internal/pkg/config"
+	"notionboy/internal/pkg/logger"
 
 	notion "notionboy/internal/pkg/notion"
 
@@ -13,7 +14,6 @@ import (
 	"github.com/silenceper/wechat/v2/officialaccount"
 	offConfig "github.com/silenceper/wechat/v2/officialaccount/config"
 	"github.com/silenceper/wechat/v2/officialaccount/message"
-	log "github.com/sirupsen/logrus"
 )
 
 // OfficialAccount 公众号操作样例
@@ -32,7 +32,7 @@ func NewOfficialAccount(wc *wechat.Wechat) *OfficialAccount {
 		Token:          wechatConfig.Token,
 		EncodingAESKey: wechatConfig.EncodingAESKey,
 	}
-	log.Debug("AppID: ", offCfg.AppID)
+	logger.SugaredLogger.Debug("AppID: ", offCfg.AppID)
 	wc.SetCache(cache.NewMemory())
 	officialAccount := wc.GetOfficialAccount(offCfg)
 	return &OfficialAccount{
@@ -61,13 +61,13 @@ func (ex *OfficialAccount) Serve(c *gin.Context) {
 	// 处理消息接收以及回复
 	err := server.Serve()
 	if err != nil {
-		log.Errorf("Serve Error, err=%v", err)
+		logger.SugaredLogger.Errorf("Serve Error, err=%v", err)
 		return
 	}
 	// 发送回复的消息
 	err = server.Send()
 	if err != nil {
-		log.Errorf("Send Error, err=%v", err)
+		logger.SugaredLogger.Errorf("Send Error, err=%v", err)
 		return
 	}
 }
@@ -76,7 +76,7 @@ func (ex *OfficialAccount) Serve(c *gin.Context) {
 func (ex *OfficialAccount) GetAccessToken(c *gin.Context) {
 	ak, err := ex.officialAccount.GetAccessToken()
 	if err != nil {
-		log.Errorf("get ak error, err=%v", err)
+		logger.SugaredLogger.Errorf("get ak error, err=%v", err)
 		RenderError(c, err)
 		return
 	}
@@ -87,7 +87,7 @@ func (ex *OfficialAccount) GetAccessToken(c *gin.Context) {
 func (ex *OfficialAccount) GetCallbackIP(c *gin.Context) {
 	ipList, err := ex.officialAccount.GetBasic().GetCallbackIP()
 	if err != nil {
-		log.Errorf("GetCallbackIP error, err=%v", err)
+		logger.SugaredLogger.Errorf("GetCallbackIP error, err=%v", err)
 		RenderError(c, err)
 		return
 	}
@@ -98,7 +98,7 @@ func (ex *OfficialAccount) GetCallbackIP(c *gin.Context) {
 func (ex *OfficialAccount) GetAPIDomainIP(c *gin.Context) {
 	ipList, err := ex.officialAccount.GetBasic().GetAPIDomainIP()
 	if err != nil {
-		log.Errorf("GetAPIDomainIP error, err=%v", err)
+		logger.SugaredLogger.Errorf("GetAPIDomainIP error, err=%v", err)
 		RenderError(c, err)
 		return
 	}
@@ -109,7 +109,7 @@ func (ex *OfficialAccount) GetAPIDomainIP(c *gin.Context) {
 func (ex *OfficialAccount) ClearQuota(c *gin.Context) {
 	err := ex.officialAccount.GetBasic().ClearQuota()
 	if err != nil {
-		log.Errorf("ClearQuota error, err=%v", err)
+		logger.SugaredLogger.Errorf("ClearQuota error, err=%v", err)
 		RenderError(c, err)
 		return
 	}

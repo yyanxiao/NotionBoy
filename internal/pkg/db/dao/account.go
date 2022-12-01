@@ -22,6 +22,8 @@ func SaveAccount(ctx context.Context, acc *ent.Account) error {
 		SetDatabaseID(acc.DatabaseID).
 		SetAccessToken(acc.AccessToken).
 		SetIsLatestSchema(acc.IsLatestSchema).
+		OnConflict().
+		UpdateNewValues().
 		Exec(ctx)
 }
 

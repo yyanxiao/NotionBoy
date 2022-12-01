@@ -3,9 +3,9 @@ package db
 import (
 	"context"
 	"fmt"
-	"log"
 	"notionboy/db/ent"
 	"notionboy/internal/pkg/config"
+	"notionboy/internal/pkg/logger"
 	"time"
 
 	"entgo.io/ent/dialect/sql"
@@ -29,16 +29,20 @@ func GetClient() *ent.Client {
 }
 
 func getDbConfig() (driver string, dsn string) {
-	database := config.GetConfig().Databases
-	if database.MySQL.Host != "" {
+	database := config.GetConfig().Database
+	logger.SugaredLogger.Debugw("Get database configuration", "driver", database)
+	switch database.Driver {
+	case config.DB_DRIVER_SQLITE:
+		driver = "sqlite3"
+		dsn = fmt.Sprintf("file:%s?_fk=1&_busy_timeout=5000&_synchronous=NORMAL", config.GetConfig().Database.Sqlite.File)
+	case config.DB_DRIVER_MYSQL:
 		driver = "mysql"
 		m := database.MySQL
 		fmt.Printf("Connect Mysql %s:%d", m.Host, m.Port)
 		dsn = fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=utf8&parseTime=True&loc=Local",
-			m.User, m.Pass, m.Host, m.Port, m.Database)
-	} else {
-		driver = "sqlite3"
-		dsn = fmt.Sprintf("file:%s?_fk=1&_busy_timeout=5000&_synchronous=NORMAL", config.GetConfig().Databases.Sqlite.File)
+			m.User, m.Pass, m.Host, m.Port, m.DB)
+	default:
+		panic("invalid database driver")
 	}
 	return driver, dsn
 }
@@ -60,6 +64,6 @@ func openDB() (*ent.Client, error) {
 func migrateDB() {
 	ctx := context.Background()
 	if err := client.Schema.Create(ctx); err != nil {
-		log.Fatalf("failed creating schema resources: %v", err)
+		logger.SugaredLogger.Fatalw("Failed creating schema resources", "err", err)
 	}
 }

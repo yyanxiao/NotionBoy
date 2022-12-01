@@ -5,12 +5,12 @@ import (
 	"notionboy/db/ent/account"
 	"notionboy/internal/pkg/config"
 	"notionboy/internal/pkg/db/dao"
+	"notionboy/internal/pkg/logger"
 
 	notion "notionboy/internal/pkg/notion"
 
 	"github.com/gin-gonic/gin"
 	"github.com/silenceper/wechat/v2/officialaccount/message"
-	log "github.com/sirupsen/logrus"
 )
 
 func unBindingNotion(c *gin.Context, msg *message.MixMessage) *message.Reply {
@@ -21,13 +21,13 @@ func unBindingNotion(c *gin.Context, msg *message.MixMessage) *message.Reply {
 }
 
 func bindNotion(c *gin.Context, msg *message.MixMessage) *message.Reply {
-	log.Warn("----- bindNotion ------")
+	logger.SugaredLogger.Warn("----- bindNotion ------")
 	userID := msg.GetOpenID()
 	userType := account.UserTypeWechat
 	stage := fmt.Sprintf("%s:%s", userType, userID)
 	oauthMgr := notion.GetOauthManager()
 	url := oauthMgr.OAuthURL(stage)
-	log.Info("OAuthURL: ", url)
+	logger.SugaredLogger.Info("OAuthURL: ", url)
 	text := config.MSG_BINDING
 	text += url
 	return &message.Reply{MsgType: message.MsgTypeText, MsgData: message.NewText(text)}
@@ -35,4 +35,8 @@ func bindNotion(c *gin.Context, msg *message.MixMessage) *message.Reply {
 
 func helpInfo(c *gin.Context, msg *message.MixMessage) *message.Reply {
 	return &message.Reply{MsgType: message.MsgTypeText, MsgData: message.NewText(config.MSG_HELP)}
+}
+
+func sosInfo(c *gin.Context, msg *message.MixMessage) *message.Reply {
+	return &message.Reply{MsgType: message.MsgTypeImage, MsgData: message.NewImage(config.GetConfig().Wechat.AuthorImageID)}
 }

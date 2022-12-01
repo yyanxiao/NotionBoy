@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"notionboy/internal/pkg/config"
+	"notionboy/internal/pkg/logger"
 	"notionboy/internal/pkg/r2"
 	"regexp"
 	"strings"
@@ -13,7 +14,6 @@ import (
 
 	"github.com/go-resty/resty/v2"
 	oactx "github.com/silenceper/wechat/v2/officialaccount/context"
-	"github.com/sirupsen/logrus"
 )
 
 const GET_MEDIA_URL = "https://api.weixin.qq.com/cgi-bin/media/get"
@@ -27,8 +27,8 @@ var (
 func init() {
 	httpClient = resty.New()
 	httpClient.SetTimeout(60 * time.Second)
-	r2Client = r2.NewR2Client(config.GetConfig().R2Config.Token, config.GetConfig().R2Config.Url)
-	logrus.Debugf("init r2Client: %v", r2Client)
+	r2Client = r2.NewR2Client(config.GetConfig().R2.Token, config.GetConfig().R2.Url)
+	logger.SugaredLogger.Debugf("init r2Client: %v", r2Client)
 	reg, _ = regexp.Compile(`filename="(.*)"`)
 }
 

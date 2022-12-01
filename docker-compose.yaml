@@ -5,3 +5,8 @@ services:
     image: ghcr.io/vaayne/notionboy:latest
     ports:
       - 8081
+
+  browserless:
+    image: browserless/chrome
+    ports:
+      - 23000:3000

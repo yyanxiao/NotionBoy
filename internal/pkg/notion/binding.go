@@ -3,29 +3,31 @@ package notion
 import (
 	"context"
 	"fmt"
+	"notionboy/internal/pkg/config"
+	"notionboy/internal/pkg/logger"
 
 	"github.com/jomei/notionapi"
-	"github.com/sirupsen/logrus"
 )
 
 func bindNotion(ctx context.Context, token string) (string, error) {
 	// 获取用户绑定的 Database ID，如果有多个，只取找到的第一个
 	databaseID, err := getDatabaseID(ctx, token)
 	if err != nil {
+		logger.SugaredLogger.Errorw("Get notion database id error", "err", err)
 		return "", err
 	}
 
 	// 第一次绑定的时候自动建立 Text 和 Tags 等 DatabaseProperties，确保绑定成功
 	n := &Notion{BearerToken: token, DatabaseID: databaseID}
 	msg, err := UpdateDatabaseProperties(ctx, n)
-	logrus.Infof("Update database: %s", msg)
 	if err != nil {
-		return "", err
+		logger.SugaredLogger.Errorw("Update database error", "err", err)
 	}
 
-	content := &Content{Text: "#NotionBoy 欢迎🎉使用 Notion Boy!"}
+	logger.SugaredLogger.Debugw("Update database properties success", "msg", msg)
+	content := &Content{Text: config.MSG_WELCOME}
 	msg, _, err = n.CreateRecord(ctx, content)
-	logrus.Infof("CreateNewRecord: %s", msg)
+	logger.SugaredLogger.Infow("Create database record success", "msg", msg)
 	if err != nil {
 		return "", err
 	}
@@ -33,7 +35,6 @@ func bindNotion(ctx context.Context, token string) (string, error) {
 }
 
 func getDatabaseID(ctx context.Context, token string) (string, error) {
-	logrus.Debug("Token is: ", token)
 	cli := notionapi.NewClient(notionapi.Token(token), func(c *notionapi.Client) {})
 	searchFilter := make(map[string]string)
 	searchFilter["property"] = "object"
@@ -47,6 +48,7 @@ func getDatabaseID(ctx context.Context, token string) (string, error) {
 	}
 	res, err := cli.Search.Do(ctx, &searchReq)
 	if err != nil {
+		logger.SugaredLogger.Errorw("Search database error", "err", err)
 		return "", err
 	}
 	databases := res.Results
@@ -54,7 +56,8 @@ func getDatabaseID(ctx context.Context, token string) (string, error) {
 		return "", fmt.Errorf("至少需要绑定一个 Database")
 	}
 	database := databases[0].(*notionapi.Database)
-	logrus.Debugf("Find Database: %#v", database)
+
+	logger.SugaredLogger.Debugw("Found database", "database", database)
 	databaseId := database.ID.String()
 	return databaseId, nil
 }

@@ -101,7 +101,7 @@ func (c *Content) BuildPageProperties() *notionapi.Properties {
 			Title: []notionapi.RichText{
 				{
 					Type: "text",
-					Text: notionapi.Text{
+					Text: &notionapi.Text{
 						Content: c.buildTitle(),
 					},
 				},
@@ -112,7 +112,7 @@ func (c *Content) BuildPageProperties() *notionapi.Properties {
 			RichText: []notionapi.RichText{
 				{
 					Type: "text",
-					Text: notionapi.Text{
+					Text: &notionapi.Text{
 						Content: c.Text,
 					},
 				},

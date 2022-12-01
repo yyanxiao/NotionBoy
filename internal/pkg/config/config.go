@@ -1,75 +1,24 @@
 package config
 
 import (
-	"os"
-	"path"
+	"fmt"
+	"strings"
 
-	"github.com/sirupsen/logrus"
+	"github.com/fsnotify/fsnotify"
 	"github.com/spf13/viper"
 )
 
-type Config struct {
-	Wechat      Wechat      `mapstructure:"WECHAT"`
-	Service     Service     `mapstructure:"SERVICE"`
-	Databases   Databases   `mapstructure:"DATABASES"`
-	NotionOauth NotionOauth `mapstructure:"NOTION_OAUTH"`
-	R2Config    R2Config    `mapstructure:"R2_CONFIG"`
-}
-
-type Service struct {
-	Name string `mapstructure:"NAME"`
-	Host string `mapstructure:"HOST"`
-	Port string `mapstructure:"PORT"`
-	URL  string `mapstructure:"URL"`
-}
-
-type Notion struct {
-	BearerToken string `mapstructure:"BEARER_TOKEN"`
-	DatabaseID  string `mapstructure:"DATABASE_ID"`
-}
-
-type NotionOauth struct {
-	ClientID     string `mapstructure:"CLIENT_ID"`
-	ClientSecret string `mapstructure:"CLIENT_SECRET"`
-	RedirectURI  string `mapstructure:"REDIRECT_URI"`
-	AuthURL      string `mapstructure:"AUTH_URL"`
-	TokenURL     string `mapstructure:"TOKEN_URL"`
-}
-
-type Databases struct {
-	Sqlite Sqlite        `mapstructure:"SQLITE"`
-	MySQL  DatabaseMySQL `mapstructure:"MYSQL"`
-}
-
-type DatabaseMySQL struct {
-	Host     string `mapstructure:"HOST"`
-	Port     int    `mapstructure:"PORT"`
-	User     string `mapstructure:"USER"`
-	Pass     string `mapstructure:"PASS"`
-	Database string `mapstructure:"DATABASE"`
-}
-
-type Sqlite struct {
-	File string `mapstructure:"FILE"`
-}
-
-type Wechat struct {
-	AppID          string `mapstructure:"APP_ID"`
-	AppSecret      string `mapstructure:"APP_SECRET"`
-	Token          string `mapstructure:"TOKEN"`
-	EncodingAESKey string `mapstructure:"ENCODING_AES_KEY"`
-}
-
-type R2Config struct {
-	Token string `mapstructure:"TOKEN"`
-	Url   string `mapstructure:"URL"`
-}
-
 var globalConfig = &Config{}
 
+const (
+	SETTINGS_FOLDER        = "."
+	SETTINGS_NAME          = "settings"
+	SETTINGS_OVERRIDE_NAME = "settings_local"
+	SETTINGS_ENV_PREFIX    = "app"
+)
+
 func init() {
-	logrus.Debug("init config")
-	LoadConfig(globalConfig)
+	Load(globalConfig)
 }
 
 func GetConfig() *Config {
@@ -79,32 +28,44 @@ func GetConfig() *Config {
 	return globalConfig
 }
 
-func LoadConfig(c *Config) {
-	rootPath := "."
-	viper.AddConfigPath(rootPath)
-	viper.SetConfigName("settings")
-
-	err := viper.ReadInConfig()
-	if err != nil {
-		logrus.Error(err)
+// Load use viper to load config
+// read settings.{yaml/json/toml} and unmarshal to interface cfg
+// settings_local will override config in settings
+// support auto reload when file change
+// auto read config from env with prefix 'APP_' and will auto convert "_" to "."
+// for example APP_TELEGRAM_TOKEN will map to telegram.token
+// avoid to use "_" in config name for better env reading
+func Load(cfg interface{}) {
+	// read configs from seetings in root directory
+	viper.AddConfigPath("../../../")
+	viper.AddConfigPath(SETTINGS_FOLDER)
+	viper.SetConfigName(SETTINGS_NAME)
+	if err := viper.ReadInConfig(); err != nil {
+		panic(fmt.Errorf("fatal error config file: %w", err))
 	}
+	// read configs from settings_local
+	// this will override configs from settings
+	viper.SetConfigName(SETTINGS_OVERRIDE_NAME)
+	// ignore when settings_local not exists
+	_ = viper.MergeInConfig()
 
-	if fileExists(path.Join(rootPath, "settings_local.yaml")) {
-		viper.SetConfigName("settings_local")
-		err = viper.MergeInConfig()
-		if err != nil {
-			logrus.Error(err)
+	// env should start with app
+	// should use '_' instead of '.'
+	// for example APP_TELEGRAM_TOKEN map to telegram.token
+	viper.AutomaticEnv()
+	viper.SetEnvPrefix(SETTINGS_ENV_PREFIX)
+	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
+
+	loadConfig := func() {
+		if err := viper.Unmarshal(cfg); err != nil {
+			panic(fmt.Errorf("unable to decode into struct: %v", err))
 		}
 	}
-
-	viper.AutomaticEnv()
-	err = viper.Unmarshal(globalConfig)
-	if err != nil {
-		logrus.Error(err)
-	}
-}
-
-func fileExists(path string) bool {
-	_, err := os.Stat(path)
-	return !os.IsNotExist(err)
+	// autoreload watch config change
+	viper.OnConfigChange(func(e fsnotify.Event) {
+		fmt.Println("Reload config since file changed:", e.Name)
+		loadConfig()
+	})
+	loadConfig()
+	viper.WatchConfig()
 }

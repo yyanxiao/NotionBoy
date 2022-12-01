@@ -3,13 +3,13 @@ package app
 import (
 	"fmt"
 	"notionboy/internal/pkg/config"
+	"notionboy/internal/pkg/logger"
 	"notionboy/internal/wxgzh"
 
 	notion "notionboy/internal/pkg/notion"
 
 	"github.com/gin-gonic/gin"
 	wechat "github.com/silenceper/wechat/v2"
-	"github.com/sirupsen/logrus"
 )
 
 func Run() {
@@ -18,7 +18,7 @@ func Run() {
 	initNotionOauth(r)
 	svc := config.GetConfig().Service
 	if err := r.Run(fmt.Sprintf("%s:%s", svc.Host, svc.Port)); err != nil {
-		logrus.Fatalf("Start app error: %s", err.Error())
+		logger.SugaredLogger.Fatalw("Start service error", "err", err)
 	}
 }
 

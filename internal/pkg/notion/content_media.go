@@ -67,7 +67,7 @@ func (c *MediaContent) BuildBlocks() []notionapi.Block {
 				RichText: []notionapi.RichText{
 					{
 						Type: "text",
-						Text: notionapi.Text{
+						Text: &notionapi.Text{
 							Content: mediaURL,
 							Link: &notionapi.Link{
 								Url: mediaURL,

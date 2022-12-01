@@ -3,11 +3,11 @@ package notion
 import (
 	"context"
 	"fmt"
+	"notionboy/internal/pkg/logger"
 	"strings"
 	"sync"
 
 	"github.com/jomei/notionapi"
-	"github.com/sirupsen/logrus"
 )
 
 const maxRetryCnt = 3
@@ -42,11 +42,11 @@ func (n *Notion) CreateRecord(ctx context.Context, content *Content) (string, st
 	var pageID string
 	if err != nil {
 		msg = fmt.Sprintf("创建 Note 失败，失败原因, %v", err)
-		logrus.Error(msg)
+		logger.SugaredLogger.Error(msg)
 	} else {
 		pageID = strings.Replace(page.ID.String(), "-", "", -1)
 		msg = fmt.Sprintf("创建 Note 成功，如需编辑更多，请前往 https://www.notion.so/%s", pageID)
-		logrus.Info(msg)
+		logger.SugaredLogger.Info(msg)
 	}
 	return msg, pageID, err
 }
@@ -85,10 +85,10 @@ func updatePage(ctx context.Context, client *notionapi.Client, pageID string, co
 	var msg string
 	if err != nil {
 		msg = fmt.Sprintf("更新 Page(%s) 失败，失败原因, %v", pageID, err)
-		logrus.Error(msg)
+		logger.SugaredLogger.Error(msg)
 	} else {
 		msg = fmt.Sprintf("更新 Page(%s) 成功，如需编辑更多，请前往 https://www.notion.so/%s", pageID, pageID)
-		logrus.Info(msg)
+		logger.SugaredLogger.Info(msg)
 	}
 	return msg, err
 }
@@ -102,10 +102,10 @@ func updateBlock(ctx context.Context, client *notionapi.Client, pageID string, c
 	var msg string
 	if err != nil {
 		msg = fmt.Sprintf("更新 Blocks in Page(%s) 失败，失败原因, %v", pageID, err)
-		logrus.Error(msg)
+		logger.SugaredLogger.Error(msg)
 	} else {
 		msg = fmt.Sprintf("更新 Blocks in Page(%s) 成功，如需编辑更多，请前往 https://www.notion.so/%s", pageID, pageID)
-		logrus.Info(msg)
+		logger.SugaredLogger.Info(msg)
 	}
 	return msg, err
 }
@@ -115,7 +115,7 @@ func (n *Notion) UpdateDatabase(ctx context.Context, req *notionapi.DatabaseUpda
 	var msg string
 	if err != nil {
 		msg = fmt.Sprintf("Update Database(%s) 失败，失败原因, %v", n.DatabaseID, err)
-		logrus.Error(msg)
+		logger.SugaredLogger.Error(msg)
 	} else {
 		msg = fmt.Sprintf("成功更新 Database(%s)", n.DatabaseID)
 	}

@@ -3,19 +3,27 @@ package fulltext
 import (
 	"context"
 	"notionboy/internal/pkg/config"
+	"notionboy/internal/pkg/logger"
 
 	"github.com/chromedp/cdproto/page"
 	"github.com/chromedp/chromedp"
-	log "github.com/sirupsen/logrus"
 )
 
 const imageQuality = 90
 
 func SaveSnapshot(ctx context.Context, urlStr string, tag string) ([]byte, string, error) {
-	ctx, cancel := chromedp.NewContext(ctx)
-	defer cancel()
+	// use remote devtools if available, else use the localhost
+	if config.GetConfig().DevToolsURL != "" {
+		allocatorContext, cancelRemote := chromedp.NewRemoteAllocator(ctx, config.GetConfig().DevToolsURL)
+		defer cancelRemote()
+		ctx = allocatorContext
+	}
+
 	var buf []byte
 	var title string
+
+	ctx, cancel := chromedp.NewContext(ctx)
+	defer cancel()
 
 	if tag == config.CMD_FULLTEXT_PDF {
 		if err := chromedp.Run(ctx, chromedp.Tasks{
@@ -30,7 +38,7 @@ func SaveSnapshot(ctx context.Context, urlStr string, tag string) ([]byte, strin
 			}),
 			chromedp.Title(&title),
 		}); err != nil {
-			log.Errorf("Generate pdf snapshot error: %v", err)
+			logger.SugaredLogger.Errorw("Generate pdf snapshot error", "err", err)
 		}
 	} else {
 		// capture entire browser viewport, returning png with quality=90
@@ -39,11 +47,13 @@ func SaveSnapshot(ctx context.Context, urlStr string, tag string) ([]byte, strin
 			chromedp.FullScreenshot(&buf, imageQuality),
 			chromedp.Title(&title),
 		}); err != nil {
-			log.Errorf("Generate snapshot for url: %s error: %v", urlStr, err)
+			logger.SugaredLogger.Errorw("Generate image snapshot error", "err", err)
+
 			return buf, title, err
 		}
 	}
 
-	log.Debugf("Success get page: %s, from url: %s", title, urlStr)
+	logger.SugaredLogger.Debugw("Success get page", "url", urlStr, "title", title)
+
 	return buf, title, nil
 }

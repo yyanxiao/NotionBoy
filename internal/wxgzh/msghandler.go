@@ -4,12 +4,12 @@ import (
 	"notionboy/db/ent"
 	"notionboy/internal/pkg/config"
 	"notionboy/internal/pkg/db/dao"
+	"notionboy/internal/pkg/logger"
 	notion "notionboy/internal/pkg/notion"
 	"notionboy/internal/pkg/utils"
 
 	"github.com/gin-gonic/gin"
 	"github.com/silenceper/wechat/v2/officialaccount/message"
-	log "github.com/sirupsen/logrus"
 )
 
 var supportMsgTypeMap map[message.MsgType]bool
@@ -24,11 +24,11 @@ func init() {
 }
 
 func (ex *OfficialAccount) messageHandler(c *gin.Context, msg *message.MixMessage) *message.Reply {
-	if msg.MsgType == message.MsgType(message.EventSubscribe) {
+	if msg.Event == message.EventSubscribe {
 		return bindNotion(c, msg)
 	}
 
-	if msg.MsgType == message.MsgType(message.EventUnsubscribe) {
+	if msg.Event == message.EventUnsubscribe {
 		return unBindingNotion(c, msg)
 	}
 
@@ -36,7 +36,7 @@ func (ex *OfficialAccount) messageHandler(c *gin.Context, msg *message.MixMessag
 	content := transformToNotionContent(msg)
 	memCache := utils.GetCache()
 	userCache := memCache.Get(userID)
-	log.Infof("UserID: %s, content: %v, msgType: %s, userCache: %s", userID, content, msg.MsgType, userCache)
+	logger.SugaredLogger.Infof("UserID: %s, content: %v, msgType: %s, userCache: %s", userID, content, msg.MsgType, userCache)
 
 	switch msg.Content {
 	case config.CMD_BIND:
@@ -47,13 +47,16 @@ func (ex *OfficialAccount) messageHandler(c *gin.Context, msg *message.MixMessag
 		return helpInfo(c, msg)
 	case config.CMD_HELP_ZH:
 		return helpInfo(c, msg)
+	case config.CMD_SOS:
+		return sosInfo(c, msg)
+
 	}
 
 	// 获取用户信息
 	accountInfo, err := dao.QueryAccountByWxUser(c, msg.GetOpenID())
 	if err != nil {
-		// TODO
-		return &message.Reply{MsgType: message.MsgTypeText, MsgData: message.NewText(err.Error())}
+		logger.SugaredLogger.Errorf("Query Account Error: %v", err)
+		return &message.Reply{MsgType: message.MsgTypeText, MsgData: message.NewText(config.MSG_ERROR_ACCOUNT_NOT_FOUND)}
 	}
 	if accountInfo.ID == 0 {
 		return bindNotion(c, msg)
@@ -80,7 +83,7 @@ func updateLatestSchema(ctx *gin.Context, accountInfo *ent.Account, notionConfig
 	// 如果不是最新的 Scheam，更新 Schema
 	if !accountInfo.IsLatestSchema {
 		if _, err := notion.UpdateDatabaseProperties(ctx, notionConfig); err != nil {
-			log.Errorf("UpdateDatabaseProperties error: %s", err.Error())
+			logger.SugaredLogger.Errorf("UpdateDatabaseProperties error: %s", err.Error())
 		}
 		_ = dao.UpdateIsLatestSchema(ctx, accountInfo.DatabaseID, true)
 	}
