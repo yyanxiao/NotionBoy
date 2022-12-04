@@ -5,8 +5,10 @@ import (
 	"notionboy/internal/pkg/config"
 	"notionboy/internal/pkg/db/dao"
 	"notionboy/internal/pkg/logger"
-	notion "notionboy/internal/pkg/notion"
 	"notionboy/internal/pkg/utils"
+	"time"
+
+	notion "notionboy/internal/pkg/notion"
 
 	"github.com/gin-gonic/gin"
 	"github.com/silenceper/wechat/v2/officialaccount/message"
@@ -49,23 +51,37 @@ func (ex *OfficialAccount) messageHandler(c *gin.Context, msg *message.MixMessag
 		return helpInfo(c, msg)
 	case config.CMD_SOS:
 		return sosInfo(c, msg)
-
 	}
 
-	// 获取用户信息
+	mr := make(chan *message.Reply)
+	go ex.processContent(c, msg, content, mr)
+
+	select {
+	case r := <-mr:
+		return r
+	case <-time.After(3 * time.Second):
+		logger.SugaredLogger.Warnf("Save record to Notion timeout")
+		return &message.Reply{MsgType: message.MsgTypeText, MsgData: message.NewText(config.MSG_PROCESSING)}
+	}
+}
+
+func (ex *OfficialAccount) processContent(c *gin.Context, msg *message.MixMessage, content *notion.Content, mr chan *message.Reply) {
 	accountInfo, err := dao.QueryAccountByWxUser(c, msg.GetOpenID())
 	if err != nil {
 		logger.SugaredLogger.Errorf("Query Account Error: %v", err)
-		return &message.Reply{MsgType: message.MsgTypeText, MsgData: message.NewText(config.MSG_ERROR_ACCOUNT_NOT_FOUND)}
+		mr <- &message.Reply{MsgType: message.MsgTypeText, MsgData: message.NewText(config.MSG_ERROR_ACCOUNT_NOT_FOUND)}
+		return
 	}
 	if accountInfo.ID == 0 {
-		return bindNotion(c, msg)
+		mr <- bindNotion(c, msg)
+		return
 	}
 	n := &notion.Notion{BearerToken: accountInfo.AccessToken, DatabaseID: accountInfo.DatabaseID}
 
 	// 如果是不支持的类型，直接返回不支持的错误
 	if _, ok := supportMsgTypeMap[msg.MsgType]; !ok {
-		return &message.Reply{MsgType: message.MsgTypeText, MsgData: message.NewText(config.MSG_UNSUPPOERT)}
+		mr <- &message.Reply{MsgType: message.MsgTypeText, MsgData: message.NewText(config.MSG_UNSUPPOERT)}
+		return
 	}
 
 	// 创建初始 Record
@@ -76,7 +92,7 @@ func (ex *OfficialAccount) messageHandler(c *gin.Context, msg *message.MixMessag
 		n.PageID = pageID
 		go ex.updateNotionContent(c, msg, n, accountInfo, content)
 	}
-	return &message.Reply{MsgType: message.MsgTypeText, MsgData: message.NewText(res)}
+	mr <- &message.Reply{MsgType: message.MsgTypeText, MsgData: message.NewText(res)}
 }
 
 func updateLatestSchema(ctx *gin.Context, accountInfo *ent.Account, notionConfig *notion.Notion) {
