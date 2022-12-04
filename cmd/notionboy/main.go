@@ -1,9 +1,9 @@
 package main
 
 import (
-	"notionboy/internal/app"
+	"notionboy/internal/server"
 )
 
 func main() {
-	app.Run()
+	server.Serve()
 }

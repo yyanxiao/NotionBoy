@@ -1,8 +1,8 @@
 package notion
 
 import (
+	"context"
 	"fmt"
-	"net/http"
 	"notionboy/db/ent"
 	"notionboy/db/ent/account"
 	"notionboy/internal/pkg/config"
@@ -10,15 +10,13 @@ import (
 	"notionboy/internal/pkg/logger"
 	"strings"
 
-	"github.com/gin-gonic/gin"
-
 	"golang.org/x/oauth2"
 )
 
 type OauthInterface interface {
 	OAuthURL(state string) string
-	OAuthProcess(g *gin.Context)
-	OAuthCallback(g *gin.Context)
+	OAuthProcess(state string) string
+	OAuthCallback(ctx context.Context, code, state string) (string, error)
 }
 
 type oauthManager struct{}
@@ -46,40 +44,32 @@ func (o *oauthManager) OAuthURL(state string) string {
 	return url
 }
 
-func (o *oauthManager) OAuthProcess(g *gin.Context) {
-	state := g.Query("state")
+func (o *oauthManager) OAuthProcess(state string) string {
 	oauthConf := getOauthConf()
 	url := oauthConf.AuthCodeURL(state, oauth2.AccessTypeOffline)
 	logger.SugaredLogger.Debugf("Visit the URL for the auth dialog: %v", url)
-	g.Redirect(302, url)
+	return url
 }
 
-func (o *oauthManager) OAuthCallback(g *gin.Context) {
-	code := g.Query("code")
-	state := g.Query("state")
-	if code == "" || state == "" {
-		logger.SugaredLogger.Error("code or state is empty")
-		return
-	}
+func (o *oauthManager) OAuthCallback(ctx context.Context, code, state string) (string, error) {
 	states := strings.Split(state, ":")
 	userType := states[0]
 	userID := strings.Join(states[1:], "")
 	oauthConf := getOauthConf()
-	tok, err := oauthConf.Exchange(g, code)
+	tok, err := oauthConf.Exchange(ctx, code)
 	logger.SugaredLogger.Debugf("tok: %#v", tok)
 	if err != nil {
 		logger.SugaredLogger.Errorf("oauthConf.Exchange() failed with %v, code is %s", err, code)
-		return
+		return "Get Oauth token failed", err
 	}
 
 	// oAuthInfo
 	token := tok.AccessToken
 
-	databaseID, err := bindNotion(g, token)
+	databaseID, err := bindNotion(ctx, token)
 	if err != nil {
 		logger.SugaredLogger.Errorf("GetDatabaseID() failed with %v", err)
-		g.Data(http.StatusOK, "text/html; charset=utf-8", []byte("绑定失败，错误详情："+err.Error()))
-		return
+		return "", err
 	}
 
 	acc := &ent.Account{
@@ -90,10 +80,10 @@ func (o *oauthManager) OAuthCallback(g *gin.Context) {
 		IsLatestSchema: true,
 	}
 
-	if err := dao.SaveAccount(g, acc); err != nil {
+	if err := dao.SaveAccount(ctx, acc); err != nil {
 		logger.SugaredLogger.Errorw("Save account failed", "err", err, "account", acc)
-		g.Data(http.StatusInternalServerError, "text/html; charset=utf-8", []byte(err.Error()))
+		return "", err
 	} else {
-		g.Data(http.StatusOK, "text/html; charset=utf-8", []byte(config.MSG_BIND_SUCCESS))
+		return config.MSG_BIND_SUCCESS, nil
 	}
 }

@@ -1,6 +1,7 @@
 package wxgzh
 
 import (
+	"context"
 	"notionboy/db/ent"
 	"notionboy/internal/pkg/config"
 	"notionboy/internal/pkg/db/dao"
@@ -10,7 +11,6 @@ import (
 
 	notion "notionboy/internal/pkg/notion"
 
-	"github.com/gin-gonic/gin"
 	"github.com/silenceper/wechat/v2/officialaccount/message"
 )
 
@@ -25,7 +25,7 @@ func init() {
 	}
 }
 
-func (ex *OfficialAccount) messageHandler(c *gin.Context, msg *message.MixMessage) *message.Reply {
+func (ex *OfficialAccount) messageHandler(c context.Context, msg *message.MixMessage) *message.Reply {
 	if msg.Event == message.EventSubscribe {
 		return bindNotion(c, msg)
 	}
@@ -54,7 +54,8 @@ func (ex *OfficialAccount) messageHandler(c *gin.Context, msg *message.MixMessag
 	}
 
 	mr := make(chan *message.Reply)
-	go ex.processContent(c, msg, content, mr)
+
+	go ex.processContent(context.TODO(), msg, content, mr)
 
 	select {
 	case r := <-mr:
@@ -65,15 +66,15 @@ func (ex *OfficialAccount) messageHandler(c *gin.Context, msg *message.MixMessag
 	}
 }
 
-func (ex *OfficialAccount) processContent(c *gin.Context, msg *message.MixMessage, content *notion.Content, mr chan *message.Reply) {
-	accountInfo, err := dao.QueryAccountByWxUser(c, msg.GetOpenID())
+func (ex *OfficialAccount) processContent(ctx context.Context, msg *message.MixMessage, content *notion.Content, mr chan *message.Reply) {
+	accountInfo, err := dao.QueryAccountByWxUser(ctx, msg.GetOpenID())
 	if err != nil {
 		logger.SugaredLogger.Errorf("Query Account Error: %v", err)
 		mr <- &message.Reply{MsgType: message.MsgTypeText, MsgData: message.NewText(config.MSG_ERROR_ACCOUNT_NOT_FOUND)}
 		return
 	}
 	if accountInfo.ID == 0 {
-		mr <- bindNotion(c, msg)
+		mr <- bindNotion(ctx, msg)
 		return
 	}
 	n := &notion.Notion{BearerToken: accountInfo.AccessToken, DatabaseID: accountInfo.DatabaseID}
@@ -85,17 +86,17 @@ func (ex *OfficialAccount) processContent(c *gin.Context, msg *message.MixMessag
 	}
 
 	// 创建初始 Record
-	res, pageID, err := n.CreateRecord(c, &notion.Content{
+	res, pageID, err := n.CreateRecord(ctx, &notion.Content{
 		Text: "内容正在更新，请稍等",
 	})
 	if err == nil {
 		n.PageID = pageID
-		go ex.updateNotionContent(c, msg, n, accountInfo, content)
+		go ex.updateNotionContent(ctx, msg, n, accountInfo, content)
 	}
 	mr <- &message.Reply{MsgType: message.MsgTypeText, MsgData: message.NewText(res)}
 }
 
-func updateLatestSchema(ctx *gin.Context, accountInfo *ent.Account, notionConfig *notion.Notion) {
+func updateLatestSchema(ctx context.Context, accountInfo *ent.Account, notionConfig *notion.Notion) {
 	// 如果不是最新的 Scheam，更新 Schema
 	if !accountInfo.IsLatestSchema {
 		if _, err := notion.UpdateDatabaseProperties(ctx, notionConfig); err != nil {
@@ -105,7 +106,7 @@ func updateLatestSchema(ctx *gin.Context, accountInfo *ent.Account, notionConfig
 	}
 }
 
-func (ex *OfficialAccount) updateNotionContent(ctx *gin.Context, msg *message.MixMessage, n *notion.Notion, accountInfo *ent.Account, content *notion.Content) {
+func (ex *OfficialAccount) updateNotionContent(ctx context.Context, msg *message.MixMessage, n *notion.Notion, accountInfo *ent.Account, content *notion.Content) {
 	updateLatestSchema(ctx, accountInfo, n)
 	content.Process(ctx)
 	switch msg.MsgType {

@@ -1,14 +1,12 @@
 package wxgzh
 
 import (
-	"fmt"
 	"net/http"
 	"notionboy/internal/pkg/config"
 	"notionboy/internal/pkg/logger"
 
 	notion "notionboy/internal/pkg/notion"
 
-	"github.com/gin-gonic/gin"
 	wechat "github.com/silenceper/wechat/v2"
 	"github.com/silenceper/wechat/v2/cache"
 	"github.com/silenceper/wechat/v2/officialaccount"
@@ -49,13 +47,13 @@ func transformToNotionContent(msg *message.MixMessage) *notion.Content {
 }
 
 // Serve 处理消息
-func (ex *OfficialAccount) Serve(c *gin.Context) {
+func (ex *OfficialAccount) Serve(w http.ResponseWriter, r *http.Request) {
 	// 传入request和responseWriter
-	server := ex.officialAccount.GetServer(c.Request, c.Writer)
+	server := ex.officialAccount.GetServer(r, w)
 	server.SkipValidate(true)
 	// 设置接收消息的处理方法
 	server.SetMessageHandler(func(msg *message.MixMessage) *message.Reply {
-		return ex.messageHandler(c, msg)
+		return ex.messageHandler(r.Context(), msg)
 	})
 
 	// 处理消息接收以及回复
@@ -73,55 +71,41 @@ func (ex *OfficialAccount) Serve(c *gin.Context) {
 }
 
 // GetAccessToken 获取ak
-func (ex *OfficialAccount) GetAccessToken(c *gin.Context) {
+func (ex *OfficialAccount) GetAccessToken() (string, error) {
 	ak, err := ex.officialAccount.GetAccessToken()
 	if err != nil {
 		logger.SugaredLogger.Errorf("get ak error, err=%v", err)
-		RenderError(c, err)
-		return
+		return "", err
 	}
-	RenderSuccess(c, ak)
+	return ak, nil
 }
 
 // GetCallbackIP 获取微信callback IP地址
-func (ex *OfficialAccount) GetCallbackIP(c *gin.Context) {
+func (ex *OfficialAccount) GetCallbackIP() ([]string, error) {
 	ipList, err := ex.officialAccount.GetBasic().GetCallbackIP()
 	if err != nil {
 		logger.SugaredLogger.Errorf("GetCallbackIP error, err=%v", err)
-		RenderError(c, err)
-		return
+		return nil, err
 	}
-	RenderSuccess(c, ipList)
+	return ipList, nil
 }
 
 // GetAPIDomainIP 获取微信callback IP地址
-func (ex *OfficialAccount) GetAPIDomainIP(c *gin.Context) {
+func (ex *OfficialAccount) GetAPIDomainIP() ([]string, error) {
 	ipList, err := ex.officialAccount.GetBasic().GetAPIDomainIP()
 	if err != nil {
 		logger.SugaredLogger.Errorf("GetAPIDomainIP error, err=%v", err)
-		RenderError(c, err)
-		return
+		return nil, err
 	}
-	RenderSuccess(c, ipList)
+	return ipList, nil
 }
 
 // GetAPIDomainIP  清理接口调用次数
-func (ex *OfficialAccount) ClearQuota(c *gin.Context) {
+func (ex *OfficialAccount) ClearQuota() (string, error) {
 	err := ex.officialAccount.GetBasic().ClearQuota()
 	if err != nil {
 		logger.SugaredLogger.Errorf("ClearQuota error, err=%v", err)
-		RenderError(c, err)
-		return
+		return "", err
 	}
-	RenderSuccess(c, "success")
-}
-
-// RenderError render error
-func RenderError(c *gin.Context, err error) {
-	c.JSON(http.StatusInternalServerError, fmt.Sprintf("%v", err))
-}
-
-// RenderSuccess render success
-func RenderSuccess(c *gin.Context, data interface{}) {
-	c.JSON(http.StatusOK, data)
+	return "success", nil
 }
