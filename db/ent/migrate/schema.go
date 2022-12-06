@@ -18,6 +18,8 @@ var (
 		{Name: "user_type", Type: field.TypeEnum, Nullable: true, Enums: []string{"wechat", "telegram"}, Default: "wechat"},
 		{Name: "database_id", Type: field.TypeString, Unique: true},
 		{Name: "access_token", Type: field.TypeString},
+		{Name: "notion_user_id", Type: field.TypeString, Nullable: true},
+		{Name: "notion_user_email", Type: field.TypeString, Nullable: true},
 		{Name: "is_latest_schema", Type: field.TypeBool, Default: false},
 	}
 	// AccountsTable holds the schema information for the "accounts" table.

@@ -24,11 +24,12 @@ const (
 
 `
 
-	MSG_UNBIND_SUCCESS = "成功解除 Notion 绑定！"
-	MSG_UNBIND_FAILED  = "解除 Notion 绑定失败！失败原因: "
-	MSG_UNSUPPOERT     = "不支持的消息类型!"
-	MSG_PROCESSING     = "正在处理，请稍后去 Notion 查看"
-	MSG_HELP           = `欢迎使用 NotionBoy， 了解更多 NotionBoy 的功能，请参考：https://www.theboys.tech/notion-boy
+	MSG_UNBIND_SUCCESS  = "成功解除 Notion 绑定！"
+	MSG_UNBIND_FAILED   = "解除 Notion 绑定失败！失败原因: "
+	MSG_UNSUPPOERT      = "不支持的消息类型!"
+	MSG_CHAT_UNSUPPOERT = "Chat 只支持文本消息类型!"
+	MSG_PROCESSING      = "正在处理，请稍后去 Notion 查看"
+	MSG_HELP            = `欢迎使用 NotionBoy， 了解更多 NotionBoy 的功能，请参考：https://www.theboys.tech/notion-boy
 
 NotionBoy 提供以下命令可供使用：
 - 帮助：直接输入「帮助」或者「help」 可以获取最新的帮助教程
@@ -55,6 +56,7 @@ const (
 	CMD_HELP_ZH      = "帮助"
 	CMD_HELP         = "help"
 	CMD_SOS          = "SOS"
+	CMD_CHAT         = "#chat"
 )
 
 const (

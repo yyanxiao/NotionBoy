@@ -2,6 +2,8 @@ package config
 
 import (
 	"fmt"
+	"path"
+	"runtime"
 	"strings"
 
 	"github.com/fsnotify/fsnotify"
@@ -37,7 +39,8 @@ func GetConfig() *Config {
 // avoid to use "_" in config name for better env reading
 func Load(cfg interface{}) {
 	// read configs from seetings in root directory
-	viper.AddConfigPath("../../../")
+
+	viper.AddConfigPath(getConfigDir())
 	viper.AddConfigPath(SETTINGS_FOLDER)
 	viper.SetConfigName(SETTINGS_NAME)
 	if err := viper.ReadInConfig(); err != nil {
@@ -68,4 +71,10 @@ func Load(cfg interface{}) {
 	})
 	loadConfig()
 	viper.WatchConfig()
+}
+
+func getConfigDir() string {
+	_, filename, _, _ := runtime.Caller(1)
+	filepath := path.Join(path.Dir(filename), "../../../")
+	return filepath
 }

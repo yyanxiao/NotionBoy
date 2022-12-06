@@ -22,7 +22,7 @@ type Account struct {
 	UpdatedAt time.Time `json:"updated_at,omitempty"`
 	// Deleted holds the value of the "deleted" field.
 	Deleted bool `json:"deleted,omitempty"`
-	// UserID holds the value of the "user_id" field.
+	// wechat user id
 	UserID string `json:"user_id,omitempty"`
 	// UserType holds the value of the "user_type" field.
 	UserType account.UserType `json:"user_type,omitempty"`
@@ -30,6 +30,10 @@ type Account struct {
 	DatabaseID string `json:"database_id,omitempty"`
 	// Notion Access Token
 	AccessToken string `json:"-"`
+	// Notion User ID
+	NotionUserID string `json:"notion_user_id,omitempty"`
+	// Notion User Email
+	NotionUserEmail string `json:"notion_user_email,omitempty"`
 	// If not the latest schema, need update notion page properies
 	IsLatestSchema bool `json:"is_latest_schema,omitempty"`
 }
@@ -43,7 +47,7 @@ func (*Account) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullBool)
 		case account.FieldID:
 			values[i] = new(sql.NullInt64)
-		case account.FieldUserID, account.FieldUserType, account.FieldDatabaseID, account.FieldAccessToken:
+		case account.FieldUserID, account.FieldUserType, account.FieldDatabaseID, account.FieldAccessToken, account.FieldNotionUserID, account.FieldNotionUserEmail:
 			values[i] = new(sql.NullString)
 		case account.FieldCreatedAt, account.FieldUpdatedAt:
 			values[i] = new(sql.NullTime)
@@ -110,6 +114,18 @@ func (a *Account) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				a.AccessToken = value.String
 			}
+		case account.FieldNotionUserID:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field notion_user_id", values[i])
+			} else if value.Valid {
+				a.NotionUserID = value.String
+			}
+		case account.FieldNotionUserEmail:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field notion_user_email", values[i])
+			} else if value.Valid {
+				a.NotionUserEmail = value.String
+			}
 		case account.FieldIsLatestSchema:
 			if value, ok := values[i].(*sql.NullBool); !ok {
 				return fmt.Errorf("unexpected type %T for field is_latest_schema", values[i])
@@ -163,6 +179,12 @@ func (a *Account) String() string {
 	builder.WriteString(a.DatabaseID)
 	builder.WriteString(", ")
 	builder.WriteString("access_token=<sensitive>")
+	builder.WriteString(", ")
+	builder.WriteString("notion_user_id=")
+	builder.WriteString(a.NotionUserID)
+	builder.WriteString(", ")
+	builder.WriteString("notion_user_email=")
+	builder.WriteString(a.NotionUserEmail)
 	builder.WriteString(", ")
 	builder.WriteString("is_latest_schema=")
 	builder.WriteString(fmt.Sprintf("%v", a.IsLatestSchema))

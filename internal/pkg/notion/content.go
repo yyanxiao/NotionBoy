@@ -14,12 +14,14 @@ import (
 )
 
 type Content struct {
-	Tags       []string        `json:"tags"`
-	Text       string          `json:"text"`
-	IsFulltext bool            `json:"is_fulltext"`
-	Fulltext   FulltextContent `json:"fulltext"`
-	IsMedia    bool            `json:"is_media"`
-	Media      MediaContent    `json:"media"`
+	Tags          []string        `json:"tags"`
+	Text          string          `json:"text"`
+	IsFulltext    bool            `json:"is_fulltext"`
+	Fulltext      FulltextContent `json:"fulltext"`
+	IsMedia       bool            `json:"is_media"`
+	Media         MediaContent    `json:"media"`
+	IsChatContent bool            `json:"is_chat_content"`
+	ChatContent   ChatContent     `json:"chat_content"`
 }
 
 // Process 从 text 提取 tags，配置全文 snapshot
@@ -90,6 +92,9 @@ func (c *Content) BuildBlocks() []notionapi.Block {
 	if c.IsMedia {
 		mediaBlocks := c.Media.BuildBlocks()
 		blocks = append(blocks, mediaBlocks...)
+	}
+	if c.IsChatContent {
+		blocks = c.ChatContent.BuildBlocks()
 	}
 	return blocks
 }

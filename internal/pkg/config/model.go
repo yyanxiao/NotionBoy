@@ -8,6 +8,7 @@ type Config struct {
 	R2          R2Config
 	Log         LogConfig
 	DevToolsURL string
+	ChatGPT     ChatGPTConfig
 }
 
 type LogConfig struct {
@@ -63,4 +64,9 @@ type WechatConfig struct {
 type R2Config struct {
 	Token string
 	Url   string
+}
+
+type ChatGPTConfig struct {
+	Authorization string
+	SessionToken  string
 }

@@ -122,6 +122,20 @@ func AccessToken(v string) predicate.Account {
 	})
 }
 
+// NotionUserID applies equality check predicate on the "notion_user_id" field. It's identical to NotionUserIDEQ.
+func NotionUserID(v string) predicate.Account {
+	return predicate.Account(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldNotionUserID), v))
+	})
+}
+
+// NotionUserEmail applies equality check predicate on the "notion_user_email" field. It's identical to NotionUserEmailEQ.
+func NotionUserEmail(v string) predicate.Account {
+	return predicate.Account(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldNotionUserEmail), v))
+	})
+}
+
 // IsLatestSchema applies equality check predicate on the "is_latest_schema" field. It's identical to IsLatestSchemaEQ.
 func IsLatestSchema(v bool) predicate.Account {
 	return predicate.Account(func(s *sql.Selector) {
@@ -615,6 +629,232 @@ func AccessTokenEqualFold(v string) predicate.Account {
 func AccessTokenContainsFold(v string) predicate.Account {
 	return predicate.Account(func(s *sql.Selector) {
 		s.Where(sql.ContainsFold(s.C(FieldAccessToken), v))
+	})
+}
+
+// NotionUserIDEQ applies the EQ predicate on the "notion_user_id" field.
+func NotionUserIDEQ(v string) predicate.Account {
+	return predicate.Account(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldNotionUserID), v))
+	})
+}
+
+// NotionUserIDNEQ applies the NEQ predicate on the "notion_user_id" field.
+func NotionUserIDNEQ(v string) predicate.Account {
+	return predicate.Account(func(s *sql.Selector) {
+		s.Where(sql.NEQ(s.C(FieldNotionUserID), v))
+	})
+}
+
+// NotionUserIDIn applies the In predicate on the "notion_user_id" field.
+func NotionUserIDIn(vs ...string) predicate.Account {
+	v := make([]any, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.Account(func(s *sql.Selector) {
+		s.Where(sql.In(s.C(FieldNotionUserID), v...))
+	})
+}
+
+// NotionUserIDNotIn applies the NotIn predicate on the "notion_user_id" field.
+func NotionUserIDNotIn(vs ...string) predicate.Account {
+	v := make([]any, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.Account(func(s *sql.Selector) {
+		s.Where(sql.NotIn(s.C(FieldNotionUserID), v...))
+	})
+}
+
+// NotionUserIDGT applies the GT predicate on the "notion_user_id" field.
+func NotionUserIDGT(v string) predicate.Account {
+	return predicate.Account(func(s *sql.Selector) {
+		s.Where(sql.GT(s.C(FieldNotionUserID), v))
+	})
+}
+
+// NotionUserIDGTE applies the GTE predicate on the "notion_user_id" field.
+func NotionUserIDGTE(v string) predicate.Account {
+	return predicate.Account(func(s *sql.Selector) {
+		s.Where(sql.GTE(s.C(FieldNotionUserID), v))
+	})
+}
+
+// NotionUserIDLT applies the LT predicate on the "notion_user_id" field.
+func NotionUserIDLT(v string) predicate.Account {
+	return predicate.Account(func(s *sql.Selector) {
+		s.Where(sql.LT(s.C(FieldNotionUserID), v))
+	})
+}
+
+// NotionUserIDLTE applies the LTE predicate on the "notion_user_id" field.
+func NotionUserIDLTE(v string) predicate.Account {
+	return predicate.Account(func(s *sql.Selector) {
+		s.Where(sql.LTE(s.C(FieldNotionUserID), v))
+	})
+}
+
+// NotionUserIDContains applies the Contains predicate on the "notion_user_id" field.
+func NotionUserIDContains(v string) predicate.Account {
+	return predicate.Account(func(s *sql.Selector) {
+		s.Where(sql.Contains(s.C(FieldNotionUserID), v))
+	})
+}
+
+// NotionUserIDHasPrefix applies the HasPrefix predicate on the "notion_user_id" field.
+func NotionUserIDHasPrefix(v string) predicate.Account {
+	return predicate.Account(func(s *sql.Selector) {
+		s.Where(sql.HasPrefix(s.C(FieldNotionUserID), v))
+	})
+}
+
+// NotionUserIDHasSuffix applies the HasSuffix predicate on the "notion_user_id" field.
+func NotionUserIDHasSuffix(v string) predicate.Account {
+	return predicate.Account(func(s *sql.Selector) {
+		s.Where(sql.HasSuffix(s.C(FieldNotionUserID), v))
+	})
+}
+
+// NotionUserIDIsNil applies the IsNil predicate on the "notion_user_id" field.
+func NotionUserIDIsNil() predicate.Account {
+	return predicate.Account(func(s *sql.Selector) {
+		s.Where(sql.IsNull(s.C(FieldNotionUserID)))
+	})
+}
+
+// NotionUserIDNotNil applies the NotNil predicate on the "notion_user_id" field.
+func NotionUserIDNotNil() predicate.Account {
+	return predicate.Account(func(s *sql.Selector) {
+		s.Where(sql.NotNull(s.C(FieldNotionUserID)))
+	})
+}
+
+// NotionUserIDEqualFold applies the EqualFold predicate on the "notion_user_id" field.
+func NotionUserIDEqualFold(v string) predicate.Account {
+	return predicate.Account(func(s *sql.Selector) {
+		s.Where(sql.EqualFold(s.C(FieldNotionUserID), v))
+	})
+}
+
+// NotionUserIDContainsFold applies the ContainsFold predicate on the "notion_user_id" field.
+func NotionUserIDContainsFold(v string) predicate.Account {
+	return predicate.Account(func(s *sql.Selector) {
+		s.Where(sql.ContainsFold(s.C(FieldNotionUserID), v))
+	})
+}
+
+// NotionUserEmailEQ applies the EQ predicate on the "notion_user_email" field.
+func NotionUserEmailEQ(v string) predicate.Account {
+	return predicate.Account(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldNotionUserEmail), v))
+	})
+}
+
+// NotionUserEmailNEQ applies the NEQ predicate on the "notion_user_email" field.
+func NotionUserEmailNEQ(v string) predicate.Account {
+	return predicate.Account(func(s *sql.Selector) {
+		s.Where(sql.NEQ(s.C(FieldNotionUserEmail), v))
+	})
+}
+
+// NotionUserEmailIn applies the In predicate on the "notion_user_email" field.
+func NotionUserEmailIn(vs ...string) predicate.Account {
+	v := make([]any, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.Account(func(s *sql.Selector) {
+		s.Where(sql.In(s.C(FieldNotionUserEmail), v...))
+	})
+}
+
+// NotionUserEmailNotIn applies the NotIn predicate on the "notion_user_email" field.
+func NotionUserEmailNotIn(vs ...string) predicate.Account {
+	v := make([]any, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.Account(func(s *sql.Selector) {
+		s.Where(sql.NotIn(s.C(FieldNotionUserEmail), v...))
+	})
+}
+
+// NotionUserEmailGT applies the GT predicate on the "notion_user_email" field.
+func NotionUserEmailGT(v string) predicate.Account {
+	return predicate.Account(func(s *sql.Selector) {
+		s.Where(sql.GT(s.C(FieldNotionUserEmail), v))
+	})
+}
+
+// NotionUserEmailGTE applies the GTE predicate on the "notion_user_email" field.
+func NotionUserEmailGTE(v string) predicate.Account {
+	return predicate.Account(func(s *sql.Selector) {
+		s.Where(sql.GTE(s.C(FieldNotionUserEmail), v))
+	})
+}
+
+// NotionUserEmailLT applies the LT predicate on the "notion_user_email" field.
+func NotionUserEmailLT(v string) predicate.Account {
+	return predicate.Account(func(s *sql.Selector) {
+		s.Where(sql.LT(s.C(FieldNotionUserEmail), v))
+	})
+}
+
+// NotionUserEmailLTE applies the LTE predicate on the "notion_user_email" field.
+func NotionUserEmailLTE(v string) predicate.Account {
+	return predicate.Account(func(s *sql.Selector) {
+		s.Where(sql.LTE(s.C(FieldNotionUserEmail), v))
+	})
+}
+
+// NotionUserEmailContains applies the Contains predicate on the "notion_user_email" field.
+func NotionUserEmailContains(v string) predicate.Account {
+	return predicate.Account(func(s *sql.Selector) {
+		s.Where(sql.Contains(s.C(FieldNotionUserEmail), v))
+	})
+}
+
+// NotionUserEmailHasPrefix applies the HasPrefix predicate on the "notion_user_email" field.
+func NotionUserEmailHasPrefix(v string) predicate.Account {
+	return predicate.Account(func(s *sql.Selector) {
+		s.Where(sql.HasPrefix(s.C(FieldNotionUserEmail), v))
+	})
+}
+
+// NotionUserEmailHasSuffix applies the HasSuffix predicate on the "notion_user_email" field.
+func NotionUserEmailHasSuffix(v string) predicate.Account {
+	return predicate.Account(func(s *sql.Selector) {
+		s.Where(sql.HasSuffix(s.C(FieldNotionUserEmail), v))
+	})
+}
+
+// NotionUserEmailIsNil applies the IsNil predicate on the "notion_user_email" field.
+func NotionUserEmailIsNil() predicate.Account {
+	return predicate.Account(func(s *sql.Selector) {
+		s.Where(sql.IsNull(s.C(FieldNotionUserEmail)))
+	})
+}
+
+// NotionUserEmailNotNil applies the NotNil predicate on the "notion_user_email" field.
+func NotionUserEmailNotNil() predicate.Account {
+	return predicate.Account(func(s *sql.Selector) {
+		s.Where(sql.NotNull(s.C(FieldNotionUserEmail)))
+	})
+}
+
+// NotionUserEmailEqualFold applies the EqualFold predicate on the "notion_user_email" field.
+func NotionUserEmailEqualFold(v string) predicate.Account {
+	return predicate.Account(func(s *sql.Selector) {
+		s.Where(sql.EqualFold(s.C(FieldNotionUserEmail), v))
+	})
+}
+
+// NotionUserEmailContainsFold applies the ContainsFold predicate on the "notion_user_email" field.
+func NotionUserEmailContainsFold(v string) predicate.Account {
+	return predicate.Account(func(s *sql.Selector) {
+		s.Where(sql.ContainsFold(s.C(FieldNotionUserEmail), v))
 	})
 }
 

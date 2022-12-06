@@ -86,6 +86,46 @@ func (au *AccountUpdate) SetAccessToken(s string) *AccountUpdate {
 	return au
 }
 
+// SetNotionUserID sets the "notion_user_id" field.
+func (au *AccountUpdate) SetNotionUserID(s string) *AccountUpdate {
+	au.mutation.SetNotionUserID(s)
+	return au
+}
+
+// SetNillableNotionUserID sets the "notion_user_id" field if the given value is not nil.
+func (au *AccountUpdate) SetNillableNotionUserID(s *string) *AccountUpdate {
+	if s != nil {
+		au.SetNotionUserID(*s)
+	}
+	return au
+}
+
+// ClearNotionUserID clears the value of the "notion_user_id" field.
+func (au *AccountUpdate) ClearNotionUserID() *AccountUpdate {
+	au.mutation.ClearNotionUserID()
+	return au
+}
+
+// SetNotionUserEmail sets the "notion_user_email" field.
+func (au *AccountUpdate) SetNotionUserEmail(s string) *AccountUpdate {
+	au.mutation.SetNotionUserEmail(s)
+	return au
+}
+
+// SetNillableNotionUserEmail sets the "notion_user_email" field if the given value is not nil.
+func (au *AccountUpdate) SetNillableNotionUserEmail(s *string) *AccountUpdate {
+	if s != nil {
+		au.SetNotionUserEmail(*s)
+	}
+	return au
+}
+
+// ClearNotionUserEmail clears the value of the "notion_user_email" field.
+func (au *AccountUpdate) ClearNotionUserEmail() *AccountUpdate {
+	au.mutation.ClearNotionUserEmail()
+	return au
+}
+
 // SetIsLatestSchema sets the "is_latest_schema" field.
 func (au *AccountUpdate) SetIsLatestSchema(b bool) *AccountUpdate {
 	au.mutation.SetIsLatestSchema(b)
@@ -233,6 +273,18 @@ func (au *AccountUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := au.mutation.AccessToken(); ok {
 		_spec.SetField(account.FieldAccessToken, field.TypeString, value)
 	}
+	if value, ok := au.mutation.NotionUserID(); ok {
+		_spec.SetField(account.FieldNotionUserID, field.TypeString, value)
+	}
+	if au.mutation.NotionUserIDCleared() {
+		_spec.ClearField(account.FieldNotionUserID, field.TypeString)
+	}
+	if value, ok := au.mutation.NotionUserEmail(); ok {
+		_spec.SetField(account.FieldNotionUserEmail, field.TypeString, value)
+	}
+	if au.mutation.NotionUserEmailCleared() {
+		_spec.ClearField(account.FieldNotionUserEmail, field.TypeString)
+	}
 	if value, ok := au.mutation.IsLatestSchema(); ok {
 		_spec.SetField(account.FieldIsLatestSchema, field.TypeBool, value)
 	}
@@ -310,6 +362,46 @@ func (auo *AccountUpdateOne) SetDatabaseID(s string) *AccountUpdateOne {
 // SetAccessToken sets the "access_token" field.
 func (auo *AccountUpdateOne) SetAccessToken(s string) *AccountUpdateOne {
 	auo.mutation.SetAccessToken(s)
+	return auo
+}
+
+// SetNotionUserID sets the "notion_user_id" field.
+func (auo *AccountUpdateOne) SetNotionUserID(s string) *AccountUpdateOne {
+	auo.mutation.SetNotionUserID(s)
+	return auo
+}
+
+// SetNillableNotionUserID sets the "notion_user_id" field if the given value is not nil.
+func (auo *AccountUpdateOne) SetNillableNotionUserID(s *string) *AccountUpdateOne {
+	if s != nil {
+		auo.SetNotionUserID(*s)
+	}
+	return auo
+}
+
+// ClearNotionUserID clears the value of the "notion_user_id" field.
+func (auo *AccountUpdateOne) ClearNotionUserID() *AccountUpdateOne {
+	auo.mutation.ClearNotionUserID()
+	return auo
+}
+
+// SetNotionUserEmail sets the "notion_user_email" field.
+func (auo *AccountUpdateOne) SetNotionUserEmail(s string) *AccountUpdateOne {
+	auo.mutation.SetNotionUserEmail(s)
+	return auo
+}
+
+// SetNillableNotionUserEmail sets the "notion_user_email" field if the given value is not nil.
+func (auo *AccountUpdateOne) SetNillableNotionUserEmail(s *string) *AccountUpdateOne {
+	if s != nil {
+		auo.SetNotionUserEmail(*s)
+	}
+	return auo
+}
+
+// ClearNotionUserEmail clears the value of the "notion_user_email" field.
+func (auo *AccountUpdateOne) ClearNotionUserEmail() *AccountUpdateOne {
+	auo.mutation.ClearNotionUserEmail()
 	return auo
 }
 
@@ -489,6 +581,18 @@ func (auo *AccountUpdateOne) sqlSave(ctx context.Context) (_node *Account, err e
 	}
 	if value, ok := auo.mutation.AccessToken(); ok {
 		_spec.SetField(account.FieldAccessToken, field.TypeString, value)
+	}
+	if value, ok := auo.mutation.NotionUserID(); ok {
+		_spec.SetField(account.FieldNotionUserID, field.TypeString, value)
+	}
+	if auo.mutation.NotionUserIDCleared() {
+		_spec.ClearField(account.FieldNotionUserID, field.TypeString)
+	}
+	if value, ok := auo.mutation.NotionUserEmail(); ok {
+		_spec.SetField(account.FieldNotionUserEmail, field.TypeString, value)
+	}
+	if auo.mutation.NotionUserEmailCleared() {
+		_spec.ClearField(account.FieldNotionUserEmail, field.TypeString)
 	}
 	if value, ok := auo.mutation.IsLatestSchema(); ok {
 		_spec.SetField(account.FieldIsLatestSchema, field.TypeBool, value)

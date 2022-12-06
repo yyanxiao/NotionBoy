@@ -37,3 +37,7 @@ r2:
 log:
   level: info
 # devToolsURL: ws://browserless:3000
+
+chatGPT:
+  Authorization:
+  SessionToken:

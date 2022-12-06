@@ -10,6 +10,9 @@ import (
 	"notionboy/internal/pkg/logger"
 	"strings"
 
+	"github.com/jomei/notionapi"
+	"github.com/mitchellh/mapstructure"
+
 	"golang.org/x/oauth2"
 )
 
@@ -79,6 +82,12 @@ func (o *oauthManager) OAuthCallback(ctx context.Context, code, state string) (s
 		DatabaseID:     databaseID,
 		IsLatestSchema: true,
 	}
+	// token extra: https://developers.notion.com/docs/authorization#step-4-notion-responds-with-an-access_token-and-some-additional-information
+	if notionUser, err := parseUserInfo(tok.Extra("owner")); err == nil {
+		acc.NotionUserID = notionUser.ID.String()
+		acc.NotionUserEmail = notionUser.Person.Email
+
+	}
 
 	if err := dao.SaveAccount(ctx, acc); err != nil {
 		logger.SugaredLogger.Errorw("Save account failed", "err", err, "account", acc)
@@ -86,4 +95,14 @@ func (o *oauthManager) OAuthCallback(ctx context.Context, code, state string) (s
 	} else {
 		return config.MSG_BIND_SUCCESS, nil
 	}
+}
+
+func parseUserInfo(owner interface{}) (*notionapi.User, error) {
+	user := owner.(map[string]interface{})["user"]
+	var notionUser notionapi.User
+	if err := mapstructure.Decode(user, &notionUser); err != nil {
+		logger.SugaredLogger.Errorw("Get notion user info error", "err", err)
+		return nil, err
+	}
+	return &notionUser, nil
 }

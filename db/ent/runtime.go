@@ -42,7 +42,7 @@ func init() {
 	// account.AccessTokenValidator is a validator for the "access_token" field. It is called by the builders before save.
 	account.AccessTokenValidator = accountDescAccessToken.Validators[0].(func(string) error)
 	// accountDescIsLatestSchema is the schema descriptor for is_latest_schema field.
-	accountDescIsLatestSchema := accountFields[4].Descriptor()
+	accountDescIsLatestSchema := accountFields[6].Descriptor()
 	// account.DefaultIsLatestSchema holds the default value on creation for the is_latest_schema field.
 	account.DefaultIsLatestSchema = accountDescIsLatestSchema.Default.(bool)
 }

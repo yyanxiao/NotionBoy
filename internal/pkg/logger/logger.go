@@ -3,6 +3,8 @@ package logger
 import (
 	"notionboy/internal/pkg/config"
 
+	"go.uber.org/zap/zapcore"
+
 	"go.uber.org/zap"
 )
 
@@ -16,10 +18,12 @@ const (
 )
 
 func init() {
-	if config.GetConfig().Log.Level == LevelDebug {
+	level, _ := zapcore.ParseLevel(config.GetConfig().Log.Level)
+	if level == zapcore.DebugLevel {
 		Logger, _ = zap.NewDevelopment()
 	} else {
 		Logger, _ = zap.NewProduction()
 	}
+
 	SugaredLogger = Logger.Sugar()
 }

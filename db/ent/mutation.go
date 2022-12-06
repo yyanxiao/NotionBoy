@@ -29,21 +29,23 @@ const (
 // AccountMutation represents an operation that mutates the Account nodes in the graph.
 type AccountMutation struct {
 	config
-	op               Op
-	typ              string
-	id               *int
-	created_at       *time.Time
-	updated_at       *time.Time
-	deleted          *bool
-	user_id          *string
-	user_type        *account.UserType
-	database_id      *string
-	access_token     *string
-	is_latest_schema *bool
-	clearedFields    map[string]struct{}
-	done             bool
-	oldValue         func(context.Context) (*Account, error)
-	predicates       []predicate.Account
+	op                Op
+	typ               string
+	id                *int
+	created_at        *time.Time
+	updated_at        *time.Time
+	deleted           *bool
+	user_id           *string
+	user_type         *account.UserType
+	database_id       *string
+	access_token      *string
+	notion_user_id    *string
+	notion_user_email *string
+	is_latest_schema  *bool
+	clearedFields     map[string]struct{}
+	done              bool
+	oldValue          func(context.Context) (*Account, error)
+	predicates        []predicate.Account
 }
 
 var _ ent.Mutation = (*AccountMutation)(nil)
@@ -409,6 +411,104 @@ func (m *AccountMutation) ResetAccessToken() {
 	m.access_token = nil
 }
 
+// SetNotionUserID sets the "notion_user_id" field.
+func (m *AccountMutation) SetNotionUserID(s string) {
+	m.notion_user_id = &s
+}
+
+// NotionUserID returns the value of the "notion_user_id" field in the mutation.
+func (m *AccountMutation) NotionUserID() (r string, exists bool) {
+	v := m.notion_user_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldNotionUserID returns the old "notion_user_id" field's value of the Account entity.
+// If the Account object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *AccountMutation) OldNotionUserID(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldNotionUserID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldNotionUserID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldNotionUserID: %w", err)
+	}
+	return oldValue.NotionUserID, nil
+}
+
+// ClearNotionUserID clears the value of the "notion_user_id" field.
+func (m *AccountMutation) ClearNotionUserID() {
+	m.notion_user_id = nil
+	m.clearedFields[account.FieldNotionUserID] = struct{}{}
+}
+
+// NotionUserIDCleared returns if the "notion_user_id" field was cleared in this mutation.
+func (m *AccountMutation) NotionUserIDCleared() bool {
+	_, ok := m.clearedFields[account.FieldNotionUserID]
+	return ok
+}
+
+// ResetNotionUserID resets all changes to the "notion_user_id" field.
+func (m *AccountMutation) ResetNotionUserID() {
+	m.notion_user_id = nil
+	delete(m.clearedFields, account.FieldNotionUserID)
+}
+
+// SetNotionUserEmail sets the "notion_user_email" field.
+func (m *AccountMutation) SetNotionUserEmail(s string) {
+	m.notion_user_email = &s
+}
+
+// NotionUserEmail returns the value of the "notion_user_email" field in the mutation.
+func (m *AccountMutation) NotionUserEmail() (r string, exists bool) {
+	v := m.notion_user_email
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldNotionUserEmail returns the old "notion_user_email" field's value of the Account entity.
+// If the Account object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *AccountMutation) OldNotionUserEmail(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldNotionUserEmail is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldNotionUserEmail requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldNotionUserEmail: %w", err)
+	}
+	return oldValue.NotionUserEmail, nil
+}
+
+// ClearNotionUserEmail clears the value of the "notion_user_email" field.
+func (m *AccountMutation) ClearNotionUserEmail() {
+	m.notion_user_email = nil
+	m.clearedFields[account.FieldNotionUserEmail] = struct{}{}
+}
+
+// NotionUserEmailCleared returns if the "notion_user_email" field was cleared in this mutation.
+func (m *AccountMutation) NotionUserEmailCleared() bool {
+	_, ok := m.clearedFields[account.FieldNotionUserEmail]
+	return ok
+}
+
+// ResetNotionUserEmail resets all changes to the "notion_user_email" field.
+func (m *AccountMutation) ResetNotionUserEmail() {
+	m.notion_user_email = nil
+	delete(m.clearedFields, account.FieldNotionUserEmail)
+}
+
 // SetIsLatestSchema sets the "is_latest_schema" field.
 func (m *AccountMutation) SetIsLatestSchema(b bool) {
 	m.is_latest_schema = &b
@@ -464,7 +564,7 @@ func (m *AccountMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *AccountMutation) Fields() []string {
-	fields := make([]string, 0, 8)
+	fields := make([]string, 0, 10)
 	if m.created_at != nil {
 		fields = append(fields, account.FieldCreatedAt)
 	}
@@ -485,6 +585,12 @@ func (m *AccountMutation) Fields() []string {
 	}
 	if m.access_token != nil {
 		fields = append(fields, account.FieldAccessToken)
+	}
+	if m.notion_user_id != nil {
+		fields = append(fields, account.FieldNotionUserID)
+	}
+	if m.notion_user_email != nil {
+		fields = append(fields, account.FieldNotionUserEmail)
 	}
 	if m.is_latest_schema != nil {
 		fields = append(fields, account.FieldIsLatestSchema)
@@ -511,6 +617,10 @@ func (m *AccountMutation) Field(name string) (ent.Value, bool) {
 		return m.DatabaseID()
 	case account.FieldAccessToken:
 		return m.AccessToken()
+	case account.FieldNotionUserID:
+		return m.NotionUserID()
+	case account.FieldNotionUserEmail:
+		return m.NotionUserEmail()
 	case account.FieldIsLatestSchema:
 		return m.IsLatestSchema()
 	}
@@ -536,6 +646,10 @@ func (m *AccountMutation) OldField(ctx context.Context, name string) (ent.Value,
 		return m.OldDatabaseID(ctx)
 	case account.FieldAccessToken:
 		return m.OldAccessToken(ctx)
+	case account.FieldNotionUserID:
+		return m.OldNotionUserID(ctx)
+	case account.FieldNotionUserEmail:
+		return m.OldNotionUserEmail(ctx)
 	case account.FieldIsLatestSchema:
 		return m.OldIsLatestSchema(ctx)
 	}
@@ -596,6 +710,20 @@ func (m *AccountMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetAccessToken(v)
 		return nil
+	case account.FieldNotionUserID:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetNotionUserID(v)
+		return nil
+	case account.FieldNotionUserEmail:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetNotionUserEmail(v)
+		return nil
 	case account.FieldIsLatestSchema:
 		v, ok := value.(bool)
 		if !ok {
@@ -636,6 +764,12 @@ func (m *AccountMutation) ClearedFields() []string {
 	if m.FieldCleared(account.FieldUserType) {
 		fields = append(fields, account.FieldUserType)
 	}
+	if m.FieldCleared(account.FieldNotionUserID) {
+		fields = append(fields, account.FieldNotionUserID)
+	}
+	if m.FieldCleared(account.FieldNotionUserEmail) {
+		fields = append(fields, account.FieldNotionUserEmail)
+	}
 	return fields
 }
 
@@ -652,6 +786,12 @@ func (m *AccountMutation) ClearField(name string) error {
 	switch name {
 	case account.FieldUserType:
 		m.ClearUserType()
+		return nil
+	case account.FieldNotionUserID:
+		m.ClearNotionUserID()
+		return nil
+	case account.FieldNotionUserEmail:
+		m.ClearNotionUserEmail()
 		return nil
 	}
 	return fmt.Errorf("unknown Account nullable field %s", name)
@@ -681,6 +821,12 @@ func (m *AccountMutation) ResetField(name string) error {
 		return nil
 	case account.FieldAccessToken:
 		m.ResetAccessToken()
+		return nil
+	case account.FieldNotionUserID:
+		m.ResetNotionUserID()
+		return nil
+	case account.FieldNotionUserEmail:
+		m.ResetNotionUserEmail()
 		return nil
 	case account.FieldIsLatestSchema:
 		m.ResetIsLatestSchema()

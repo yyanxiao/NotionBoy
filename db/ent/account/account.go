@@ -26,6 +26,10 @@ const (
 	FieldDatabaseID = "database_id"
 	// FieldAccessToken holds the string denoting the access_token field in the database.
 	FieldAccessToken = "access_token"
+	// FieldNotionUserID holds the string denoting the notion_user_id field in the database.
+	FieldNotionUserID = "notion_user_id"
+	// FieldNotionUserEmail holds the string denoting the notion_user_email field in the database.
+	FieldNotionUserEmail = "notion_user_email"
 	// FieldIsLatestSchema holds the string denoting the is_latest_schema field in the database.
 	FieldIsLatestSchema = "is_latest_schema"
 	// Table holds the table name of the account in the database.
@@ -42,6 +46,8 @@ var Columns = []string{
 	FieldUserType,
 	FieldDatabaseID,
 	FieldAccessToken,
+	FieldNotionUserID,
+	FieldNotionUserEmail,
 	FieldIsLatestSchema,
 }
 

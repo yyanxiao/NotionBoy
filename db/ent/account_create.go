@@ -96,6 +96,34 @@ func (ac *AccountCreate) SetAccessToken(s string) *AccountCreate {
 	return ac
 }
 
+// SetNotionUserID sets the "notion_user_id" field.
+func (ac *AccountCreate) SetNotionUserID(s string) *AccountCreate {
+	ac.mutation.SetNotionUserID(s)
+	return ac
+}
+
+// SetNillableNotionUserID sets the "notion_user_id" field if the given value is not nil.
+func (ac *AccountCreate) SetNillableNotionUserID(s *string) *AccountCreate {
+	if s != nil {
+		ac.SetNotionUserID(*s)
+	}
+	return ac
+}
+
+// SetNotionUserEmail sets the "notion_user_email" field.
+func (ac *AccountCreate) SetNotionUserEmail(s string) *AccountCreate {
+	ac.mutation.SetNotionUserEmail(s)
+	return ac
+}
+
+// SetNillableNotionUserEmail sets the "notion_user_email" field if the given value is not nil.
+func (ac *AccountCreate) SetNillableNotionUserEmail(s *string) *AccountCreate {
+	if s != nil {
+		ac.SetNotionUserEmail(*s)
+	}
+	return ac
+}
+
 // SetIsLatestSchema sets the "is_latest_schema" field.
 func (ac *AccountCreate) SetIsLatestSchema(b bool) *AccountCreate {
 	ac.mutation.SetIsLatestSchema(b)
@@ -303,6 +331,14 @@ func (ac *AccountCreate) createSpec() (*Account, *sqlgraph.CreateSpec) {
 		_spec.SetField(account.FieldAccessToken, field.TypeString, value)
 		_node.AccessToken = value
 	}
+	if value, ok := ac.mutation.NotionUserID(); ok {
+		_spec.SetField(account.FieldNotionUserID, field.TypeString, value)
+		_node.NotionUserID = value
+	}
+	if value, ok := ac.mutation.NotionUserEmail(); ok {
+		_spec.SetField(account.FieldNotionUserEmail, field.TypeString, value)
+		_node.NotionUserEmail = value
+	}
 	if value, ok := ac.mutation.IsLatestSchema(); ok {
 		_spec.SetField(account.FieldIsLatestSchema, field.TypeBool, value)
 		_node.IsLatestSchema = value
@@ -434,6 +470,42 @@ func (u *AccountUpsert) SetAccessToken(v string) *AccountUpsert {
 // UpdateAccessToken sets the "access_token" field to the value that was provided on create.
 func (u *AccountUpsert) UpdateAccessToken() *AccountUpsert {
 	u.SetExcluded(account.FieldAccessToken)
+	return u
+}
+
+// SetNotionUserID sets the "notion_user_id" field.
+func (u *AccountUpsert) SetNotionUserID(v string) *AccountUpsert {
+	u.Set(account.FieldNotionUserID, v)
+	return u
+}
+
+// UpdateNotionUserID sets the "notion_user_id" field to the value that was provided on create.
+func (u *AccountUpsert) UpdateNotionUserID() *AccountUpsert {
+	u.SetExcluded(account.FieldNotionUserID)
+	return u
+}
+
+// ClearNotionUserID clears the value of the "notion_user_id" field.
+func (u *AccountUpsert) ClearNotionUserID() *AccountUpsert {
+	u.SetNull(account.FieldNotionUserID)
+	return u
+}
+
+// SetNotionUserEmail sets the "notion_user_email" field.
+func (u *AccountUpsert) SetNotionUserEmail(v string) *AccountUpsert {
+	u.Set(account.FieldNotionUserEmail, v)
+	return u
+}
+
+// UpdateNotionUserEmail sets the "notion_user_email" field to the value that was provided on create.
+func (u *AccountUpsert) UpdateNotionUserEmail() *AccountUpsert {
+	u.SetExcluded(account.FieldNotionUserEmail)
+	return u
+}
+
+// ClearNotionUserEmail clears the value of the "notion_user_email" field.
+func (u *AccountUpsert) ClearNotionUserEmail() *AccountUpsert {
+	u.SetNull(account.FieldNotionUserEmail)
 	return u
 }
 
@@ -582,6 +654,48 @@ func (u *AccountUpsertOne) SetAccessToken(v string) *AccountUpsertOne {
 func (u *AccountUpsertOne) UpdateAccessToken() *AccountUpsertOne {
 	return u.Update(func(s *AccountUpsert) {
 		s.UpdateAccessToken()
+	})
+}
+
+// SetNotionUserID sets the "notion_user_id" field.
+func (u *AccountUpsertOne) SetNotionUserID(v string) *AccountUpsertOne {
+	return u.Update(func(s *AccountUpsert) {
+		s.SetNotionUserID(v)
+	})
+}
+
+// UpdateNotionUserID sets the "notion_user_id" field to the value that was provided on create.
+func (u *AccountUpsertOne) UpdateNotionUserID() *AccountUpsertOne {
+	return u.Update(func(s *AccountUpsert) {
+		s.UpdateNotionUserID()
+	})
+}
+
+// ClearNotionUserID clears the value of the "notion_user_id" field.
+func (u *AccountUpsertOne) ClearNotionUserID() *AccountUpsertOne {
+	return u.Update(func(s *AccountUpsert) {
+		s.ClearNotionUserID()
+	})
+}
+
+// SetNotionUserEmail sets the "notion_user_email" field.
+func (u *AccountUpsertOne) SetNotionUserEmail(v string) *AccountUpsertOne {
+	return u.Update(func(s *AccountUpsert) {
+		s.SetNotionUserEmail(v)
+	})
+}
+
+// UpdateNotionUserEmail sets the "notion_user_email" field to the value that was provided on create.
+func (u *AccountUpsertOne) UpdateNotionUserEmail() *AccountUpsertOne {
+	return u.Update(func(s *AccountUpsert) {
+		s.UpdateNotionUserEmail()
+	})
+}
+
+// ClearNotionUserEmail clears the value of the "notion_user_email" field.
+func (u *AccountUpsertOne) ClearNotionUserEmail() *AccountUpsertOne {
+	return u.Update(func(s *AccountUpsert) {
+		s.ClearNotionUserEmail()
 	})
 }
 
@@ -894,6 +1008,48 @@ func (u *AccountUpsertBulk) SetAccessToken(v string) *AccountUpsertBulk {
 func (u *AccountUpsertBulk) UpdateAccessToken() *AccountUpsertBulk {
 	return u.Update(func(s *AccountUpsert) {
 		s.UpdateAccessToken()
+	})
+}
+
+// SetNotionUserID sets the "notion_user_id" field.
+func (u *AccountUpsertBulk) SetNotionUserID(v string) *AccountUpsertBulk {
+	return u.Update(func(s *AccountUpsert) {
+		s.SetNotionUserID(v)
+	})
+}
+
+// UpdateNotionUserID sets the "notion_user_id" field to the value that was provided on create.
+func (u *AccountUpsertBulk) UpdateNotionUserID() *AccountUpsertBulk {
+	return u.Update(func(s *AccountUpsert) {
+		s.UpdateNotionUserID()
+	})
+}
+
+// ClearNotionUserID clears the value of the "notion_user_id" field.
+func (u *AccountUpsertBulk) ClearNotionUserID() *AccountUpsertBulk {
+	return u.Update(func(s *AccountUpsert) {
+		s.ClearNotionUserID()
+	})
+}
+
+// SetNotionUserEmail sets the "notion_user_email" field.
+func (u *AccountUpsertBulk) SetNotionUserEmail(v string) *AccountUpsertBulk {
+	return u.Update(func(s *AccountUpsert) {
+		s.SetNotionUserEmail(v)
+	})
+}
+
+// UpdateNotionUserEmail sets the "notion_user_email" field to the value that was provided on create.
+func (u *AccountUpsertBulk) UpdateNotionUserEmail() *AccountUpsertBulk {
+	return u.Update(func(s *AccountUpsert) {
+		s.UpdateNotionUserEmail()
+	})
+}
+
+// ClearNotionUserEmail clears the value of the "notion_user_email" field.
+func (u *AccountUpsertBulk) ClearNotionUserEmail() *AccountUpsertBulk {
+	return u.Update(func(s *AccountUpsert) {
+		s.ClearNotionUserEmail()
 	})
 }
 

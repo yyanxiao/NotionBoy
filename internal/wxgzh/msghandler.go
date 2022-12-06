@@ -7,6 +7,7 @@ import (
 	"notionboy/internal/pkg/db/dao"
 	"notionboy/internal/pkg/logger"
 	"notionboy/internal/pkg/utils"
+	"strings"
 	"time"
 
 	notion "notionboy/internal/pkg/notion"
@@ -25,13 +26,13 @@ func init() {
 	}
 }
 
-func (ex *OfficialAccount) messageHandler(c context.Context, msg *message.MixMessage) *message.Reply {
+func (ex *OfficialAccount) messageHandler(ctx context.Context, msg *message.MixMessage) *message.Reply {
 	if msg.Event == message.EventSubscribe {
-		return bindNotion(c, msg)
+		return bindNotion(ctx, msg)
 	}
 
 	if msg.Event == message.EventUnsubscribe {
-		return unBindingNotion(c, msg)
+		return unBindingNotion(ctx, msg)
 	}
 
 	userID := msg.GetOpenID()
@@ -42,21 +43,24 @@ func (ex *OfficialAccount) messageHandler(c context.Context, msg *message.MixMes
 
 	switch msg.Content {
 	case config.CMD_BIND:
-		return bindNotion(c, msg)
+		return bindNotion(ctx, msg)
 	case config.CMD_UNBIND:
-		return unBindingNotion(c, msg)
+		return unBindingNotion(ctx, msg)
 	case config.CMD_HELP:
-		return helpInfo(c, msg)
+		return helpInfo(ctx, msg)
 	case config.CMD_HELP_ZH:
-		return helpInfo(c, msg)
+		return helpInfo(ctx, msg)
 	case config.CMD_SOS:
-		return sosInfo(c, msg)
+		return sosInfo(ctx, msg)
 	}
 
 	mr := make(chan *message.Reply)
-
-	go ex.processContent(context.TODO(), msg, content, mr)
-
+	// process chatGPT
+	if strings.HasPrefix(msg.Content, config.CMD_CHAT) || strings.HasPrefix(msg.Content, strings.ToUpper(config.CMD_CHAT)) {
+		go ex.processChat(context.TODO(), msg, content, mr)
+	} else {
+		go ex.processContent(context.TODO(), msg, content, mr)
+	}
 	select {
 	case r := <-mr:
 		return r
