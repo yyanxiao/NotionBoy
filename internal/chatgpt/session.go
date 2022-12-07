@@ -29,7 +29,7 @@ func refreshHeaders() {
 }
 
 // RefreshSession use to keep session up to date
-func RefreshSession() {
+func refreshSession() {
 	cfg := config.GetConfig().ChatGPT
 	if cfg.SessionToken == "" {
 		logger.SugaredLogger.Fatal("Can't find sessionToken")

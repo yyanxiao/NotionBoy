@@ -33,7 +33,7 @@ func wxGetAccessToken(w http.ResponseWriter, r *http.Request) {
 		renderError(w, http.StatusInternalServerError, "", err)
 		return
 	}
-	renderSuccess(w, ak)
+	renderHtml(w, ak, http.StatusOK)
 }
 
 func wxGetCallbackIP(w http.ResponseWriter, r *http.Request) {
@@ -42,7 +42,7 @@ func wxGetCallbackIP(w http.ResponseWriter, r *http.Request) {
 		renderError(w, http.StatusInternalServerError, "", err)
 		return
 	}
-	renderSuccess(w, ipList)
+	renderHtml(w, ipList, http.StatusOK)
 }
 
 func wxGetAPIDomainIP(w http.ResponseWriter, r *http.Request) {
@@ -51,7 +51,7 @@ func wxGetAPIDomainIP(w http.ResponseWriter, r *http.Request) {
 		renderError(w, http.StatusInternalServerError, "", err)
 		return
 	}
-	renderSuccess(w, ipList)
+	renderHtml(w, ipList, http.StatusOK)
 }
 
 func wxClearQuota(w http.ResponseWriter, r *http.Request) {
@@ -60,7 +60,7 @@ func wxClearQuota(w http.ResponseWriter, r *http.Request) {
 		renderError(w, http.StatusInternalServerError, "", err)
 		return
 	}
-	renderSuccess(w, msg)
+	renderHtml(w, msg, http.StatusOK)
 }
 
 func wxProcessMsg(w http.ResponseWriter, r *http.Request) {

@@ -34,5 +34,5 @@ func notionOauthCallback(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	renderSuccess(w, msg)
+	renderHtml(w, msg, http.StatusOK)
 }

@@ -3,7 +3,6 @@ package wxgzh
 import (
 	"context"
 	"notionboy/db/ent"
-	"notionboy/internal/chatgpt"
 	"notionboy/internal/pkg/config"
 	"notionboy/internal/pkg/db/dao"
 	"notionboy/internal/pkg/logger"
@@ -56,7 +55,7 @@ func (ex *OfficialAccount) processChat(ctx context.Context, msg *message.MixMess
 
 func (ex *OfficialAccount) updateChatContent(ctx context.Context, n *notion.Notion, accountInfo *ent.Account, content *notion.Content, chatParentId string) {
 	updateLatestSchema(ctx, accountInfo, n)
-	parentMessageId, msg, err := chatgpt.Chat(chatParentId, content.Text[5:])
+	parentMessageId, msg, err := ex.chatter.Chat(chatParentId, content.Text[5:])
 	chatParentIdMap.Store(accountInfo.DatabaseID, parentMessageId)
 	var chatResp string
 	if err != nil {

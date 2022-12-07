@@ -6,6 +6,7 @@ require (
 	entgo.io/ent v0.11.4
 	github.com/chromedp/cdproto v0.0.0-20221126224343-3a0787b8dd28
 	github.com/chromedp/chromedp v0.8.6
+	github.com/donovanhide/eventsource v0.0.0-20210830082556-c59027999da0
 	github.com/fsnotify/fsnotify v1.6.0
 	github.com/go-resty/resty/v2 v2.7.0
 	github.com/go-sql-driver/mysql v1.6.0

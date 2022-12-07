@@ -53,10 +53,11 @@ const (
 	CMD_UNBIND       = "解绑"
 	CMD_FULLTEXT     = "全文"
 	CMD_FULLTEXT_PDF = "PDF全文"
+	CMD_PDF          = "PDF"
 	CMD_HELP_ZH      = "帮助"
-	CMD_HELP         = "help"
+	CMD_HELP         = "HELP"
 	CMD_SOS          = "SOS"
-	CMD_CHAT         = "#chat"
+	CMD_CHAT         = "#CHAT"
 )
 
 const (

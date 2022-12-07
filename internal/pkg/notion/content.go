@@ -33,7 +33,7 @@ func (c *Content) Process(ctx context.Context) {
 		for _, m := range match {
 			tag := strings.Trim(m[1], "# ")
 			tags = append(tags, tag)
-			if tag == config.CMD_FULLTEXT || tag == config.CMD_FULLTEXT_PDF {
+			if strings.ToUpper(tag) == config.CMD_FULLTEXT || strings.HasPrefix(strings.ToUpper(tag), config.CMD_PDF) {
 				c.parseFulltextURL(ctx, tag)
 			}
 		}

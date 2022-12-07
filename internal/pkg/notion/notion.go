@@ -121,3 +121,7 @@ func (n *Notion) UpdateDatabase(ctx context.Context, req *notionapi.DatabaseUpda
 	}
 	return msg, err
 }
+
+func (n *Notion) GetDatabaseInfo(ctx context.Context) (*notionapi.Database, error) {
+	return n.GetClient().Database.Get(ctx, notionapi.DatabaseID(n.DatabaseID))
+}

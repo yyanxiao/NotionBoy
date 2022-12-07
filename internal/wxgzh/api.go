@@ -2,6 +2,7 @@ package wxgzh
 
 import (
 	"net/http"
+	"notionboy/internal/chatgpt"
 	"notionboy/internal/pkg/config"
 	"notionboy/internal/pkg/logger"
 
@@ -18,9 +19,10 @@ import (
 type OfficialAccount struct {
 	wc              *wechat.Wechat
 	officialAccount *officialaccount.OfficialAccount
+	chatter         chatgpt.Chatter
 }
 
-// OfficialAccount new
+// NewOfficialAccount
 func NewOfficialAccount(wc *wechat.Wechat) *OfficialAccount {
 	// init config
 	wechatConfig := config.GetConfig().Wechat
@@ -36,6 +38,7 @@ func NewOfficialAccount(wc *wechat.Wechat) *OfficialAccount {
 	return &OfficialAccount{
 		wc:              wc,
 		officialAccount: officialAccount,
+		chatter:         chatgpt.New(config.GetConfig().ChatGPT.SessionToken),
 	}
 }
 

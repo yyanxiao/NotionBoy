@@ -21,7 +21,7 @@ func unBindingNotion(c context.Context, msg *message.MixMessage) *message.Reply 
 }
 
 func bindNotion(c context.Context, msg *message.MixMessage) *message.Reply {
-	logger.SugaredLogger.Warn("----- bindNotion ------")
+	logger.SugaredLogger.Info("----- bindNotion ------")
 	userID := msg.GetOpenID()
 	userType := account.UserTypeWechat
 	stage := fmt.Sprintf("%s:%s", userType, userID)

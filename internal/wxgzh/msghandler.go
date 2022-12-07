@@ -40,8 +40,8 @@ func (ex *OfficialAccount) messageHandler(ctx context.Context, msg *message.MixM
 	memCache := utils.GetCache()
 	userCache := memCache.Get(userID)
 	logger.SugaredLogger.Infof("UserID: %s, content: %v, msgType: %s, userCache: %s", userID, content, msg.MsgType, userCache)
-
-	switch msg.Content {
+	cmd := strings.ToUpper(msg.Content)
+	switch cmd {
 	case config.CMD_BIND:
 		return bindNotion(ctx, msg)
 	case config.CMD_UNBIND:
@@ -56,7 +56,7 @@ func (ex *OfficialAccount) messageHandler(ctx context.Context, msg *message.MixM
 
 	mr := make(chan *message.Reply)
 	// process chatGPT
-	if strings.HasPrefix(msg.Content, config.CMD_CHAT) || strings.HasPrefix(msg.Content, strings.ToUpper(config.CMD_CHAT)) {
+	if strings.HasPrefix(strings.ToUpper(msg.Content), config.CMD_CHAT) {
 		go ex.processChat(context.TODO(), msg, content, mr)
 	} else {
 		go ex.processContent(context.TODO(), msg, content, mr)

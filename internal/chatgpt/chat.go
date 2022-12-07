@@ -1,156 +1,135 @@
 package chatgpt
 
 import (
-	"bytes"
 	"encoding/json"
 	"errors"
-	"io"
+	"fmt"
 	"net/http"
 	"notionboy/internal/pkg/logger"
 	"sync"
+	"time"
 
 	"github.com/google/uuid"
+
+	"github.com/donovanhide/eventsource"
 )
 
-const chatURL = "https://chat.openai.com/backend-api/conversation"
-
-var mu sync.Mutex
-
-type MessageContent struct {
-	ContentType string   `json:"content_type"`
-	Parts       []string `json:"parts"`
+type chatter struct {
+	mu           sync.Mutex
+	SessionToken string `json:"session_token"`
+	AuthToken    string `json:"auth_token"`
 }
 
-type Message struct {
-	ID      string         `json:"id"`
-	Role    string         `json:"role"`
-	Content MessageContent `json:"content"`
+type Chatter interface {
+	Chat(parentMessageId, prompt string) (string, string, error)
 }
 
-type Payload struct {
-	Action          string    `json:"action"`
-	Messages        []Message `json:"messages"`
-	ConversationId  string    `json:"conversation_id,omitempty"`
-	ParentMessageId string    `json:"parent_message_id"`
-	Model           string    `json:"model"`
+var bot *chatter
+
+// New create a new chatter
+func New(sessionToken string) Chatter {
+	refreshSession()
+	once := sync.Once{}
+	once.Do(func() {
+		go func() {
+			for range time.Tick(5 * time.Minute) {
+				refreshSession()
+			}
+		}()
+		bot = &chatter{
+			SessionToken: sessionToken,
+		}
+	})
+	return bot
 }
 
-type ResponseBody struct {
-	Message        Message `json:"message"`
-	ConversationId string  `json:"conversation_id,omitempty"`
-	Error          string  `json:"error"`
-}
-
-// Chat
-// input: parentMessageId, conversationId , prompt
-// output: parentMessageId , message, error
-func Chat(parentMessageId, prompt string) (string, string, error) {
-	// only enable one chat per time
-	mu.Lock()
-	defer mu.Unlock()
+func (c *chatter) Chat(parentMessageId, prompt string) (string, string, error) {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	bodyChan := make(chan *http.Response)
+	defer close(bodyChan)
+	errorChan := make(chan error)
+	defer close(errorChan)
 	payload := buildPayload(parentMessageId, []string{prompt})
 	logger.SugaredLogger.Debugw("Request Payload", "payload", payload)
 
-	resp, err := client.R().
-		SetBody(payload).
-		SetDoNotParseResponse(true).
-		Post(chatURL)
-	if err != nil {
-		logger.SugaredLogger.Errorw("Talk to chatGPT error", "err", err)
-		return "", "", err
+	post := func() {
+		resp, err := client.R().
+			SetBody(payload).
+			SetHeader("Accept", "text/event-stream").
+			SetDoNotParseResponse(true).
+			Post(chatURL)
+		if err != nil {
+			errorChan <- err
+			return
+		}
+
+		logger.SugaredLogger.Debugw("status", "status_code", resp.Status())
+		if resp.StatusCode() != http.StatusOK {
+			refreshSession()
+			errorChan <- errors.New("Status: " + resp.Status())
+			return
+		}
+		bodyChan <- resp.RawResponse
 	}
 
-	logger.SugaredLogger.Debugw("status", "status_code", resp.Status())
-	if resp.StatusCode() != http.StatusOK {
-		logger.SugaredLogger.Errorw("Chat with chatGPT error, please retry first", "status_code", resp.StatusCode(), "resp_text", string(resp.Body()))
-		RefreshSession()
-		return "", "", errors.New("Chat with chatGPT error. \nerror: " + resp.Status())
+	var err error
+	// if chatGPT response with error, retry 3 times
+	for i := 0; i < 3; i++ {
+		go post()
+		select {
+		case body := <-bodyChan:
+			var res *ResponseBody
+			res, err = c.decodeResponse(body)
+			if err != nil {
+				err = fmt.Errorf("Decode response error, %s", err.Error())
+				continue
+			}
+			return res.Message.ID, res.Message.Content.Parts[0], err
+		case err = <-errorChan:
+			logger.SugaredLogger.Warnw("Get response from chatGPT error", "retry_times", i+1, "err", err)
+			continue
+		}
 	}
-	newParentMessageId, _, messages, err := processResponse(resp.RawResponse)
-	return newParentMessageId, messages[0], err
+	return "", "", err
 }
 
-// processResponse
-// resp: *resty.Response as input
-// parentMessageId, conversationId, messages, error
-func processResponse(resp *http.Response) (string, string, []string, error) {
+func (c *chatter) decodeResponse(resp *http.Response) (*ResponseBody, error) {
 	defer resp.Body.Close()
-	//respBody, _ := io.ReadAll(resp.Body)
-	//dataSlice := bytes.Split(respBody, []byte{'\n'})
-	//var data []byte
-	//for i := len(dataSlice) - 1; i >= 0; i-- {
-	//	if strings.HasPrefix(string(dataSlice[i]), "data: {") {
-	//		data = dataSlice[i]
-	//		data = data[6:]
-	//		break
-	//	}
-	//}
-	//if data == nil {
-	//	return "", "", []string{""}, errors.New("read response error, please retry")
-	//}
-	data := readBody(resp.Body)
-	if data == nil {
-		return "", "", []string{""}, errors.New("read response error, please retry")
-	}
+	eventChan := make(chan string)
 
-	var res ResponseBody
-	_ = json.Unmarshal(data, &res)
-	logger.SugaredLogger.Debugw("Response", "conversation_id", res.ConversationId, "error", res.Error, "message", res.Message)
-	parentMessageId, conversationId, messages := res.Message.ID, res.ConversationId, res.Message.Content.Parts
-	return parentMessageId, conversationId, messages, nil
-}
-
-func readBody(r io.Reader) []byte {
-	b := make([]byte, 2)
-	pending := make([]byte, 0)
-	// lines := make([][]byte, 0)
-	res := make([]byte, 0)
-	dataPrefix := []byte("data: {")
-	for {
-		if _, err := r.Read(b); err != nil {
-			if err == io.EOF {
-				tmpLine := make([]byte, 0)
-				for _, item := range pending {
-					if item == 0 {
-						break
-					}
-					tmpLine = append(tmpLine, item)
-				}
-				if bytes.HasPrefix(tmpLine, dataPrefix) {
-					res = tmpLine
-				}
-				// lines = append(lines, tmpLine)
+	decoder := eventsource.NewDecoder(resp.Body)
+	go func() {
+		defer close(eventChan)
+		for {
+			event, err := decoder.Decode()
+			if err != nil {
+				logger.SugaredLogger.Errorw("Failed to decode event", "err", err)
 				break
 			}
-		}
-		if len(pending) != 0 {
-			b = append(pending[:], b...)
-			pending = make([]byte, 0)
-		}
-		if len(b) > 0 {
-			tmpLines := bytes.Split(b, []byte{'\n'})
-			lastLine := tmpLines[len(tmpLines)-1]
-			if len(lastLine) > 0 && lastLine[len(lastLine)-1] == b[len(b)-1] {
-				pending = append(pending, lastLine...)
-				tmpLines = tmpLines[:len(tmpLines)-1]
-			} else {
-				pending = make([]byte, 0)
+			if event.Data() == "[DONE]" || event.Data() == "" {
+				break
 			}
-			for _, line := range tmpLines {
-				if len(line) > 0 {
-					if bytes.HasPrefix(line, dataPrefix) {
-						res = line
-					}
-					// lines = append(lines, line)
-				}
-			}
+			// logger.SugaredLogger.Debugw("send chunk data", "data", string(event.Data()))
+			eventChan <- event.Data()
 		}
-		b = make([]byte, 2)
+	}()
+
+	var res ResponseBody
+	for chunk := range eventChan {
+		if err := json.Unmarshal([]byte(chunk), &res); err != nil {
+			continue
+		}
+		//if len(res.Message.Content.Parts) > 0 {
+		//	logger.SugaredLogger.Debug(res.Message.Content.Parts[0])
+		//}
 	}
-	if len(res) > 0 {
-		return res[6:]
+
+	if len(res.Message.Content.Parts) == 0 {
+		return nil, errors.New("ChatGPT do not response, please retry later")
 	}
-	return res
+	logger.SugaredLogger.Debugw("Response", "conversation_id", res.ConversationId, "error", res.Error, "message", res.Message)
+	return &res, nil
 }
 
 func buildPayload(parentMessageId string, prompt []string) *Payload {

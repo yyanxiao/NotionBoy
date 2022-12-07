@@ -62,18 +62,29 @@ func getDatabaseID(ctx context.Context, token string) (string, error) {
 	return databaseId, nil
 }
 
-func UpdateDatabaseProperties(ctx context.Context, cfg *Notion) (string, error) {
-	return cfg.UpdateDatabase(ctx, defaultDatabaseProperties())
+func UpdateDatabaseProperties(ctx context.Context, n *Notion) (string, error) {
+	database, err := n.GetDatabaseInfo(ctx)
+	if err != nil {
+		return "", err
+	}
+	defaultMultiSelect := notionapi.Select{
+		Options: []notionapi.Option{},
+	}
+	tags, ok := database.Properties["Tags"]
+	if ok {
+		if tags.GetType() == notionapi.PropertyConfigTypeMultiSelect {
+			defaultMultiSelect = (tags.(*notionapi.MultiSelectPropertyConfig)).MultiSelect
+		}
+	}
+	return n.UpdateDatabase(ctx, defaultDatabaseProperties(defaultMultiSelect))
 }
 
-func defaultDatabaseProperties() *notionapi.DatabaseUpdateRequest {
+func defaultDatabaseProperties(multiSelect notionapi.Select) *notionapi.DatabaseUpdateRequest {
 	return &notionapi.DatabaseUpdateRequest{
 		Properties: notionapi.PropertyConfigs{
 			"Tags": notionapi.MultiSelectPropertyConfig{
-				Type: notionapi.PropertyConfigTypeMultiSelect,
-				MultiSelect: notionapi.Select{
-					Options: []notionapi.Option{},
-				},
+				Type:        notionapi.PropertyConfigTypeMultiSelect,
+				MultiSelect: multiSelect,
 			},
 			"Text": notionapi.RichTextPropertyConfig{
 				Type: notionapi.PropertyConfigTypeRichText,

@@ -6,6 +6,7 @@ import (
 	"notionboy/internal/pkg/config"
 	"notionboy/internal/pkg/fulltext"
 	"notionboy/internal/pkg/r2"
+	"strings"
 
 	"github.com/jomei/notionapi"
 )
@@ -18,7 +19,7 @@ type FulltextContent struct {
 }
 
 func (c *FulltextContent) ProcessSnapshot(ctx context.Context, tag string) {
-	if tag == config.CMD_FULLTEXT_PDF {
+	if strings.HasPrefix(strings.ToUpper(tag), config.CMD_PDF) {
 		c.processFulltextPDF(ctx)
 	} else {
 		c.processFulltextImage(ctx)
