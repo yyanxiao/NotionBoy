@@ -9,7 +9,7 @@ RUN go mod download
 COPY . .
 RUN go build -o /go/bin/app cmd/notionboy/main.go
 
-FROM gcr.io/distroless/static-debian11
+FROM gcr.io/distroless/base-debian11
 WORKDIR /service/
 
 COPY --from=build /go/bin/app .
