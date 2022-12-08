@@ -82,6 +82,7 @@ func setSessionTokenCookie() {
 	for _, cookie := range client.Cookies {
 		if cookie.Name == cookieSessionToken {
 			cookie.Value = cfg.SessionToken
+			isSessionCookieExist = true
 			break
 		}
 	}
