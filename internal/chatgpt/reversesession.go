@@ -29,7 +29,7 @@ func refreshHeaders() {
 }
 
 // RefreshSession use to keep session up to date
-func refreshSession() {
+func (cli *reverseClient) refreshSession() {
 	cfg := config.GetConfig().ChatGPT
 	if cfg.SessionToken == "" {
 		logger.SugaredLogger.Fatal("Can't find sessionToken")
@@ -42,6 +42,11 @@ func refreshSession() {
 	resp, err := client.R().Get(authURL)
 	if err != nil {
 		logger.SugaredLogger.Errorw("refresh session for chatGPT error", "err", err)
+		return
+	}
+	if resp.StatusCode() == http.StatusBadRequest {
+		cli.setIsRateLimit(true)
+		logger.SugaredLogger.Errorw("Reach ratelimit, please try after 1 hour", "status", resp.Status())
 		return
 	}
 	if resp.StatusCode() != http.StatusOK {
@@ -66,6 +71,8 @@ func refreshSession() {
 	}
 	config.GetConfig().ChatGPT.Authorization = accessToken.(string)
 
-	logger.SugaredLogger.Debugf("%#v", cfg)
+	// logger.SugaredLogger.Debugf("%#v", cfg)
+	logger.SugaredLogger.Infow("refresh session success", "session_token", cfg.SessionToken)
 	refreshHeaders()
+	cli.setIsRateLimit(false)
 }

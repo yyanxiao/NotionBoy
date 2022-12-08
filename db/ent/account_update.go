@@ -140,6 +140,20 @@ func (au *AccountUpdate) SetNillableIsLatestSchema(b *bool) *AccountUpdate {
 	return au
 }
 
+// SetIsOpenaiAPIUser sets the "is_openai_api_user" field.
+func (au *AccountUpdate) SetIsOpenaiAPIUser(b bool) *AccountUpdate {
+	au.mutation.SetIsOpenaiAPIUser(b)
+	return au
+}
+
+// SetNillableIsOpenaiAPIUser sets the "is_openai_api_user" field if the given value is not nil.
+func (au *AccountUpdate) SetNillableIsOpenaiAPIUser(b *bool) *AccountUpdate {
+	if b != nil {
+		au.SetIsOpenaiAPIUser(*b)
+	}
+	return au
+}
+
 // Mutation returns the AccountMutation object of the builder.
 func (au *AccountUpdate) Mutation() *AccountMutation {
 	return au.mutation
@@ -288,6 +302,9 @@ func (au *AccountUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := au.mutation.IsLatestSchema(); ok {
 		_spec.SetField(account.FieldIsLatestSchema, field.TypeBool, value)
 	}
+	if value, ok := au.mutation.IsOpenaiAPIUser(); ok {
+		_spec.SetField(account.FieldIsOpenaiAPIUser, field.TypeBool, value)
+	}
 	if n, err = sqlgraph.UpdateNodes(ctx, au.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{account.Label}
@@ -415,6 +432,20 @@ func (auo *AccountUpdateOne) SetIsLatestSchema(b bool) *AccountUpdateOne {
 func (auo *AccountUpdateOne) SetNillableIsLatestSchema(b *bool) *AccountUpdateOne {
 	if b != nil {
 		auo.SetIsLatestSchema(*b)
+	}
+	return auo
+}
+
+// SetIsOpenaiAPIUser sets the "is_openai_api_user" field.
+func (auo *AccountUpdateOne) SetIsOpenaiAPIUser(b bool) *AccountUpdateOne {
+	auo.mutation.SetIsOpenaiAPIUser(b)
+	return auo
+}
+
+// SetNillableIsOpenaiAPIUser sets the "is_openai_api_user" field if the given value is not nil.
+func (auo *AccountUpdateOne) SetNillableIsOpenaiAPIUser(b *bool) *AccountUpdateOne {
+	if b != nil {
+		auo.SetIsOpenaiAPIUser(*b)
 	}
 	return auo
 }
@@ -596,6 +627,9 @@ func (auo *AccountUpdateOne) sqlSave(ctx context.Context) (_node *Account, err e
 	}
 	if value, ok := auo.mutation.IsLatestSchema(); ok {
 		_spec.SetField(account.FieldIsLatestSchema, field.TypeBool, value)
+	}
+	if value, ok := auo.mutation.IsOpenaiAPIUser(); ok {
+		_spec.SetField(account.FieldIsOpenaiAPIUser, field.TypeBool, value)
 	}
 	_node = &Account{config: auo.config}
 	_spec.Assign = _node.assignValues

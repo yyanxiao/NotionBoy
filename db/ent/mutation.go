@@ -29,23 +29,24 @@ const (
 // AccountMutation represents an operation that mutates the Account nodes in the graph.
 type AccountMutation struct {
 	config
-	op                Op
-	typ               string
-	id                *int
-	created_at        *time.Time
-	updated_at        *time.Time
-	deleted           *bool
-	user_id           *string
-	user_type         *account.UserType
-	database_id       *string
-	access_token      *string
-	notion_user_id    *string
-	notion_user_email *string
-	is_latest_schema  *bool
-	clearedFields     map[string]struct{}
-	done              bool
-	oldValue          func(context.Context) (*Account, error)
-	predicates        []predicate.Account
+	op                 Op
+	typ                string
+	id                 *int
+	created_at         *time.Time
+	updated_at         *time.Time
+	deleted            *bool
+	user_id            *string
+	user_type          *account.UserType
+	database_id        *string
+	access_token       *string
+	notion_user_id     *string
+	notion_user_email  *string
+	is_latest_schema   *bool
+	is_openai_api_user *bool
+	clearedFields      map[string]struct{}
+	done               bool
+	oldValue           func(context.Context) (*Account, error)
+	predicates         []predicate.Account
 }
 
 var _ ent.Mutation = (*AccountMutation)(nil)
@@ -545,6 +546,42 @@ func (m *AccountMutation) ResetIsLatestSchema() {
 	m.is_latest_schema = nil
 }
 
+// SetIsOpenaiAPIUser sets the "is_openai_api_user" field.
+func (m *AccountMutation) SetIsOpenaiAPIUser(b bool) {
+	m.is_openai_api_user = &b
+}
+
+// IsOpenaiAPIUser returns the value of the "is_openai_api_user" field in the mutation.
+func (m *AccountMutation) IsOpenaiAPIUser() (r bool, exists bool) {
+	v := m.is_openai_api_user
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldIsOpenaiAPIUser returns the old "is_openai_api_user" field's value of the Account entity.
+// If the Account object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *AccountMutation) OldIsOpenaiAPIUser(ctx context.Context) (v bool, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldIsOpenaiAPIUser is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldIsOpenaiAPIUser requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldIsOpenaiAPIUser: %w", err)
+	}
+	return oldValue.IsOpenaiAPIUser, nil
+}
+
+// ResetIsOpenaiAPIUser resets all changes to the "is_openai_api_user" field.
+func (m *AccountMutation) ResetIsOpenaiAPIUser() {
+	m.is_openai_api_user = nil
+}
+
 // Where appends a list predicates to the AccountMutation builder.
 func (m *AccountMutation) Where(ps ...predicate.Account) {
 	m.predicates = append(m.predicates, ps...)
@@ -564,7 +601,7 @@ func (m *AccountMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *AccountMutation) Fields() []string {
-	fields := make([]string, 0, 10)
+	fields := make([]string, 0, 11)
 	if m.created_at != nil {
 		fields = append(fields, account.FieldCreatedAt)
 	}
@@ -595,6 +632,9 @@ func (m *AccountMutation) Fields() []string {
 	if m.is_latest_schema != nil {
 		fields = append(fields, account.FieldIsLatestSchema)
 	}
+	if m.is_openai_api_user != nil {
+		fields = append(fields, account.FieldIsOpenaiAPIUser)
+	}
 	return fields
 }
 
@@ -623,6 +663,8 @@ func (m *AccountMutation) Field(name string) (ent.Value, bool) {
 		return m.NotionUserEmail()
 	case account.FieldIsLatestSchema:
 		return m.IsLatestSchema()
+	case account.FieldIsOpenaiAPIUser:
+		return m.IsOpenaiAPIUser()
 	}
 	return nil, false
 }
@@ -652,6 +694,8 @@ func (m *AccountMutation) OldField(ctx context.Context, name string) (ent.Value,
 		return m.OldNotionUserEmail(ctx)
 	case account.FieldIsLatestSchema:
 		return m.OldIsLatestSchema(ctx)
+	case account.FieldIsOpenaiAPIUser:
+		return m.OldIsOpenaiAPIUser(ctx)
 	}
 	return nil, fmt.Errorf("unknown Account field %s", name)
 }
@@ -730,6 +774,13 @@ func (m *AccountMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetIsLatestSchema(v)
+		return nil
+	case account.FieldIsOpenaiAPIUser:
+		v, ok := value.(bool)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetIsOpenaiAPIUser(v)
 		return nil
 	}
 	return fmt.Errorf("unknown Account field %s", name)
@@ -830,6 +881,9 @@ func (m *AccountMutation) ResetField(name string) error {
 		return nil
 	case account.FieldIsLatestSchema:
 		m.ResetIsLatestSchema()
+		return nil
+	case account.FieldIsOpenaiAPIUser:
+		m.ResetIsOpenaiAPIUser()
 		return nil
 	}
 	return fmt.Errorf("unknown Account field %s", name)

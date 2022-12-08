@@ -12,6 +12,7 @@ require (
 	github.com/go-sql-driver/mysql v1.6.0
 	github.com/jomei/notionapi v1.9.3
 	github.com/mattn/go-sqlite3 v1.14.16
+	github.com/sashabaranov/go-gpt3 v0.0.0-20221202105456-0f9f4aa343ad
 	github.com/silenceper/wechat/v2 v2.1.4
 	github.com/spf13/viper v1.14.0
 	github.com/stretchr/testify v1.8.1

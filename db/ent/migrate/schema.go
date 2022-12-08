@@ -21,6 +21,7 @@ var (
 		{Name: "notion_user_id", Type: field.TypeString, Nullable: true},
 		{Name: "notion_user_email", Type: field.TypeString, Nullable: true},
 		{Name: "is_latest_schema", Type: field.TypeBool, Default: false},
+		{Name: "is_openai_api_user", Type: field.TypeBool, Default: false},
 	}
 	// AccountsTable holds the schema information for the "accounts" table.
 	AccountsTable = &schema.Table{

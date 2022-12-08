@@ -45,4 +45,8 @@ func init() {
 	accountDescIsLatestSchema := accountFields[6].Descriptor()
 	// account.DefaultIsLatestSchema holds the default value on creation for the is_latest_schema field.
 	account.DefaultIsLatestSchema = accountDescIsLatestSchema.Default.(bool)
+	// accountDescIsOpenaiAPIUser is the schema descriptor for is_openai_api_user field.
+	accountDescIsOpenaiAPIUser := accountFields[7].Descriptor()
+	// account.DefaultIsOpenaiAPIUser holds the default value on creation for the is_openai_api_user field.
+	account.DefaultIsOpenaiAPIUser = accountDescIsOpenaiAPIUser.Default.(bool)
 }

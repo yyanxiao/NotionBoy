@@ -138,6 +138,20 @@ func (ac *AccountCreate) SetNillableIsLatestSchema(b *bool) *AccountCreate {
 	return ac
 }
 
+// SetIsOpenaiAPIUser sets the "is_openai_api_user" field.
+func (ac *AccountCreate) SetIsOpenaiAPIUser(b bool) *AccountCreate {
+	ac.mutation.SetIsOpenaiAPIUser(b)
+	return ac
+}
+
+// SetNillableIsOpenaiAPIUser sets the "is_openai_api_user" field if the given value is not nil.
+func (ac *AccountCreate) SetNillableIsOpenaiAPIUser(b *bool) *AccountCreate {
+	if b != nil {
+		ac.SetIsOpenaiAPIUser(*b)
+	}
+	return ac
+}
+
 // Mutation returns the AccountMutation object of the builder.
 func (ac *AccountCreate) Mutation() *AccountMutation {
 	return ac.mutation
@@ -235,6 +249,10 @@ func (ac *AccountCreate) defaults() {
 		v := account.DefaultIsLatestSchema
 		ac.mutation.SetIsLatestSchema(v)
 	}
+	if _, ok := ac.mutation.IsOpenaiAPIUser(); !ok {
+		v := account.DefaultIsOpenaiAPIUser
+		ac.mutation.SetIsOpenaiAPIUser(v)
+	}
 }
 
 // check runs all checks and user-defined validators on the builder.
@@ -274,6 +292,9 @@ func (ac *AccountCreate) check() error {
 	}
 	if _, ok := ac.mutation.IsLatestSchema(); !ok {
 		return &ValidationError{Name: "is_latest_schema", err: errors.New(`ent: missing required field "Account.is_latest_schema"`)}
+	}
+	if _, ok := ac.mutation.IsOpenaiAPIUser(); !ok {
+		return &ValidationError{Name: "is_openai_api_user", err: errors.New(`ent: missing required field "Account.is_openai_api_user"`)}
 	}
 	return nil
 }
@@ -342,6 +363,10 @@ func (ac *AccountCreate) createSpec() (*Account, *sqlgraph.CreateSpec) {
 	if value, ok := ac.mutation.IsLatestSchema(); ok {
 		_spec.SetField(account.FieldIsLatestSchema, field.TypeBool, value)
 		_node.IsLatestSchema = value
+	}
+	if value, ok := ac.mutation.IsOpenaiAPIUser(); ok {
+		_spec.SetField(account.FieldIsOpenaiAPIUser, field.TypeBool, value)
+		_node.IsOpenaiAPIUser = value
 	}
 	return _node, _spec
 }
@@ -518,6 +543,18 @@ func (u *AccountUpsert) SetIsLatestSchema(v bool) *AccountUpsert {
 // UpdateIsLatestSchema sets the "is_latest_schema" field to the value that was provided on create.
 func (u *AccountUpsert) UpdateIsLatestSchema() *AccountUpsert {
 	u.SetExcluded(account.FieldIsLatestSchema)
+	return u
+}
+
+// SetIsOpenaiAPIUser sets the "is_openai_api_user" field.
+func (u *AccountUpsert) SetIsOpenaiAPIUser(v bool) *AccountUpsert {
+	u.Set(account.FieldIsOpenaiAPIUser, v)
+	return u
+}
+
+// UpdateIsOpenaiAPIUser sets the "is_openai_api_user" field to the value that was provided on create.
+func (u *AccountUpsert) UpdateIsOpenaiAPIUser() *AccountUpsert {
+	u.SetExcluded(account.FieldIsOpenaiAPIUser)
 	return u
 }
 
@@ -710,6 +747,20 @@ func (u *AccountUpsertOne) SetIsLatestSchema(v bool) *AccountUpsertOne {
 func (u *AccountUpsertOne) UpdateIsLatestSchema() *AccountUpsertOne {
 	return u.Update(func(s *AccountUpsert) {
 		s.UpdateIsLatestSchema()
+	})
+}
+
+// SetIsOpenaiAPIUser sets the "is_openai_api_user" field.
+func (u *AccountUpsertOne) SetIsOpenaiAPIUser(v bool) *AccountUpsertOne {
+	return u.Update(func(s *AccountUpsert) {
+		s.SetIsOpenaiAPIUser(v)
+	})
+}
+
+// UpdateIsOpenaiAPIUser sets the "is_openai_api_user" field to the value that was provided on create.
+func (u *AccountUpsertOne) UpdateIsOpenaiAPIUser() *AccountUpsertOne {
+	return u.Update(func(s *AccountUpsert) {
+		s.UpdateIsOpenaiAPIUser()
 	})
 }
 
@@ -1064,6 +1115,20 @@ func (u *AccountUpsertBulk) SetIsLatestSchema(v bool) *AccountUpsertBulk {
 func (u *AccountUpsertBulk) UpdateIsLatestSchema() *AccountUpsertBulk {
 	return u.Update(func(s *AccountUpsert) {
 		s.UpdateIsLatestSchema()
+	})
+}
+
+// SetIsOpenaiAPIUser sets the "is_openai_api_user" field.
+func (u *AccountUpsertBulk) SetIsOpenaiAPIUser(v bool) *AccountUpsertBulk {
+	return u.Update(func(s *AccountUpsert) {
+		s.SetIsOpenaiAPIUser(v)
+	})
+}
+
+// UpdateIsOpenaiAPIUser sets the "is_openai_api_user" field to the value that was provided on create.
+func (u *AccountUpsertBulk) UpdateIsOpenaiAPIUser() *AccountUpsertBulk {
+	return u.Update(func(s *AccountUpsert) {
+		s.UpdateIsOpenaiAPIUser()
 	})
 }
 

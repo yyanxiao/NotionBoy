@@ -36,6 +36,8 @@ type Account struct {
 	NotionUserEmail string `json:"notion_user_email,omitempty"`
 	// If not the latest schema, need update notion page properies
 	IsLatestSchema bool `json:"is_latest_schema,omitempty"`
+	// Dose this user can use openai API instead of reverse session
+	IsOpenaiAPIUser bool `json:"is_openai_api_user,omitempty"`
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -43,7 +45,7 @@ func (*Account) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case account.FieldDeleted, account.FieldIsLatestSchema:
+		case account.FieldDeleted, account.FieldIsLatestSchema, account.FieldIsOpenaiAPIUser:
 			values[i] = new(sql.NullBool)
 		case account.FieldID:
 			values[i] = new(sql.NullInt64)
@@ -132,6 +134,12 @@ func (a *Account) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				a.IsLatestSchema = value.Bool
 			}
+		case account.FieldIsOpenaiAPIUser:
+			if value, ok := values[i].(*sql.NullBool); !ok {
+				return fmt.Errorf("unexpected type %T for field is_openai_api_user", values[i])
+			} else if value.Valid {
+				a.IsOpenaiAPIUser = value.Bool
+			}
 		}
 	}
 	return nil
@@ -188,6 +196,9 @@ func (a *Account) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("is_latest_schema=")
 	builder.WriteString(fmt.Sprintf("%v", a.IsLatestSchema))
+	builder.WriteString(", ")
+	builder.WriteString("is_openai_api_user=")
+	builder.WriteString(fmt.Sprintf("%v", a.IsOpenaiAPIUser))
 	builder.WriteByte(')')
 	return builder.String()
 }

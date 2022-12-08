@@ -32,6 +32,8 @@ const (
 	FieldNotionUserEmail = "notion_user_email"
 	// FieldIsLatestSchema holds the string denoting the is_latest_schema field in the database.
 	FieldIsLatestSchema = "is_latest_schema"
+	// FieldIsOpenaiAPIUser holds the string denoting the is_openai_api_user field in the database.
+	FieldIsOpenaiAPIUser = "is_openai_api_user"
 	// Table holds the table name of the account in the database.
 	Table = "accounts"
 )
@@ -49,6 +51,7 @@ var Columns = []string{
 	FieldNotionUserID,
 	FieldNotionUserEmail,
 	FieldIsLatestSchema,
+	FieldIsOpenaiAPIUser,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -76,6 +79,8 @@ var (
 	AccessTokenValidator func(string) error
 	// DefaultIsLatestSchema holds the default value on creation for the "is_latest_schema" field.
 	DefaultIsLatestSchema bool
+	// DefaultIsOpenaiAPIUser holds the default value on creation for the "is_openai_api_user" field.
+	DefaultIsOpenaiAPIUser bool
 )
 
 // UserType defines the type for the "user_type" enum field.

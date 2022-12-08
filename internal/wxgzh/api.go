@@ -38,7 +38,7 @@ func NewOfficialAccount(wc *wechat.Wechat) *OfficialAccount {
 	return &OfficialAccount{
 		wc:              wc,
 		officialAccount: officialAccount,
-		chatter:         chatgpt.New(config.GetConfig().ChatGPT.SessionToken),
+		chatter:         chatgpt.DefaultReverseClient(),
 	}
 }
 

@@ -22,6 +22,7 @@ func (Account) Fields() []ent.Field {
 		field.String("notion_user_id").Optional().Comment("Notion User ID"),
 		field.String("notion_user_email").Optional().Comment("Notion User Email"),
 		field.Bool("is_latest_schema").Default(false).Comment("If not the latest schema, need update notion page properies"),
+		field.Bool("is_openai_api_user").Default(false).Comment("Dose this user can use openai API instead of reverse session"),
 	}
 }
 

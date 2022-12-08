@@ -69,4 +69,5 @@ type R2Config struct {
 type ChatGPTConfig struct {
 	Authorization string
 	SessionToken  string
+	ApiKey        string
 }

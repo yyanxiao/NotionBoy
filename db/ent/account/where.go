@@ -143,6 +143,13 @@ func IsLatestSchema(v bool) predicate.Account {
 	})
 }
 
+// IsOpenaiAPIUser applies equality check predicate on the "is_openai_api_user" field. It's identical to IsOpenaiAPIUserEQ.
+func IsOpenaiAPIUser(v bool) predicate.Account {
+	return predicate.Account(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldIsOpenaiAPIUser), v))
+	})
+}
+
 // CreatedAtEQ applies the EQ predicate on the "created_at" field.
 func CreatedAtEQ(v time.Time) predicate.Account {
 	return predicate.Account(func(s *sql.Selector) {
@@ -869,6 +876,20 @@ func IsLatestSchemaEQ(v bool) predicate.Account {
 func IsLatestSchemaNEQ(v bool) predicate.Account {
 	return predicate.Account(func(s *sql.Selector) {
 		s.Where(sql.NEQ(s.C(FieldIsLatestSchema), v))
+	})
+}
+
+// IsOpenaiAPIUserEQ applies the EQ predicate on the "is_openai_api_user" field.
+func IsOpenaiAPIUserEQ(v bool) predicate.Account {
+	return predicate.Account(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldIsOpenaiAPIUser), v))
+	})
+}
+
+// IsOpenaiAPIUserNEQ applies the NEQ predicate on the "is_openai_api_user" field.
+func IsOpenaiAPIUserNEQ(v bool) predicate.Account {
+	return predicate.Account(func(s *sql.Selector) {
+		s.Where(sql.NEQ(s.C(FieldIsOpenaiAPIUser), v))
 	})
 }
 
