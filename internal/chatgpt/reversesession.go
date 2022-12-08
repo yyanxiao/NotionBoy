@@ -11,7 +11,10 @@ import (
 
 var client *resty.Client
 
-const authURL = "https://chat.openai.com/api/auth/session"
+const (
+	authURL            = "https://chat.openai.com/api/auth/session"
+	cookieSessionToken = "__Secure-next-auth.session-token"
+)
 
 func init() {
 	client = resty.New()
@@ -30,15 +33,7 @@ func refreshHeaders() {
 
 // RefreshSession use to keep session up to date
 func (cli *reverseClient) refreshSession() {
-	cfg := config.GetConfig().ChatGPT
-	if cfg.SessionToken == "" {
-		logger.SugaredLogger.Fatal("Can't find sessionToken")
-	}
-	client.SetCookie(&http.Cookie{
-		Name:  "__Secure-next-auth.session-token",
-		Value: cfg.SessionToken,
-	})
-
+	setSessionTokenCookie()
 	resp, err := client.R().Get(authURL)
 	if err != nil {
 		logger.SugaredLogger.Errorw("refresh session for chatGPT error", "err", err)
@@ -59,6 +54,7 @@ func (cli *reverseClient) refreshSession() {
 			config.GetConfig().ChatGPT.SessionToken = cookie.Value
 		}
 	}
+
 	var data map[string]interface{}
 	if err := json.Unmarshal(resp.Body(), &data); err != nil {
 		logger.SugaredLogger.Errorw("Unmarshal refresh session for chatGPT error", "err", err)
@@ -72,7 +68,27 @@ func (cli *reverseClient) refreshSession() {
 	config.GetConfig().ChatGPT.Authorization = accessToken.(string)
 
 	// logger.SugaredLogger.Debugf("%#v", cfg)
-	logger.SugaredLogger.Infow("refresh session success", "session_token", cfg.SessionToken)
+	logger.SugaredLogger.Infow("refresh session success", "session_token", config.GetConfig().ChatGPT.SessionToken)
 	refreshHeaders()
 	cli.setIsRateLimit(false)
+}
+
+func setSessionTokenCookie() {
+	cfg := config.GetConfig().ChatGPT
+	if cfg.SessionToken == "" {
+		logger.SugaredLogger.Fatal("Can't find sessionToken")
+	}
+	isSessionCookieExist := false
+	for _, cookie := range client.Cookies {
+		if cookie.Name == cookieSessionToken {
+			cookie.Value = cfg.SessionToken
+			break
+		}
+	}
+	if !isSessionCookieExist {
+		client.SetCookie(&http.Cookie{
+			Name:  cookieSessionToken,
+			Value: cfg.SessionToken,
+		})
+	}
 }
