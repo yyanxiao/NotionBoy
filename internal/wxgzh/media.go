@@ -27,7 +27,7 @@ var (
 func init() {
 	httpClient = resty.New()
 	httpClient.SetTimeout(60 * time.Second)
-	r2Client = r2.NewR2Client(config.GetConfig().R2.Token, config.GetConfig().R2.Url)
+	r2Client = r2.New(config.GetConfig().R2.Token, config.GetConfig().R2.Url)
 	logger.SugaredLogger.Debugf("init r2Client: %v", r2Client)
 	reg, _ = regexp.Compile(`filename="(.*)"`)
 }

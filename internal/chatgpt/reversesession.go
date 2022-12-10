@@ -3,8 +3,10 @@ package chatgpt
 import (
 	"encoding/json"
 	"net/http"
+	"notionboy/internal/pkg/browser"
 	"notionboy/internal/pkg/config"
 	"notionboy/internal/pkg/logger"
+	"time"
 
 	"github.com/go-resty/resty/v2"
 )
@@ -12,7 +14,8 @@ import (
 var client *resty.Client
 
 const (
-	authURL            = "https://chat.openai.com/api/auth/session"
+	sessionURL         = "https://chat.openai.com/api/auth/session"
+	loginUR            = "https://chat.openai.com/auth/login"
 	cookieSessionToken = "__Secure-next-auth.session-token"
 )
 
@@ -31,30 +34,72 @@ func refreshHeaders() {
 	})
 }
 
+func (cli *reverseClient) login() {
+	cfg := config.GetConfig().ChatGPT
+	page := browser.New().MustConnect().MustPage(loginUR)
+	page.MustElementR("button", "Log in").MustClick()
+
+	page.MustElement("#username").MustInput(cfg.User)
+	page.MustWaitLoad().MustElementR("button", "Continue").MustClick()
+	page.MustElement("#password").MustInput(cfg.Pass)
+	page.MustWaitLoad().MustElementR("button", "Continue").MustClick()
+	time.Sleep(1 * time.Second)
+	page.MustWaitLoad()
+	cookies, _ := page.Cookies([]string{})
+	for _, cookie := range cookies {
+		if cookie.Name == cookieSessionToken {
+			if cookie.Value != "" {
+				logger.SugaredLogger.Info("Login to OpenAI use email success")
+				config.GetConfig().ChatGPT.SessionToken = cookie.Value
+			} else {
+				logger.SugaredLogger.Warn("Login to OpenAI use email failed, did not get session token")
+			}
+			return
+		}
+	}
+	logger.SugaredLogger.Warn("Login to OpenAI use email failed")
+}
+
 // RefreshSession use to keep session up to date
 func (cli *reverseClient) refreshSession() {
-	setSessionTokenCookie()
-	resp, err := client.R().Get(authURL)
+	cli.setSessionTokenCookie()
+
+	var resp *resty.Response
+	var err error
+	var newToken string
+
+	resp, err = client.R().Get(sessionURL)
 	if err != nil {
 		logger.SugaredLogger.Errorw("refresh session for chatGPT error", "err", err)
 		return
 	}
-	if resp.StatusCode() == http.StatusBadRequest {
-		cli.setIsRateLimit(true)
-		logger.SugaredLogger.Errorw("Reach ratelimit, please try after 1 hour", "status", resp.Status())
-		return
+	// if 401 return, token expired, need login to get a new token
+	if resp.StatusCode() == http.StatusUnauthorized {
+		cli.login()
+		resp, err = client.R().Get(sessionURL)
+		if err != nil {
+			logger.SugaredLogger.Errorw("refresh session for chatGPT error", "err", err)
+			return
+		}
 	}
+
+	// if still don't get 200, set rate limit
+	// and wait next time to retry
 	if resp.StatusCode() != http.StatusOK {
+		cli.setIsRateLimit(true)
 		logger.SugaredLogger.Errorw("Refresh session for chatGPT error", "status", resp.Status())
 		return
 	}
 
+	// update session token
 	for _, cookie := range resp.Cookies() {
 		if cookie.Name == "__Secure-next-auth.session-token" {
+			newToken = cookie.Value
 			config.GetConfig().ChatGPT.SessionToken = cookie.Value
 		}
 	}
 
+	// get auth token
 	var data map[string]interface{}
 	if err := json.Unmarshal(resp.Body(), &data); err != nil {
 		logger.SugaredLogger.Errorw("Unmarshal refresh session for chatGPT error", "err", err)
@@ -67,21 +112,25 @@ func (cli *reverseClient) refreshSession() {
 	}
 	config.GetConfig().ChatGPT.Authorization = accessToken.(string)
 
-	// logger.SugaredLogger.Debugf("%#v", cfg)
-	logger.SugaredLogger.Infow("refresh session success", "session_token", config.GetConfig().ChatGPT.SessionToken)
+	logger.SugaredLogger.Infow("refresh session success", "session_token", newToken)
 	refreshHeaders()
+
+	// if all pass, remove rate limit
 	cli.setIsRateLimit(false)
 }
 
-func setSessionTokenCookie() {
+func (cli *reverseClient) setSessionTokenCookie() {
 	cfg := config.GetConfig().ChatGPT
+	if cfg.SessionToken == "" && (cfg.User == "" || cfg.Pass == "") {
+		logger.SugaredLogger.Fatal("Can not login to OpenAI, none of session token and username provided")
+	}
 	if cfg.SessionToken == "" {
-		logger.SugaredLogger.Fatal("Can't find sessionToken")
+		cli.login()
 	}
 	isSessionCookieExist := false
 	for _, cookie := range client.Cookies {
 		if cookie.Name == cookieSessionToken {
-			cookie.Value = cfg.SessionToken
+			cookie.Value = config.GetConfig().ChatGPT.SessionToken
 			isSessionCookieExist = true
 			break
 		}
@@ -89,7 +138,7 @@ func setSessionTokenCookie() {
 	if !isSessionCookieExist {
 		client.SetCookie(&http.Cookie{
 			Name:  cookieSessionToken,
-			Value: cfg.SessionToken,
+			Value: config.GetConfig().ChatGPT.SessionToken,
 		})
 	}
 }

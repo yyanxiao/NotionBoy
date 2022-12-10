@@ -32,8 +32,11 @@ func newReverseClient(sessionToken string) Chatter {
 		}
 		client.setIsRateLimit(false)
 		client.refreshSession()
+
 		go func() {
-			for range time.Tick(5 * time.Minute) {
+			ticker := time.NewTicker(10 * time.Minute)
+			defer ticker.Stop()
+			for range ticker.C {
 				client.refreshSession()
 			}
 		}()

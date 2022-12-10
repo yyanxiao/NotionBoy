@@ -31,7 +31,7 @@ func (c *FulltextContent) processFulltextImage(ctx context.Context) {
 	if err != nil {
 		return
 	}
-	r2Client := r2.New()
+	r2Client := r2.DefaultClient()
 	imgUrl, err := r2Client.Upload(ctx, url.QueryEscape(title)+".jpg", "image/jpeg", buf)
 	if err != nil {
 		return
@@ -45,7 +45,7 @@ func (c *FulltextContent) processFulltextPDF(ctx context.Context) {
 	if err != nil {
 		return
 	}
-	r2Client := r2.New()
+	r2Client := r2.DefaultClient()
 	imgUrl, err := r2Client.Upload(ctx, url.QueryEscape(title)+".pdf", "application/pdf", buf)
 	if err != nil {
 		return

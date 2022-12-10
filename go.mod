@@ -4,11 +4,10 @@ go 1.18
 
 require (
 	entgo.io/ent v0.11.4
-	github.com/chromedp/cdproto v0.0.0-20221126224343-3a0787b8dd28
-	github.com/chromedp/chromedp v0.8.6
 	github.com/donovanhide/eventsource v0.0.0-20210830082556-c59027999da0
 	github.com/fsnotify/fsnotify v1.6.0
 	github.com/go-resty/resty/v2 v2.7.0
+	github.com/go-rod/rod v0.112.2
 	github.com/go-sql-driver/mysql v1.6.0
 	github.com/jomei/notionapi v1.9.3
 	github.com/mattn/go-sqlite3 v1.14.16
@@ -30,6 +29,9 @@ require (
 	github.com/tidwall/gjson v1.14.4 // indirect
 	github.com/tidwall/match v1.1.1 // indirect
 	github.com/tidwall/pretty v1.2.1 // indirect
+	github.com/ysmood/goob v0.4.0 // indirect
+	github.com/ysmood/gson v0.7.3 // indirect
+	github.com/ysmood/leakless v0.8.0 // indirect
 	go.uber.org/atomic v1.10.0 // indirect
 	go.uber.org/multierr v1.8.0 // indirect
 	gopkg.in/check.v1 v1.0.0-20201130134442-10cb98267c6c // indirect
@@ -40,21 +42,15 @@ require (
 	github.com/agext/levenshtein v1.2.3 // indirect
 	github.com/apparentlymart/go-textseg/v13 v13.0.0 // indirect
 	github.com/bradfitz/gomemcache v0.0.0-20221031212613-62deef7fc822 // indirect
-	github.com/chromedp/sysutil v1.0.0 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/fatih/structs v1.1.0 // indirect
 	github.com/go-openapi/inflect v0.19.0 // indirect
-	github.com/gobwas/httphead v0.1.0 // indirect
-	github.com/gobwas/pool v0.2.1 // indirect
-	github.com/gobwas/ws v1.1.0 // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/google/go-cmp v0.5.9 // indirect
 	github.com/google/uuid v1.3.0
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/hashicorp/hcl/v2 v2.15.0 // indirect
-	github.com/josharian/intern v1.0.0 // indirect
 	github.com/magiconair/properties v1.8.6 // indirect
-	github.com/mailru/easyjson v0.7.7 // indirect
 	github.com/mitchellh/go-wordwrap v1.0.1 // indirect
 	github.com/mitchellh/mapstructure v1.5.0
 	github.com/pelletier/go-toml v1.9.5 // indirect

@@ -111,6 +111,7 @@ func updateLatestSchema(ctx context.Context, accountInfo *ent.Account, notionCon
 }
 
 func (ex *OfficialAccount) updateNotionContent(ctx context.Context, msg *message.MixMessage, n *notion.Notion, accountInfo *ent.Account, content *notion.Content) {
+	ctx = context.WithValue(ctx, config.DATABASE_ID, accountInfo.DatabaseID)
 	updateLatestSchema(ctx, accountInfo, n)
 	content.Process(ctx)
 	switch msg.MsgType {

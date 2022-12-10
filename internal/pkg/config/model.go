@@ -70,4 +70,6 @@ type ChatGPTConfig struct {
 	Authorization string
 	SessionToken  string
 	ApiKey        string
+	User          string
+	Pass          string
 }

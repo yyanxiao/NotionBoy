@@ -42,3 +42,5 @@ chatGPT:
   Authorization:
   SessionToken:
   apiKey:
+  User:
+  Pass:

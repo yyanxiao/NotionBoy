@@ -65,3 +65,11 @@ const (
 	DB_DRIVER_MYSQL    = "mysql"
 	DB_DRIVER_POSTGRES = "postgres"
 )
+
+type contextKey string
+
+func (c contextKey) String() string {
+	return string(c)
+}
+
+var DATABASE_ID contextKey = "database"
