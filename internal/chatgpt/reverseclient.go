@@ -11,36 +11,51 @@ import (
 	"sync/atomic"
 	"time"
 
+	"github.com/go-resty/resty/v2"
 	"github.com/google/uuid"
 
 	"github.com/donovanhide/eventsource"
 )
 
+const (
+	ERROR_MSG_INTERNAL_ERROR = iota + 1
+	ERROR_MSG_RATE_LIMITED_ERROR
+	ERROR_MSG_AUTH_ERROR
+	ERROR_MSG_UNKNOWN_ERROR
+)
+
+type errorResp struct {
+	Type   int
+	Status string
+}
+
 type reverseClient struct {
 	mu           sync.Mutex
+	client       *resty.Client
 	SessionToken string `json:"session_token"`
-	AuthToken    string `json:"auth_token"`
+	authToken    string
+	Email        string `json:"email"`
+	Password     string `json:"password"`
 	isRateLimit  atomic.Bool
 }
 
-func newReverseClient(sessionToken string) Chatter {
-	once := sync.Once{}
-	var client *reverseClient
-	once.Do(func() {
-		client = &reverseClient{
-			SessionToken: sessionToken,
-		}
-		client.setIsRateLimit(false)
-		client.refreshSession()
+func newReverseClient(sessionToken, email, password string) Chatter {
+	client := &reverseClient{
+		SessionToken: sessionToken,
+		Email:        email,
+		Password:     password,
+		client:       resty.New(),
+	}
+	client.setIsRateLimit(false)
+	client.refreshSession()
 
-		go func() {
-			ticker := time.NewTicker(10 * time.Minute)
-			defer ticker.Stop()
-			for range ticker.C {
-				client.refreshSession()
-			}
-		}()
-	})
+	go func() {
+		ticker := time.NewTicker(10 * time.Minute)
+		defer ticker.Stop()
+		for range ticker.C {
+			client.refreshSession()
+		}
+	}()
 	return client
 }
 
@@ -53,59 +68,81 @@ func (cli *reverseClient) Chat(ctx context.Context, parentMessageId, prompt stri
 	defer cli.mu.Unlock()
 	bodyChan := make(chan *http.Response)
 	defer close(bodyChan)
-	errorChan := make(chan error)
+	errorChan := make(chan *errorResp)
 	defer close(errorChan)
-	stopRetryChan := make(chan struct{})
+
 	payload := buildPayload(parentMessageId, []string{prompt})
 	logger.SugaredLogger.Debugw("Request Payload", "payload", payload)
 
-	post := func() {
-		resp, err := client.R().
-			SetContext(ctx).
-			SetBody(payload).
-			SetHeader("Accept", "text/event-stream").
-			SetDoNotParseResponse(true).
-			Post(chatURL)
-		if err != nil {
-			errorChan <- err
-			return
-		}
-
-		if resp.StatusCode() == http.StatusBadRequest {
-			cli.setIsRateLimit(true)
-			logger.SugaredLogger.Errorw("Reach ratelimit, please try after 1 hour", "status", resp.Status())
-			stopRetryChan <- struct{}{}
-			return
-		}
-		logger.SugaredLogger.Debugw("status", "status_code", resp.Status())
-		if resp.StatusCode() != http.StatusOK {
-			errorChan <- errors.New("Status: " + resp.Status())
-			return
-		}
-		bodyChan <- resp.RawResponse
-	}
-
 	var err error
 	// if chatGPT response with error, retry 3 times
+L:
 	for i := 0; i < 3; i++ {
-		go post()
+		go cli.sendRequest(ctx, payload, bodyChan, errorChan)
 		select {
 		case body := <-bodyChan:
 			var res *ResponseBody
 			res, err = cli.decodeResponse(body)
 			if err != nil {
 				err = fmt.Errorf("Decode response error, %s", err.Error())
-				continue
+				continue L
 			}
 			return res.Message.ID, res.Message.Content.Parts[0], err
-		case err = <-errorChan:
-			logger.SugaredLogger.Warnw("Get response from chatGPT error", "retry_times", i+1, "err", err)
-			continue
-		case <-stopRetryChan:
-			break
+		case errResp := <-errorChan:
+			switch errResp.Type {
+			case ERROR_MSG_UNKNOWN_ERROR, ERROR_MSG_INTERNAL_ERROR:
+				logger.SugaredLogger.Warnw("Get response from chatGPT error", "retry_times", i+1, "status", errResp.Status)
+			case ERROR_MSG_AUTH_ERROR, ERROR_MSG_RATE_LIMITED_ERROR:
+				logger.SugaredLogger.Warnw("ChatGPT auth error, exit", "retry_times", i+1, "status", errResp.Status)
+				break L
+			}
 		}
 	}
 	return "", "", err
+}
+
+func (cli *reverseClient) sendRequest(ctx context.Context, payload *Payload, bodyChan chan *http.Response, errorChan chan *errorResp) {
+	resp, err := cli.client.R().
+		SetContext(ctx).
+		SetBody(payload).
+		SetHeader("Accept", "text/event-stream").
+		SetHeader("Authorization", "Bearer "+cli.authToken).
+		SetHeader("Content-Type", "application/json").
+		SetHeader("User-Agent", userAgent).
+		SetDoNotParseResponse(true).
+		Post(chatURL)
+	if err != nil {
+		errorChan <- &errorResp{
+			Type: ERROR_MSG_UNKNOWN_ERROR,
+		}
+		return
+	}
+
+	switch resp.StatusCode() {
+	case http.StatusForbidden, http.StatusUnauthorized:
+		cli.setIsRateLimit(true)
+		errorChan <- &errorResp{
+			Type: ERROR_MSG_AUTH_ERROR,
+		}
+	case http.StatusTooManyRequests:
+		cli.setIsRateLimit(true)
+		errorChan <- &errorResp{
+			Type:   ERROR_MSG_RATE_LIMITED_ERROR,
+			Status: resp.Status(),
+		}
+	case http.StatusOK:
+		bodyChan <- resp.RawResponse
+	case http.StatusServiceUnavailable, http.StatusInternalServerError, http.StatusBadGateway, http.StatusGatewayTimeout:
+		errorChan <- &errorResp{
+			Type:   ERROR_MSG_INTERNAL_ERROR,
+			Status: resp.Status(),
+		}
+	default:
+		errorChan <- &errorResp{
+			Type:   ERROR_MSG_UNKNOWN_ERROR,
+			Status: resp.Status(),
+		}
+	}
 }
 
 func (cli *reverseClient) decodeResponse(resp *http.Response) (*ResponseBody, error) {
@@ -124,7 +161,6 @@ func (cli *reverseClient) decodeResponse(resp *http.Response) (*ResponseBody, er
 			if event.Data() == "[DONE]" || event.Data() == "" {
 				break
 			}
-			// logger.SugaredLogger.Debugw("send chunk data", "data", string(event.Data()))
 			eventChan <- event.Data()
 		}
 	}()
@@ -134,9 +170,6 @@ func (cli *reverseClient) decodeResponse(resp *http.Response) (*ResponseBody, er
 		if err := json.Unmarshal([]byte(chunk), &res); err != nil {
 			continue
 		}
-		//if len(res.Message.Content.Parts) > 0 {
-		//	logger.SugaredLogger.Debug(res.Message.Content.Parts[0])
-		//}
 	}
 
 	if len(res.Message.Content.Parts) == 0 {

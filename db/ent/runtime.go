@@ -5,6 +5,7 @@ package ent
 import (
 	"notionboy/db/ent/account"
 	"notionboy/db/ent/schema"
+	"notionboy/db/ent/wechatsession"
 	"time"
 )
 
@@ -49,4 +50,25 @@ func init() {
 	accountDescIsOpenaiAPIUser := accountFields[7].Descriptor()
 	// account.DefaultIsOpenaiAPIUser holds the default value on creation for the is_openai_api_user field.
 	account.DefaultIsOpenaiAPIUser = accountDescIsOpenaiAPIUser.Default.(bool)
+	wechatsessionMixin := schema.WechatSession{}.Mixin()
+	wechatsessionMixinFields0 := wechatsessionMixin[0].Fields()
+	_ = wechatsessionMixinFields0
+	wechatsessionMixinFields1 := wechatsessionMixin[1].Fields()
+	_ = wechatsessionMixinFields1
+	wechatsessionFields := schema.WechatSession{}.Fields()
+	_ = wechatsessionFields
+	// wechatsessionDescCreatedAt is the schema descriptor for created_at field.
+	wechatsessionDescCreatedAt := wechatsessionMixinFields0[0].Descriptor()
+	// wechatsession.DefaultCreatedAt holds the default value on creation for the created_at field.
+	wechatsession.DefaultCreatedAt = wechatsessionDescCreatedAt.Default.(func() time.Time)
+	// wechatsessionDescUpdatedAt is the schema descriptor for updated_at field.
+	wechatsessionDescUpdatedAt := wechatsessionMixinFields0[1].Descriptor()
+	// wechatsession.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	wechatsession.DefaultUpdatedAt = wechatsessionDescUpdatedAt.Default.(func() time.Time)
+	// wechatsession.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	wechatsession.UpdateDefaultUpdatedAt = wechatsessionDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// wechatsessionDescDeleted is the schema descriptor for deleted field.
+	wechatsessionDescDeleted := wechatsessionMixinFields1[0].Descriptor()
+	// wechatsession.DefaultDeleted holds the default value on creation for the deleted field.
+	wechatsession.DefaultDeleted = wechatsessionDescDeleted.Default.(bool)
 }

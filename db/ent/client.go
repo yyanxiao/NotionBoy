@@ -11,6 +11,7 @@ import (
 	"notionboy/db/ent/migrate"
 
 	"notionboy/db/ent/account"
+	"notionboy/db/ent/wechatsession"
 
 	"entgo.io/ent/dialect"
 	"entgo.io/ent/dialect/sql"
@@ -23,6 +24,8 @@ type Client struct {
 	Schema *migrate.Schema
 	// Account is the client for interacting with the Account builders.
 	Account *AccountClient
+	// WechatSession is the client for interacting with the WechatSession builders.
+	WechatSession *WechatSessionClient
 }
 
 // NewClient creates a new client configured with the given options.
@@ -37,6 +40,7 @@ func NewClient(opts ...Option) *Client {
 func (c *Client) init() {
 	c.Schema = migrate.NewSchema(c.driver)
 	c.Account = NewAccountClient(c.config)
+	c.WechatSession = NewWechatSessionClient(c.config)
 }
 
 // Open opens a database/sql.DB specified by the driver name and
@@ -68,9 +72,10 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 	cfg := c.config
 	cfg.driver = tx
 	return &Tx{
-		ctx:     ctx,
-		config:  cfg,
-		Account: NewAccountClient(cfg),
+		ctx:           ctx,
+		config:        cfg,
+		Account:       NewAccountClient(cfg),
+		WechatSession: NewWechatSessionClient(cfg),
 	}, nil
 }
 
@@ -88,9 +93,10 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 	cfg := c.config
 	cfg.driver = &txDriver{tx: tx, drv: c.driver}
 	return &Tx{
-		ctx:     ctx,
-		config:  cfg,
-		Account: NewAccountClient(cfg),
+		ctx:           ctx,
+		config:        cfg,
+		Account:       NewAccountClient(cfg),
+		WechatSession: NewWechatSessionClient(cfg),
 	}, nil
 }
 
@@ -120,6 +126,7 @@ func (c *Client) Close() error {
 // In order to add hooks to a specific client, call: `client.Node.Use(...)`.
 func (c *Client) Use(hooks ...Hook) {
 	c.Account.Use(hooks...)
+	c.WechatSession.Use(hooks...)
 }
 
 // AccountClient is a client for the Account schema.
@@ -210,4 +217,94 @@ func (c *AccountClient) GetX(ctx context.Context, id int) *Account {
 // Hooks returns the client hooks.
 func (c *AccountClient) Hooks() []Hook {
 	return c.hooks.Account
+}
+
+// WechatSessionClient is a client for the WechatSession schema.
+type WechatSessionClient struct {
+	config
+}
+
+// NewWechatSessionClient returns a client for the WechatSession from the given config.
+func NewWechatSessionClient(c config) *WechatSessionClient {
+	return &WechatSessionClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `wechatsession.Hooks(f(g(h())))`.
+func (c *WechatSessionClient) Use(hooks ...Hook) {
+	c.hooks.WechatSession = append(c.hooks.WechatSession, hooks...)
+}
+
+// Create returns a builder for creating a WechatSession entity.
+func (c *WechatSessionClient) Create() *WechatSessionCreate {
+	mutation := newWechatSessionMutation(c.config, OpCreate)
+	return &WechatSessionCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of WechatSession entities.
+func (c *WechatSessionClient) CreateBulk(builders ...*WechatSessionCreate) *WechatSessionCreateBulk {
+	return &WechatSessionCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for WechatSession.
+func (c *WechatSessionClient) Update() *WechatSessionUpdate {
+	mutation := newWechatSessionMutation(c.config, OpUpdate)
+	return &WechatSessionUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *WechatSessionClient) UpdateOne(ws *WechatSession) *WechatSessionUpdateOne {
+	mutation := newWechatSessionMutation(c.config, OpUpdateOne, withWechatSession(ws))
+	return &WechatSessionUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *WechatSessionClient) UpdateOneID(id int) *WechatSessionUpdateOne {
+	mutation := newWechatSessionMutation(c.config, OpUpdateOne, withWechatSessionID(id))
+	return &WechatSessionUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for WechatSession.
+func (c *WechatSessionClient) Delete() *WechatSessionDelete {
+	mutation := newWechatSessionMutation(c.config, OpDelete)
+	return &WechatSessionDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *WechatSessionClient) DeleteOne(ws *WechatSession) *WechatSessionDeleteOne {
+	return c.DeleteOneID(ws.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *WechatSessionClient) DeleteOneID(id int) *WechatSessionDeleteOne {
+	builder := c.Delete().Where(wechatsession.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &WechatSessionDeleteOne{builder}
+}
+
+// Query returns a query builder for WechatSession.
+func (c *WechatSessionClient) Query() *WechatSessionQuery {
+	return &WechatSessionQuery{
+		config: c.config,
+	}
+}
+
+// Get returns a WechatSession entity by its id.
+func (c *WechatSessionClient) Get(ctx context.Context, id int) (*WechatSession, error) {
+	return c.Query().Where(wechatsession.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *WechatSessionClient) GetX(ctx context.Context, id int) *WechatSession {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// Hooks returns the client hooks.
+func (c *WechatSessionClient) Hooks() []Hook {
+	return c.hooks.WechatSession
 }

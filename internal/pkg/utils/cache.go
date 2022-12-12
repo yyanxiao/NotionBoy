@@ -6,10 +6,12 @@ import (
 	"github.com/silenceper/wechat/v2/cache"
 )
 
-var memCache *cache.Memory
+var (
+	memCache *cache.Memory
+	once     sync.Once
+)
 
 func GetCache() *cache.Memory {
-	var once sync.Once
 	once.Do(func() {
 		memCache = cache.NewMemory()
 	})

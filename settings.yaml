@@ -11,6 +11,7 @@ wechat:
   encodingAesKey:
   # 作者的微信二维码在素材库中的 ID，用于 SOS 返回作者个人的微信
   authorImageId: Wa2njbgm5ldl-RmyUsjQfdHAkAhqTFoUhMzxPFtr5_fYrsvynXSHJFIt1n_iB96v
+  adminUserID:
 
 database:
   driver: sqlite

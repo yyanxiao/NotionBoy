@@ -59,6 +59,7 @@ type WechatConfig struct {
 	Token          string
 	EncodingAESKey string
 	AuthorImageID  string
+	AdminUserID    string
 }
 
 type R2Config struct {

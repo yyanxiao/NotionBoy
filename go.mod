@@ -5,6 +5,7 @@ go 1.18
 require (
 	entgo.io/ent v0.11.4
 	github.com/donovanhide/eventsource v0.0.0-20210830082556-c59027999da0
+	github.com/eatmoreapple/openwechat v1.2.4
 	github.com/fsnotify/fsnotify v1.6.0
 	github.com/go-resty/resty/v2 v2.7.0
 	github.com/go-rod/rod v0.112.2

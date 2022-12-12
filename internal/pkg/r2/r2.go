@@ -14,6 +14,7 @@ import (
 var (
 	restyClient *resty.Client
 	client      *R2Client
+	once        sync.Once
 )
 
 func init() {
@@ -35,7 +36,6 @@ func DefaultClient() R2 {
 }
 
 func New(token, url string) R2 {
-	var once sync.Once
 	once.Do(func() {
 		client = &R2Client{
 			Token: token,

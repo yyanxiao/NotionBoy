@@ -8,10 +8,12 @@ import (
 	"github.com/go-rod/rod"
 )
 
-var browser *rod.Browser
+var (
+	browser *rod.Browser
+	once    sync.Once
+)
 
 func New() *rod.Browser {
-	var once sync.Once
 	once.Do(func() {
 		if config.GetConfig().DevToolsURL != "" {
 			url := detectURL(config.GetConfig().DevToolsURL)

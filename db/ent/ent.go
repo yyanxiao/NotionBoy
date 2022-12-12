@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"notionboy/db/ent/account"
+	"notionboy/db/ent/wechatsession"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
@@ -31,7 +32,8 @@ type OrderFunc func(*sql.Selector)
 // columnChecker returns a function indicates if the column exists in the given column.
 func columnChecker(table string) func(string) error {
 	checks := map[string]func(string) bool{
-		account.Table: account.ValidColumn,
+		account.Table:       account.ValidColumn,
+		wechatsession.Table: wechatsession.ValidColumn,
 	}
 	check, ok := checks[table]
 	if !ok {

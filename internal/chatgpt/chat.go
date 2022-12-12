@@ -14,6 +14,7 @@ type Chatter interface {
 var (
 	defaultApiClient     Chatter
 	defaultReverseClient Chatter
+	once                 sync.Once
 )
 
 // New create a new chatter
@@ -22,7 +23,7 @@ func New(cfg *config.ChatGPTConfig) Chatter {
 		return newApiClient(cfg.ApiKey)
 	}
 	if cfg.SessionToken != "" || (cfg.User != "" && cfg.Pass != "") {
-		return newReverseClient(cfg.SessionToken)
+		return newReverseClient(cfg.SessionToken, cfg.User, cfg.Pass)
 	}
 	logger.SugaredLogger.Error("Invalid configuration")
 	return nil
@@ -30,7 +31,6 @@ func New(cfg *config.ChatGPTConfig) Chatter {
 
 // DefaultApiClient from Config
 func DefaultApiClient() Chatter {
-	var once sync.Once
 	once.Do(func() {
 		defaultApiClient = New(&config.ChatGPTConfig{
 			ApiKey: config.GetConfig().ChatGPT.ApiKey,
@@ -41,7 +41,6 @@ func DefaultApiClient() Chatter {
 
 // DefaultReverseClient creates a new client from config.ChatGPTConfig
 func DefaultReverseClient() Chatter {
-	var once sync.Once
 	once.Do(func() {
 		defaultReverseClient = New(&config.ChatGPTConfig{
 			SessionToken: config.GetConfig().ChatGPT.SessionToken,

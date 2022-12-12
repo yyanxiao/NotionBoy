@@ -1,10 +1,12 @@
 package wxgzh
 
 import (
+	"fmt"
 	"net/http"
 	"notionboy/internal/chatgpt"
 	"notionboy/internal/pkg/config"
 	"notionboy/internal/pkg/logger"
+	"strings"
 
 	notion "notionboy/internal/pkg/notion"
 
@@ -38,7 +40,7 @@ func NewOfficialAccount(wc *wechat.Wechat) *OfficialAccount {
 	return &OfficialAccount{
 		wc:              wc,
 		officialAccount: officialAccount,
-		chatter:         chatgpt.DefaultReverseClient(),
+		chatter:         chatgpt.DefaultApiClient(),
 	}
 }
 
@@ -53,7 +55,7 @@ func transformToNotionContent(msg *message.MixMessage) *notion.Content {
 func (ex *OfficialAccount) Serve(w http.ResponseWriter, r *http.Request) {
 	// 传入request和responseWriter
 	server := ex.officialAccount.GetServer(r, w)
-	server.SkipValidate(true)
+	server.SkipValidate(false)
 	// 设置接收消息的处理方法
 	server.SetMessageHandler(func(msg *message.MixMessage) *message.Reply {
 		return ex.messageHandler(r.Context(), msg)
@@ -62,6 +64,11 @@ func (ex *OfficialAccount) Serve(w http.ResponseWriter, r *http.Request) {
 	// 处理消息接收以及回复
 	err := server.Serve()
 	if err != nil {
+		if strings.Contains(err.Error(), "请求校验失败") {
+			http.Error(w, fmt.Sprintf("400 Bad Request. err=%v", err), http.StatusBadRequest)
+			return
+		}
+		http.Error(w, fmt.Sprintf("Serve Error, err=%v", err.Error()), http.StatusBadRequest)
 		logger.SugaredLogger.Errorf("Serve Error, err=%v", err)
 		return
 	}
