@@ -27,6 +27,7 @@ func (cli *apiClient) Chat(ctx context.Context, parentMessageId, prompt string) 
 	if cli.GetIsRateLimit() {
 		return "", "", errors.New("hit rate limit, please increase your quote")
 	}
+	logger.SugaredLogger.Debugw("Get prompt message for api client", "prompt", prompt)
 	req := gogpt.CompletionRequest{
 		Model:     gogpt.GPT3TextDavinci003,
 		MaxTokens: 1024,
@@ -51,11 +52,12 @@ func (cli *apiClient) Chat(ctx context.Context, parentMessageId, prompt string) 
 		case resp := <-respChan:
 			msgId := resp.ID
 			sb := strings.Builder{}
+
 			for _, item := range resp.Choices {
 				sb.WriteString(item.Text)
 				sb.WriteString("\n")
 			}
-			logger.SugaredLogger.Debugw("Response", "conversation_id", msgId, "error", nil, "message", sb.String())
+			logger.SugaredLogger.Debugw("Response", "conversation_id", msgId, "error", nil, "message", sb.String(), "usage", resp.Usage)
 			return msgId, sb.String(), nil
 		case err = <-errChan:
 			logger.SugaredLogger.Warnw("Get response from chatGPT error", "retry_times", i+1, "err", err)

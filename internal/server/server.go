@@ -11,6 +11,7 @@ import (
 func Serve() {
 	initNotion()
 	initWx()
+	http.HandleFunc("/files/tg/", proxyTelegramFile)
 
 	svcConfig := config.GetConfig().Service
 	s := &http.Server{

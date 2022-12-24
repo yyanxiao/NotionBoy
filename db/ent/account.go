@@ -22,7 +22,7 @@ type Account struct {
 	UpdatedAt time.Time `json:"updated_at,omitempty"`
 	// Deleted holds the value of the "deleted" field.
 	Deleted bool `json:"deleted,omitempty"`
-	// wechat user id
+	// user id
 	UserID string `json:"user_id,omitempty"`
 	// UserType holds the value of the "user_type" field.
 	UserType account.UserType `json:"user_type,omitempty"`

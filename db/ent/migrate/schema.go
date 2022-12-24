@@ -15,9 +15,9 @@ var (
 		{Name: "created_at", Type: field.TypeTime},
 		{Name: "updated_at", Type: field.TypeTime},
 		{Name: "deleted", Type: field.TypeBool, Default: false},
-		{Name: "user_id", Type: field.TypeString, Unique: true},
+		{Name: "user_id", Type: field.TypeString},
 		{Name: "user_type", Type: field.TypeEnum, Nullable: true, Enums: []string{"wechat", "telegram"}, Default: "wechat"},
-		{Name: "database_id", Type: field.TypeString, Unique: true},
+		{Name: "database_id", Type: field.TypeString},
 		{Name: "access_token", Type: field.TypeString},
 		{Name: "notion_user_id", Type: field.TypeString, Nullable: true},
 		{Name: "notion_user_email", Type: field.TypeString, Nullable: true},
@@ -29,6 +29,13 @@ var (
 		Name:       "accounts",
 		Columns:    AccountsColumns,
 		PrimaryKey: []*schema.Column{AccountsColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "account_user_id_user_type",
+				Unique:  true,
+				Columns: []*schema.Column{AccountsColumns[4], AccountsColumns[5]},
+			},
+		},
 	}
 	// WechatSessionColumns holds the columns for the "wechat_session" table.
 	WechatSessionColumns = []*schema.Column{

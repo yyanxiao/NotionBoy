@@ -45,3 +45,6 @@ chatGPT:
   apiKey:
   User:
   Pass:
+
+telegram:
+  token:

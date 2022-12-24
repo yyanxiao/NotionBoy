@@ -22,6 +22,7 @@ type Content struct {
 	Media         MediaContent    `json:"media"`
 	IsChatContent bool            `json:"is_chat_content"`
 	ChatContent   ChatContent     `json:"chat_content"`
+	Medias        []*MediaContent `json:"medias"`
 }
 
 // Process 从 text 提取 tags，配置全文 snapshot
@@ -95,6 +96,10 @@ func (c *Content) BuildBlocks() []notionapi.Block {
 	}
 	if c.IsChatContent {
 		blocks = c.ChatContent.BuildBlocks()
+	}
+	for _, media := range c.Medias {
+		mBlocks := media.BuildBlocks()
+		blocks = append(blocks, mBlocks...)
 	}
 	return blocks
 }

@@ -1,7 +1,5 @@
 services:
   notionboy:
-    build:
-      context: .
     image: ghcr.io/vaayne/notionboy:latest
     ports:
       - 8081

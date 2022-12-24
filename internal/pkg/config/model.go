@@ -9,6 +9,7 @@ type Config struct {
 	Log         LogConfig
 	DevToolsURL string
 	ChatGPT     ChatGPTConfig
+	Telegram    TelegramConfig
 }
 
 type LogConfig struct {
@@ -73,4 +74,8 @@ type ChatGPTConfig struct {
 	ApiKey        string
 	User          string
 	Pass          string
+}
+
+type TelegramConfig struct {
+	Token string
 }

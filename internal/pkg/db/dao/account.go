@@ -14,6 +14,13 @@ func QueryAccountByWxUser(ctx context.Context, wxUserID string) (*ent.Account, e
 		Only(ctx)
 }
 
+func QueryAccount(ctx context.Context, userType account.UserType, userID string) (*ent.Account, error) {
+	return db.GetClient().Account.
+		Query().
+		Where(account.UserIDEQ(userID), account.UserTypeEQ(userType)).
+		Only(ctx)
+}
+
 func SaveAccount(ctx context.Context, acc *ent.Account) error {
 	return db.GetClient().Account.
 		Create().
@@ -29,10 +36,10 @@ func SaveAccount(ctx context.Context, acc *ent.Account) error {
 		Exec(ctx)
 }
 
-func DeleteWxAccount(ctx context.Context, wxUserID string) error {
+func DeleteAccount(ctx context.Context, userType account.UserType, userID string) error {
 	_, err := db.GetClient().Account.
 		Delete().
-		Where(account.UserIDEQ(wxUserID), account.UserTypeEQ(account.UserTypeWechat)).
+		Where(account.UserIDEQ(userID), account.UserTypeEQ(userType)).
 		Exec(ctx)
 	return err
 }

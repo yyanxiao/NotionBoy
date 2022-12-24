@@ -8,6 +8,10 @@ import (
 )
 
 type Chatter interface {
+	// Chat
+	// Params are context, parent message id and prompt
+	//
+	// Returns message_id, message and error
 	Chat(ctx context.Context, parentMessageId, prompt string) (string, string, error)
 }
 

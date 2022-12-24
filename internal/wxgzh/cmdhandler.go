@@ -14,7 +14,7 @@ import (
 )
 
 func unBindingNotion(c context.Context, msg *message.MixMessage) *message.Reply {
-	if err := dao.DeleteWxAccount(c, msg.GetOpenID()); err != nil {
+	if err := dao.DeleteAccount(c, account.UserTypeWechat, msg.GetOpenID()); err != nil {
 		return &message.Reply{MsgType: message.MsgTypeText, MsgData: message.NewText(config.MSG_UNBIND_FAILED + err.Error())}
 	}
 	return &message.Reply{MsgType: message.MsgTypeText, MsgData: message.NewText(config.MSG_UNBIND_SUCCESS)}

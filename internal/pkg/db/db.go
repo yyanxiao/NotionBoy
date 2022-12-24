@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"notionboy/db/ent"
+	"notionboy/db/ent/migrate"
 	"notionboy/internal/pkg/config"
 	"notionboy/internal/pkg/logger"
 	"time"
@@ -63,7 +64,11 @@ func openDB() (*ent.Client, error) {
 
 func migrateDB() {
 	ctx := context.Background()
-	if err := client.Schema.Create(ctx); err != nil {
+	if err := client.Debug().Schema.Create(
+		ctx,
+		migrate.WithDropColumn(true),
+		migrate.WithDropIndex(true),
+	); err != nil {
 		logger.SugaredLogger.Fatalw("Failed creating schema resources", "err", err)
 	}
 }

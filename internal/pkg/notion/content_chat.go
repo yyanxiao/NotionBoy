@@ -2,8 +2,27 @@ package notion
 
 import (
 	"strings"
+	"sync"
 
 	"github.com/jomei/notionapi"
+)
+
+var validCodeLanguages = []string{
+	"abap", "arduino", "bash", "basic", "c", "clojure", "coffeescript",
+	"c++", "c#", "css", "dart", "diff", "docker", "elixir", "elm",
+	"erlang", "flow", "fortran", "f#", "gherkin", "glsl", "go", "graphql",
+	"groovy", "haskell", "html", "java", "javascript", "json", "julia",
+	"kotlin", "latex", "less", "lisp", "livescript", "lua", "makefile",
+	"markdown", "markup", "matlab", "mermaid", "nix", "objective-c",
+	"ocaml", "pascal", "perl", "php", "plain text", "powershell", "prolog",
+	"protobuf", "python", "r", "reason", "ruby", "rust", "sass", "scala",
+	"scheme", "scss", "shell", "sql", "swift", "typescript", "vb.net",
+	"verilog", "vhdl", "visual basic", "webassembly", "xml", "yaml", "java/c/c++/c#",
+}
+
+var (
+	once                     sync.Once
+	validCodeLanguageMapping map[string]struct{}
 )
 
 type ChatContent struct {
@@ -67,7 +86,7 @@ func formatAnswer(blocks []notionapi.Block, answer string) []notionapi.Block {
 				blocks = append(blocks, buildTextBlock(content))
 				content = []string{}
 				codeStart = false
-				if txt[3:] != "" {
+				if txt[3:] != "" && isValidCodeLanguage(txt[3:]) {
 					language = txt[3:]
 				}
 			} else {
@@ -126,4 +145,18 @@ func buildCodeBlock(content []string, language string) notionapi.Block {
 			},
 		},
 	}
+}
+
+func isValidCodeLanguage(language string) bool {
+	if validCodeLanguageMapping == nil {
+		once.Do(func() {
+			validCodeLanguageMapping = make(map[string]struct{})
+			for _, lan := range validCodeLanguages {
+				validCodeLanguageMapping[lan] = struct{}{}
+			}
+		})
+	}
+
+	_, ok := validCodeLanguageMapping[language]
+	return ok
 }
