@@ -13,6 +13,7 @@ require (
 	github.com/go-sql-driver/mysql v1.6.0
 	github.com/jomei/notionapi v1.9.3
 	github.com/mattn/go-sqlite3 v1.14.16
+	github.com/patrickmn/go-cache v2.1.0+incompatible
 	github.com/sashabaranov/go-gpt3 v0.0.0-20221202105456-0f9f4aa343ad
 	github.com/silenceper/wechat/v2 v2.1.4
 	github.com/spf13/viper v1.14.0
@@ -70,6 +71,7 @@ require (
 	golang.org/x/crypto v0.3.0 // indirect
 	golang.org/x/mod v0.7.0 // indirect
 	golang.org/x/net v0.2.0 // indirect
+	golang.org/x/sync v0.1.0
 	golang.org/x/sys v0.2.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
 	google.golang.org/protobuf v1.28.1 // indirect

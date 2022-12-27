@@ -6,16 +6,19 @@ import (
 	"notionboy/internal/pkg/config"
 	"notionboy/internal/pkg/db/dao"
 	"notionboy/internal/pkg/logger"
-	"notionboy/internal/pkg/utils"
+	"strconv"
 	"strings"
 	"time"
 
 	notion "notionboy/internal/pkg/notion"
 
 	"github.com/silenceper/wechat/v2/officialaccount/message"
+	"golang.org/x/sync/singleflight"
 )
 
 var supportMsgTypeMap map[message.MsgType]bool
+
+var sg singleflight.Group
 
 func init() {
 	supportMsgTypeMap = map[message.MsgType]bool{
@@ -30,16 +33,10 @@ func (ex *OfficialAccount) messageHandler(ctx context.Context, msg *message.MixM
 	if msg.Event == message.EventSubscribe {
 		return bindNotion(ctx, msg)
 	}
-
 	if msg.Event == message.EventUnsubscribe {
 		return unBindingNotion(ctx, msg)
 	}
-
-	userID := msg.GetOpenID()
 	content := transformToNotionContent(msg)
-	memCache := utils.GetCache()
-	userCache := memCache.Get(userID)
-	logger.SugaredLogger.Infof("UserID: %s, content: %v, msgType: %s, userCache: %s", userID, content, msg.MsgType, userCache)
 	cmd := strings.ToUpper(msg.Content)
 	switch cmd {
 	case config.CMD_BIND:
@@ -55,19 +52,26 @@ func (ex *OfficialAccount) messageHandler(ctx context.Context, msg *message.MixM
 	}
 
 	mr := make(chan *message.Reply)
-	// process chatGPT
-	if strings.HasPrefix(strings.ToUpper(msg.Content), config.CMD_CHAT) {
-		go ex.processChat(context.TODO(), msg, content, mr)
-	} else {
-		go ex.processContent(context.TODO(), msg, content, mr)
-	}
-	select {
-	case r := <-mr:
-		return r
-	case <-time.After(3 * time.Second):
-		logger.SugaredLogger.Warnf("Save record to Notion timeout")
-		return &message.Reply{MsgType: message.MsgTypeText, MsgData: message.NewText(config.MSG_PROCESSING)}
-	}
+	msgID := strconv.FormatInt(msg.MsgID, 10)
+	defer sg.Forget(msgID)
+	// singleflight.Group Do will process wechat retry logic
+	res, _, _ := sg.Do(msgID, func() (interface{}, error) {
+		// process chatGPT
+		if strings.HasPrefix(strings.ToUpper(msg.Content), config.CMD_CHAT) {
+			go ex.processChat(context.TODO(), msg, content, mr)
+		} else {
+			go ex.processContent(context.TODO(), msg, content, mr)
+		}
+
+		select {
+		case r := <-mr:
+			return r, nil
+		// wechat timeout set to 13 seconds
+		case <-time.After(13 * time.Second):
+			return &message.Reply{MsgType: message.MsgTypeText, MsgData: message.NewText(config.MSG_PROCESSING)}, nil
+		}
+	})
+	return res.(*message.Reply)
 }
 
 func (ex *OfficialAccount) processContent(ctx context.Context, msg *message.MixMessage, content *notion.Content, mr chan *message.Reply) {
