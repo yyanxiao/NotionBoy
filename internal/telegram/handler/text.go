@@ -18,7 +18,8 @@ func OnText(c tele.Context) error {
 	}
 
 	nContent := &notion.Content{
-		Text: c.Message().Text,
+		Text:    c.Message().Text,
+		Account: acc,
 	}
 
 	nt := &notion.Notion{BearerToken: acc.AccessToken, DatabaseID: acc.DatabaseID}

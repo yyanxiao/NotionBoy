@@ -2,6 +2,7 @@ package notion
 
 import (
 	"context"
+	"notionboy/db/ent"
 	"notionboy/internal/pkg/config"
 	"regexp"
 	"strings"
@@ -23,6 +24,7 @@ type Content struct {
 	IsChatContent bool            `json:"is_chat_content"`
 	ChatContent   ChatContent     `json:"chat_content"`
 	Medias        []*MediaContent `json:"medias"`
+	Account       *ent.Account    `json:"account"`
 }
 
 // Process 从 text 提取 tags，配置全文 snapshot
@@ -49,6 +51,7 @@ func (c *Content) parseFulltextURL(ctx context.Context, tag string) {
 		// only save last url
 		for _, m := range match {
 			c.Fulltext.URL = m[0]
+			c.Fulltext.Account = c.Account
 			c.IsFulltext = true
 		}
 	}

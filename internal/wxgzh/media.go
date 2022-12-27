@@ -5,9 +5,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
-	"notionboy/internal/pkg/config"
-	"notionboy/internal/pkg/logger"
-	"notionboy/internal/pkg/r2"
+	"notionboy/db/ent/account"
+	"notionboy/internal/pkg/storage"
 	"regexp"
 	"strings"
 	"time"
@@ -20,15 +19,12 @@ const GET_MEDIA_URL = "https://api.weixin.qq.com/cgi-bin/media/get"
 
 var (
 	httpClient *resty.Client
-	r2Client   r2.R2
 	reg        *regexp.Regexp
 )
 
 func init() {
 	httpClient = resty.New()
 	httpClient.SetTimeout(60 * time.Second)
-	r2Client = r2.New(config.GetConfig().R2.Token, config.GetConfig().R2.Url)
-	logger.SugaredLogger.Debugf("init r2Client: %v", r2Client)
 	reg, _ = regexp.Compile(`filename="(.*)"`)
 }
 
@@ -105,9 +101,9 @@ func (m *Media) downloadMediaFromWx(ctx context.Context, mediaId string) (*GetMe
 }
 
 func (m *Media) uploadMediaToR2(ctx context.Context, r *GetMediaResp, userID string) error {
-	objectName := fmt.Sprintf("%s-%s", userID, r.FileName)
+	objectName := fmt.Sprintf("%s/%s/%s", account.UserTypeWechat, userID, r.FileName)
 	log.Printf("objectName: %s\nfilename: %s", objectName, r.FileName)
-	url, err := r2Client.Upload(ctx, objectName, r.ContentType, r.Data)
+	url, err := storage.DefaultClient().Upload(ctx, objectName, r.Data)
 	if err != nil {
 		return fmt.Errorf("upload media to r2 error: %v", err)
 	}

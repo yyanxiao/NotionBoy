@@ -10,6 +10,7 @@ type Config struct {
 	DevToolsURL string
 	ChatGPT     ChatGPTConfig
 	Telegram    TelegramConfig
+	Storage     S3Config
 }
 
 type LogConfig struct {
@@ -78,4 +79,13 @@ type ChatGPTConfig struct {
 
 type TelegramConfig struct {
 	Token string
+}
+
+type S3Config struct {
+	Endpoint   string
+	AccessKey  string
+	SecretKey  string
+	Region     string
+	BucketName string
+	Domain     string // domain is cloudflare proxy domain
 }

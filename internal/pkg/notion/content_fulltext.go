@@ -2,20 +2,22 @@ package notion
 
 import (
 	"context"
-	"net/url"
+	"fmt"
+	"notionboy/db/ent"
 	"notionboy/internal/pkg/config"
 	"notionboy/internal/pkg/fulltext"
-	"notionboy/internal/pkg/r2"
+	"notionboy/internal/pkg/storage"
 	"strings"
 
 	"github.com/jomei/notionapi"
 )
 
 type FulltextContent struct {
-	URL      string `json:"url"`
-	Title    string `json:"title"`
-	ImageURL string `json:"image_url"`
-	PDFURL   string `json:"pdf_url"`
+	URL      string       `json:"url"`
+	Title    string       `json:"title"`
+	ImageURL string       `json:"image_url"`
+	PDFURL   string       `json:"pdf_url"`
+	Account  *ent.Account `json:"account"`
 }
 
 func (c *FulltextContent) ProcessSnapshot(ctx context.Context, tag string) {
@@ -31,13 +33,13 @@ func (c *FulltextContent) processFulltextImage(ctx context.Context) {
 	if err != nil {
 		return
 	}
-	r2Client := r2.DefaultClient()
-	imgUrl, err := r2Client.Upload(ctx, url.QueryEscape(title)+".jpg", "image/jpeg", buf)
+	c.Title = title
+	key := c.buildS3Key("jpg")
+	imgUrl, err := storage.DefaultClient().Upload(ctx, key, buf)
 	if err != nil {
 		return
 	}
 	c.ImageURL = imgUrl
-	c.Title = title
 }
 
 func (c *FulltextContent) processFulltextPDF(ctx context.Context) {
@@ -45,13 +47,17 @@ func (c *FulltextContent) processFulltextPDF(ctx context.Context) {
 	if err != nil {
 		return
 	}
-	r2Client := r2.DefaultClient()
-	imgUrl, err := r2Client.Upload(ctx, url.QueryEscape(title)+".pdf", "application/pdf", buf)
+	c.Title = title
+	key := c.buildS3Key("pdf")
+	imgUrl, err := storage.DefaultClient().Upload(ctx, key, buf)
 	if err != nil {
 		return
 	}
 	c.PDFURL = imgUrl
-	c.Title = title
+}
+
+func (c *FulltextContent) buildS3Key(ext string) string {
+	return fmt.Sprintf("%s/%s/%s.%s", c.Account.UserType, c.Account.UserID, c.Title, ext)
 }
 
 func (c *FulltextContent) BuildBlocks() []notionapi.Block {

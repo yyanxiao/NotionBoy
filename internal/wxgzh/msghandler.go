@@ -113,6 +113,7 @@ func updateLatestSchema(ctx context.Context, accountInfo *ent.Account, notionCon
 func (ex *OfficialAccount) updateNotionContent(ctx context.Context, msg *message.MixMessage, n *notion.Notion, accountInfo *ent.Account, content *notion.Content) {
 	ctx = context.WithValue(ctx, config.DATABASE_ID, accountInfo.DatabaseID)
 	updateLatestSchema(ctx, accountInfo, n)
+	content.Account = accountInfo
 	content.Process(ctx)
 	switch msg.MsgType {
 	case message.MsgTypeText:
@@ -121,9 +122,9 @@ func (ex *OfficialAccount) updateNotionContent(ctx context.Context, msg *message
 	case message.MsgTypeImage, message.MsgTypeVideo, message.MsgTypeVoice:
 		// 保存媒体信息到 Notion
 		media := NewMedia(ex.officialAccount.GetContext())
-		getMediaResp, err := media.getMedia(ctx, msg.MediaID, accountInfo.DatabaseID)
+		getMediaResp, err := media.getMedia(ctx, msg.MediaID, accountInfo.UserID)
 		if err != nil {
-			// todo
+			logger.SugaredLogger.Errorw("Get media from wechat error", "err", err)
 			return
 		}
 		content.Media = notion.MediaContent{

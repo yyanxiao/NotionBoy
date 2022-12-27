@@ -52,8 +52,9 @@ func OnMedia(c tele.Context) error {
 	medias := make([]*notion.MediaContent, 0)
 	medias = append(medias, media)
 	nContent := &notion.Content{
-		Text:   text,
-		Medias: medias,
+		Text:    text,
+		Medias:  medias,
+		Account: acc,
 	}
 
 	nt := &notion.Notion{BearerToken: acc.AccessToken, DatabaseID: acc.DatabaseID}
