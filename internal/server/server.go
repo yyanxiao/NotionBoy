@@ -12,6 +12,7 @@ func Serve() {
 	initNotion()
 	initWx()
 	http.HandleFunc("/files/tg/", proxyTelegramFile)
+	http.HandleFunc("/status", status)
 
 	svcConfig := config.GetConfig().Service
 	s := &http.Server{
@@ -23,4 +24,8 @@ func Serve() {
 
 	logger.SugaredLogger.Infof("Listening on %s", s.Addr)
 	logger.SugaredLogger.Fatal(s.ListenAndServe())
+}
+
+func status(w http.ResponseWriter, r *http.Request) {
+	renderHtml(w, "ok", http.StatusOK)
 }

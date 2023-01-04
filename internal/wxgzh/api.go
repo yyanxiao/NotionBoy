@@ -55,6 +55,13 @@ func transformToNotionContent(msg *message.MixMessage) *notion.Content {
 func (ex *OfficialAccount) Serve(w http.ResponseWriter, r *http.Request) {
 	// 传入request和responseWriter
 	server := ex.officialAccount.GetServer(r, w)
+	_, ok := server.GetQuery("signature")
+	if !ok {
+		w.WriteHeader(http.StatusOK)
+		w.Header().Set("Content-Type", "text/html; charset=utf-8")
+		_, _ = w.Write([]byte("ok"))
+		return
+	}
 	server.SkipValidate(false)
 	// 设置接收消息的处理方法
 	server.SetMessageHandler(func(msg *message.MixMessage) *message.Reply {
