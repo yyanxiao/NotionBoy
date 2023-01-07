@@ -28,6 +28,7 @@ const (
 	MSG_UNBIND_FAILED   = "解除 Notion 绑定失败！失败原因: "
 	MSG_UNSUPPOERT      = "不支持的消息类型!"
 	MSG_CHAT_UNSUPPOERT = "Chat 只支持文本消息类型!"
+	MSG_ZLIB_UNSUPPOERT = "Chat 只支持文本消息类型!"
 	MSG_PROCESSING      = "正在处理，请稍后去 Notion 查看"
 	MSG_HELP            = `欢迎使用 NotionBoy， 了解更多 NotionBoy 的功能，请参考：https://www.theboys.tech/notion-boy
 
@@ -58,6 +59,7 @@ const (
 	CMD_HELP         = "HELP"
 	CMD_SOS          = "SOS"
 	CMD_CHAT         = "#CHAT"
+	CMD_ZLIB         = "/ZLIB"
 )
 
 const (

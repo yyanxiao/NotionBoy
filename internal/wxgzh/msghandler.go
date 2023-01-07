@@ -59,6 +59,8 @@ func (ex *OfficialAccount) messageHandler(ctx context.Context, msg *message.MixM
 		// process chatGPT
 		if strings.HasPrefix(strings.ToUpper(msg.Content), config.CMD_CHAT) {
 			go ex.processChat(context.TODO(), msg, content, mr)
+		} else if strings.HasPrefix(strings.ToUpper(msg.Content), config.CMD_ZLIB) {
+			go ex.processZlib(context.TODO(), msg, content, mr)
 		} else {
 			go ex.processContent(context.TODO(), msg, content, mr)
 		}

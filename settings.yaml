@@ -1,58 +1,68 @@
 service:
-  name: notion-boy
-  host: "0.0.0.0"
-  port: 8001
-  url: http://localhost:8001
+    name: notion-boy
+    host: "0.0.0.0"
+    port: 8001
+    url: http://localhost:8001
 
 wechat:
-  appID:
-  appSecret:
-  token:
-  encodingAesKey:
-  # 作者的微信二维码在素材库中的 ID，用于 SOS 返回作者个人的微信
-  authorImageId: Wa2njbgm5ldl-RmyUsjQfdHAkAhqTFoUhMzxPFtr5_fYrsvynXSHJFIt1n_iB96v
-  adminUserID:
+    appID:
+    appSecret:
+    token:
+    encodingAesKey:
+    # 作者的微信二维码在素材库中的 ID，用于 SOS 返回作者个人的微信
+    authorImageId: Wa2njbgm5ldl-RmyUsjQfdHAkAhqTFoUhMzxPFtr5_fYrsvynXSHJFIt1n_iB96v
+    adminUserID:
 
 database:
-  driver: sqlite
-  sqlite:
-    file: data.db
-  mysql:
-    host:
-    port:
-    user:
-    pass:
-    db:
+    driver: sqlite
+    sqlite:
+        file: data.db
+    mysql:
+        host:
+        port:
+        user:
+        pass:
+        db:
 
 notionOAuth:
-  clientID:
-  clientSecret:
-  urlRedirect:
-  authUrl: https://api.notion.com/v1/oauth/authorize?owner=user
-  authToken: https://api.notion.com/v1/oauth/token
+    clientID:
+    clientSecret:
+    urlRedirect:
+    authUrl: https://api.notion.com/v1/oauth/authorize?owner=user
+    authToken: https://api.notion.com/v1/oauth/token
 
 r2:
-  url:
-  token:
+    url:
+    token:
 
 storage:
-  endpoint:
-  accessKey:
-  secretKey:
-  region:
-  bucketName:
-  domain:
+    endpoint:
+    accessKey:
+    secretKey:
+    region:
+    bucketName:
+    domain:
 
 log:
-  level: info
+    level: info
 # devToolsURL: ws://browserless:3000
 
 chatGPT:
-  Authorization:
-  SessionToken:
-  apiKey:
-  User:
-  Pass:
+    Authorization:
+    SessionToken:
+    apiKey:
+    User:
+    Pass:
 
 telegram:
-  token:
+    token:
+
+zlib:
+    host:
+    ipfsGateways:
+        - https://ipfs.io
+        - https://cloudflare-ipfs.com
+        - https://ipfs.infura.io
+        - https://dweb.link
+        - https://gateway.pinata.cloud
+        - https://cf-ipfs.com

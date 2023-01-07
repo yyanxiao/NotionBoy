@@ -11,6 +11,7 @@ type Config struct {
 	ChatGPT     ChatGPTConfig
 	Telegram    TelegramConfig
 	Storage     S3Config
+	Zlib        ZlibConfig
 }
 
 type LogConfig struct {
@@ -88,4 +89,9 @@ type S3Config struct {
 	Region     string
 	BucketName string
 	Domain     string // domain is cloudflare proxy domain
+}
+
+type ZlibConfig struct {
+	Host         string
+	IpfsGateways []string
 }

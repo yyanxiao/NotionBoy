@@ -25,6 +25,7 @@ type Content struct {
 	ChatContent   ChatContent     `json:"chat_content"`
 	Medias        []*MediaContent `json:"medias"`
 	Account       *ent.Account    `json:"account"`
+	Zlib          *ZlibContent    `json:"zlib"`
 }
 
 // Process 从 text 提取 tags，配置全文 snapshot
@@ -89,6 +90,27 @@ func (c *Content) buildTagsProperties() notionapi.MultiSelectProperty {
 
 func (c *Content) BuildBlocks() []notionapi.Block {
 	blocks := make([]notionapi.Block, 0)
+	if c.Account != nil {
+		blocks = append(blocks, notionapi.ParagraphBlock{
+			BasicBlock: notionapi.BasicBlock{
+				Object: notionapi.ObjectTypeBlock,
+				Type:   notionapi.BlockTypeParagraph,
+			},
+			Paragraph: notionapi.Paragraph{
+				RichText: []notionapi.RichText{
+					{
+						Mention: &notionapi.Mention{
+							Type: "user",
+							User: &notionapi.User{
+								ID: notionapi.UserID(c.Account.NotionUserID),
+							},
+						},
+					},
+				},
+			},
+		})
+	}
+
 	if c.IsFulltext {
 		fulltextBlocks := c.Fulltext.BuildBlocks()
 		blocks = append(blocks, fulltextBlocks...)
@@ -103,6 +125,9 @@ func (c *Content) BuildBlocks() []notionapi.Block {
 	for _, media := range c.Medias {
 		mBlocks := media.BuildBlocks()
 		blocks = append(blocks, mBlocks...)
+	}
+	if c.Zlib != nil {
+		blocks = append(blocks, c.Zlib.BuildBlocks()...)
 	}
 	return blocks
 }

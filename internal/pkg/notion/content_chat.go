@@ -52,26 +52,26 @@ func (c *ChatContent) BuildBlocks() []notionapi.Block {
 			},
 		},
 	})
-	if c.UserID != "" {
-		blocks = append(blocks, notionapi.ParagraphBlock{
-			BasicBlock: notionapi.BasicBlock{
-				Object: notionapi.ObjectTypeBlock,
-				Type:   notionapi.BlockTypeParagraph,
-			},
-			Paragraph: notionapi.Paragraph{
-				RichText: []notionapi.RichText{
-					{
-						Mention: &notionapi.Mention{
-							Type: "user",
-							User: &notionapi.User{
-								ID: notionapi.UserID(c.UserID),
-							},
-						},
-					},
-				},
-			},
-		})
-	}
+	// if c.UserID != "" {
+	// 	blocks = append(blocks, notionapi.ParagraphBlock{
+	// 		BasicBlock: notionapi.BasicBlock{
+	// 			Object: notionapi.ObjectTypeBlock,
+	// 			Type:   notionapi.BlockTypeParagraph,
+	// 		},
+	// 		Paragraph: notionapi.Paragraph{
+	// 			RichText: []notionapi.RichText{
+	// 				{
+	// 					Mention: &notionapi.Mention{
+	// 						Type: "user",
+	// 						User: &notionapi.User{
+	// 							ID: notionapi.UserID(c.UserID),
+	// 						},
+	// 					},
+	// 				},
+	// 			},
+	// 		},
+	// 	})
+	// }
 	blocks = formatAnswer(blocks, c.Answer)
 	return blocks
 }

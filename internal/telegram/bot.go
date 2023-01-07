@@ -41,6 +41,10 @@ func (b *TeleBot) registerHandlers() {
 	b.Handle("/help", handler.OnStart)
 	b.Handle("/bind", handler.OnBind)
 	b.Handle("/unbind", handler.OnUnbind)
+	b.Handle("/zlib", handler.OnZlib)
+
+	b.Handle(&tele.InlineButton{Unique: handler.INLINE_UNIQUE_ZLIB_SEARCHER}, handler.OnZlib)
+	b.Handle(&tele.InlineButton{Unique: handler.INLINE_UNIQUE_ZLIB_SAVE_TO_NOTION}, handler.OnZlibSaveToNotion)
 
 	b.Handle(tele.OnText, handler.OnText)
 	b.Handle(tele.OnMedia, handler.OnMedia)
