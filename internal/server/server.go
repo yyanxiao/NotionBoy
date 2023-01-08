@@ -12,6 +12,7 @@ func Serve() {
 	initNotion()
 	initWx()
 	http.HandleFunc("/files/tg/", proxyTelegramFile)
+	http.HandleFunc("/files/ipfs/", proxyIpfs)
 	http.HandleFunc("/status", status)
 
 	svcConfig := config.GetConfig().Service

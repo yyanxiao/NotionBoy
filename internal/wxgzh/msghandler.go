@@ -49,6 +49,10 @@ func (ex *OfficialAccount) messageHandler(ctx context.Context, msg *message.MixM
 		return helpInfo(ctx, msg)
 	case config.CMD_SOS:
 		return sosInfo(ctx, msg)
+	case config.CMD_ZLIB_NEXT:
+		return searchZlibNextPage(ctx, msg)
+	case config.CMD_ZLIB_SAVE_TO_NOTION:
+		return searchZlibSaveToNotion(ctx, msg)
 	}
 
 	mr := make(chan *message.Reply)
@@ -57,10 +61,11 @@ func (ex *OfficialAccount) messageHandler(ctx context.Context, msg *message.MixM
 	// singleflight.Group Do will process wechat retry logic
 	res, _, _ := sg.Do(msgID, func() (interface{}, error) {
 		// process chatGPT
-		if strings.HasPrefix(strings.ToUpper(msg.Content), config.CMD_CHAT) {
+		if strings.HasPrefix(strings.ToUpper(msg.Content), config.CMD_CHAT) ||
+			strings.HasPrefix(strings.ToUpper(msg.Content), config.CMD_CHAT_SLASH) {
 			go ex.processChat(context.TODO(), msg, content, mr)
 		} else if strings.HasPrefix(strings.ToUpper(msg.Content), config.CMD_ZLIB) {
-			go ex.processZlib(context.TODO(), msg, content, mr)
+			go searchZlib(context.TODO(), msg, mr)
 		} else {
 			go ex.processContent(context.TODO(), msg, content, mr)
 		}
