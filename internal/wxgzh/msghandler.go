@@ -37,29 +37,30 @@ func (ex *OfficialAccount) messageHandler(ctx context.Context, msg *message.MixM
 		return unBindingNotion(ctx, msg)
 	}
 	content := transformToNotionContent(msg)
-	cmd := strings.ToUpper(msg.Content)
-	switch cmd {
-	case config.CMD_BIND:
-		return bindNotion(ctx, msg)
-	case config.CMD_UNBIND:
-		return unBindingNotion(ctx, msg)
-	case config.CMD_HELP:
-		return helpInfo(ctx, msg)
-	case config.CMD_HELP_ZH:
-		return helpInfo(ctx, msg)
-	case config.CMD_SOS:
-		return sosInfo(ctx, msg)
-	case config.CMD_ZLIB_NEXT:
-		return searchZlibNextPage(ctx, msg)
-	case config.CMD_ZLIB_SAVE_TO_NOTION:
-		return searchZlibSaveToNotion(ctx, msg)
-	}
 
 	mr := make(chan *message.Reply)
 	msgID := strconv.FormatInt(msg.MsgID, 10)
 	defer sg.Forget(msgID)
 	// singleflight.Group Do will process wechat retry logic
 	res, _, _ := sg.Do(msgID, func() (interface{}, error) {
+		cmd := strings.ToUpper(msg.Content)
+		switch cmd {
+		case config.CMD_BIND:
+			return bindNotion(ctx, msg), nil
+		case config.CMD_UNBIND:
+			return unBindingNotion(ctx, msg), nil
+		case config.CMD_HELP:
+			return helpInfo(ctx, msg), nil
+		case config.CMD_HELP_ZH:
+			return helpInfo(ctx, msg), nil
+		case config.CMD_SOS:
+			return sosInfo(ctx, msg), nil
+		case config.CMD_ZLIB_NEXT:
+			return searchZlibNextPage(ctx, msg), nil
+		case config.CMD_ZLIB_SAVE_TO_NOTION:
+			return searchZlibSaveToNotion(ctx, msg), nil
+		}
+
 		// process chatGPT
 		if strings.HasPrefix(strings.ToUpper(msg.Content), config.CMD_CHAT) ||
 			strings.HasPrefix(strings.ToUpper(msg.Content), config.CMD_CHAT_SLASH) {
