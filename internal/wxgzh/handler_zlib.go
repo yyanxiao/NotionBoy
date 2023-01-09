@@ -52,6 +52,11 @@ func searchZlib(ctx context.Context, msg *message.MixMessage, mr chan *message.R
 		mr <- &message.Reply{MsgType: message.MsgTypeText, MsgData: message.NewText(fmt.Sprintf("Search from zlib error: %s", err))}
 		return
 	}
+	if len(books) == 0 {
+		mr <- &message.Reply{MsgType: message.MsgTypeText, MsgData: message.NewText("没有找到相关记录，请更换搜索内容重新搜索")}
+		return
+	}
+
 	cacheRes := &ZlibResultCache{
 		name:      name,
 		page:      1,
