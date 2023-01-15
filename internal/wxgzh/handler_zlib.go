@@ -45,7 +45,7 @@ type ZlibResultCache struct {
 }
 
 func searchZlib(ctx context.Context, msg *message.MixMessage, mr chan *message.Reply) {
-	name := msg.Content[5:]
+	name := strings.TrimSpace(msg.Content[5:])
 	logger.SugaredLogger.Debugw("zlib search name", "name", name)
 	books, err := zlib.DefaultZlibClient().Search(ctx, name)
 	if err != nil {

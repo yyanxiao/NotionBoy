@@ -23,13 +23,13 @@
       - 根目录下的 `settings_local.[yaml|json|toml|...]` 文件
 
    2. 环境变量, 不区分大小写
-     - 环境变量拥有 prefix：`APP_`
+     - 环境变量拥有 prefix: `APP_`
      - 环境变量会将 `_` 转换成 `.`, 例如 `APP_TELEGRAM_TOKEN` 对应配置文件中的 `telegram.token`
 
 ## logger
 
 使用 zap
-- 有两个 Logger： `Logger` 和 `SugaredLogger`
+- 有两个 Logger:  `Logger` 和 `SugaredLogger`
   - `SugaredLogger` 会自动判断类型
   - `Logger` 需要使用内置的类型，不需要解析类型，所以性能特别好
 - 各个级别分别有四个个 methods

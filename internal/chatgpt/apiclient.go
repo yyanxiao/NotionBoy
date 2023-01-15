@@ -58,7 +58,7 @@ func (cli *apiClient) Chat(ctx context.Context, parentMessageId, prompt string) 
 				sb.WriteString("\n")
 			}
 			logger.SugaredLogger.Debugw("Response", "conversation_id", msgId, "error", nil, "message", sb.String(), "usage", resp.Usage)
-			return msgId, sb.String(), nil
+			return msgId, strings.TrimSpace(sb.String()), nil
 		case err = <-errChan:
 			logger.SugaredLogger.Warnw("Get response from chatGPT error", "retry_times", i+1, "err", err)
 		}

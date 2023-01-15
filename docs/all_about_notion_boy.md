@@ -25,7 +25,7 @@ flomo是新一代「卡片笔记工具」，秉承尼克拉斯 · 卢曼（Nikla
 
 最终，经过这些准备工作，和少量的开发之后，`NotionBoy`  面世了。
 
-已实现的功能：
+已实现的功能:
 
 - 关注微信公众号后，绑定自己的 Notion
 - 像聊天一样，随时记录自己的想法
@@ -42,7 +42,7 @@ flomo是新一代「卡片笔记工具」，秉承尼克拉斯 · 卢曼（Nikla
 
 [Start building with the Notion API](https://developers.notion.com/docs/getting-started)
 
-主要步骤如下：
+主要步骤如下:
 
 1. 进入 [https://www.notion.com/my-integrations](https://www.notion.com/my-integrations)
 2. 新建集成机器人，输入名字（这个随便输入都行）

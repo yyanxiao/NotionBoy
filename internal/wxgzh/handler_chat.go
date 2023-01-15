@@ -8,6 +8,7 @@ import (
 	"notionboy/internal/pkg/db/dao"
 	"notionboy/internal/pkg/logger"
 	"notionboy/internal/pkg/notion"
+	"strings"
 	"sync"
 
 	"github.com/silenceper/wechat/v2/officialaccount/message"
@@ -44,7 +45,7 @@ func (ex *OfficialAccount) processChat(ctx context.Context, msg *message.MixMess
 	if err == nil {
 		n.PageID = chatPageId
 	}
-	content.ChatContent.Question = content.Text[5:]
+	content.ChatContent.Question = strings.TrimSpace(msg.Content[5:])
 	content.IsChatContent = true
 	chatParentId, ok := chatParentIdMap.Load(accountInfo.DatabaseID)
 	if !ok {
@@ -60,7 +61,7 @@ func (ex *OfficialAccount) updateChatContent(ctx context.Context, n *notion.Noti
 	if accountInfo.IsOpenaiAPIUser {
 		chatter = chatgpt.DefaultApiClient()
 	}
-	parentMessageId, msg, err := chatter.Chat(ctx, chatParentId, content.Text[5:])
+	parentMessageId, msg, err := chatter.Chat(ctx, chatParentId, strings.TrimSpace(content.Text[5:]))
 	chatParentIdMap.Store(accountInfo.DatabaseID, parentMessageId)
 	var chatResp string
 	if err != nil {

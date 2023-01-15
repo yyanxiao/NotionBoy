@@ -38,5 +38,8 @@ func helpInfo(c context.Context, msg *message.MixMessage) *message.Reply {
 }
 
 func sosInfo(c context.Context, msg *message.MixMessage) *message.Reply {
-	return &message.Reply{MsgType: message.MsgTypeImage, MsgData: message.NewImage(config.GetConfig().Wechat.AuthorImageID)}
+	return &message.Reply{
+		MsgType: message.MsgTypeText,
+		MsgData: message.NewText(fmt.Sprintf("欢迎添加作者微信，请搜索🔍:  %s", config.GetConfig().Wechat.AuthorID)),
+	}
 }

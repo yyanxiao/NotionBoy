@@ -31,7 +31,7 @@ func init() {
 
 func (ex *OfficialAccount) messageHandler(ctx context.Context, msg *message.MixMessage) *message.Reply {
 	if msg.Event == message.EventSubscribe {
-		return bindNotion(ctx, msg)
+		return helpInfo(ctx, msg)
 	}
 	if msg.Event == message.EventUnsubscribe {
 		return unBindingNotion(ctx, msg)
@@ -58,7 +58,7 @@ func (ex *OfficialAccount) messageHandler(ctx context.Context, msg *message.MixM
 		case config.CMD_ZLIB_NEXT:
 			return searchZlibNextPage(ctx, msg), nil
 		case config.CMD_ZLIB_SAVE_TO_NOTION:
-			return searchZlibSaveToNotion(ctx, msg), nil
+			return searchZlibSaveToNotion(context.TODO(), msg), nil
 		}
 
 		// process chatGPT

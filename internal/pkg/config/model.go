@@ -61,7 +61,7 @@ type WechatConfig struct {
 	AppSecret      string
 	Token          string
 	EncodingAESKey string
-	AuthorImageID  string
+	AuthorID       string
 	AdminUserID    string
 }
 
