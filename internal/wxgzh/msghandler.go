@@ -126,6 +126,7 @@ func (ex *OfficialAccount) updateNotionContent(ctx context.Context, msg *message
 	ctx = context.WithValue(ctx, config.DATABASE_ID, accountInfo.DatabaseID)
 	updateLatestSchema(ctx, accountInfo, n)
 	content.Account = accountInfo
+	content.NotionPageID = n.PageID
 	content.Process(ctx)
 	switch msg.MsgType {
 	case message.MsgTypeText:

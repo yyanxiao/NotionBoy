@@ -66,3 +66,6 @@ zlib:
         - https://dweb.link
         - https://gateway.pinata.cloud
         - https://cf-ipfs.com
+
+readability:
+    host:

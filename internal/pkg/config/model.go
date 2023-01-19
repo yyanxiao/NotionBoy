@@ -12,6 +12,7 @@ type Config struct {
 	Telegram    TelegramConfig
 	Storage     S3Config
 	Zlib        ZlibConfig
+	Readability ReadabilityConfig
 }
 
 type LogConfig struct {
@@ -94,4 +95,8 @@ type S3Config struct {
 type ZlibConfig struct {
 	Host         string
 	IpfsGateways []string
+}
+
+type ReadabilityConfig struct {
+	Host string
 }

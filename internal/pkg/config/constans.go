@@ -53,8 +53,9 @@ NotionBoy 提供以下命令可供使用:
 const (
 	CMD_BIND                = "绑定"
 	CMD_UNBIND              = "解绑"
-	CMD_FULLTEXT            = "全文"
-	CMD_FULLTEXT_PDF        = "PDF全文"
+	CMD_SNAPSHOT            = "全文" // TODO: need set to snapshot
+	CMD_FULLTEXT            = "全文N"
+	CMD_SNAPSHOT_PDF        = "PDF全文"
 	CMD_PDF                 = "PDF"
 	CMD_HELP_ZH             = "帮助"
 	CMD_HELP                = "HELP"

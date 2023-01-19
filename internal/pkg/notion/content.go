@@ -4,6 +4,7 @@ import (
 	"context"
 	"notionboy/db/ent"
 	"notionboy/internal/pkg/config"
+	"notionboy/internal/pkg/logger"
 	"regexp"
 	"strings"
 	"time"
@@ -15,17 +16,19 @@ import (
 )
 
 type Content struct {
-	Tags          []string        `json:"tags"`
-	Text          string          `json:"text"`
-	IsFulltext    bool            `json:"is_fulltext"`
-	Fulltext      FulltextContent `json:"fulltext"`
-	IsMedia       bool            `json:"is_media"`
-	Media         MediaContent    `json:"media"`
-	IsChatContent bool            `json:"is_chat_content"`
-	ChatContent   ChatContent     `json:"chat_content"`
-	Medias        []*MediaContent `json:"medias"`
-	Account       *ent.Account    `json:"account"`
-	Zlib          *ZlibContent    `json:"zlib"`
+	Tags          []string         `json:"tags"`
+	Text          string           `json:"text"`
+	NotionPageID  string           `json:"notion_page_id"`
+	IsSnapshot    bool             `json:"is_snapshot"`
+	SnapShot      SnapshotContent  `json:"snapshot"`
+	IsMedia       bool             `json:"is_media"`
+	Media         MediaContent     `json:"media"`
+	IsChatContent bool             `json:"is_chat_content"`
+	ChatContent   ChatContent      `json:"chat_content"`
+	Medias        []*MediaContent  `json:"medias"`
+	Account       *ent.Account     `json:"account"`
+	Zlib          *ZlibContent     `json:"zlib"`
+	FullText      *FulltextContent `json:"fulltext"`
 }
 
 // Process 从 text 提取 tags，配置全文 snapshot
@@ -37,39 +40,65 @@ func (c *Content) Process(ctx context.Context) {
 		for _, m := range match {
 			tag := strings.Trim(m[1], "# ")
 			tags = append(tags, tag)
-			if strings.ToUpper(tag) == config.CMD_FULLTEXT || strings.HasPrefix(strings.ToUpper(tag), config.CMD_PDF) {
-				c.parseFulltextURL(ctx, tag)
+			if strings.ToUpper(tag) == config.CMD_SNAPSHOT || strings.HasPrefix(strings.ToUpper(tag), config.CMD_PDF) {
+				c.parseSnapshot(ctx, tag)
+			}
+			if strings.ToUpper(tag) == config.CMD_FULLTEXT {
+				c.parseFulltext(ctx)
 			}
 		}
 		c.Tags = tags
 	}
 }
 
-func (c *Content) parseFulltextURL(ctx context.Context, tag string) {
+func parseUrlFromText(text string) string {
 	r, _ := regexp.Compile(`https?://(www.)?[-a-zA-Z0-9@:%._+~#=]{2,256}.[a-z]{2,4}\b([-a-zA-Z0-9@:%_+.~#?&//=]*)`)
-	match := r.FindAllStringSubmatch(c.Text, -1)
+	match := r.FindAllStringSubmatch(text, -1)
 	if len(match) > 0 {
 		// only save last url
 		for _, m := range match {
-			c.Fulltext.URL = m[0]
-			c.Fulltext.Account = c.Account
-			c.IsFulltext = true
+			return m[0]
 		}
 	}
+	return ""
+}
 
-	if c.IsFulltext {
-		c.Fulltext.ProcessSnapshot(ctx, tag)
+func (c *Content) parseFulltext(ctx context.Context) {
+	url := parseUrlFromText(c.Text)
+	if url != "" {
+		c.FullText = &FulltextContent{
+			URL:          url,
+			NotionPageID: c.NotionPageID,
+			Account:      c.Account,
+		}
+		c.FullText.ProcessFulltext(ctx)
+	}
+}
+
+func (c *Content) parseSnapshot(ctx context.Context, tag string) {
+	url := parseUrlFromText(c.Text)
+	if url != "" {
+		c.SnapShot.URL = url
+		c.SnapShot.Account = c.Account
+		c.IsSnapshot = true
+	}
+
+	if c.IsSnapshot {
+		c.SnapShot.ProcessSnapshot(ctx, tag)
 	}
 }
 
 func (c *Content) buildTitle() string {
 	title := c.Text
-	if c.IsFulltext && c.Fulltext.Title != "" {
-		title = c.Fulltext.Title
+	if c.IsSnapshot && c.SnapShot.Title != "" {
+		title = c.SnapShot.Title
 	}
 	if c.IsMedia && c.Text == "" {
 		loc, _ := time.LoadLocation("Asia/Shanghai")
 		title = cases.Title(language.English).String(c.Media.Type) + " " + time.Now().UTC().In(loc).Format(time.RFC3339)
+	}
+	if c.FullText != nil && c.FullText.Title != "" {
+		title = c.FullText.Title
 	}
 	return title
 }
@@ -111,8 +140,8 @@ func (c *Content) BuildBlocks() []notionapi.Block {
 		})
 	}
 
-	if c.IsFulltext {
-		fulltextBlocks := c.Fulltext.BuildBlocks()
+	if c.IsSnapshot {
+		fulltextBlocks := c.SnapShot.BuildBlocks()
 		blocks = append(blocks, fulltextBlocks...)
 	}
 	if c.IsMedia {
@@ -129,10 +158,27 @@ func (c *Content) BuildBlocks() []notionapi.Block {
 	if c.Zlib != nil {
 		blocks = append(blocks, c.Zlib.BuildBlocks()...)
 	}
+	if c.FullText != nil {
+		blocks = append(blocks, c.FullText.BuildBlocks()...)
+	}
 	return blocks
 }
 
 func (c *Content) BuildPageProperties() *notionapi.Properties {
+	setRichText := func(text string) notionapi.RichTextProperty {
+		return notionapi.RichTextProperty{
+			Type: "rich_text",
+			RichText: []notionapi.RichText{
+				{
+					Type: "text",
+					Text: &notionapi.Text{
+						Content: text,
+					},
+				},
+			},
+		}
+	}
+
 	pageProperties := notionapi.Properties{
 		"Name": notionapi.TitleProperty{
 			Type: "title",
@@ -145,17 +191,28 @@ func (c *Content) BuildPageProperties() *notionapi.Properties {
 				},
 			},
 		},
-		"Text": notionapi.RichTextProperty{
-			Type: "rich_text",
-			RichText: []notionapi.RichText{
-				{
-					Type: "text",
-					Text: &notionapi.Text{
-						Content: c.Text,
-					},
+		"Text": setRichText(c.Text),
+	}
+
+	if c.FullText != nil {
+		pageProperties["Author"] = setRichText(c.FullText.Author)
+		pageProperties["Summary"] = setRichText(c.FullText.Summary)
+		pageProperties["URL"] = notionapi.URLProperty{
+			Type: "url",
+			URL:  c.FullText.URL,
+		}
+
+		var d notionapi.Date
+		if err := d.UnmarshalText([]byte(c.FullText.PublishDate)); err == nil {
+			pageProperties["PublishDate"] = notionapi.DateProperty{
+				Type: "date",
+				Date: &notionapi.DateObject{
+					Start: &d,
 				},
-			},
-		},
+			}
+		} else {
+			logger.SugaredLogger.Errorw("parse publish date error", "err", err)
+		}
 	}
 
 	if c.Tags != nil {

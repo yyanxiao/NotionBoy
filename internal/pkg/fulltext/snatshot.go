@@ -57,7 +57,7 @@ func SaveSnapshot(ctx context.Context, urlStr string, tag string) ([]byte, strin
 		_ = p.Mouse.Scroll(0, pageHeight.Num(), scrollStepsNum)
 	}
 
-	if tag == config.CMD_FULLTEXT_PDF {
+	if tag == config.CMD_SNAPSHOT_PDF {
 		buf, err = generatePDF(p)
 	} else {
 		buf, err = generateScreenshot(p)
