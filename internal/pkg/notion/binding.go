@@ -109,18 +109,6 @@ func defaultDatabaseProperties() *notionapi.DatabaseUpdateRequest {
 			"UpdatedBy": notionapi.LastEditedByPropertyConfig{
 				Type: notionapi.PropertyConfigLastEditedBy,
 			},
-			"Author": notionapi.LastEditedByPropertyConfig{
-				Type: notionapi.PropertyConfigTypeRichText,
-			},
-			"Summary": notionapi.LastEditedByPropertyConfig{
-				Type: notionapi.PropertyConfigTypeRichText,
-			},
-			"PublishDate": notionapi.LastEditedByPropertyConfig{
-				Type: notionapi.PropertyConfigTypeDate,
-			},
-			"URL": notionapi.URLPropertyConfig{
-				Type: notionapi.PropertyConfigTypeURL,
-			},
 		},
 	}
 }
