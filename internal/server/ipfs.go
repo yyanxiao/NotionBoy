@@ -12,6 +12,40 @@ var ipfsTemplate = `
 <html>
 <head>
 	<title>NotionBoy IPFS Proxy</title>
+	<style>
+		body {
+			font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+			font-size: 30px;
+			line-height: 1.42857143;
+			color: #333;
+			background-color: #fff;
+		}
+		h1 {
+			margin: 20px 0;
+			font-size: 48px;
+			font-weight: 500;
+			line-height: 1.1;
+			color: inherit;
+		}
+		p {
+			margin: 0 0 10px;
+		}
+		ul {
+			padding-left: 0;
+			list-style: none;
+		}
+		li {
+			display: block;
+		}
+		a {
+			color: #337ab7;
+			text-decoration: none;
+		}
+		a:hover {
+			color: #23527c;
+			text-decoration: underline;
+		}
+	</style>
 </head>
 <body>
 	<h1>Download Links</h1>

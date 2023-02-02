@@ -19,8 +19,6 @@ type Content struct {
 	Tags          []string         `json:"tags"`
 	Text          string           `json:"text"`
 	NotionPageID  string           `json:"notion_page_id"`
-	IsSnapshot    bool             `json:"is_snapshot"`
-	SnapShot      SnapshotContent  `json:"snapshot"`
 	IsMedia       bool             `json:"is_media"`
 	Media         MediaContent     `json:"media"`
 	IsChatContent bool             `json:"is_chat_content"`
@@ -31,7 +29,7 @@ type Content struct {
 	FullText      *FulltextContent `json:"fulltext"`
 }
 
-// Process 从 text 提取 tags，配置全文 snapshot
+// Process 从 text 提取 tags，配置全文
 func (c *Content) Process(ctx context.Context) {
 	r, _ := regexp.Compile(`#(.+?)($|\s)`)
 	match := r.FindAllStringSubmatch(c.Text, -1)
@@ -40,9 +38,6 @@ func (c *Content) Process(ctx context.Context) {
 		for _, m := range match {
 			tag := strings.Trim(m[1], "# ")
 			tags = append(tags, tag)
-			if strings.ToUpper(tag) == config.CMD_SNAPSHOT || strings.HasPrefix(strings.ToUpper(tag), config.CMD_PDF) {
-				c.parseSnapshot(ctx, tag)
-			}
 			if strings.ToUpper(tag) == config.CMD_FULLTEXT {
 				c.parseFulltext(ctx)
 			}
@@ -75,24 +70,8 @@ func (c *Content) parseFulltext(ctx context.Context) {
 	}
 }
 
-func (c *Content) parseSnapshot(ctx context.Context, tag string) {
-	url := parseUrlFromText(c.Text)
-	if url != "" {
-		c.SnapShot.URL = url
-		c.SnapShot.Account = c.Account
-		c.IsSnapshot = true
-	}
-
-	if c.IsSnapshot {
-		c.SnapShot.ProcessSnapshot(ctx, tag)
-	}
-}
-
 func (c *Content) buildTitle() string {
 	title := c.Text
-	if c.IsSnapshot && c.SnapShot.Title != "" {
-		title = c.SnapShot.Title
-	}
 	if c.IsMedia && c.Text == "" {
 		loc, _ := time.LoadLocation("Asia/Shanghai")
 		title = cases.Title(language.English).String(c.Media.Type) + " " + time.Now().UTC().In(loc).Format(time.RFC3339)
@@ -140,10 +119,6 @@ func (c *Content) BuildBlocks() []notionapi.Block {
 		})
 	}
 
-	if c.IsSnapshot {
-		fulltextBlocks := c.SnapShot.BuildBlocks()
-		blocks = append(blocks, fulltextBlocks...)
-	}
 	if c.IsMedia {
 		mediaBlocks := c.Media.BuildBlocks()
 		blocks = append(blocks, mediaBlocks...)

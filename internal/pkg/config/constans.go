@@ -2,14 +2,39 @@ package config
 
 // const for message
 const (
-	MSG_BIND_SUCCESS = `<html>
-<body>
-<h1>恭喜 🎉 成功绑定 Notion</h1>
-<p>
-请关闭网页，返回微信即可开始使用 NotionBoy 回到 Notion 可查看新建的欢迎信息
-</p>
-</body>
-</html>`
+	MSG_BIND_SUCCESS = `
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<title>NotionBoy</title>
+		<style>
+			h1 {
+				font-size: 48px;
+				font-weight: 500;
+				line-height: 1.2;
+				margin: 0;
+				padding: 0;
+				text-align: center;
+			}
+			p {
+				text-align: center;
+				text-overflow: clip;
+				color: black;
+				font-size: 30px;
+				margin: 0;
+				padding: 0;
+			}
+		</style>
+	</head>
+	<body>
+		<h1>恭喜 🎉 成功绑定 Notion</h1>
+		<p>
+			请关闭网页，返回微信即可开始使用 NotionBoy 回到 Notion
+			可查看新建的欢迎信息
+		</p>
+	</body>
+</html>
+`
 
 	MSG_BINDING = `欢迎使用 NotionBoy, 了解 NotionBoy 的使用指南，请参考: https://mp.weixin.qq.com/s/ib7HrRMIXwZjJyYFOwBQrw
 
@@ -45,6 +70,9 @@ NotionBoy 提供以下命令可供使用:
 - 如未绑定请回复「绑定」进行绑定
 - 如已绑定请先回复「解绑」解除与 Notion 的绑定，再回复「绑定」进行绑定
 - 如需帮助，请回复「帮助」
+
+如果是想使用 Zlib 搜索, 可以不用绑定 Notion, 请按照下面的格式回复（不包括「」）即可
+「/zlib 书名或者作者」
 `
 	MSG_WELCOME = `#NotionBoy 欢迎🎉使用 Notion Boy!`
 )
@@ -53,10 +81,7 @@ NotionBoy 提供以下命令可供使用:
 const (
 	CMD_BIND                = "绑定"
 	CMD_UNBIND              = "解绑"
-	CMD_SNAPSHOT            = "全文" // TODO: need set to snapshot
-	CMD_FULLTEXT            = "全文N"
-	CMD_SNAPSHOT_PDF        = "PDF全文"
-	CMD_PDF                 = "PDF"
+	CMD_FULLTEXT            = "全文"
 	CMD_HELP_ZH             = "帮助"
 	CMD_HELP                = "HELP"
 	CMD_SOS                 = "SOS"
