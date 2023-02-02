@@ -67,30 +67,35 @@ func UpdateDatabaseProperties(ctx context.Context, n *Notion) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	defaultMultiSelect := notionapi.Select{
-		Options: []notionapi.Option{},
-	}
-	tags, ok := database.Properties["Tags"]
-	if ok {
-		if tags.GetType() == notionapi.PropertyConfigTypeMultiSelect {
-			defaultMultiSelect = (tags.(*notionapi.MultiSelectPropertyConfig)).MultiSelect
-		}
-	}
-	return n.UpdateDatabase(ctx, defaultDatabaseProperties(defaultMultiSelect))
+	properties := defaultDatabaseProperties()
+	patchUserDatabaseProperties(database, properties.Properties)
+	return n.UpdateDatabase(ctx, properties)
 }
 
-func defaultDatabaseProperties(multiSelect notionapi.Select) *notionapi.DatabaseUpdateRequest {
+func defaultDatabaseProperties() *notionapi.DatabaseUpdateRequest {
 	return &notionapi.DatabaseUpdateRequest{
 		Properties: notionapi.PropertyConfigs{
+			"Name": notionapi.TitlePropertyConfig{
+				Type: notionapi.PropertyConfigTypeTitle,
+			},
 			"Tags": notionapi.MultiSelectPropertyConfig{
 				Type:        notionapi.PropertyConfigTypeMultiSelect,
-				MultiSelect: multiSelect,
+				MultiSelect: notionapi.Select{Options: []notionapi.Option{}},
 			},
 			"Text": notionapi.RichTextPropertyConfig{
 				Type: notionapi.PropertyConfigTypeRichText,
 			},
-			"Name": notionapi.TitlePropertyConfig{
-				Type: notionapi.PropertyConfigTypeTitle,
+			"Author": notionapi.RichTextPropertyConfig{
+				Type: notionapi.PropertyConfigTypeRichText,
+			},
+			"Summary": notionapi.RichTextPropertyConfig{
+				Type: notionapi.PropertyConfigTypeRichText,
+			},
+			"PublishDate": notionapi.DatePropertyConfig{
+				Type: notionapi.PropertyConfigTypeDate,
+			},
+			"URL": notionapi.URLPropertyConfig{
+				Type: notionapi.PropertyConfigTypeURL,
 			},
 			"CreatedAt": notionapi.CreatedTimePropertyConfig{
 				Type: notionapi.PropertyConfigCreatedTime,
@@ -117,5 +122,19 @@ func defaultDatabaseProperties(multiSelect notionapi.Select) *notionapi.Database
 				Type: notionapi.PropertyConfigTypeURL,
 			},
 		},
+	}
+}
+
+func patchUserDatabaseProperties(database *notionapi.Database, properties notionapi.PropertyConfigs) {
+	for k, v := range database.Properties {
+		if _, ok := properties[k]; !ok {
+			properties[k] = v
+		} else {
+			// if user settings is different from default settings, use default settings
+			// for multi select, keep user multi select options
+			if properties[k].GetType() == notionapi.PropertyConfigTypeMultiSelect && v.GetType() == notionapi.PropertyConfigTypeMultiSelect {
+				properties[k] = v
+			}
+		}
 	}
 }

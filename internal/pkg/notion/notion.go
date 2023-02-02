@@ -55,23 +55,49 @@ func (n *Notion) UpdateRecord(ctx context.Context, content *Content) {
 	client := n.GetClient()
 	var wg sync.WaitGroup
 	wg.Add(2)
-	go func() {
+
+	update := func(wg *sync.WaitGroup, updateFunc func(ctx context.Context, client *notionapi.Client, pageID string, content *Content) (string, error)) {
+		var err error
 		for i := 0; i < maxRetryCnt; i++ {
-			if _, err := updatePage(ctx, client, n.PageID, content); err == nil {
+			if _, err = updateFunc(ctx, client, n.PageID, content); err == nil {
 				break
 			}
 		}
-		wg.Done()
-	}()
-	go func() {
-		for i := 0; i < maxRetryCnt; i++ {
-			if _, err := updateBlock(ctx, client, n.PageID, content); err == nil {
-				break
-			}
+		if err != nil {
+			updateErrorBlock(ctx, client, n.PageID, err)
 		}
 		wg.Done()
-	}()
+	}
+
+	go update(&wg, updatePage)
+	go update(&wg, updateBlock)
+
 	wg.Wait()
+}
+
+func updateErrorBlock(ctx context.Context, client *notionapi.Client, pageID string, err error) {
+	errorMsgBlock := notionapi.ParagraphBlock{
+		BasicBlock: notionapi.BasicBlock{
+			Object: notionapi.ObjectTypeBlock,
+			Type:   notionapi.BlockTypeParagraph,
+		},
+		Paragraph: notionapi.Paragraph{
+			RichText: []notionapi.RichText{
+				{
+					Type: "text",
+					Text: &notionapi.Text{
+						Content: "Save Content error, error message: " + err.Error(),
+					},
+					Annotations: &notionapi.Annotations{
+						Bold: true,
+					},
+				},
+			},
+		},
+	}
+	_, _ = client.Block.AppendChildren(ctx, notionapi.BlockID(pageID), &notionapi.AppendBlockChildrenRequest{
+		Children: []notionapi.Block{errorMsgBlock},
+	})
 }
 
 func updatePage(ctx context.Context, client *notionapi.Client, pageID string, content *Content) (string, error) {
