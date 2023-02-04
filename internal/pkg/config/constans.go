@@ -60,8 +60,7 @@ NotionBoy 提供以下命令可供使用:
 - 帮助: 直接输入「帮助」或者「help」 可以获取最新的帮助教程
 - 绑定: 直接输入「绑定」进行绑定 Notion 的操作
 - 解绑: 直接输入「解绑」进行解除 Notion 绑定的操作
-- 全文: 在存储链接的时候，加上「#全文」这个标签，可以自动保存当前页面的截图到 Notion 中, 例如: 「#全文 https://www.theboys.tech/notion-boy #NotionBoy」
-- PDF全文: 在存储链接的时候，加上「#pdf」这个标签, 可以自动保存当前页面的 PDF 到 Notion 中，例如: 「#pdf https://www.theboys.tech/notion-boy #NotionBoy」
+- 全文: 在存储链接的时候，加上「#全文」这个标签, 可以剪辑文章全文到 Notion 中, 例如: 「#全文 https://mp.weixin.qq.com/s/ib7HrRMIXwZjJyYFOwBQrw #NotionBoy」
 - ChatGPT: 回复「/chat 聊天内容」，可以和机器人聊天, 例如: 「/chat 给我讲个笑话吧」
 - Zlib: 回复 「/zlib 书名或者作者」可以获取图书的下载信息，例如「/zlib 如何阅读一本书」
 - SOS: 回复「SOS」获取作者的微信, 我会尽量解答你的问题
