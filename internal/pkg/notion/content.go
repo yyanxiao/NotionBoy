@@ -153,9 +153,10 @@ func (c *Content) BuildPageProperties() *notionapi.Properties {
 			},
 		}
 	}
-
-	pageProperties := notionapi.Properties{
-		"Name": notionapi.TitleProperty{
+	// if there is no text, do no set title and text
+	pageProperties := notionapi.Properties{}
+	if c.Text != "" {
+		pageProperties["Name"] = notionapi.TitleProperty{
 			Type: "title",
 			Title: []notionapi.RichText{
 				{
@@ -165,8 +166,8 @@ func (c *Content) BuildPageProperties() *notionapi.Properties {
 					},
 				},
 			},
-		},
-		"Text": setRichText(c.Text),
+		}
+		pageProperties["Text"] = setRichText(c.Text)
 	}
 
 	if c.FullText != nil {

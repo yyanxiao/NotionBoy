@@ -15,6 +15,7 @@ type Chatter interface {
 	// Returns message_id, message and error
 	Chat(ctx context.Context, prompt string) (string, error)
 	ChatWithHistory(ctx context.Context, acc *ent.Account, prompt string) (string, error)
+	ResetHistory(acc *ent.Account)
 }
 
 var (

@@ -83,6 +83,10 @@ func (cli *apiClient) Chat(ctx context.Context, prompt string) (string, error) {
 	return "", err
 }
 
+func (cli *apiClient) ResetHistory(acc *ent.Account) {
+	resetChatHistory(acc)
+}
+
 func (cli *apiClient) GetIsRateLimit() bool {
 	return cli.isRateLimit.Load()
 }

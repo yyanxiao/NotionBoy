@@ -43,6 +43,12 @@ func setChatHistory(ctx context.Context, acc *ent.Account, prompt, response stri
 	chcheClient.Set(key, history, 10*time.Minute)
 }
 
+func resetChatHistory(acc *ent.Account) {
+	key := buildChatHitoryKey(acc)
+	chcheClient.Delete(key)
+	logger.SugaredLogger.Debugw("Reset chat history", "key", key)
+}
+
 // get chat history from cache
 func getChatHistory(ctx context.Context, acc *ent.Account) string {
 	if acc == nil {

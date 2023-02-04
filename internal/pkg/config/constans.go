@@ -74,6 +74,9 @@ NotionBoy 提供以下命令可供使用:
 「/zlib 书名或者作者」
 `
 	MSG_WELCOME = `#NotionBoy 欢迎🎉使用 Notion Boy!`
+
+	MSG_RESET_CHATGPT_HISTORY = `已重置 ChatGPT 历史, 请输入「/chat 内容」重新开始`
+	MSG_EMPTY_MESSAGE         = `消息为空, 请重新输入!`
 )
 
 // const for command
@@ -86,6 +89,7 @@ const (
 	CMD_SOS                 = "SOS"
 	CMD_CHAT                = "#CHAT"
 	CMD_CHAT_SLASH          = "/CHAT"
+	CMD_CHAT_RESET          = "RESET"
 	CMD_ZLIB                = "/ZLIB"
 	CMD_ZLIB_NEXT           = "ZLIBM"
 	CMD_ZLIB_SAVE_TO_NOTION = "ZLIBS"

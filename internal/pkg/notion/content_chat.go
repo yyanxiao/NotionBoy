@@ -1,6 +1,7 @@
 package notion
 
 import (
+	"fmt"
 	"strings"
 	"sync"
 
@@ -43,7 +44,7 @@ func (c *ChatContent) BuildBlocks() []notionapi.Block {
 				{
 					Type: "text",
 					Text: &notionapi.Text{
-						Content: c.Question,
+						Content: fmt.Sprintf("You: %s", c.Question),
 					},
 					Annotations: &notionapi.Annotations{
 						Bold: true,
@@ -52,26 +53,6 @@ func (c *ChatContent) BuildBlocks() []notionapi.Block {
 			},
 		},
 	})
-	// if c.UserID != "" {
-	// 	blocks = append(blocks, notionapi.ParagraphBlock{
-	// 		BasicBlock: notionapi.BasicBlock{
-	// 			Object: notionapi.ObjectTypeBlock,
-	// 			Type:   notionapi.BlockTypeParagraph,
-	// 		},
-	// 		Paragraph: notionapi.Paragraph{
-	// 			RichText: []notionapi.RichText{
-	// 				{
-	// 					Mention: &notionapi.Mention{
-	// 						Type: "user",
-	// 						User: &notionapi.User{
-	// 							ID: notionapi.UserID(c.UserID),
-	// 						},
-	// 					},
-	// 				},
-	// 			},
-	// 		},
-	// 	})
-	// }
 	blocks = formatAnswer(blocks, c.Answer)
 	return blocks
 }

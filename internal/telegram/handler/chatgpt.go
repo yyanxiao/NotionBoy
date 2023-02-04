@@ -3,7 +3,9 @@ package handler
 import (
 	"context"
 	"notionboy/internal/chatgpt"
+	"notionboy/internal/pkg/config"
 	"notionboy/internal/pkg/logger"
+	"strings"
 	"time"
 
 	tele "gopkg.in/telebot.v3"
@@ -19,6 +21,11 @@ func OnChatGPT(c tele.Context) error {
 	}
 
 	prompt := c.Message().Payload
+
+	if strings.ToUpper(prompt) == config.CMD_CHAT_RESET {
+		chatgpt.DefaultApiClient().ResetHistory(acc)
+		return c.Reply(config.MSG_RESET_CHATGPT_HISTORY)
+	}
 
 	msg, err := chatgpt.DefaultApiClient().ChatWithHistory(ctx, acc, prompt)
 	if err != nil {
