@@ -48,11 +48,8 @@ log:
 # devToolsURL: ws://browserless:3000
 
 chatGPT:
-    Authorization:
-    SessionToken:
     apiKey:
-    User:
-    Pass:
+    model: text-davinci-003
 
 telegram:
     token:

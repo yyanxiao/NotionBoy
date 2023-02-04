@@ -19,7 +19,7 @@ func chat(msg *openwechat.MessageContext) {
 			return
 		}
 
-		_, txt, err := chatter.Chat(ctx, "", msg.Content[5:])
+		txt, err := chatter.Chat(ctx, msg.Content[5:])
 		if err != nil {
 			if err := replay(msg, err.Error()); err != nil {
 				return

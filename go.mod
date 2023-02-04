@@ -5,7 +5,6 @@ go 1.18
 require (
 	entgo.io/ent v0.11.4
 	github.com/aws/aws-sdk-go v1.44.167
-	github.com/donovanhide/eventsource v0.0.0-20210830082556-c59027999da0
 	github.com/eatmoreapple/openwechat v1.2.4
 	github.com/fsnotify/fsnotify v1.6.0
 	github.com/go-resty/resty/v2 v2.7.0
@@ -52,7 +51,7 @@ require (
 	github.com/go-openapi/inflect v0.19.0 // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/google/go-cmp v0.5.9 // indirect
-	github.com/google/uuid v1.3.0
+	github.com/google/uuid v1.3.0 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/hashicorp/hcl/v2 v2.15.0 // indirect
 	github.com/magiconair/properties v1.8.6 // indirect

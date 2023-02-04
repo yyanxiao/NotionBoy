@@ -72,11 +72,8 @@ type R2Config struct {
 }
 
 type ChatGPTConfig struct {
-	Authorization string
-	SessionToken  string
-	ApiKey        string
-	User          string
-	Pass          string
+	ApiKey string
+	Model  string
 }
 
 type TelegramConfig struct {

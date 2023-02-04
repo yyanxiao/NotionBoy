@@ -9,13 +9,9 @@ import (
 	"notionboy/internal/pkg/logger"
 	"notionboy/internal/pkg/notion"
 	"strings"
-	"sync"
 
 	"github.com/silenceper/wechat/v2/officialaccount/message"
 )
-
-// chatParentIdMap use to store chat parent, for context
-var chatParentIdMap sync.Map
 
 func (ex *OfficialAccount) processChat(ctx context.Context, msg *message.MixMessage, content *notion.Content, mr chan *message.Reply) {
 	accountInfo, err := dao.QueryAccountByWxUser(ctx, msg.GetOpenID())
@@ -47,22 +43,18 @@ func (ex *OfficialAccount) processChat(ctx context.Context, msg *message.MixMess
 	}
 	content.ChatContent.Question = strings.TrimSpace(msg.Content[5:])
 	content.IsChatContent = true
-	chatParentId, ok := chatParentIdMap.Load(accountInfo.DatabaseID)
-	if !ok {
-		chatParentId = ""
-	}
-	go ex.updateChatContent(ctx, n, accountInfo, content, chatParentId.(string))
+
+	go ex.updateChatContent(ctx, n, accountInfo, content)
 	mr <- &message.Reply{MsgType: message.MsgTypeText, MsgData: message.NewText(res)}
 }
 
-func (ex *OfficialAccount) updateChatContent(ctx context.Context, n *notion.Notion, accountInfo *ent.Account, content *notion.Content, chatParentId string) {
+func (ex *OfficialAccount) updateChatContent(ctx context.Context, n *notion.Notion, accountInfo *ent.Account, content *notion.Content) {
 	updateLatestSchema(ctx, accountInfo, n)
 	chatter := ex.chatter
 	if accountInfo.IsOpenaiAPIUser {
 		chatter = chatgpt.DefaultApiClient()
 	}
-	parentMessageId, msg, err := chatter.Chat(ctx, chatParentId, strings.TrimSpace(content.Text[5:]))
-	chatParentIdMap.Store(accountInfo.DatabaseID, parentMessageId)
+	msg, err := chatter.ChatWithHistory(ctx, accountInfo, strings.TrimSpace(content.Text[5:]))
 	var chatResp string
 	if err != nil {
 		chatResp = err.Error()
