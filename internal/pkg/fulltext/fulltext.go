@@ -2,6 +2,7 @@ package fulltext
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"notionboy/internal/pkg/config"
 	"notionboy/internal/pkg/logger"
@@ -55,7 +56,7 @@ func SaveReadabeArticle(ctx context.Context, articleUrl, notionToken, notionPage
 			"url", articleUrl,
 			"response", resp.String(),
 		)
-		return nil, err
+		return nil, fmt.Errorf("Save article failed, status code: %d; error: %s", resp.StatusCode(), resp.String())
 	}
 
 	return &result, nil
