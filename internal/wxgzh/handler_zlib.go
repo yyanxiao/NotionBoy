@@ -53,7 +53,7 @@ func searchZlib(ctx context.Context, msg *message.MixMessage, mr chan *message.R
 		return
 	}
 	if len(books) == 0 {
-		mr <- &message.Reply{MsgType: message.MsgTypeText, MsgData: message.NewText("没有找到相关记录，请更换搜索内容重新搜索")}
+		mr <- &message.Reply{MsgType: message.MsgTypeText, MsgData: message.NewText(config.MSG_ZLIB_NO_RESULT)}
 		return
 	}
 
@@ -113,6 +113,7 @@ func buildZlibSearchResult(rc *ZlibResultCache) string {
 	} else {
 		sb.WriteString("到底了， 没有更多的内容！回复 zlibs 保存所有的结果到 Notion")
 	}
+	sb.WriteString(config.MSG_ZLIB_TIPS_CN)
 	return sb.String()
 }
 

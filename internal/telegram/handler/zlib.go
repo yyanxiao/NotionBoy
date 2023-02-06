@@ -73,8 +73,15 @@ func OnZlib(c tele.Context) error {
 	msgs := strings.Split(msg, " ")
 	logger.SugaredLogger.Debugw("zlib", "msgs", msgs)
 
-	page := uint(1)
-	books, err := zlib.DefaultZlibClient().Search(ctx, msgs[0])
+	// build query with ext
+	query := msgs[0]
+	for i := 1; i < len(msgs); i++ {
+		if msgs[i][0] == '#' {
+			query += " " + msgs[i]
+		}
+	}
+
+	books, err := zlib.DefaultZlibClient().Search(ctx, query)
 	if err != nil {
 		return c.Reply(fmt.Sprintf("Search from zlib error: %s", err))
 	}
@@ -83,9 +90,16 @@ func OnZlib(c tele.Context) error {
 		return c.Reply("No book found")
 	}
 
-	if len(msgs) > 1 {
-		u, _ := strconv.ParseInt(msgs[1], 10, 0)
-		page = uint(u)
+	page := uint(1)
+	// if is callback, get page from callback data
+	if c.Callback() != nil {
+		u, err := strconv.ParseInt(msgs[len(msgs)-1], 10, 0)
+		if err != nil {
+			logger.SugaredLogger.Errorw("parse page error for callback", "err", err)
+			page = uint(1)
+		} else {
+			page = uint(u)
+		}
 	}
 
 	reply := buildReplyBooks(books[LIMIT*(page-1) : LIMIT*page])
@@ -123,6 +137,7 @@ func buildReplyBooks(books []*zlib.Book) string {
 			book.FileSizeHuman,
 		))
 	}
+	sb.WriteString(config.MSG_ZLIB_TIPS)
 	return sb.String()
 }
 

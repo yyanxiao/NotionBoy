@@ -36,6 +36,8 @@ func (ex *OfficialAccount) messageHandler(ctx context.Context, msg *message.MixM
 	if msg.Event == message.EventUnsubscribe {
 		return unBindingNotion(ctx, msg)
 	}
+	// TrimSpace will remove all space in the beginning and end of the string for matching commands
+	msg.Content = strings.TrimSpace(msg.Content)
 	content := transformToNotionContent(msg)
 
 	mr := make(chan *message.Reply)

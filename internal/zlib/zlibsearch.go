@@ -10,6 +10,8 @@ import (
 	"notionboy/internal/pkg/config"
 	"notionboy/internal/pkg/logger"
 	"notionboy/internal/pkg/utils/cache"
+	"regexp"
+	"strings"
 	"sync"
 	"time"
 )
@@ -42,6 +44,46 @@ type ZlibClient struct {
 	IfsGateways []string
 }
 
+type ZlibSearchRequest struct {
+	Name       string `json:"name"`
+	Externsion string `json:"extension"`
+}
+
+func (r *ZlibSearchRequest) buildCacheKey() string {
+	return fmt.Sprintf("zlib:%s_%s", r.Name, r.Externsion)
+}
+
+func (r *ZlibSearchRequest) setToCache(books []*Book) {
+	cache.DefaultClient().Set(r.buildCacheKey(), books, 24*time.Hour)
+}
+
+func (r *ZlibSearchRequest) getFromCache() ([]*Book, bool) {
+	books, ok := cache.DefaultClient().Get(r.buildCacheKey())
+	if ok {
+		return books.([]*Book), ok
+	}
+	return nil, ok
+}
+
+// parseZlibReq parse query using regex to get name, extension, year
+// query will be like "阅读 #pdf", result will be "阅读", "pdf"
+func parseZlibReq(query string) *ZlibSearchRequest {
+	var req ZlibSearchRequest
+	patten := `#\w+`
+	re, _ := regexp.Compile(patten)
+	matches := re.FindAllString(query, -1)
+	for _, match := range matches {
+		match = strings.Trim(match, "#")
+
+		// match pdf, epub, mobi, txt, azw3
+		if match == "pdf" || match == "epub" || match == "mobi" || match == "txt" || match == "azw3" {
+			req.Externsion = match
+		}
+	}
+	req.Name = strings.TrimSpace(re.ReplaceAllString(query, ""))
+	return &req
+}
+
 type Searcher interface {
 	Search(ctx context.Context, name string) ([]*Book, error)
 }
@@ -60,19 +102,24 @@ func DefaultZlibClient() Searcher {
 	return client
 }
 
-func (z *ZlibClient) Search(ctx context.Context, name string) ([]*Book, error) {
+func (z *ZlibClient) Search(ctx context.Context, query string) ([]*Book, error) {
 	var books []*Book
 	var err error
+
+	req := parseZlibReq(query)
+
+	if req.Name == "" {
+		return nil, nil
+	}
+
 	// check cache, if not exist, search from zlib
-	cacheBooks, ok := cache.DefaultClient().Get(name)
+	books, ok := req.getFromCache()
 	if !ok {
-		books, err = z.getJSON(ctx, name)
+		books, err = z.getJSON(ctx, req)
 		if err != nil {
 			return nil, err
 		}
-		cache.DefaultClient().Set(name, books, 24*time.Hour)
-	} else {
-		books = cacheBooks.([]*Book)
+		req.setToCache(books)
 	}
 	for _, book := range books {
 		book.IpfsLinks = buildIpfsLinks(book, z.IfsGateways)
@@ -111,7 +158,7 @@ type Result struct {
 	Books []*Book `json:"books"`
 }
 
-func (z *ZlibClient) getJSON(ctx context.Context, name string) ([]*Book, error) {
+func (z *ZlibClient) getJSON(ctx context.Context, zlibReq *ZlibSearchRequest) ([]*Book, error) {
 	u, err := url.Parse(z.Host)
 	if err != nil {
 		logger.SugaredLogger.Errorw("parse url error", "url", z.Host, "err", err)
@@ -119,10 +166,16 @@ func (z *ZlibClient) getJSON(ctx context.Context, name string) ([]*Book, error) 
 	}
 	u.Path = "/search"
 	q := u.Query()
-	q.Set("query", name)
+	sb := strings.Builder{}
+	sb.WriteString(fmt.Sprintf(`title:"%s"`, zlibReq.Name))
+	if zlibReq.Externsion != "" {
+		sb.WriteString(fmt.Sprintf(`extension:"%s"`, zlibReq.Externsion))
+	}
+
+	q.Set("query", sb.String())
 	q.Set("limit", LIMIT)
 	u.RawQuery = q.Encode()
-
+	logger.SugaredLogger.Debugln("zlib url", u.String())
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, u.String(), nil)
 	if err != nil {
 		logger.SugaredLogger.Errorw("new http request error", "url", u.String(), "err", err)

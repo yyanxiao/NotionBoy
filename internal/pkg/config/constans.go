@@ -77,6 +77,13 @@ NotionBoy 提供以下命令可供使用:
 
 	MSG_RESET_CHATGPT_HISTORY = `已重置 ChatGPT 历史, 请输入「/chat 内容」重新开始`
 	MSG_EMPTY_MESSAGE         = `消息为空, 请重新输入!`
+	MSG_ZLIB_NO_RESULT        = `没有找到相关的图书, 请重新搜索! 可以尝试减少搜索关键词, 例如:「/zlib 如何阅读一本书」变成「/zlib 阅读」`
+	MSG_ZLIB_TIPS             = `
+
+Tips: When searching with a keyword containing #ext, you can specify the file type. For example, "/zlib How to read #pdf" will only search for books in pdf format.`
+	MSG_ZLIB_TIPS_CN = `
+
+Tips: 搜索关键字中包含 #ext 时可以指定文件类型，例如 「/zlib 鲁迅 #pdf」只会搜索 pdf 格式的书籍`
 )
 
 // const for command
