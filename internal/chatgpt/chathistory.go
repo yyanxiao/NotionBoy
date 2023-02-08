@@ -38,9 +38,11 @@ func buildChatHitoryKey(acc *ent.Account) string {
 
 // save chat history to cache, expire in 10 minutes
 func setChatHistory(ctx context.Context, acc *ent.Account, prompt, response string) {
-	key := buildChatHitoryKey(acc)
-	history := fmt.Sprintf("%s\nUser: %s\nChatGPT: %s", getChatHistory(ctx, acc), prompt, strings.Replace(response, "ChatGPT: ", "", 1))
-	chcheClient.Set(key, history, 10*time.Minute)
+	if acc != nil {
+		key := buildChatHitoryKey(acc)
+		history := fmt.Sprintf("%s\nUser: %s\nChatGPT: %s", getChatHistory(ctx, acc), prompt, strings.Replace(response, "ChatGPT: ", "", 1))
+		chcheClient.Set(key, history, 10*time.Minute)
+	}
 }
 
 func resetChatHistory(acc *ent.Account) {
