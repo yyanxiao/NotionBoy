@@ -66,6 +66,9 @@ func (ex *OfficialAccount) processChat(ctx context.Context, msg *message.MixMess
 		return
 	}
 
+	// set account info
+	content.Account = accountInfo
+
 	// reset chat history for ChatGPT
 	if strings.ToUpper(msgText) == config.CMD_CHAT_RESET {
 		ex.chatter.ResetHistory(accountInfo)
@@ -87,8 +90,9 @@ func (ex *OfficialAccount) processChat(ctx context.Context, msg *message.MixMess
 		// 创建初始 Record
 		var chatPageId string
 		res, chatPageId, err = n.CreateRecord(ctx, &notion.Content{
-			Text: "ChatGPT 专属页面",
-			Tags: []string{"chat", "ChatGPT"},
+			Text:    "ChatGPT 专属页面",
+			Tags:    []string{"chat", "ChatGPT"},
+			Account: accountInfo,
 		})
 		if err == nil {
 			n.PageID = chatPageId

@@ -73,10 +73,6 @@ var (
 	UpdateDefaultUpdatedAt func() time.Time
 	// DefaultDeleted holds the default value on creation for the "deleted" field.
 	DefaultDeleted bool
-	// DatabaseIDValidator is a validator for the "database_id" field. It is called by the builders before save.
-	DatabaseIDValidator func(string) error
-	// AccessTokenValidator is a validator for the "access_token" field. It is called by the builders before save.
-	AccessTokenValidator func(string) error
 	// DefaultIsLatestSchema holds the default value on creation for the "is_latest_schema" field.
 	DefaultIsLatestSchema bool
 	// DefaultIsOpenaiAPIUser holds the default value on creation for the "is_openai_api_user" field.

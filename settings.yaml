@@ -31,6 +31,10 @@ notionOAuth:
     authUrl: https://api.notion.com/v1/oauth/authorize?owner=user
     authToken: https://api.notion.com/v1/oauth/token
 
+notionTestPage:
+    DatabaseID:
+    Token:
+
 r2:
     url:
     token:

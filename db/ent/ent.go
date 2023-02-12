@@ -7,6 +7,8 @@ import (
 	"errors"
 	"fmt"
 	"notionboy/db/ent/account"
+	"notionboy/db/ent/chathistory"
+	"notionboy/db/ent/quota"
 	"notionboy/db/ent/wechatsession"
 
 	"entgo.io/ent"
@@ -33,6 +35,8 @@ type OrderFunc func(*sql.Selector)
 func columnChecker(table string) func(string) error {
 	checks := map[string]func(string) bool{
 		account.Table:       account.ValidColumn,
+		chathistory.Table:   chathistory.ValidColumn,
+		quota.Table:         quota.ValidColumn,
 		wechatsession.Table: wechatsession.ValidColumn,
 	}
 	check, ok := checks[table]

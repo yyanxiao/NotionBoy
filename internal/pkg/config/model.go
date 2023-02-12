@@ -1,18 +1,19 @@
 package config
 
 type Config struct {
-	Wechat      WechatConfig
-	Service     ServiceConfig
-	Database    DatabaseConfig
-	NotionOauth NotionOauthConfig
-	R2          R2Config
-	Log         LogConfig
-	DevToolsURL string
-	ChatGPT     ChatGPTConfig
-	Telegram    TelegramConfig
-	Storage     S3Config
-	Zlib        ZlibConfig
-	Readability ReadabilityConfig
+	Wechat         WechatConfig
+	Service        ServiceConfig
+	Database       DatabaseConfig
+	NotionOauth    NotionOauthConfig
+	R2             R2Config
+	Log            LogConfig
+	DevToolsURL    string
+	ChatGPT        ChatGPTConfig
+	Telegram       TelegramConfig
+	Storage        S3Config
+	Zlib           ZlibConfig
+	Readability    ReadabilityConfig
+	NotionTestPage NotionTestPage
 }
 
 type LogConfig struct {
@@ -96,4 +97,9 @@ type ZlibConfig struct {
 
 type ReadabilityConfig struct {
 	Host string
+}
+
+type NotionTestPage struct {
+	DatabaseID string
+	Token      string
 }

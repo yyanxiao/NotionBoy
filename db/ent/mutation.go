@@ -7,10 +7,14 @@ import (
 	"errors"
 	"fmt"
 	"notionboy/db/ent/account"
+	"notionboy/db/ent/chathistory"
 	"notionboy/db/ent/predicate"
+	"notionboy/db/ent/quota"
 	"notionboy/db/ent/wechatsession"
 	"sync"
 	"time"
+
+	"github.com/google/uuid"
 
 	"entgo.io/ent"
 )
@@ -25,6 +29,8 @@ const (
 
 	// Node types.
 	TypeAccount       = "Account"
+	TypeChatHistory   = "ChatHistory"
+	TypeQuota         = "Quota"
 	TypeWechatSession = "WechatSession"
 )
 
@@ -373,9 +379,22 @@ func (m *AccountMutation) OldDatabaseID(ctx context.Context) (v string, err erro
 	return oldValue.DatabaseID, nil
 }
 
+// ClearDatabaseID clears the value of the "database_id" field.
+func (m *AccountMutation) ClearDatabaseID() {
+	m.database_id = nil
+	m.clearedFields[account.FieldDatabaseID] = struct{}{}
+}
+
+// DatabaseIDCleared returns if the "database_id" field was cleared in this mutation.
+func (m *AccountMutation) DatabaseIDCleared() bool {
+	_, ok := m.clearedFields[account.FieldDatabaseID]
+	return ok
+}
+
 // ResetDatabaseID resets all changes to the "database_id" field.
 func (m *AccountMutation) ResetDatabaseID() {
 	m.database_id = nil
+	delete(m.clearedFields, account.FieldDatabaseID)
 }
 
 // SetAccessToken sets the "access_token" field.
@@ -409,9 +428,22 @@ func (m *AccountMutation) OldAccessToken(ctx context.Context) (v string, err err
 	return oldValue.AccessToken, nil
 }
 
+// ClearAccessToken clears the value of the "access_token" field.
+func (m *AccountMutation) ClearAccessToken() {
+	m.access_token = nil
+	m.clearedFields[account.FieldAccessToken] = struct{}{}
+}
+
+// AccessTokenCleared returns if the "access_token" field was cleared in this mutation.
+func (m *AccountMutation) AccessTokenCleared() bool {
+	_, ok := m.clearedFields[account.FieldAccessToken]
+	return ok
+}
+
 // ResetAccessToken resets all changes to the "access_token" field.
 func (m *AccountMutation) ResetAccessToken() {
 	m.access_token = nil
+	delete(m.clearedFields, account.FieldAccessToken)
 }
 
 // SetNotionUserID sets the "notion_user_id" field.
@@ -817,6 +849,12 @@ func (m *AccountMutation) ClearedFields() []string {
 	if m.FieldCleared(account.FieldUserType) {
 		fields = append(fields, account.FieldUserType)
 	}
+	if m.FieldCleared(account.FieldDatabaseID) {
+		fields = append(fields, account.FieldDatabaseID)
+	}
+	if m.FieldCleared(account.FieldAccessToken) {
+		fields = append(fields, account.FieldAccessToken)
+	}
 	if m.FieldCleared(account.FieldNotionUserID) {
 		fields = append(fields, account.FieldNotionUserID)
 	}
@@ -839,6 +877,12 @@ func (m *AccountMutation) ClearField(name string) error {
 	switch name {
 	case account.FieldUserType:
 		m.ClearUserType()
+		return nil
+	case account.FieldDatabaseID:
+		m.ClearDatabaseID()
+		return nil
+	case account.FieldAccessToken:
+		m.ClearAccessToken()
 		return nil
 	case account.FieldNotionUserID:
 		m.ClearNotionUserID()
@@ -937,6 +981,2193 @@ func (m *AccountMutation) ClearEdge(name string) error {
 // It returns an error if the edge is not defined in the schema.
 func (m *AccountMutation) ResetEdge(name string) error {
 	return fmt.Errorf("unknown Account edge %s", name)
+}
+
+// ChatHistoryMutation represents an operation that mutates the ChatHistory nodes in the graph.
+type ChatHistoryMutation struct {
+	config
+	op                  Op
+	typ                 string
+	id                  *int
+	created_at          *time.Time
+	updated_at          *time.Time
+	deleted             *bool
+	user_id             *int
+	adduser_id          *int
+	conversation_idx    *int
+	addconversation_idx *int
+	conversation_id     *uuid.UUID
+	message_id          *string
+	message_idx         *int
+	addmessage_idx      *int
+	request             *string
+	response            *string
+	clearedFields       map[string]struct{}
+	done                bool
+	oldValue            func(context.Context) (*ChatHistory, error)
+	predicates          []predicate.ChatHistory
+}
+
+var _ ent.Mutation = (*ChatHistoryMutation)(nil)
+
+// chathistoryOption allows management of the mutation configuration using functional options.
+type chathistoryOption func(*ChatHistoryMutation)
+
+// newChatHistoryMutation creates new mutation for the ChatHistory entity.
+func newChatHistoryMutation(c config, op Op, opts ...chathistoryOption) *ChatHistoryMutation {
+	m := &ChatHistoryMutation{
+		config:        c,
+		op:            op,
+		typ:           TypeChatHistory,
+		clearedFields: make(map[string]struct{}),
+	}
+	for _, opt := range opts {
+		opt(m)
+	}
+	return m
+}
+
+// withChatHistoryID sets the ID field of the mutation.
+func withChatHistoryID(id int) chathistoryOption {
+	return func(m *ChatHistoryMutation) {
+		var (
+			err   error
+			once  sync.Once
+			value *ChatHistory
+		)
+		m.oldValue = func(ctx context.Context) (*ChatHistory, error) {
+			once.Do(func() {
+				if m.done {
+					err = errors.New("querying old values post mutation is not allowed")
+				} else {
+					value, err = m.Client().ChatHistory.Get(ctx, id)
+				}
+			})
+			return value, err
+		}
+		m.id = &id
+	}
+}
+
+// withChatHistory sets the old ChatHistory of the mutation.
+func withChatHistory(node *ChatHistory) chathistoryOption {
+	return func(m *ChatHistoryMutation) {
+		m.oldValue = func(context.Context) (*ChatHistory, error) {
+			return node, nil
+		}
+		m.id = &node.ID
+	}
+}
+
+// Client returns a new `ent.Client` from the mutation. If the mutation was
+// executed in a transaction (ent.Tx), a transactional client is returned.
+func (m ChatHistoryMutation) Client() *Client {
+	client := &Client{config: m.config}
+	client.init()
+	return client
+}
+
+// Tx returns an `ent.Tx` for mutations that were executed in transactions;
+// it returns an error otherwise.
+func (m ChatHistoryMutation) Tx() (*Tx, error) {
+	if _, ok := m.driver.(*txDriver); !ok {
+		return nil, errors.New("ent: mutation is not running in a transaction")
+	}
+	tx := &Tx{config: m.config}
+	tx.init()
+	return tx, nil
+}
+
+// ID returns the ID value in the mutation. Note that the ID is only available
+// if it was provided to the builder or after it was returned from the database.
+func (m *ChatHistoryMutation) ID() (id int, exists bool) {
+	if m.id == nil {
+		return
+	}
+	return *m.id, true
+}
+
+// IDs queries the database and returns the entity ids that match the mutation's predicate.
+// That means, if the mutation is applied within a transaction with an isolation level such
+// as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
+// or updated by the mutation.
+func (m *ChatHistoryMutation) IDs(ctx context.Context) ([]int, error) {
+	switch {
+	case m.op.Is(OpUpdateOne | OpDeleteOne):
+		id, exists := m.ID()
+		if exists {
+			return []int{id}, nil
+		}
+		fallthrough
+	case m.op.Is(OpUpdate | OpDelete):
+		return m.Client().ChatHistory.Query().Where(m.predicates...).IDs(ctx)
+	default:
+		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
+	}
+}
+
+// SetCreatedAt sets the "created_at" field.
+func (m *ChatHistoryMutation) SetCreatedAt(t time.Time) {
+	m.created_at = &t
+}
+
+// CreatedAt returns the value of the "created_at" field in the mutation.
+func (m *ChatHistoryMutation) CreatedAt() (r time.Time, exists bool) {
+	v := m.created_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCreatedAt returns the old "created_at" field's value of the ChatHistory entity.
+// If the ChatHistory object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ChatHistoryMutation) OldCreatedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCreatedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCreatedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCreatedAt: %w", err)
+	}
+	return oldValue.CreatedAt, nil
+}
+
+// ResetCreatedAt resets all changes to the "created_at" field.
+func (m *ChatHistoryMutation) ResetCreatedAt() {
+	m.created_at = nil
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (m *ChatHistoryMutation) SetUpdatedAt(t time.Time) {
+	m.updated_at = &t
+}
+
+// UpdatedAt returns the value of the "updated_at" field in the mutation.
+func (m *ChatHistoryMutation) UpdatedAt() (r time.Time, exists bool) {
+	v := m.updated_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldUpdatedAt returns the old "updated_at" field's value of the ChatHistory entity.
+// If the ChatHistory object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ChatHistoryMutation) OldUpdatedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldUpdatedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldUpdatedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldUpdatedAt: %w", err)
+	}
+	return oldValue.UpdatedAt, nil
+}
+
+// ResetUpdatedAt resets all changes to the "updated_at" field.
+func (m *ChatHistoryMutation) ResetUpdatedAt() {
+	m.updated_at = nil
+}
+
+// SetDeleted sets the "deleted" field.
+func (m *ChatHistoryMutation) SetDeleted(b bool) {
+	m.deleted = &b
+}
+
+// Deleted returns the value of the "deleted" field in the mutation.
+func (m *ChatHistoryMutation) Deleted() (r bool, exists bool) {
+	v := m.deleted
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldDeleted returns the old "deleted" field's value of the ChatHistory entity.
+// If the ChatHistory object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ChatHistoryMutation) OldDeleted(ctx context.Context) (v bool, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldDeleted is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldDeleted requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldDeleted: %w", err)
+	}
+	return oldValue.Deleted, nil
+}
+
+// ResetDeleted resets all changes to the "deleted" field.
+func (m *ChatHistoryMutation) ResetDeleted() {
+	m.deleted = nil
+}
+
+// SetUserID sets the "user_id" field.
+func (m *ChatHistoryMutation) SetUserID(i int) {
+	m.user_id = &i
+	m.adduser_id = nil
+}
+
+// UserID returns the value of the "user_id" field in the mutation.
+func (m *ChatHistoryMutation) UserID() (r int, exists bool) {
+	v := m.user_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldUserID returns the old "user_id" field's value of the ChatHistory entity.
+// If the ChatHistory object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ChatHistoryMutation) OldUserID(ctx context.Context) (v int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldUserID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldUserID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldUserID: %w", err)
+	}
+	return oldValue.UserID, nil
+}
+
+// AddUserID adds i to the "user_id" field.
+func (m *ChatHistoryMutation) AddUserID(i int) {
+	if m.adduser_id != nil {
+		*m.adduser_id += i
+	} else {
+		m.adduser_id = &i
+	}
+}
+
+// AddedUserID returns the value that was added to the "user_id" field in this mutation.
+func (m *ChatHistoryMutation) AddedUserID() (r int, exists bool) {
+	v := m.adduser_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetUserID resets all changes to the "user_id" field.
+func (m *ChatHistoryMutation) ResetUserID() {
+	m.user_id = nil
+	m.adduser_id = nil
+}
+
+// SetConversationIdx sets the "conversation_idx" field.
+func (m *ChatHistoryMutation) SetConversationIdx(i int) {
+	m.conversation_idx = &i
+	m.addconversation_idx = nil
+}
+
+// ConversationIdx returns the value of the "conversation_idx" field in the mutation.
+func (m *ChatHistoryMutation) ConversationIdx() (r int, exists bool) {
+	v := m.conversation_idx
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldConversationIdx returns the old "conversation_idx" field's value of the ChatHistory entity.
+// If the ChatHistory object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ChatHistoryMutation) OldConversationIdx(ctx context.Context) (v int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldConversationIdx is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldConversationIdx requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldConversationIdx: %w", err)
+	}
+	return oldValue.ConversationIdx, nil
+}
+
+// AddConversationIdx adds i to the "conversation_idx" field.
+func (m *ChatHistoryMutation) AddConversationIdx(i int) {
+	if m.addconversation_idx != nil {
+		*m.addconversation_idx += i
+	} else {
+		m.addconversation_idx = &i
+	}
+}
+
+// AddedConversationIdx returns the value that was added to the "conversation_idx" field in this mutation.
+func (m *ChatHistoryMutation) AddedConversationIdx() (r int, exists bool) {
+	v := m.addconversation_idx
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetConversationIdx resets all changes to the "conversation_idx" field.
+func (m *ChatHistoryMutation) ResetConversationIdx() {
+	m.conversation_idx = nil
+	m.addconversation_idx = nil
+}
+
+// SetConversationID sets the "conversation_id" field.
+func (m *ChatHistoryMutation) SetConversationID(u uuid.UUID) {
+	m.conversation_id = &u
+}
+
+// ConversationID returns the value of the "conversation_id" field in the mutation.
+func (m *ChatHistoryMutation) ConversationID() (r uuid.UUID, exists bool) {
+	v := m.conversation_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldConversationID returns the old "conversation_id" field's value of the ChatHistory entity.
+// If the ChatHistory object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ChatHistoryMutation) OldConversationID(ctx context.Context) (v uuid.UUID, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldConversationID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldConversationID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldConversationID: %w", err)
+	}
+	return oldValue.ConversationID, nil
+}
+
+// ResetConversationID resets all changes to the "conversation_id" field.
+func (m *ChatHistoryMutation) ResetConversationID() {
+	m.conversation_id = nil
+}
+
+// SetMessageID sets the "message_id" field.
+func (m *ChatHistoryMutation) SetMessageID(s string) {
+	m.message_id = &s
+}
+
+// MessageID returns the value of the "message_id" field in the mutation.
+func (m *ChatHistoryMutation) MessageID() (r string, exists bool) {
+	v := m.message_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldMessageID returns the old "message_id" field's value of the ChatHistory entity.
+// If the ChatHistory object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ChatHistoryMutation) OldMessageID(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldMessageID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldMessageID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldMessageID: %w", err)
+	}
+	return oldValue.MessageID, nil
+}
+
+// ClearMessageID clears the value of the "message_id" field.
+func (m *ChatHistoryMutation) ClearMessageID() {
+	m.message_id = nil
+	m.clearedFields[chathistory.FieldMessageID] = struct{}{}
+}
+
+// MessageIDCleared returns if the "message_id" field was cleared in this mutation.
+func (m *ChatHistoryMutation) MessageIDCleared() bool {
+	_, ok := m.clearedFields[chathistory.FieldMessageID]
+	return ok
+}
+
+// ResetMessageID resets all changes to the "message_id" field.
+func (m *ChatHistoryMutation) ResetMessageID() {
+	m.message_id = nil
+	delete(m.clearedFields, chathistory.FieldMessageID)
+}
+
+// SetMessageIdx sets the "message_idx" field.
+func (m *ChatHistoryMutation) SetMessageIdx(i int) {
+	m.message_idx = &i
+	m.addmessage_idx = nil
+}
+
+// MessageIdx returns the value of the "message_idx" field in the mutation.
+func (m *ChatHistoryMutation) MessageIdx() (r int, exists bool) {
+	v := m.message_idx
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldMessageIdx returns the old "message_idx" field's value of the ChatHistory entity.
+// If the ChatHistory object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ChatHistoryMutation) OldMessageIdx(ctx context.Context) (v int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldMessageIdx is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldMessageIdx requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldMessageIdx: %w", err)
+	}
+	return oldValue.MessageIdx, nil
+}
+
+// AddMessageIdx adds i to the "message_idx" field.
+func (m *ChatHistoryMutation) AddMessageIdx(i int) {
+	if m.addmessage_idx != nil {
+		*m.addmessage_idx += i
+	} else {
+		m.addmessage_idx = &i
+	}
+}
+
+// AddedMessageIdx returns the value that was added to the "message_idx" field in this mutation.
+func (m *ChatHistoryMutation) AddedMessageIdx() (r int, exists bool) {
+	v := m.addmessage_idx
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ClearMessageIdx clears the value of the "message_idx" field.
+func (m *ChatHistoryMutation) ClearMessageIdx() {
+	m.message_idx = nil
+	m.addmessage_idx = nil
+	m.clearedFields[chathistory.FieldMessageIdx] = struct{}{}
+}
+
+// MessageIdxCleared returns if the "message_idx" field was cleared in this mutation.
+func (m *ChatHistoryMutation) MessageIdxCleared() bool {
+	_, ok := m.clearedFields[chathistory.FieldMessageIdx]
+	return ok
+}
+
+// ResetMessageIdx resets all changes to the "message_idx" field.
+func (m *ChatHistoryMutation) ResetMessageIdx() {
+	m.message_idx = nil
+	m.addmessage_idx = nil
+	delete(m.clearedFields, chathistory.FieldMessageIdx)
+}
+
+// SetRequest sets the "request" field.
+func (m *ChatHistoryMutation) SetRequest(s string) {
+	m.request = &s
+}
+
+// Request returns the value of the "request" field in the mutation.
+func (m *ChatHistoryMutation) Request() (r string, exists bool) {
+	v := m.request
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldRequest returns the old "request" field's value of the ChatHistory entity.
+// If the ChatHistory object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ChatHistoryMutation) OldRequest(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldRequest is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldRequest requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldRequest: %w", err)
+	}
+	return oldValue.Request, nil
+}
+
+// ClearRequest clears the value of the "request" field.
+func (m *ChatHistoryMutation) ClearRequest() {
+	m.request = nil
+	m.clearedFields[chathistory.FieldRequest] = struct{}{}
+}
+
+// RequestCleared returns if the "request" field was cleared in this mutation.
+func (m *ChatHistoryMutation) RequestCleared() bool {
+	_, ok := m.clearedFields[chathistory.FieldRequest]
+	return ok
+}
+
+// ResetRequest resets all changes to the "request" field.
+func (m *ChatHistoryMutation) ResetRequest() {
+	m.request = nil
+	delete(m.clearedFields, chathistory.FieldRequest)
+}
+
+// SetResponse sets the "response" field.
+func (m *ChatHistoryMutation) SetResponse(s string) {
+	m.response = &s
+}
+
+// Response returns the value of the "response" field in the mutation.
+func (m *ChatHistoryMutation) Response() (r string, exists bool) {
+	v := m.response
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldResponse returns the old "response" field's value of the ChatHistory entity.
+// If the ChatHistory object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ChatHistoryMutation) OldResponse(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldResponse is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldResponse requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldResponse: %w", err)
+	}
+	return oldValue.Response, nil
+}
+
+// ClearResponse clears the value of the "response" field.
+func (m *ChatHistoryMutation) ClearResponse() {
+	m.response = nil
+	m.clearedFields[chathistory.FieldResponse] = struct{}{}
+}
+
+// ResponseCleared returns if the "response" field was cleared in this mutation.
+func (m *ChatHistoryMutation) ResponseCleared() bool {
+	_, ok := m.clearedFields[chathistory.FieldResponse]
+	return ok
+}
+
+// ResetResponse resets all changes to the "response" field.
+func (m *ChatHistoryMutation) ResetResponse() {
+	m.response = nil
+	delete(m.clearedFields, chathistory.FieldResponse)
+}
+
+// Where appends a list predicates to the ChatHistoryMutation builder.
+func (m *ChatHistoryMutation) Where(ps ...predicate.ChatHistory) {
+	m.predicates = append(m.predicates, ps...)
+}
+
+// Op returns the operation name.
+func (m *ChatHistoryMutation) Op() Op {
+	return m.op
+}
+
+// Type returns the node type of this mutation (ChatHistory).
+func (m *ChatHistoryMutation) Type() string {
+	return m.typ
+}
+
+// Fields returns all fields that were changed during this mutation. Note that in
+// order to get all numeric fields that were incremented/decremented, call
+// AddedFields().
+func (m *ChatHistoryMutation) Fields() []string {
+	fields := make([]string, 0, 10)
+	if m.created_at != nil {
+		fields = append(fields, chathistory.FieldCreatedAt)
+	}
+	if m.updated_at != nil {
+		fields = append(fields, chathistory.FieldUpdatedAt)
+	}
+	if m.deleted != nil {
+		fields = append(fields, chathistory.FieldDeleted)
+	}
+	if m.user_id != nil {
+		fields = append(fields, chathistory.FieldUserID)
+	}
+	if m.conversation_idx != nil {
+		fields = append(fields, chathistory.FieldConversationIdx)
+	}
+	if m.conversation_id != nil {
+		fields = append(fields, chathistory.FieldConversationID)
+	}
+	if m.message_id != nil {
+		fields = append(fields, chathistory.FieldMessageID)
+	}
+	if m.message_idx != nil {
+		fields = append(fields, chathistory.FieldMessageIdx)
+	}
+	if m.request != nil {
+		fields = append(fields, chathistory.FieldRequest)
+	}
+	if m.response != nil {
+		fields = append(fields, chathistory.FieldResponse)
+	}
+	return fields
+}
+
+// Field returns the value of a field with the given name. The second boolean
+// return value indicates that this field was not set, or was not defined in the
+// schema.
+func (m *ChatHistoryMutation) Field(name string) (ent.Value, bool) {
+	switch name {
+	case chathistory.FieldCreatedAt:
+		return m.CreatedAt()
+	case chathistory.FieldUpdatedAt:
+		return m.UpdatedAt()
+	case chathistory.FieldDeleted:
+		return m.Deleted()
+	case chathistory.FieldUserID:
+		return m.UserID()
+	case chathistory.FieldConversationIdx:
+		return m.ConversationIdx()
+	case chathistory.FieldConversationID:
+		return m.ConversationID()
+	case chathistory.FieldMessageID:
+		return m.MessageID()
+	case chathistory.FieldMessageIdx:
+		return m.MessageIdx()
+	case chathistory.FieldRequest:
+		return m.Request()
+	case chathistory.FieldResponse:
+		return m.Response()
+	}
+	return nil, false
+}
+
+// OldField returns the old value of the field from the database. An error is
+// returned if the mutation operation is not UpdateOne, or the query to the
+// database failed.
+func (m *ChatHistoryMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
+	switch name {
+	case chathistory.FieldCreatedAt:
+		return m.OldCreatedAt(ctx)
+	case chathistory.FieldUpdatedAt:
+		return m.OldUpdatedAt(ctx)
+	case chathistory.FieldDeleted:
+		return m.OldDeleted(ctx)
+	case chathistory.FieldUserID:
+		return m.OldUserID(ctx)
+	case chathistory.FieldConversationIdx:
+		return m.OldConversationIdx(ctx)
+	case chathistory.FieldConversationID:
+		return m.OldConversationID(ctx)
+	case chathistory.FieldMessageID:
+		return m.OldMessageID(ctx)
+	case chathistory.FieldMessageIdx:
+		return m.OldMessageIdx(ctx)
+	case chathistory.FieldRequest:
+		return m.OldRequest(ctx)
+	case chathistory.FieldResponse:
+		return m.OldResponse(ctx)
+	}
+	return nil, fmt.Errorf("unknown ChatHistory field %s", name)
+}
+
+// SetField sets the value of a field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *ChatHistoryMutation) SetField(name string, value ent.Value) error {
+	switch name {
+	case chathistory.FieldCreatedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCreatedAt(v)
+		return nil
+	case chathistory.FieldUpdatedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetUpdatedAt(v)
+		return nil
+	case chathistory.FieldDeleted:
+		v, ok := value.(bool)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetDeleted(v)
+		return nil
+	case chathistory.FieldUserID:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetUserID(v)
+		return nil
+	case chathistory.FieldConversationIdx:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetConversationIdx(v)
+		return nil
+	case chathistory.FieldConversationID:
+		v, ok := value.(uuid.UUID)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetConversationID(v)
+		return nil
+	case chathistory.FieldMessageID:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetMessageID(v)
+		return nil
+	case chathistory.FieldMessageIdx:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetMessageIdx(v)
+		return nil
+	case chathistory.FieldRequest:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetRequest(v)
+		return nil
+	case chathistory.FieldResponse:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetResponse(v)
+		return nil
+	}
+	return fmt.Errorf("unknown ChatHistory field %s", name)
+}
+
+// AddedFields returns all numeric fields that were incremented/decremented during
+// this mutation.
+func (m *ChatHistoryMutation) AddedFields() []string {
+	var fields []string
+	if m.adduser_id != nil {
+		fields = append(fields, chathistory.FieldUserID)
+	}
+	if m.addconversation_idx != nil {
+		fields = append(fields, chathistory.FieldConversationIdx)
+	}
+	if m.addmessage_idx != nil {
+		fields = append(fields, chathistory.FieldMessageIdx)
+	}
+	return fields
+}
+
+// AddedField returns the numeric value that was incremented/decremented on a field
+// with the given name. The second boolean return value indicates that this field
+// was not set, or was not defined in the schema.
+func (m *ChatHistoryMutation) AddedField(name string) (ent.Value, bool) {
+	switch name {
+	case chathistory.FieldUserID:
+		return m.AddedUserID()
+	case chathistory.FieldConversationIdx:
+		return m.AddedConversationIdx()
+	case chathistory.FieldMessageIdx:
+		return m.AddedMessageIdx()
+	}
+	return nil, false
+}
+
+// AddField adds the value to the field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *ChatHistoryMutation) AddField(name string, value ent.Value) error {
+	switch name {
+	case chathistory.FieldUserID:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddUserID(v)
+		return nil
+	case chathistory.FieldConversationIdx:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddConversationIdx(v)
+		return nil
+	case chathistory.FieldMessageIdx:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddMessageIdx(v)
+		return nil
+	}
+	return fmt.Errorf("unknown ChatHistory numeric field %s", name)
+}
+
+// ClearedFields returns all nullable fields that were cleared during this
+// mutation.
+func (m *ChatHistoryMutation) ClearedFields() []string {
+	var fields []string
+	if m.FieldCleared(chathistory.FieldMessageID) {
+		fields = append(fields, chathistory.FieldMessageID)
+	}
+	if m.FieldCleared(chathistory.FieldMessageIdx) {
+		fields = append(fields, chathistory.FieldMessageIdx)
+	}
+	if m.FieldCleared(chathistory.FieldRequest) {
+		fields = append(fields, chathistory.FieldRequest)
+	}
+	if m.FieldCleared(chathistory.FieldResponse) {
+		fields = append(fields, chathistory.FieldResponse)
+	}
+	return fields
+}
+
+// FieldCleared returns a boolean indicating if a field with the given name was
+// cleared in this mutation.
+func (m *ChatHistoryMutation) FieldCleared(name string) bool {
+	_, ok := m.clearedFields[name]
+	return ok
+}
+
+// ClearField clears the value of the field with the given name. It returns an
+// error if the field is not defined in the schema.
+func (m *ChatHistoryMutation) ClearField(name string) error {
+	switch name {
+	case chathistory.FieldMessageID:
+		m.ClearMessageID()
+		return nil
+	case chathistory.FieldMessageIdx:
+		m.ClearMessageIdx()
+		return nil
+	case chathistory.FieldRequest:
+		m.ClearRequest()
+		return nil
+	case chathistory.FieldResponse:
+		m.ClearResponse()
+		return nil
+	}
+	return fmt.Errorf("unknown ChatHistory nullable field %s", name)
+}
+
+// ResetField resets all changes in the mutation for the field with the given name.
+// It returns an error if the field is not defined in the schema.
+func (m *ChatHistoryMutation) ResetField(name string) error {
+	switch name {
+	case chathistory.FieldCreatedAt:
+		m.ResetCreatedAt()
+		return nil
+	case chathistory.FieldUpdatedAt:
+		m.ResetUpdatedAt()
+		return nil
+	case chathistory.FieldDeleted:
+		m.ResetDeleted()
+		return nil
+	case chathistory.FieldUserID:
+		m.ResetUserID()
+		return nil
+	case chathistory.FieldConversationIdx:
+		m.ResetConversationIdx()
+		return nil
+	case chathistory.FieldConversationID:
+		m.ResetConversationID()
+		return nil
+	case chathistory.FieldMessageID:
+		m.ResetMessageID()
+		return nil
+	case chathistory.FieldMessageIdx:
+		m.ResetMessageIdx()
+		return nil
+	case chathistory.FieldRequest:
+		m.ResetRequest()
+		return nil
+	case chathistory.FieldResponse:
+		m.ResetResponse()
+		return nil
+	}
+	return fmt.Errorf("unknown ChatHistory field %s", name)
+}
+
+// AddedEdges returns all edge names that were set/added in this mutation.
+func (m *ChatHistoryMutation) AddedEdges() []string {
+	edges := make([]string, 0, 0)
+	return edges
+}
+
+// AddedIDs returns all IDs (to other nodes) that were added for the given edge
+// name in this mutation.
+func (m *ChatHistoryMutation) AddedIDs(name string) []ent.Value {
+	return nil
+}
+
+// RemovedEdges returns all edge names that were removed in this mutation.
+func (m *ChatHistoryMutation) RemovedEdges() []string {
+	edges := make([]string, 0, 0)
+	return edges
+}
+
+// RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
+// the given name in this mutation.
+func (m *ChatHistoryMutation) RemovedIDs(name string) []ent.Value {
+	return nil
+}
+
+// ClearedEdges returns all edge names that were cleared in this mutation.
+func (m *ChatHistoryMutation) ClearedEdges() []string {
+	edges := make([]string, 0, 0)
+	return edges
+}
+
+// EdgeCleared returns a boolean which indicates if the edge with the given name
+// was cleared in this mutation.
+func (m *ChatHistoryMutation) EdgeCleared(name string) bool {
+	return false
+}
+
+// ClearEdge clears the value of the edge with the given name. It returns an error
+// if that edge is not defined in the schema.
+func (m *ChatHistoryMutation) ClearEdge(name string) error {
+	return fmt.Errorf("unknown ChatHistory unique edge %s", name)
+}
+
+// ResetEdge resets all changes to the edge with the given name in this mutation.
+// It returns an error if the edge is not defined in the schema.
+func (m *ChatHistoryMutation) ResetEdge(name string) error {
+	return fmt.Errorf("unknown ChatHistory edge %s", name)
+}
+
+// QuotaMutation represents an operation that mutates the Quota nodes in the graph.
+type QuotaMutation struct {
+	config
+	op              Op
+	typ             string
+	id              *int
+	created_at      *time.Time
+	updated_at      *time.Time
+	deleted         *bool
+	user_id         *int
+	adduser_id      *int
+	category        *quota.Category
+	daily           *int
+	adddaily        *int
+	monthly         *int
+	addmonthly      *int
+	yearly          *int
+	addyearly       *int
+	daily_used      *int
+	adddaily_used   *int
+	monthly_used    *int
+	addmonthly_used *int
+	yearly_used     *int
+	addyearly_used  *int
+	clearedFields   map[string]struct{}
+	done            bool
+	oldValue        func(context.Context) (*Quota, error)
+	predicates      []predicate.Quota
+}
+
+var _ ent.Mutation = (*QuotaMutation)(nil)
+
+// quotaOption allows management of the mutation configuration using functional options.
+type quotaOption func(*QuotaMutation)
+
+// newQuotaMutation creates new mutation for the Quota entity.
+func newQuotaMutation(c config, op Op, opts ...quotaOption) *QuotaMutation {
+	m := &QuotaMutation{
+		config:        c,
+		op:            op,
+		typ:           TypeQuota,
+		clearedFields: make(map[string]struct{}),
+	}
+	for _, opt := range opts {
+		opt(m)
+	}
+	return m
+}
+
+// withQuotaID sets the ID field of the mutation.
+func withQuotaID(id int) quotaOption {
+	return func(m *QuotaMutation) {
+		var (
+			err   error
+			once  sync.Once
+			value *Quota
+		)
+		m.oldValue = func(ctx context.Context) (*Quota, error) {
+			once.Do(func() {
+				if m.done {
+					err = errors.New("querying old values post mutation is not allowed")
+				} else {
+					value, err = m.Client().Quota.Get(ctx, id)
+				}
+			})
+			return value, err
+		}
+		m.id = &id
+	}
+}
+
+// withQuota sets the old Quota of the mutation.
+func withQuota(node *Quota) quotaOption {
+	return func(m *QuotaMutation) {
+		m.oldValue = func(context.Context) (*Quota, error) {
+			return node, nil
+		}
+		m.id = &node.ID
+	}
+}
+
+// Client returns a new `ent.Client` from the mutation. If the mutation was
+// executed in a transaction (ent.Tx), a transactional client is returned.
+func (m QuotaMutation) Client() *Client {
+	client := &Client{config: m.config}
+	client.init()
+	return client
+}
+
+// Tx returns an `ent.Tx` for mutations that were executed in transactions;
+// it returns an error otherwise.
+func (m QuotaMutation) Tx() (*Tx, error) {
+	if _, ok := m.driver.(*txDriver); !ok {
+		return nil, errors.New("ent: mutation is not running in a transaction")
+	}
+	tx := &Tx{config: m.config}
+	tx.init()
+	return tx, nil
+}
+
+// ID returns the ID value in the mutation. Note that the ID is only available
+// if it was provided to the builder or after it was returned from the database.
+func (m *QuotaMutation) ID() (id int, exists bool) {
+	if m.id == nil {
+		return
+	}
+	return *m.id, true
+}
+
+// IDs queries the database and returns the entity ids that match the mutation's predicate.
+// That means, if the mutation is applied within a transaction with an isolation level such
+// as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
+// or updated by the mutation.
+func (m *QuotaMutation) IDs(ctx context.Context) ([]int, error) {
+	switch {
+	case m.op.Is(OpUpdateOne | OpDeleteOne):
+		id, exists := m.ID()
+		if exists {
+			return []int{id}, nil
+		}
+		fallthrough
+	case m.op.Is(OpUpdate | OpDelete):
+		return m.Client().Quota.Query().Where(m.predicates...).IDs(ctx)
+	default:
+		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
+	}
+}
+
+// SetCreatedAt sets the "created_at" field.
+func (m *QuotaMutation) SetCreatedAt(t time.Time) {
+	m.created_at = &t
+}
+
+// CreatedAt returns the value of the "created_at" field in the mutation.
+func (m *QuotaMutation) CreatedAt() (r time.Time, exists bool) {
+	v := m.created_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCreatedAt returns the old "created_at" field's value of the Quota entity.
+// If the Quota object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *QuotaMutation) OldCreatedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCreatedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCreatedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCreatedAt: %w", err)
+	}
+	return oldValue.CreatedAt, nil
+}
+
+// ResetCreatedAt resets all changes to the "created_at" field.
+func (m *QuotaMutation) ResetCreatedAt() {
+	m.created_at = nil
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (m *QuotaMutation) SetUpdatedAt(t time.Time) {
+	m.updated_at = &t
+}
+
+// UpdatedAt returns the value of the "updated_at" field in the mutation.
+func (m *QuotaMutation) UpdatedAt() (r time.Time, exists bool) {
+	v := m.updated_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldUpdatedAt returns the old "updated_at" field's value of the Quota entity.
+// If the Quota object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *QuotaMutation) OldUpdatedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldUpdatedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldUpdatedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldUpdatedAt: %w", err)
+	}
+	return oldValue.UpdatedAt, nil
+}
+
+// ResetUpdatedAt resets all changes to the "updated_at" field.
+func (m *QuotaMutation) ResetUpdatedAt() {
+	m.updated_at = nil
+}
+
+// SetDeleted sets the "deleted" field.
+func (m *QuotaMutation) SetDeleted(b bool) {
+	m.deleted = &b
+}
+
+// Deleted returns the value of the "deleted" field in the mutation.
+func (m *QuotaMutation) Deleted() (r bool, exists bool) {
+	v := m.deleted
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldDeleted returns the old "deleted" field's value of the Quota entity.
+// If the Quota object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *QuotaMutation) OldDeleted(ctx context.Context) (v bool, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldDeleted is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldDeleted requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldDeleted: %w", err)
+	}
+	return oldValue.Deleted, nil
+}
+
+// ResetDeleted resets all changes to the "deleted" field.
+func (m *QuotaMutation) ResetDeleted() {
+	m.deleted = nil
+}
+
+// SetUserID sets the "user_id" field.
+func (m *QuotaMutation) SetUserID(i int) {
+	m.user_id = &i
+	m.adduser_id = nil
+}
+
+// UserID returns the value of the "user_id" field in the mutation.
+func (m *QuotaMutation) UserID() (r int, exists bool) {
+	v := m.user_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldUserID returns the old "user_id" field's value of the Quota entity.
+// If the Quota object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *QuotaMutation) OldUserID(ctx context.Context) (v int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldUserID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldUserID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldUserID: %w", err)
+	}
+	return oldValue.UserID, nil
+}
+
+// AddUserID adds i to the "user_id" field.
+func (m *QuotaMutation) AddUserID(i int) {
+	if m.adduser_id != nil {
+		*m.adduser_id += i
+	} else {
+		m.adduser_id = &i
+	}
+}
+
+// AddedUserID returns the value that was added to the "user_id" field in this mutation.
+func (m *QuotaMutation) AddedUserID() (r int, exists bool) {
+	v := m.adduser_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetUserID resets all changes to the "user_id" field.
+func (m *QuotaMutation) ResetUserID() {
+	m.user_id = nil
+	m.adduser_id = nil
+}
+
+// SetCategory sets the "category" field.
+func (m *QuotaMutation) SetCategory(q quota.Category) {
+	m.category = &q
+}
+
+// Category returns the value of the "category" field in the mutation.
+func (m *QuotaMutation) Category() (r quota.Category, exists bool) {
+	v := m.category
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCategory returns the old "category" field's value of the Quota entity.
+// If the Quota object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *QuotaMutation) OldCategory(ctx context.Context) (v quota.Category, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCategory is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCategory requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCategory: %w", err)
+	}
+	return oldValue.Category, nil
+}
+
+// ResetCategory resets all changes to the "category" field.
+func (m *QuotaMutation) ResetCategory() {
+	m.category = nil
+}
+
+// SetDaily sets the "daily" field.
+func (m *QuotaMutation) SetDaily(i int) {
+	m.daily = &i
+	m.adddaily = nil
+}
+
+// Daily returns the value of the "daily" field in the mutation.
+func (m *QuotaMutation) Daily() (r int, exists bool) {
+	v := m.daily
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldDaily returns the old "daily" field's value of the Quota entity.
+// If the Quota object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *QuotaMutation) OldDaily(ctx context.Context) (v int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldDaily is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldDaily requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldDaily: %w", err)
+	}
+	return oldValue.Daily, nil
+}
+
+// AddDaily adds i to the "daily" field.
+func (m *QuotaMutation) AddDaily(i int) {
+	if m.adddaily != nil {
+		*m.adddaily += i
+	} else {
+		m.adddaily = &i
+	}
+}
+
+// AddedDaily returns the value that was added to the "daily" field in this mutation.
+func (m *QuotaMutation) AddedDaily() (r int, exists bool) {
+	v := m.adddaily
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ClearDaily clears the value of the "daily" field.
+func (m *QuotaMutation) ClearDaily() {
+	m.daily = nil
+	m.adddaily = nil
+	m.clearedFields[quota.FieldDaily] = struct{}{}
+}
+
+// DailyCleared returns if the "daily" field was cleared in this mutation.
+func (m *QuotaMutation) DailyCleared() bool {
+	_, ok := m.clearedFields[quota.FieldDaily]
+	return ok
+}
+
+// ResetDaily resets all changes to the "daily" field.
+func (m *QuotaMutation) ResetDaily() {
+	m.daily = nil
+	m.adddaily = nil
+	delete(m.clearedFields, quota.FieldDaily)
+}
+
+// SetMonthly sets the "monthly" field.
+func (m *QuotaMutation) SetMonthly(i int) {
+	m.monthly = &i
+	m.addmonthly = nil
+}
+
+// Monthly returns the value of the "monthly" field in the mutation.
+func (m *QuotaMutation) Monthly() (r int, exists bool) {
+	v := m.monthly
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldMonthly returns the old "monthly" field's value of the Quota entity.
+// If the Quota object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *QuotaMutation) OldMonthly(ctx context.Context) (v int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldMonthly is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldMonthly requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldMonthly: %w", err)
+	}
+	return oldValue.Monthly, nil
+}
+
+// AddMonthly adds i to the "monthly" field.
+func (m *QuotaMutation) AddMonthly(i int) {
+	if m.addmonthly != nil {
+		*m.addmonthly += i
+	} else {
+		m.addmonthly = &i
+	}
+}
+
+// AddedMonthly returns the value that was added to the "monthly" field in this mutation.
+func (m *QuotaMutation) AddedMonthly() (r int, exists bool) {
+	v := m.addmonthly
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ClearMonthly clears the value of the "monthly" field.
+func (m *QuotaMutation) ClearMonthly() {
+	m.monthly = nil
+	m.addmonthly = nil
+	m.clearedFields[quota.FieldMonthly] = struct{}{}
+}
+
+// MonthlyCleared returns if the "monthly" field was cleared in this mutation.
+func (m *QuotaMutation) MonthlyCleared() bool {
+	_, ok := m.clearedFields[quota.FieldMonthly]
+	return ok
+}
+
+// ResetMonthly resets all changes to the "monthly" field.
+func (m *QuotaMutation) ResetMonthly() {
+	m.monthly = nil
+	m.addmonthly = nil
+	delete(m.clearedFields, quota.FieldMonthly)
+}
+
+// SetYearly sets the "yearly" field.
+func (m *QuotaMutation) SetYearly(i int) {
+	m.yearly = &i
+	m.addyearly = nil
+}
+
+// Yearly returns the value of the "yearly" field in the mutation.
+func (m *QuotaMutation) Yearly() (r int, exists bool) {
+	v := m.yearly
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldYearly returns the old "yearly" field's value of the Quota entity.
+// If the Quota object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *QuotaMutation) OldYearly(ctx context.Context) (v int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldYearly is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldYearly requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldYearly: %w", err)
+	}
+	return oldValue.Yearly, nil
+}
+
+// AddYearly adds i to the "yearly" field.
+func (m *QuotaMutation) AddYearly(i int) {
+	if m.addyearly != nil {
+		*m.addyearly += i
+	} else {
+		m.addyearly = &i
+	}
+}
+
+// AddedYearly returns the value that was added to the "yearly" field in this mutation.
+func (m *QuotaMutation) AddedYearly() (r int, exists bool) {
+	v := m.addyearly
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ClearYearly clears the value of the "yearly" field.
+func (m *QuotaMutation) ClearYearly() {
+	m.yearly = nil
+	m.addyearly = nil
+	m.clearedFields[quota.FieldYearly] = struct{}{}
+}
+
+// YearlyCleared returns if the "yearly" field was cleared in this mutation.
+func (m *QuotaMutation) YearlyCleared() bool {
+	_, ok := m.clearedFields[quota.FieldYearly]
+	return ok
+}
+
+// ResetYearly resets all changes to the "yearly" field.
+func (m *QuotaMutation) ResetYearly() {
+	m.yearly = nil
+	m.addyearly = nil
+	delete(m.clearedFields, quota.FieldYearly)
+}
+
+// SetDailyUsed sets the "daily_used" field.
+func (m *QuotaMutation) SetDailyUsed(i int) {
+	m.daily_used = &i
+	m.adddaily_used = nil
+}
+
+// DailyUsed returns the value of the "daily_used" field in the mutation.
+func (m *QuotaMutation) DailyUsed() (r int, exists bool) {
+	v := m.daily_used
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldDailyUsed returns the old "daily_used" field's value of the Quota entity.
+// If the Quota object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *QuotaMutation) OldDailyUsed(ctx context.Context) (v int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldDailyUsed is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldDailyUsed requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldDailyUsed: %w", err)
+	}
+	return oldValue.DailyUsed, nil
+}
+
+// AddDailyUsed adds i to the "daily_used" field.
+func (m *QuotaMutation) AddDailyUsed(i int) {
+	if m.adddaily_used != nil {
+		*m.adddaily_used += i
+	} else {
+		m.adddaily_used = &i
+	}
+}
+
+// AddedDailyUsed returns the value that was added to the "daily_used" field in this mutation.
+func (m *QuotaMutation) AddedDailyUsed() (r int, exists bool) {
+	v := m.adddaily_used
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ClearDailyUsed clears the value of the "daily_used" field.
+func (m *QuotaMutation) ClearDailyUsed() {
+	m.daily_used = nil
+	m.adddaily_used = nil
+	m.clearedFields[quota.FieldDailyUsed] = struct{}{}
+}
+
+// DailyUsedCleared returns if the "daily_used" field was cleared in this mutation.
+func (m *QuotaMutation) DailyUsedCleared() bool {
+	_, ok := m.clearedFields[quota.FieldDailyUsed]
+	return ok
+}
+
+// ResetDailyUsed resets all changes to the "daily_used" field.
+func (m *QuotaMutation) ResetDailyUsed() {
+	m.daily_used = nil
+	m.adddaily_used = nil
+	delete(m.clearedFields, quota.FieldDailyUsed)
+}
+
+// SetMonthlyUsed sets the "monthly_used" field.
+func (m *QuotaMutation) SetMonthlyUsed(i int) {
+	m.monthly_used = &i
+	m.addmonthly_used = nil
+}
+
+// MonthlyUsed returns the value of the "monthly_used" field in the mutation.
+func (m *QuotaMutation) MonthlyUsed() (r int, exists bool) {
+	v := m.monthly_used
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldMonthlyUsed returns the old "monthly_used" field's value of the Quota entity.
+// If the Quota object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *QuotaMutation) OldMonthlyUsed(ctx context.Context) (v int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldMonthlyUsed is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldMonthlyUsed requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldMonthlyUsed: %w", err)
+	}
+	return oldValue.MonthlyUsed, nil
+}
+
+// AddMonthlyUsed adds i to the "monthly_used" field.
+func (m *QuotaMutation) AddMonthlyUsed(i int) {
+	if m.addmonthly_used != nil {
+		*m.addmonthly_used += i
+	} else {
+		m.addmonthly_used = &i
+	}
+}
+
+// AddedMonthlyUsed returns the value that was added to the "monthly_used" field in this mutation.
+func (m *QuotaMutation) AddedMonthlyUsed() (r int, exists bool) {
+	v := m.addmonthly_used
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ClearMonthlyUsed clears the value of the "monthly_used" field.
+func (m *QuotaMutation) ClearMonthlyUsed() {
+	m.monthly_used = nil
+	m.addmonthly_used = nil
+	m.clearedFields[quota.FieldMonthlyUsed] = struct{}{}
+}
+
+// MonthlyUsedCleared returns if the "monthly_used" field was cleared in this mutation.
+func (m *QuotaMutation) MonthlyUsedCleared() bool {
+	_, ok := m.clearedFields[quota.FieldMonthlyUsed]
+	return ok
+}
+
+// ResetMonthlyUsed resets all changes to the "monthly_used" field.
+func (m *QuotaMutation) ResetMonthlyUsed() {
+	m.monthly_used = nil
+	m.addmonthly_used = nil
+	delete(m.clearedFields, quota.FieldMonthlyUsed)
+}
+
+// SetYearlyUsed sets the "yearly_used" field.
+func (m *QuotaMutation) SetYearlyUsed(i int) {
+	m.yearly_used = &i
+	m.addyearly_used = nil
+}
+
+// YearlyUsed returns the value of the "yearly_used" field in the mutation.
+func (m *QuotaMutation) YearlyUsed() (r int, exists bool) {
+	v := m.yearly_used
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldYearlyUsed returns the old "yearly_used" field's value of the Quota entity.
+// If the Quota object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *QuotaMutation) OldYearlyUsed(ctx context.Context) (v int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldYearlyUsed is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldYearlyUsed requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldYearlyUsed: %w", err)
+	}
+	return oldValue.YearlyUsed, nil
+}
+
+// AddYearlyUsed adds i to the "yearly_used" field.
+func (m *QuotaMutation) AddYearlyUsed(i int) {
+	if m.addyearly_used != nil {
+		*m.addyearly_used += i
+	} else {
+		m.addyearly_used = &i
+	}
+}
+
+// AddedYearlyUsed returns the value that was added to the "yearly_used" field in this mutation.
+func (m *QuotaMutation) AddedYearlyUsed() (r int, exists bool) {
+	v := m.addyearly_used
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ClearYearlyUsed clears the value of the "yearly_used" field.
+func (m *QuotaMutation) ClearYearlyUsed() {
+	m.yearly_used = nil
+	m.addyearly_used = nil
+	m.clearedFields[quota.FieldYearlyUsed] = struct{}{}
+}
+
+// YearlyUsedCleared returns if the "yearly_used" field was cleared in this mutation.
+func (m *QuotaMutation) YearlyUsedCleared() bool {
+	_, ok := m.clearedFields[quota.FieldYearlyUsed]
+	return ok
+}
+
+// ResetYearlyUsed resets all changes to the "yearly_used" field.
+func (m *QuotaMutation) ResetYearlyUsed() {
+	m.yearly_used = nil
+	m.addyearly_used = nil
+	delete(m.clearedFields, quota.FieldYearlyUsed)
+}
+
+// Where appends a list predicates to the QuotaMutation builder.
+func (m *QuotaMutation) Where(ps ...predicate.Quota) {
+	m.predicates = append(m.predicates, ps...)
+}
+
+// Op returns the operation name.
+func (m *QuotaMutation) Op() Op {
+	return m.op
+}
+
+// Type returns the node type of this mutation (Quota).
+func (m *QuotaMutation) Type() string {
+	return m.typ
+}
+
+// Fields returns all fields that were changed during this mutation. Note that in
+// order to get all numeric fields that were incremented/decremented, call
+// AddedFields().
+func (m *QuotaMutation) Fields() []string {
+	fields := make([]string, 0, 11)
+	if m.created_at != nil {
+		fields = append(fields, quota.FieldCreatedAt)
+	}
+	if m.updated_at != nil {
+		fields = append(fields, quota.FieldUpdatedAt)
+	}
+	if m.deleted != nil {
+		fields = append(fields, quota.FieldDeleted)
+	}
+	if m.user_id != nil {
+		fields = append(fields, quota.FieldUserID)
+	}
+	if m.category != nil {
+		fields = append(fields, quota.FieldCategory)
+	}
+	if m.daily != nil {
+		fields = append(fields, quota.FieldDaily)
+	}
+	if m.monthly != nil {
+		fields = append(fields, quota.FieldMonthly)
+	}
+	if m.yearly != nil {
+		fields = append(fields, quota.FieldYearly)
+	}
+	if m.daily_used != nil {
+		fields = append(fields, quota.FieldDailyUsed)
+	}
+	if m.monthly_used != nil {
+		fields = append(fields, quota.FieldMonthlyUsed)
+	}
+	if m.yearly_used != nil {
+		fields = append(fields, quota.FieldYearlyUsed)
+	}
+	return fields
+}
+
+// Field returns the value of a field with the given name. The second boolean
+// return value indicates that this field was not set, or was not defined in the
+// schema.
+func (m *QuotaMutation) Field(name string) (ent.Value, bool) {
+	switch name {
+	case quota.FieldCreatedAt:
+		return m.CreatedAt()
+	case quota.FieldUpdatedAt:
+		return m.UpdatedAt()
+	case quota.FieldDeleted:
+		return m.Deleted()
+	case quota.FieldUserID:
+		return m.UserID()
+	case quota.FieldCategory:
+		return m.Category()
+	case quota.FieldDaily:
+		return m.Daily()
+	case quota.FieldMonthly:
+		return m.Monthly()
+	case quota.FieldYearly:
+		return m.Yearly()
+	case quota.FieldDailyUsed:
+		return m.DailyUsed()
+	case quota.FieldMonthlyUsed:
+		return m.MonthlyUsed()
+	case quota.FieldYearlyUsed:
+		return m.YearlyUsed()
+	}
+	return nil, false
+}
+
+// OldField returns the old value of the field from the database. An error is
+// returned if the mutation operation is not UpdateOne, or the query to the
+// database failed.
+func (m *QuotaMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
+	switch name {
+	case quota.FieldCreatedAt:
+		return m.OldCreatedAt(ctx)
+	case quota.FieldUpdatedAt:
+		return m.OldUpdatedAt(ctx)
+	case quota.FieldDeleted:
+		return m.OldDeleted(ctx)
+	case quota.FieldUserID:
+		return m.OldUserID(ctx)
+	case quota.FieldCategory:
+		return m.OldCategory(ctx)
+	case quota.FieldDaily:
+		return m.OldDaily(ctx)
+	case quota.FieldMonthly:
+		return m.OldMonthly(ctx)
+	case quota.FieldYearly:
+		return m.OldYearly(ctx)
+	case quota.FieldDailyUsed:
+		return m.OldDailyUsed(ctx)
+	case quota.FieldMonthlyUsed:
+		return m.OldMonthlyUsed(ctx)
+	case quota.FieldYearlyUsed:
+		return m.OldYearlyUsed(ctx)
+	}
+	return nil, fmt.Errorf("unknown Quota field %s", name)
+}
+
+// SetField sets the value of a field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *QuotaMutation) SetField(name string, value ent.Value) error {
+	switch name {
+	case quota.FieldCreatedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCreatedAt(v)
+		return nil
+	case quota.FieldUpdatedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetUpdatedAt(v)
+		return nil
+	case quota.FieldDeleted:
+		v, ok := value.(bool)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetDeleted(v)
+		return nil
+	case quota.FieldUserID:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetUserID(v)
+		return nil
+	case quota.FieldCategory:
+		v, ok := value.(quota.Category)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCategory(v)
+		return nil
+	case quota.FieldDaily:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetDaily(v)
+		return nil
+	case quota.FieldMonthly:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetMonthly(v)
+		return nil
+	case quota.FieldYearly:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetYearly(v)
+		return nil
+	case quota.FieldDailyUsed:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetDailyUsed(v)
+		return nil
+	case quota.FieldMonthlyUsed:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetMonthlyUsed(v)
+		return nil
+	case quota.FieldYearlyUsed:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetYearlyUsed(v)
+		return nil
+	}
+	return fmt.Errorf("unknown Quota field %s", name)
+}
+
+// AddedFields returns all numeric fields that were incremented/decremented during
+// this mutation.
+func (m *QuotaMutation) AddedFields() []string {
+	var fields []string
+	if m.adduser_id != nil {
+		fields = append(fields, quota.FieldUserID)
+	}
+	if m.adddaily != nil {
+		fields = append(fields, quota.FieldDaily)
+	}
+	if m.addmonthly != nil {
+		fields = append(fields, quota.FieldMonthly)
+	}
+	if m.addyearly != nil {
+		fields = append(fields, quota.FieldYearly)
+	}
+	if m.adddaily_used != nil {
+		fields = append(fields, quota.FieldDailyUsed)
+	}
+	if m.addmonthly_used != nil {
+		fields = append(fields, quota.FieldMonthlyUsed)
+	}
+	if m.addyearly_used != nil {
+		fields = append(fields, quota.FieldYearlyUsed)
+	}
+	return fields
+}
+
+// AddedField returns the numeric value that was incremented/decremented on a field
+// with the given name. The second boolean return value indicates that this field
+// was not set, or was not defined in the schema.
+func (m *QuotaMutation) AddedField(name string) (ent.Value, bool) {
+	switch name {
+	case quota.FieldUserID:
+		return m.AddedUserID()
+	case quota.FieldDaily:
+		return m.AddedDaily()
+	case quota.FieldMonthly:
+		return m.AddedMonthly()
+	case quota.FieldYearly:
+		return m.AddedYearly()
+	case quota.FieldDailyUsed:
+		return m.AddedDailyUsed()
+	case quota.FieldMonthlyUsed:
+		return m.AddedMonthlyUsed()
+	case quota.FieldYearlyUsed:
+		return m.AddedYearlyUsed()
+	}
+	return nil, false
+}
+
+// AddField adds the value to the field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *QuotaMutation) AddField(name string, value ent.Value) error {
+	switch name {
+	case quota.FieldUserID:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddUserID(v)
+		return nil
+	case quota.FieldDaily:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddDaily(v)
+		return nil
+	case quota.FieldMonthly:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddMonthly(v)
+		return nil
+	case quota.FieldYearly:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddYearly(v)
+		return nil
+	case quota.FieldDailyUsed:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddDailyUsed(v)
+		return nil
+	case quota.FieldMonthlyUsed:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddMonthlyUsed(v)
+		return nil
+	case quota.FieldYearlyUsed:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddYearlyUsed(v)
+		return nil
+	}
+	return fmt.Errorf("unknown Quota numeric field %s", name)
+}
+
+// ClearedFields returns all nullable fields that were cleared during this
+// mutation.
+func (m *QuotaMutation) ClearedFields() []string {
+	var fields []string
+	if m.FieldCleared(quota.FieldDaily) {
+		fields = append(fields, quota.FieldDaily)
+	}
+	if m.FieldCleared(quota.FieldMonthly) {
+		fields = append(fields, quota.FieldMonthly)
+	}
+	if m.FieldCleared(quota.FieldYearly) {
+		fields = append(fields, quota.FieldYearly)
+	}
+	if m.FieldCleared(quota.FieldDailyUsed) {
+		fields = append(fields, quota.FieldDailyUsed)
+	}
+	if m.FieldCleared(quota.FieldMonthlyUsed) {
+		fields = append(fields, quota.FieldMonthlyUsed)
+	}
+	if m.FieldCleared(quota.FieldYearlyUsed) {
+		fields = append(fields, quota.FieldYearlyUsed)
+	}
+	return fields
+}
+
+// FieldCleared returns a boolean indicating if a field with the given name was
+// cleared in this mutation.
+func (m *QuotaMutation) FieldCleared(name string) bool {
+	_, ok := m.clearedFields[name]
+	return ok
+}
+
+// ClearField clears the value of the field with the given name. It returns an
+// error if the field is not defined in the schema.
+func (m *QuotaMutation) ClearField(name string) error {
+	switch name {
+	case quota.FieldDaily:
+		m.ClearDaily()
+		return nil
+	case quota.FieldMonthly:
+		m.ClearMonthly()
+		return nil
+	case quota.FieldYearly:
+		m.ClearYearly()
+		return nil
+	case quota.FieldDailyUsed:
+		m.ClearDailyUsed()
+		return nil
+	case quota.FieldMonthlyUsed:
+		m.ClearMonthlyUsed()
+		return nil
+	case quota.FieldYearlyUsed:
+		m.ClearYearlyUsed()
+		return nil
+	}
+	return fmt.Errorf("unknown Quota nullable field %s", name)
+}
+
+// ResetField resets all changes in the mutation for the field with the given name.
+// It returns an error if the field is not defined in the schema.
+func (m *QuotaMutation) ResetField(name string) error {
+	switch name {
+	case quota.FieldCreatedAt:
+		m.ResetCreatedAt()
+		return nil
+	case quota.FieldUpdatedAt:
+		m.ResetUpdatedAt()
+		return nil
+	case quota.FieldDeleted:
+		m.ResetDeleted()
+		return nil
+	case quota.FieldUserID:
+		m.ResetUserID()
+		return nil
+	case quota.FieldCategory:
+		m.ResetCategory()
+		return nil
+	case quota.FieldDaily:
+		m.ResetDaily()
+		return nil
+	case quota.FieldMonthly:
+		m.ResetMonthly()
+		return nil
+	case quota.FieldYearly:
+		m.ResetYearly()
+		return nil
+	case quota.FieldDailyUsed:
+		m.ResetDailyUsed()
+		return nil
+	case quota.FieldMonthlyUsed:
+		m.ResetMonthlyUsed()
+		return nil
+	case quota.FieldYearlyUsed:
+		m.ResetYearlyUsed()
+		return nil
+	}
+	return fmt.Errorf("unknown Quota field %s", name)
+}
+
+// AddedEdges returns all edge names that were set/added in this mutation.
+func (m *QuotaMutation) AddedEdges() []string {
+	edges := make([]string, 0, 0)
+	return edges
+}
+
+// AddedIDs returns all IDs (to other nodes) that were added for the given edge
+// name in this mutation.
+func (m *QuotaMutation) AddedIDs(name string) []ent.Value {
+	return nil
+}
+
+// RemovedEdges returns all edge names that were removed in this mutation.
+func (m *QuotaMutation) RemovedEdges() []string {
+	edges := make([]string, 0, 0)
+	return edges
+}
+
+// RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
+// the given name in this mutation.
+func (m *QuotaMutation) RemovedIDs(name string) []ent.Value {
+	return nil
+}
+
+// ClearedEdges returns all edge names that were cleared in this mutation.
+func (m *QuotaMutation) ClearedEdges() []string {
+	edges := make([]string, 0, 0)
+	return edges
+}
+
+// EdgeCleared returns a boolean which indicates if the edge with the given name
+// was cleared in this mutation.
+func (m *QuotaMutation) EdgeCleared(name string) bool {
+	return false
+}
+
+// ClearEdge clears the value of the edge with the given name. It returns an error
+// if that edge is not defined in the schema.
+func (m *QuotaMutation) ClearEdge(name string) error {
+	return fmt.Errorf("unknown Quota unique edge %s", name)
+}
+
+// ResetEdge resets all changes to the edge with the given name in this mutation.
+// It returns an error if the edge is not defined in the schema.
+func (m *QuotaMutation) ResetEdge(name string) error {
+	return fmt.Errorf("unknown Quota edge %s", name)
 }
 
 // WechatSessionMutation represents an operation that mutates the WechatSession nodes in the graph.

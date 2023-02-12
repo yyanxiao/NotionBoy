@@ -4,7 +4,9 @@ import (
 	"context"
 	"errors"
 	"notionboy/db/ent"
+	"notionboy/db/ent/quota"
 	"notionboy/internal/pkg/config"
+	"notionboy/internal/pkg/db/dao"
 	"notionboy/internal/pkg/logger"
 	"strings"
 	"sync/atomic"
@@ -26,17 +28,63 @@ func newApiClient(apiKey string) Chatter {
 }
 
 func (cli *apiClient) ChatWithHistory(ctx context.Context, acc *ent.Account, prompt string) (string, error) {
-	newPrompt := buildPrompt(ctx, acc, prompt)
-	resp, err := cli.Chat(ctx, newPrompt)
-	if err == nil {
-		setChatHistory(ctx, acc, prompt, resp)
+	isRateLimit, err := checkRateLimit(ctx, acc)
+	if err != nil {
+		return "", err
 	}
-	return resp, err
+	if isRateLimit {
+		return "nil", errors.New(config.MSG_ERROR_QUOTA_LIMIT)
+	}
+
+	// get history
+	h := getChatHistory(ctx, acc)
+	h.Ctx = ctx
+	h.Prompt = prompt
+	newPrompt := h.BuildNewPrompt()
+
+	// call api
+	resp, err := cli.Chat(ctx, newPrompt)
+
+	// process response
+	h.Response = ProcessResponse(resp)
+	h.MessageIdx++
+	h.MessageID = resp.ID
+	logger.SugaredLogger.Debugw("Response", "conversation_id", h.MessageID, "error", nil, "message", h.Response, "usage", resp.Usage)
+	if err == nil {
+		// save history to cache and db
+		setChatHistory(h)
+		err = h.SaveHistory()
+		if err != nil {
+			logger.SugaredLogger.Errorf("Save history error: %v", err)
+			return h.Response, err
+		}
+		err = dao.IncrDailyQuota(ctx, acc.ID, quota.CategoryChatgpt)
+		if err != nil {
+			logger.SugaredLogger.Errorf("Save history error: %v", err)
+			return h.Response, err
+		}
+	}
+	return h.Response, err
 }
 
-func (cli *apiClient) Chat(ctx context.Context, prompt string) (string, error) {
+func checkRateLimit(ctx context.Context, acc *ent.Account) (bool, error) {
+	qt, err := dao.QueryQuota(ctx, acc.ID, quota.CategoryChatgpt)
+	if err != nil {
+		logger.SugaredLogger.Errorf("Query Quota Error: %v", err)
+		return false, err
+	}
+	if qt.DailyUsed >= qt.Daily {
+		logger.SugaredLogger.Debugw("Hit rate limit", "account", acc.ID, "daily_used", qt.DailyUsed, "daily", qt.Daily)
+		return true, nil
+	}
+	logger.SugaredLogger.Debugw("Not hit rate limit", "account", acc.ID, "daily_used", qt.DailyUsed, "daily", qt.Daily, "category", qt.Category)
+
+	return false, nil
+}
+
+func (cli *apiClient) Chat(ctx context.Context, prompt string) (*gogpt.CompletionResponse, error) {
 	if cli.GetIsRateLimit() {
-		return "", errors.New("hit rate limit, please increase your quote")
+		return nil, errors.New("hit rate limit, please increase your quote")
 	}
 	logger.SugaredLogger.Debugw("Get prompt message for api client", "prompt", prompt)
 	model := gogpt.GPT3TextDavinci003
@@ -47,7 +95,7 @@ func (cli *apiClient) Chat(ctx context.Context, prompt string) (string, error) {
 		Model:       model,
 		MaxTokens:   2048,
 		Prompt:      prompt,
-		Temperature: 0.9,
+		Temperature: 0.5,
 	}
 
 	respChan := make(chan *gogpt.CompletionResponse)
@@ -66,21 +114,22 @@ func (cli *apiClient) Chat(ctx context.Context, prompt string) (string, error) {
 		go chat()
 		select {
 		case resp := <-respChan:
-			msgId := resp.ID
-			sb := strings.Builder{}
+			return resp, nil
+			// msgId := resp.ID
+			// sb := strings.Builder{}
 
-			for _, item := range resp.Choices {
-				sb.WriteString(item.Text)
-				sb.WriteString("\n")
-			}
-			logger.SugaredLogger.Debugw("Response", "conversation_id", msgId, "error", nil, "message", sb.String(), "usage", resp.Usage)
-			return processChatResponse(sb.String()), nil
+			// for _, item := range resp.Choices {
+			// 	sb.WriteString(item.Text)
+			// 	sb.WriteString("\n")
+			// }
+			// logger.SugaredLogger.Debugw("Response", "conversation_id", msgId, "error", nil, "message", sb.String(), "usage", resp.Usage)
+			// return processChatResponse(sb.String()), nil
 		case err = <-errChan:
 			logger.SugaredLogger.Warnw("Get response from chatGPT error", "retry_times", i+1, "err", err)
 		}
 	}
 
-	return "", err
+	return nil, err
 }
 
 func (cli *apiClient) ResetHistory(acc *ent.Account) {
@@ -95,9 +144,16 @@ func (cli *apiClient) setIsRateLimit(flag bool) {
 	cli.isRateLimit.Store(flag)
 }
 
-func processChatResponse(resp string) string {
-	resp = strings.Replace(resp, "<|im_start|>", "", -1)
-	resp = strings.Replace(resp, "<|im_end|>", "", -1)
-	resp = strings.TrimSpace(resp)
-	return resp
+// ProcessResponse get response string from gogpt.CompletionResponse
+func ProcessResponse(resp *gogpt.CompletionResponse) string {
+	sb := strings.Builder{}
+	for _, item := range resp.Choices {
+		sb.WriteString(item.Text)
+		sb.WriteString("\n")
+	}
+	s := sb.String()
+	s = strings.Replace(s, "<|im_start|>", "", -1)
+	s = strings.Replace(s, "<|im_end|>", "", -1)
+	s = strings.TrimSpace(s)
+	return s
 }

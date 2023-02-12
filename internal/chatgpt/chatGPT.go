@@ -6,6 +6,8 @@ import (
 	"notionboy/internal/pkg/config"
 	"notionboy/internal/pkg/logger"
 	"sync"
+
+	gogpt "github.com/sashabaranov/go-gpt3"
 )
 
 type Chatter interface {
@@ -13,7 +15,7 @@ type Chatter interface {
 	// Params are context, parent message id and prompt
 	//
 	// Returns message_id, message and error
-	Chat(ctx context.Context, prompt string) (string, error)
+	Chat(ctx context.Context, prompt string) (*gogpt.CompletionResponse, error)
 	ChatWithHistory(ctx context.Context, acc *ent.Account, prompt string) (string, error)
 	ResetHistory(acc *ent.Account)
 }

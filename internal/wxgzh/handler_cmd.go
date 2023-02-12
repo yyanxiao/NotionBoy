@@ -13,8 +13,14 @@ import (
 	"github.com/silenceper/wechat/v2/officialaccount/message"
 )
 
-func unBindingNotion(c context.Context, msg *message.MixMessage) *message.Reply {
+func unsubscribe(c context.Context, msg *message.MixMessage) {
 	if err := dao.DeleteAccount(c, account.UserTypeWechat, msg.GetOpenID()); err != nil {
+		logger.SugaredLogger.Errorw("delete account failed", "err", err)
+	}
+}
+
+func unBindingNotion(c context.Context, msg *message.MixMessage) *message.Reply {
+	if err := dao.ClearNotionAuthInfo(c, account.UserTypeWechat, msg.GetOpenID()); err != nil {
 		return &message.Reply{MsgType: message.MsgTypeText, MsgData: message.NewText(config.MSG_UNBIND_FAILED + err.Error())}
 	}
 	return &message.Reply{MsgType: message.MsgTypeText, MsgData: message.NewText(config.MSG_UNBIND_SUCCESS)}

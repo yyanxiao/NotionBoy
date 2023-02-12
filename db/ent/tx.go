@@ -14,6 +14,10 @@ type Tx struct {
 	config
 	// Account is the client for interacting with the Account builders.
 	Account *AccountClient
+	// ChatHistory is the client for interacting with the ChatHistory builders.
+	ChatHistory *ChatHistoryClient
+	// Quota is the client for interacting with the Quota builders.
+	Quota *QuotaClient
 	// WechatSession is the client for interacting with the WechatSession builders.
 	WechatSession *WechatSessionClient
 
@@ -148,6 +152,8 @@ func (tx *Tx) Client() *Client {
 
 func (tx *Tx) init() {
 	tx.Account = NewAccountClient(tx.config)
+	tx.ChatHistory = NewChatHistoryClient(tx.config)
+	tx.Quota = NewQuotaClient(tx.config)
 	tx.WechatSession = NewWechatSessionClient(tx.config)
 }
 

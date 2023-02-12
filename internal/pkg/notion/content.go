@@ -98,7 +98,9 @@ func (c *Content) buildTagsProperties() notionapi.MultiSelectProperty {
 
 func (c *Content) BuildBlocks() []notionapi.Block {
 	blocks := make([]notionapi.Block, 0)
-	if c.Account != nil && c.Account.NotionUserID != "" {
+	if c.Account != nil &&
+		c.Account.NotionUserID != "" &&
+		c.Account.DatabaseID != config.GetConfig().NotionTestPage.DatabaseID {
 		blocks = append(blocks, notionapi.ParagraphBlock{
 			BasicBlock: notionapi.BasicBlock{
 				Object: notionapi.ObjectTypeBlock,

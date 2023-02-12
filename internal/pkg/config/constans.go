@@ -73,6 +73,9 @@ NotionBoy 提供以下命令可供使用:
 如果是想使用 Zlib 搜索, 可以不用绑定 Notion, 请按照下面的格式回复（不包括「」）即可
 「/zlib 书名或者作者」
 `
+	MSG_ERROR_QUOTA_NOT_FOUND = `查询账户失败: 没有找到 Quota 信息, 请联系作者!`
+	MSG_ERROR_QUOTA_LIMIT     = `额度已经用完, 请联系作者增加额度!`
+
 	MSG_WELCOME = `#NotionBoy 欢迎🎉使用 Notion Boy!`
 
 	MSG_RESET_CHATGPT_HISTORY = `已重置 ChatGPT 历史, 请输入「/chat 内容」重新开始`
@@ -84,6 +87,8 @@ Tips: When searching with a keyword containing #ext, you can specify the file ty
 	MSG_ZLIB_TIPS_CN = `
 
 Tips: 搜索关键字中包含 #ext 时可以指定文件类型，例如 「/zlib 鲁迅 #pdf」只会搜索 pdf 格式的书籍`
+
+	MSG_USING_NOTION_TEST_ACCOUNT = "正在使用测试的 Notion 账户，数据只会保存 7 天，过期后会自动删除。如果需要长期保存，请回复「绑定」来绑定您的 Notion 账号。\n\n"
 )
 
 // const for command
@@ -106,6 +111,10 @@ const (
 	DB_DRIVER_SQLITE   = "sqlite"
 	DB_DRIVER_MYSQL    = "mysql"
 	DB_DRIVER_POSTGRES = "postgres"
+)
+
+const (
+	CTX_KEY_QUOTA = "ctx_key_quota"
 )
 
 type contextKey string

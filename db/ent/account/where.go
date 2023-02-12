@@ -526,6 +526,20 @@ func DatabaseIDHasSuffix(v string) predicate.Account {
 	})
 }
 
+// DatabaseIDIsNil applies the IsNil predicate on the "database_id" field.
+func DatabaseIDIsNil() predicate.Account {
+	return predicate.Account(func(s *sql.Selector) {
+		s.Where(sql.IsNull(s.C(FieldDatabaseID)))
+	})
+}
+
+// DatabaseIDNotNil applies the NotNil predicate on the "database_id" field.
+func DatabaseIDNotNil() predicate.Account {
+	return predicate.Account(func(s *sql.Selector) {
+		s.Where(sql.NotNull(s.C(FieldDatabaseID)))
+	})
+}
+
 // DatabaseIDEqualFold applies the EqualFold predicate on the "database_id" field.
 func DatabaseIDEqualFold(v string) predicate.Account {
 	return predicate.Account(func(s *sql.Selector) {
@@ -622,6 +636,20 @@ func AccessTokenHasPrefix(v string) predicate.Account {
 func AccessTokenHasSuffix(v string) predicate.Account {
 	return predicate.Account(func(s *sql.Selector) {
 		s.Where(sql.HasSuffix(s.C(FieldAccessToken), v))
+	})
+}
+
+// AccessTokenIsNil applies the IsNil predicate on the "access_token" field.
+func AccessTokenIsNil() predicate.Account {
+	return predicate.Account(func(s *sql.Selector) {
+		s.Where(sql.IsNull(s.C(FieldAccessToken)))
+	})
+}
+
+// AccessTokenNotNil applies the NotNil predicate on the "access_token" field.
+func AccessTokenNotNil() predicate.Account {
+	return predicate.Account(func(s *sql.Selector) {
+		s.Where(sql.NotNull(s.C(FieldAccessToken)))
 	})
 }
 

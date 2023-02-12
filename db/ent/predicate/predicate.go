@@ -9,5 +9,11 @@ import (
 // Account is the predicate function for account builders.
 type Account func(*sql.Selector)
 
+// ChatHistory is the predicate function for chathistory builders.
+type ChatHistory func(*sql.Selector)
+
+// Quota is the predicate function for quota builders.
+type Quota func(*sql.Selector)
+
 // WechatSession is the predicate function for wechatsession builders.
 type WechatSession func(*sql.Selector)

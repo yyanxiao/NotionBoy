@@ -46,7 +46,8 @@ func OnZlibSaveToNotion(c tele.Context) error {
 
 	nt := &notion.Notion{BearerToken: acc.AccessToken, DatabaseID: acc.DatabaseID}
 	res, pageID, err := nt.CreateRecord(ctx, &notion.Content{
-		Text: "内容正在更新，请稍等",
+		Text:    "内容正在更新，请稍等",
+		Account: acc,
 	})
 	nContent.Process(ctx)
 	if err == nil {

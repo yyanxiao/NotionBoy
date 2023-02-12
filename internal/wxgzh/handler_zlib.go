@@ -147,7 +147,8 @@ func searchZlibSaveToNotion(ctx context.Context, msg *message.MixMessage) *messa
 	var zlibPageId string
 	var resp string
 	resp, zlibPageId, err = n.CreateRecord(ctx, &notion.Content{
-		Text: "Zlib 专属页面",
+		Text:    "Zlib 专属页面",
+		Account: acc,
 	})
 	if err != nil {
 		return &message.Reply{MsgType: message.MsgTypeText, MsgData: message.NewText(fmt.Sprintf("Create zlib page error: %s", err))}
@@ -155,7 +156,7 @@ func searchZlibSaveToNotion(ctx context.Context, msg *message.MixMessage) *messa
 	n.PageID = zlibPageId
 
 	nContent.Process(ctx)
-	n.UpdateRecord(ctx, nContent)
+	go n.UpdateRecord(context.TODO(), nContent)
 
 	return &message.Reply{MsgType: message.MsgTypeText, MsgData: message.NewText(resp)}
 }

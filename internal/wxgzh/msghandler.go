@@ -34,7 +34,8 @@ func (ex *OfficialAccount) messageHandler(ctx context.Context, msg *message.MixM
 		return helpInfo(ctx, msg)
 	}
 	if msg.Event == message.EventUnsubscribe {
-		return unBindingNotion(ctx, msg)
+		unsubscribe(ctx, msg)
+		return nil
 	}
 	// TrimSpace will remove all space in the beginning and end of the string for matching commands
 	msg.Content = strings.TrimSpace(msg.Content)
@@ -95,6 +96,8 @@ func (ex *OfficialAccount) processContent(ctx context.Context, msg *message.MixM
 		mr <- bindNotion(ctx, msg)
 		return
 	}
+	// set account info to content
+	content.Account = accountInfo
 	n := &notion.Notion{BearerToken: accountInfo.AccessToken, DatabaseID: accountInfo.DatabaseID}
 
 	// 如果是不支持的类型，直接返回不支持的错误
@@ -105,7 +108,8 @@ func (ex *OfficialAccount) processContent(ctx context.Context, msg *message.MixM
 
 	// 创建初始 Record
 	res, pageID, err := n.CreateRecord(ctx, &notion.Content{
-		Text: "内容正在更新，请稍等",
+		Text:    "内容正在更新，请稍等",
+		Account: accountInfo,
 	})
 	if err == nil {
 		n.PageID = pageID

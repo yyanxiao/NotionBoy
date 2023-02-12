@@ -90,9 +90,25 @@ func (ac *AccountCreate) SetDatabaseID(s string) *AccountCreate {
 	return ac
 }
 
+// SetNillableDatabaseID sets the "database_id" field if the given value is not nil.
+func (ac *AccountCreate) SetNillableDatabaseID(s *string) *AccountCreate {
+	if s != nil {
+		ac.SetDatabaseID(*s)
+	}
+	return ac
+}
+
 // SetAccessToken sets the "access_token" field.
 func (ac *AccountCreate) SetAccessToken(s string) *AccountCreate {
 	ac.mutation.SetAccessToken(s)
+	return ac
+}
+
+// SetNillableAccessToken sets the "access_token" field if the given value is not nil.
+func (ac *AccountCreate) SetNillableAccessToken(s *string) *AccountCreate {
+	if s != nil {
+		ac.SetAccessToken(*s)
+	}
 	return ac
 }
 
@@ -272,22 +288,6 @@ func (ac *AccountCreate) check() error {
 	if v, ok := ac.mutation.UserType(); ok {
 		if err := account.UserTypeValidator(v); err != nil {
 			return &ValidationError{Name: "user_type", err: fmt.Errorf(`ent: validator failed for field "Account.user_type": %w`, err)}
-		}
-	}
-	if _, ok := ac.mutation.DatabaseID(); !ok {
-		return &ValidationError{Name: "database_id", err: errors.New(`ent: missing required field "Account.database_id"`)}
-	}
-	if v, ok := ac.mutation.DatabaseID(); ok {
-		if err := account.DatabaseIDValidator(v); err != nil {
-			return &ValidationError{Name: "database_id", err: fmt.Errorf(`ent: validator failed for field "Account.database_id": %w`, err)}
-		}
-	}
-	if _, ok := ac.mutation.AccessToken(); !ok {
-		return &ValidationError{Name: "access_token", err: errors.New(`ent: missing required field "Account.access_token"`)}
-	}
-	if v, ok := ac.mutation.AccessToken(); ok {
-		if err := account.AccessTokenValidator(v); err != nil {
-			return &ValidationError{Name: "access_token", err: fmt.Errorf(`ent: validator failed for field "Account.access_token": %w`, err)}
 		}
 	}
 	if _, ok := ac.mutation.IsLatestSchema(); !ok {
@@ -486,6 +486,12 @@ func (u *AccountUpsert) UpdateDatabaseID() *AccountUpsert {
 	return u
 }
 
+// ClearDatabaseID clears the value of the "database_id" field.
+func (u *AccountUpsert) ClearDatabaseID() *AccountUpsert {
+	u.SetNull(account.FieldDatabaseID)
+	return u
+}
+
 // SetAccessToken sets the "access_token" field.
 func (u *AccountUpsert) SetAccessToken(v string) *AccountUpsert {
 	u.Set(account.FieldAccessToken, v)
@@ -495,6 +501,12 @@ func (u *AccountUpsert) SetAccessToken(v string) *AccountUpsert {
 // UpdateAccessToken sets the "access_token" field to the value that was provided on create.
 func (u *AccountUpsert) UpdateAccessToken() *AccountUpsert {
 	u.SetExcluded(account.FieldAccessToken)
+	return u
+}
+
+// ClearAccessToken clears the value of the "access_token" field.
+func (u *AccountUpsert) ClearAccessToken() *AccountUpsert {
+	u.SetNull(account.FieldAccessToken)
 	return u
 }
 
@@ -680,6 +692,13 @@ func (u *AccountUpsertOne) UpdateDatabaseID() *AccountUpsertOne {
 	})
 }
 
+// ClearDatabaseID clears the value of the "database_id" field.
+func (u *AccountUpsertOne) ClearDatabaseID() *AccountUpsertOne {
+	return u.Update(func(s *AccountUpsert) {
+		s.ClearDatabaseID()
+	})
+}
+
 // SetAccessToken sets the "access_token" field.
 func (u *AccountUpsertOne) SetAccessToken(v string) *AccountUpsertOne {
 	return u.Update(func(s *AccountUpsert) {
@@ -691,6 +710,13 @@ func (u *AccountUpsertOne) SetAccessToken(v string) *AccountUpsertOne {
 func (u *AccountUpsertOne) UpdateAccessToken() *AccountUpsertOne {
 	return u.Update(func(s *AccountUpsert) {
 		s.UpdateAccessToken()
+	})
+}
+
+// ClearAccessToken clears the value of the "access_token" field.
+func (u *AccountUpsertOne) ClearAccessToken() *AccountUpsertOne {
+	return u.Update(func(s *AccountUpsert) {
+		s.ClearAccessToken()
 	})
 }
 
@@ -1048,6 +1074,13 @@ func (u *AccountUpsertBulk) UpdateDatabaseID() *AccountUpsertBulk {
 	})
 }
 
+// ClearDatabaseID clears the value of the "database_id" field.
+func (u *AccountUpsertBulk) ClearDatabaseID() *AccountUpsertBulk {
+	return u.Update(func(s *AccountUpsert) {
+		s.ClearDatabaseID()
+	})
+}
+
 // SetAccessToken sets the "access_token" field.
 func (u *AccountUpsertBulk) SetAccessToken(v string) *AccountUpsertBulk {
 	return u.Update(func(s *AccountUpsert) {
@@ -1059,6 +1092,13 @@ func (u *AccountUpsertBulk) SetAccessToken(v string) *AccountUpsertBulk {
 func (u *AccountUpsertBulk) UpdateAccessToken() *AccountUpsertBulk {
 	return u.Update(func(s *AccountUpsert) {
 		s.UpdateAccessToken()
+	})
+}
+
+// ClearAccessToken clears the value of the "access_token" field.
+func (u *AccountUpsertBulk) ClearAccessToken() *AccountUpsertBulk {
+	return u.Update(func(s *AccountUpsert) {
+		s.ClearAccessToken()
 	})
 }
 

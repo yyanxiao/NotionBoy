@@ -3,6 +3,7 @@ package notion
 import (
 	"context"
 	"fmt"
+	"notionboy/internal/pkg/config"
 	"notionboy/internal/pkg/logger"
 	"strings"
 	"sync"
@@ -38,14 +39,17 @@ func (n *Notion) CreateRecord(ctx context.Context, content *Content) (string, st
 	}
 
 	page, err := n.GetClient().Page.Create(ctx, pageCreateRequest)
-	var msg string
+	msg := ""
+	if content.Account != nil && content.Account.NotionUserID == "" {
+		msg += config.MSG_USING_NOTION_TEST_ACCOUNT
+	}
 	var pageID string
 	if err != nil {
-		msg = fmt.Sprintf("创建 Note 失败，失败原因, %v", err)
+		msg += fmt.Sprintf("创建 Note 失败，失败原因, %v", err)
 		logger.SugaredLogger.Error(msg)
 	} else {
 		pageID = strings.Replace(page.ID.String(), "-", "", -1)
-		msg = fmt.Sprintf("创建 Note 成功，如需编辑更多，请前往 https://www.notion.so/%s", pageID)
+		msg += fmt.Sprintf("创建 Note 成功，如需编辑更多，请前往 https://www.notion.so/%s", pageID)
 		logger.SugaredLogger.Info(msg)
 	}
 	return msg, pageID, err
@@ -108,12 +112,15 @@ func updatePage(ctx context.Context, client *notionapi.Client, pageID string, co
 
 	_, err := client.Page.Update(ctx, notionapi.PageID(pageID), pageUpdateRequest)
 
-	var msg string
+	msg := ""
+	if content.Account.NotionUserID == "" {
+		msg += config.MSG_USING_NOTION_TEST_ACCOUNT
+	}
 	if err != nil {
-		msg = fmt.Sprintf("更新 Page(%s) 失败，失败原因, %v", pageID, err)
+		msg += fmt.Sprintf("更新 Page(%s) 失败，失败原因, %v", pageID, err)
 		logger.SugaredLogger.Error(msg)
 	} else {
-		msg = fmt.Sprintf("更新 Page(%s) 成功，如需编辑更多，请前往 https://www.notion.so/%s", pageID, pageID)
+		msg += fmt.Sprintf("更新 Page(%s) 成功，如需编辑更多，请前往 https://www.notion.so/%s", pageID, pageID)
 		logger.SugaredLogger.Info(msg)
 	}
 	return msg, err
@@ -125,12 +132,15 @@ func updateBlock(ctx context.Context, client *notionapi.Client, pageID string, c
 		Children: blocks,
 	}
 	_, err := client.Block.AppendChildren(ctx, notionapi.BlockID(pageID), appendBlockChildrenRequest)
-	var msg string
+	msg := ""
+	if content.Account.NotionUserID == "" {
+		msg += config.MSG_USING_NOTION_TEST_ACCOUNT
+	}
 	if err != nil {
-		msg = fmt.Sprintf("更新 Blocks in Page(%s) 失败，失败原因, %v", pageID, err)
+		msg += fmt.Sprintf("更新 Blocks in Page(%s) 失败，失败原因, %v", pageID, err)
 		logger.SugaredLogger.Error(msg)
 	} else {
-		msg = fmt.Sprintf("更新 Blocks in Page(%s) 成功，如需编辑更多，请前往 https://www.notion.so/%s", pageID, pageID)
+		msg += fmt.Sprintf("更新 Blocks in Page(%s) 成功，如需编辑更多，请前往 https://www.notion.so/%s", pageID, pageID)
 		logger.SugaredLogger.Info(msg)
 	}
 	return msg, err

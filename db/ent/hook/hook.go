@@ -21,6 +21,32 @@ func (f AccountFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, err
 	return f(ctx, mv)
 }
 
+// The ChatHistoryFunc type is an adapter to allow the use of ordinary
+// function as ChatHistory mutator.
+type ChatHistoryFunc func(context.Context, *ent.ChatHistoryMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f ChatHistoryFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	mv, ok := m.(*ent.ChatHistoryMutation)
+	if !ok {
+		return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.ChatHistoryMutation", m)
+	}
+	return f(ctx, mv)
+}
+
+// The QuotaFunc type is an adapter to allow the use of ordinary
+// function as Quota mutator.
+type QuotaFunc func(context.Context, *ent.QuotaMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f QuotaFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	mv, ok := m.(*ent.QuotaMutation)
+	if !ok {
+		return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.QuotaMutation", m)
+	}
+	return f(ctx, mv)
+}
+
 // The WechatSessionFunc type is an adapter to allow the use of ordinary
 // function as WechatSession mutator.
 type WechatSessionFunc func(context.Context, *ent.WechatSessionMutation) (ent.Value, error)

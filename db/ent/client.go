@@ -11,6 +11,8 @@ import (
 	"notionboy/db/ent/migrate"
 
 	"notionboy/db/ent/account"
+	"notionboy/db/ent/chathistory"
+	"notionboy/db/ent/quota"
 	"notionboy/db/ent/wechatsession"
 
 	"entgo.io/ent/dialect"
@@ -24,6 +26,10 @@ type Client struct {
 	Schema *migrate.Schema
 	// Account is the client for interacting with the Account builders.
 	Account *AccountClient
+	// ChatHistory is the client for interacting with the ChatHistory builders.
+	ChatHistory *ChatHistoryClient
+	// Quota is the client for interacting with the Quota builders.
+	Quota *QuotaClient
 	// WechatSession is the client for interacting with the WechatSession builders.
 	WechatSession *WechatSessionClient
 }
@@ -40,6 +46,8 @@ func NewClient(opts ...Option) *Client {
 func (c *Client) init() {
 	c.Schema = migrate.NewSchema(c.driver)
 	c.Account = NewAccountClient(c.config)
+	c.ChatHistory = NewChatHistoryClient(c.config)
+	c.Quota = NewQuotaClient(c.config)
 	c.WechatSession = NewWechatSessionClient(c.config)
 }
 
@@ -75,6 +83,8 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 		ctx:           ctx,
 		config:        cfg,
 		Account:       NewAccountClient(cfg),
+		ChatHistory:   NewChatHistoryClient(cfg),
+		Quota:         NewQuotaClient(cfg),
 		WechatSession: NewWechatSessionClient(cfg),
 	}, nil
 }
@@ -96,6 +106,8 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 		ctx:           ctx,
 		config:        cfg,
 		Account:       NewAccountClient(cfg),
+		ChatHistory:   NewChatHistoryClient(cfg),
+		Quota:         NewQuotaClient(cfg),
 		WechatSession: NewWechatSessionClient(cfg),
 	}, nil
 }
@@ -126,6 +138,8 @@ func (c *Client) Close() error {
 // In order to add hooks to a specific client, call: `client.Node.Use(...)`.
 func (c *Client) Use(hooks ...Hook) {
 	c.Account.Use(hooks...)
+	c.ChatHistory.Use(hooks...)
+	c.Quota.Use(hooks...)
 	c.WechatSession.Use(hooks...)
 }
 
@@ -217,6 +231,186 @@ func (c *AccountClient) GetX(ctx context.Context, id int) *Account {
 // Hooks returns the client hooks.
 func (c *AccountClient) Hooks() []Hook {
 	return c.hooks.Account
+}
+
+// ChatHistoryClient is a client for the ChatHistory schema.
+type ChatHistoryClient struct {
+	config
+}
+
+// NewChatHistoryClient returns a client for the ChatHistory from the given config.
+func NewChatHistoryClient(c config) *ChatHistoryClient {
+	return &ChatHistoryClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `chathistory.Hooks(f(g(h())))`.
+func (c *ChatHistoryClient) Use(hooks ...Hook) {
+	c.hooks.ChatHistory = append(c.hooks.ChatHistory, hooks...)
+}
+
+// Create returns a builder for creating a ChatHistory entity.
+func (c *ChatHistoryClient) Create() *ChatHistoryCreate {
+	mutation := newChatHistoryMutation(c.config, OpCreate)
+	return &ChatHistoryCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of ChatHistory entities.
+func (c *ChatHistoryClient) CreateBulk(builders ...*ChatHistoryCreate) *ChatHistoryCreateBulk {
+	return &ChatHistoryCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for ChatHistory.
+func (c *ChatHistoryClient) Update() *ChatHistoryUpdate {
+	mutation := newChatHistoryMutation(c.config, OpUpdate)
+	return &ChatHistoryUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *ChatHistoryClient) UpdateOne(ch *ChatHistory) *ChatHistoryUpdateOne {
+	mutation := newChatHistoryMutation(c.config, OpUpdateOne, withChatHistory(ch))
+	return &ChatHistoryUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *ChatHistoryClient) UpdateOneID(id int) *ChatHistoryUpdateOne {
+	mutation := newChatHistoryMutation(c.config, OpUpdateOne, withChatHistoryID(id))
+	return &ChatHistoryUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for ChatHistory.
+func (c *ChatHistoryClient) Delete() *ChatHistoryDelete {
+	mutation := newChatHistoryMutation(c.config, OpDelete)
+	return &ChatHistoryDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *ChatHistoryClient) DeleteOne(ch *ChatHistory) *ChatHistoryDeleteOne {
+	return c.DeleteOneID(ch.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *ChatHistoryClient) DeleteOneID(id int) *ChatHistoryDeleteOne {
+	builder := c.Delete().Where(chathistory.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &ChatHistoryDeleteOne{builder}
+}
+
+// Query returns a query builder for ChatHistory.
+func (c *ChatHistoryClient) Query() *ChatHistoryQuery {
+	return &ChatHistoryQuery{
+		config: c.config,
+	}
+}
+
+// Get returns a ChatHistory entity by its id.
+func (c *ChatHistoryClient) Get(ctx context.Context, id int) (*ChatHistory, error) {
+	return c.Query().Where(chathistory.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *ChatHistoryClient) GetX(ctx context.Context, id int) *ChatHistory {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// Hooks returns the client hooks.
+func (c *ChatHistoryClient) Hooks() []Hook {
+	return c.hooks.ChatHistory
+}
+
+// QuotaClient is a client for the Quota schema.
+type QuotaClient struct {
+	config
+}
+
+// NewQuotaClient returns a client for the Quota from the given config.
+func NewQuotaClient(c config) *QuotaClient {
+	return &QuotaClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `quota.Hooks(f(g(h())))`.
+func (c *QuotaClient) Use(hooks ...Hook) {
+	c.hooks.Quota = append(c.hooks.Quota, hooks...)
+}
+
+// Create returns a builder for creating a Quota entity.
+func (c *QuotaClient) Create() *QuotaCreate {
+	mutation := newQuotaMutation(c.config, OpCreate)
+	return &QuotaCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of Quota entities.
+func (c *QuotaClient) CreateBulk(builders ...*QuotaCreate) *QuotaCreateBulk {
+	return &QuotaCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for Quota.
+func (c *QuotaClient) Update() *QuotaUpdate {
+	mutation := newQuotaMutation(c.config, OpUpdate)
+	return &QuotaUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *QuotaClient) UpdateOne(q *Quota) *QuotaUpdateOne {
+	mutation := newQuotaMutation(c.config, OpUpdateOne, withQuota(q))
+	return &QuotaUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *QuotaClient) UpdateOneID(id int) *QuotaUpdateOne {
+	mutation := newQuotaMutation(c.config, OpUpdateOne, withQuotaID(id))
+	return &QuotaUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for Quota.
+func (c *QuotaClient) Delete() *QuotaDelete {
+	mutation := newQuotaMutation(c.config, OpDelete)
+	return &QuotaDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *QuotaClient) DeleteOne(q *Quota) *QuotaDeleteOne {
+	return c.DeleteOneID(q.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *QuotaClient) DeleteOneID(id int) *QuotaDeleteOne {
+	builder := c.Delete().Where(quota.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &QuotaDeleteOne{builder}
+}
+
+// Query returns a query builder for Quota.
+func (c *QuotaClient) Query() *QuotaQuery {
+	return &QuotaQuery{
+		config: c.config,
+	}
+}
+
+// Get returns a Quota entity by its id.
+func (c *QuotaClient) Get(ctx context.Context, id int) (*Quota, error) {
+	return c.Query().Where(quota.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *QuotaClient) GetX(ctx context.Context, id int) *Quota {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// Hooks returns the client hooks.
+func (c *QuotaClient) Hooks() []Hook {
+	return c.hooks.Quota
 }
 
 // WechatSessionClient is a client for the WechatSession schema.

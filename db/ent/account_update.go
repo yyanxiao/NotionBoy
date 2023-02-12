@@ -80,9 +80,37 @@ func (au *AccountUpdate) SetDatabaseID(s string) *AccountUpdate {
 	return au
 }
 
+// SetNillableDatabaseID sets the "database_id" field if the given value is not nil.
+func (au *AccountUpdate) SetNillableDatabaseID(s *string) *AccountUpdate {
+	if s != nil {
+		au.SetDatabaseID(*s)
+	}
+	return au
+}
+
+// ClearDatabaseID clears the value of the "database_id" field.
+func (au *AccountUpdate) ClearDatabaseID() *AccountUpdate {
+	au.mutation.ClearDatabaseID()
+	return au
+}
+
 // SetAccessToken sets the "access_token" field.
 func (au *AccountUpdate) SetAccessToken(s string) *AccountUpdate {
 	au.mutation.SetAccessToken(s)
+	return au
+}
+
+// SetNillableAccessToken sets the "access_token" field if the given value is not nil.
+func (au *AccountUpdate) SetNillableAccessToken(s *string) *AccountUpdate {
+	if s != nil {
+		au.SetAccessToken(*s)
+	}
+	return au
+}
+
+// ClearAccessToken clears the value of the "access_token" field.
+func (au *AccountUpdate) ClearAccessToken() *AccountUpdate {
+	au.mutation.ClearAccessToken()
 	return au
 }
 
@@ -235,16 +263,6 @@ func (au *AccountUpdate) check() error {
 			return &ValidationError{Name: "user_type", err: fmt.Errorf(`ent: validator failed for field "Account.user_type": %w`, err)}
 		}
 	}
-	if v, ok := au.mutation.DatabaseID(); ok {
-		if err := account.DatabaseIDValidator(v); err != nil {
-			return &ValidationError{Name: "database_id", err: fmt.Errorf(`ent: validator failed for field "Account.database_id": %w`, err)}
-		}
-	}
-	if v, ok := au.mutation.AccessToken(); ok {
-		if err := account.AccessTokenValidator(v); err != nil {
-			return &ValidationError{Name: "access_token", err: fmt.Errorf(`ent: validator failed for field "Account.access_token": %w`, err)}
-		}
-	}
 	return nil
 }
 
@@ -284,8 +302,14 @@ func (au *AccountUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := au.mutation.DatabaseID(); ok {
 		_spec.SetField(account.FieldDatabaseID, field.TypeString, value)
 	}
+	if au.mutation.DatabaseIDCleared() {
+		_spec.ClearField(account.FieldDatabaseID, field.TypeString)
+	}
 	if value, ok := au.mutation.AccessToken(); ok {
 		_spec.SetField(account.FieldAccessToken, field.TypeString, value)
+	}
+	if au.mutation.AccessTokenCleared() {
+		_spec.ClearField(account.FieldAccessToken, field.TypeString)
 	}
 	if value, ok := au.mutation.NotionUserID(); ok {
 		_spec.SetField(account.FieldNotionUserID, field.TypeString, value)
@@ -376,9 +400,37 @@ func (auo *AccountUpdateOne) SetDatabaseID(s string) *AccountUpdateOne {
 	return auo
 }
 
+// SetNillableDatabaseID sets the "database_id" field if the given value is not nil.
+func (auo *AccountUpdateOne) SetNillableDatabaseID(s *string) *AccountUpdateOne {
+	if s != nil {
+		auo.SetDatabaseID(*s)
+	}
+	return auo
+}
+
+// ClearDatabaseID clears the value of the "database_id" field.
+func (auo *AccountUpdateOne) ClearDatabaseID() *AccountUpdateOne {
+	auo.mutation.ClearDatabaseID()
+	return auo
+}
+
 // SetAccessToken sets the "access_token" field.
 func (auo *AccountUpdateOne) SetAccessToken(s string) *AccountUpdateOne {
 	auo.mutation.SetAccessToken(s)
+	return auo
+}
+
+// SetNillableAccessToken sets the "access_token" field if the given value is not nil.
+func (auo *AccountUpdateOne) SetNillableAccessToken(s *string) *AccountUpdateOne {
+	if s != nil {
+		auo.SetAccessToken(*s)
+	}
+	return auo
+}
+
+// ClearAccessToken clears the value of the "access_token" field.
+func (auo *AccountUpdateOne) ClearAccessToken() *AccountUpdateOne {
+	auo.mutation.ClearAccessToken()
 	return auo
 }
 
@@ -544,16 +596,6 @@ func (auo *AccountUpdateOne) check() error {
 			return &ValidationError{Name: "user_type", err: fmt.Errorf(`ent: validator failed for field "Account.user_type": %w`, err)}
 		}
 	}
-	if v, ok := auo.mutation.DatabaseID(); ok {
-		if err := account.DatabaseIDValidator(v); err != nil {
-			return &ValidationError{Name: "database_id", err: fmt.Errorf(`ent: validator failed for field "Account.database_id": %w`, err)}
-		}
-	}
-	if v, ok := auo.mutation.AccessToken(); ok {
-		if err := account.AccessTokenValidator(v); err != nil {
-			return &ValidationError{Name: "access_token", err: fmt.Errorf(`ent: validator failed for field "Account.access_token": %w`, err)}
-		}
-	}
 	return nil
 }
 
@@ -610,8 +652,14 @@ func (auo *AccountUpdateOne) sqlSave(ctx context.Context) (_node *Account, err e
 	if value, ok := auo.mutation.DatabaseID(); ok {
 		_spec.SetField(account.FieldDatabaseID, field.TypeString, value)
 	}
+	if auo.mutation.DatabaseIDCleared() {
+		_spec.ClearField(account.FieldDatabaseID, field.TypeString)
+	}
 	if value, ok := auo.mutation.AccessToken(); ok {
 		_spec.SetField(account.FieldAccessToken, field.TypeString, value)
+	}
+	if auo.mutation.AccessTokenCleared() {
+		_spec.ClearField(account.FieldAccessToken, field.TypeString)
 	}
 	if value, ok := auo.mutation.NotionUserID(); ok {
 		_spec.SetField(account.FieldNotionUserID, field.TypeString, value)

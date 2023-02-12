@@ -4,6 +4,8 @@ package ent
 
 import (
 	"notionboy/db/ent/account"
+	"notionboy/db/ent/chathistory"
+	"notionboy/db/ent/quota"
 	"notionboy/db/ent/schema"
 	"notionboy/db/ent/wechatsession"
 	"time"
@@ -34,14 +36,6 @@ func init() {
 	accountDescDeleted := accountMixinFields1[0].Descriptor()
 	// account.DefaultDeleted holds the default value on creation for the deleted field.
 	account.DefaultDeleted = accountDescDeleted.Default.(bool)
-	// accountDescDatabaseID is the schema descriptor for database_id field.
-	accountDescDatabaseID := accountFields[2].Descriptor()
-	// account.DatabaseIDValidator is a validator for the "database_id" field. It is called by the builders before save.
-	account.DatabaseIDValidator = accountDescDatabaseID.Validators[0].(func(string) error)
-	// accountDescAccessToken is the schema descriptor for access_token field.
-	accountDescAccessToken := accountFields[3].Descriptor()
-	// account.AccessTokenValidator is a validator for the "access_token" field. It is called by the builders before save.
-	account.AccessTokenValidator = accountDescAccessToken.Validators[0].(func(string) error)
 	// accountDescIsLatestSchema is the schema descriptor for is_latest_schema field.
 	accountDescIsLatestSchema := accountFields[6].Descriptor()
 	// account.DefaultIsLatestSchema holds the default value on creation for the is_latest_schema field.
@@ -50,6 +44,48 @@ func init() {
 	accountDescIsOpenaiAPIUser := accountFields[7].Descriptor()
 	// account.DefaultIsOpenaiAPIUser holds the default value on creation for the is_openai_api_user field.
 	account.DefaultIsOpenaiAPIUser = accountDescIsOpenaiAPIUser.Default.(bool)
+	chathistoryMixin := schema.ChatHistory{}.Mixin()
+	chathistoryMixinFields0 := chathistoryMixin[0].Fields()
+	_ = chathistoryMixinFields0
+	chathistoryMixinFields1 := chathistoryMixin[1].Fields()
+	_ = chathistoryMixinFields1
+	chathistoryFields := schema.ChatHistory{}.Fields()
+	_ = chathistoryFields
+	// chathistoryDescCreatedAt is the schema descriptor for created_at field.
+	chathistoryDescCreatedAt := chathistoryMixinFields0[0].Descriptor()
+	// chathistory.DefaultCreatedAt holds the default value on creation for the created_at field.
+	chathistory.DefaultCreatedAt = chathistoryDescCreatedAt.Default.(func() time.Time)
+	// chathistoryDescUpdatedAt is the schema descriptor for updated_at field.
+	chathistoryDescUpdatedAt := chathistoryMixinFields0[1].Descriptor()
+	// chathistory.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	chathistory.DefaultUpdatedAt = chathistoryDescUpdatedAt.Default.(func() time.Time)
+	// chathistory.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	chathistory.UpdateDefaultUpdatedAt = chathistoryDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// chathistoryDescDeleted is the schema descriptor for deleted field.
+	chathistoryDescDeleted := chathistoryMixinFields1[0].Descriptor()
+	// chathistory.DefaultDeleted holds the default value on creation for the deleted field.
+	chathistory.DefaultDeleted = chathistoryDescDeleted.Default.(bool)
+	quotaMixin := schema.Quota{}.Mixin()
+	quotaMixinFields0 := quotaMixin[0].Fields()
+	_ = quotaMixinFields0
+	quotaMixinFields1 := quotaMixin[1].Fields()
+	_ = quotaMixinFields1
+	quotaFields := schema.Quota{}.Fields()
+	_ = quotaFields
+	// quotaDescCreatedAt is the schema descriptor for created_at field.
+	quotaDescCreatedAt := quotaMixinFields0[0].Descriptor()
+	// quota.DefaultCreatedAt holds the default value on creation for the created_at field.
+	quota.DefaultCreatedAt = quotaDescCreatedAt.Default.(func() time.Time)
+	// quotaDescUpdatedAt is the schema descriptor for updated_at field.
+	quotaDescUpdatedAt := quotaMixinFields0[1].Descriptor()
+	// quota.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	quota.DefaultUpdatedAt = quotaDescUpdatedAt.Default.(func() time.Time)
+	// quota.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	quota.UpdateDefaultUpdatedAt = quotaDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// quotaDescDeleted is the schema descriptor for deleted field.
+	quotaDescDeleted := quotaMixinFields1[0].Descriptor()
+	// quota.DefaultDeleted holds the default value on creation for the deleted field.
+	quota.DefaultDeleted = quotaDescDeleted.Default.(bool)
 	wechatsessionMixin := schema.WechatSession{}.Mixin()
 	wechatsessionMixinFields0 := wechatsessionMixin[0].Fields()
 	_ = wechatsessionMixinFields0
