@@ -168,6 +168,33 @@ func (chu *ChatHistoryUpdate) ClearResponse() *ChatHistoryUpdate {
 	return chu
 }
 
+// SetTokenUsage sets the "token_usage" field.
+func (chu *ChatHistoryUpdate) SetTokenUsage(i int) *ChatHistoryUpdate {
+	chu.mutation.ResetTokenUsage()
+	chu.mutation.SetTokenUsage(i)
+	return chu
+}
+
+// SetNillableTokenUsage sets the "token_usage" field if the given value is not nil.
+func (chu *ChatHistoryUpdate) SetNillableTokenUsage(i *int) *ChatHistoryUpdate {
+	if i != nil {
+		chu.SetTokenUsage(*i)
+	}
+	return chu
+}
+
+// AddTokenUsage adds i to the "token_usage" field.
+func (chu *ChatHistoryUpdate) AddTokenUsage(i int) *ChatHistoryUpdate {
+	chu.mutation.AddTokenUsage(i)
+	return chu
+}
+
+// ClearTokenUsage clears the value of the "token_usage" field.
+func (chu *ChatHistoryUpdate) ClearTokenUsage() *ChatHistoryUpdate {
+	chu.mutation.ClearTokenUsage()
+	return chu
+}
+
 // Mutation returns the ChatHistoryMutation object of the builder.
 func (chu *ChatHistoryUpdate) Mutation() *ChatHistoryMutation {
 	return chu.mutation
@@ -301,6 +328,15 @@ func (chu *ChatHistoryUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if chu.mutation.ResponseCleared() {
 		_spec.ClearField(chathistory.FieldResponse, field.TypeString)
+	}
+	if value, ok := chu.mutation.TokenUsage(); ok {
+		_spec.SetField(chathistory.FieldTokenUsage, field.TypeInt, value)
+	}
+	if value, ok := chu.mutation.AddedTokenUsage(); ok {
+		_spec.AddField(chathistory.FieldTokenUsage, field.TypeInt, value)
+	}
+	if chu.mutation.TokenUsageCleared() {
+		_spec.ClearField(chathistory.FieldTokenUsage, field.TypeInt)
 	}
 	if n, err = sqlgraph.UpdateNodes(ctx, chu.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
@@ -457,6 +493,33 @@ func (chuo *ChatHistoryUpdateOne) SetNillableResponse(s *string) *ChatHistoryUpd
 // ClearResponse clears the value of the "response" field.
 func (chuo *ChatHistoryUpdateOne) ClearResponse() *ChatHistoryUpdateOne {
 	chuo.mutation.ClearResponse()
+	return chuo
+}
+
+// SetTokenUsage sets the "token_usage" field.
+func (chuo *ChatHistoryUpdateOne) SetTokenUsage(i int) *ChatHistoryUpdateOne {
+	chuo.mutation.ResetTokenUsage()
+	chuo.mutation.SetTokenUsage(i)
+	return chuo
+}
+
+// SetNillableTokenUsage sets the "token_usage" field if the given value is not nil.
+func (chuo *ChatHistoryUpdateOne) SetNillableTokenUsage(i *int) *ChatHistoryUpdateOne {
+	if i != nil {
+		chuo.SetTokenUsage(*i)
+	}
+	return chuo
+}
+
+// AddTokenUsage adds i to the "token_usage" field.
+func (chuo *ChatHistoryUpdateOne) AddTokenUsage(i int) *ChatHistoryUpdateOne {
+	chuo.mutation.AddTokenUsage(i)
+	return chuo
+}
+
+// ClearTokenUsage clears the value of the "token_usage" field.
+func (chuo *ChatHistoryUpdateOne) ClearTokenUsage() *ChatHistoryUpdateOne {
+	chuo.mutation.ClearTokenUsage()
 	return chuo
 }
 
@@ -623,6 +686,15 @@ func (chuo *ChatHistoryUpdateOne) sqlSave(ctx context.Context) (_node *ChatHisto
 	}
 	if chuo.mutation.ResponseCleared() {
 		_spec.ClearField(chathistory.FieldResponse, field.TypeString)
+	}
+	if value, ok := chuo.mutation.TokenUsage(); ok {
+		_spec.SetField(chathistory.FieldTokenUsage, field.TypeInt, value)
+	}
+	if value, ok := chuo.mutation.AddedTokenUsage(); ok {
+		_spec.AddField(chathistory.FieldTokenUsage, field.TypeInt, value)
+	}
+	if chuo.mutation.TokenUsageCleared() {
+		_spec.ClearField(chathistory.FieldTokenUsage, field.TypeInt)
 	}
 	_node = &ChatHistory{config: chuo.config}
 	_spec.Assign = _node.assignValues

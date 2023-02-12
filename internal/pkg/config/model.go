@@ -73,8 +73,9 @@ type R2Config struct {
 }
 
 type ChatGPTConfig struct {
-	ApiKey string
-	Model  string
+	ApiKey        string
+	Model         string
+	DefaultPromot string
 }
 
 type TelegramConfig struct {

@@ -48,8 +48,9 @@ var (
 		{Name: "conversation_id", Type: field.TypeUUID},
 		{Name: "message_id", Type: field.TypeString, Nullable: true},
 		{Name: "message_idx", Type: field.TypeInt, Nullable: true},
-		{Name: "request", Type: field.TypeString, Nullable: true},
-		{Name: "response", Type: field.TypeString, Nullable: true},
+		{Name: "request", Type: field.TypeString, Nullable: true, Size: 2147483647},
+		{Name: "response", Type: field.TypeString, Nullable: true, Size: 2147483647},
+		{Name: "token_usage", Type: field.TypeInt, Nullable: true},
 	}
 	// ChatHistoriesTable holds the schema information for the "chat_histories" table.
 	ChatHistoriesTable = &schema.Table{

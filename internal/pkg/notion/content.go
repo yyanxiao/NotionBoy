@@ -98,6 +98,7 @@ func (c *Content) buildTagsProperties() notionapi.MultiSelectProperty {
 
 func (c *Content) BuildBlocks() []notionapi.Block {
 	blocks := make([]notionapi.Block, 0)
+	hasUserBlock := false
 	if c.Account != nil &&
 		c.Account.NotionUserID != "" &&
 		c.Account.DatabaseID != config.GetConfig().NotionTestPage.DatabaseID {
@@ -119,6 +120,7 @@ func (c *Content) BuildBlocks() []notionapi.Block {
 				},
 			},
 		})
+		hasUserBlock = true
 	}
 
 	if c.IsMedia {
@@ -138,6 +140,12 @@ func (c *Content) BuildBlocks() []notionapi.Block {
 	if c.FullText != nil {
 		blocks = append(blocks, c.FullText.BuildBlocks()...)
 	}
+
+	if hasUserBlock && len(blocks) == 1 {
+		// if only has user block, return empty blocks
+		blocks = []notionapi.Block{}
+	}
+
 	return blocks
 }
 

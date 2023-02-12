@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"notionboy/db/ent"
+	"notionboy/internal/pkg/config"
 	"notionboy/internal/pkg/db/dao"
 	"notionboy/internal/pkg/logger"
 	"notionboy/internal/pkg/utils/cache"
@@ -35,6 +36,7 @@ type ConversationWithHistory struct {
 	Prompt          string          `json:"prompt"`
 	Response        string          `json:"response"`
 	History         string          `json:"history"`
+	TokenUsage      int             `json:"token_usage"`
 }
 
 var chcheClient = cache.DefaultClient()
@@ -59,7 +61,11 @@ func NewConversationWithHistory(ctx context.Context, acc *ent.Account) *Conversa
 
 func (c *ConversationWithHistory) BuildPromptWithHistory() string {
 	sb := strings.Builder{}
-	sb.Write([]byte(DEFAULT_PROMPT))
+	defaultPrompt := DEFAULT_PROMPT
+	if config.GetConfig().ChatGPT.DefaultPromot != "" {
+		defaultPrompt = config.GetConfig().ChatGPT.DefaultPromot
+	}
+	sb.Write([]byte(defaultPrompt))
 	sb.Write([]byte(fmt.Sprintf("Current date: %s\n\n", time.Now().Format(time.RFC3339))))
 	sb.Write([]byte(fmt.Sprintf("Chat history: %s\n\n", c.History)))
 	sb.Write([]byte(fmt.Sprintf("User: %s\n", c.Prompt)))

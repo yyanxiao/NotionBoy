@@ -151,6 +151,13 @@ func Response(v string) predicate.ChatHistory {
 	})
 }
 
+// TokenUsage applies equality check predicate on the "token_usage" field. It's identical to TokenUsageEQ.
+func TokenUsage(v int) predicate.ChatHistory {
+	return predicate.ChatHistory(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldTokenUsage), v))
+	})
+}
+
 // CreatedAtEQ applies the EQ predicate on the "created_at" field.
 func CreatedAtEQ(v time.Time) predicate.ChatHistory {
 	return predicate.ChatHistory(func(s *sql.Selector) {
@@ -899,6 +906,84 @@ func ResponseEqualFold(v string) predicate.ChatHistory {
 func ResponseContainsFold(v string) predicate.ChatHistory {
 	return predicate.ChatHistory(func(s *sql.Selector) {
 		s.Where(sql.ContainsFold(s.C(FieldResponse), v))
+	})
+}
+
+// TokenUsageEQ applies the EQ predicate on the "token_usage" field.
+func TokenUsageEQ(v int) predicate.ChatHistory {
+	return predicate.ChatHistory(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldTokenUsage), v))
+	})
+}
+
+// TokenUsageNEQ applies the NEQ predicate on the "token_usage" field.
+func TokenUsageNEQ(v int) predicate.ChatHistory {
+	return predicate.ChatHistory(func(s *sql.Selector) {
+		s.Where(sql.NEQ(s.C(FieldTokenUsage), v))
+	})
+}
+
+// TokenUsageIn applies the In predicate on the "token_usage" field.
+func TokenUsageIn(vs ...int) predicate.ChatHistory {
+	v := make([]any, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.ChatHistory(func(s *sql.Selector) {
+		s.Where(sql.In(s.C(FieldTokenUsage), v...))
+	})
+}
+
+// TokenUsageNotIn applies the NotIn predicate on the "token_usage" field.
+func TokenUsageNotIn(vs ...int) predicate.ChatHistory {
+	v := make([]any, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.ChatHistory(func(s *sql.Selector) {
+		s.Where(sql.NotIn(s.C(FieldTokenUsage), v...))
+	})
+}
+
+// TokenUsageGT applies the GT predicate on the "token_usage" field.
+func TokenUsageGT(v int) predicate.ChatHistory {
+	return predicate.ChatHistory(func(s *sql.Selector) {
+		s.Where(sql.GT(s.C(FieldTokenUsage), v))
+	})
+}
+
+// TokenUsageGTE applies the GTE predicate on the "token_usage" field.
+func TokenUsageGTE(v int) predicate.ChatHistory {
+	return predicate.ChatHistory(func(s *sql.Selector) {
+		s.Where(sql.GTE(s.C(FieldTokenUsage), v))
+	})
+}
+
+// TokenUsageLT applies the LT predicate on the "token_usage" field.
+func TokenUsageLT(v int) predicate.ChatHistory {
+	return predicate.ChatHistory(func(s *sql.Selector) {
+		s.Where(sql.LT(s.C(FieldTokenUsage), v))
+	})
+}
+
+// TokenUsageLTE applies the LTE predicate on the "token_usage" field.
+func TokenUsageLTE(v int) predicate.ChatHistory {
+	return predicate.ChatHistory(func(s *sql.Selector) {
+		s.Where(sql.LTE(s.C(FieldTokenUsage), v))
+	})
+}
+
+// TokenUsageIsNil applies the IsNil predicate on the "token_usage" field.
+func TokenUsageIsNil() predicate.ChatHistory {
+	return predicate.ChatHistory(func(s *sql.Selector) {
+		s.Where(sql.IsNull(s.C(FieldTokenUsage)))
+	})
+}
+
+// TokenUsageNotNil applies the NotNil predicate on the "token_usage" field.
+func TokenUsageNotNil() predicate.ChatHistory {
+	return predicate.ChatHistory(func(s *sql.Selector) {
+		s.Where(sql.NotNull(s.C(FieldTokenUsage)))
 	})
 }
 

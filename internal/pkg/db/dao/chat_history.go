@@ -40,7 +40,8 @@ func SaveChatHistory(ctx context.Context, h *ent.ChatHistory) error {
 		SetMessageID(h.MessageID).
 		SetConversationID(h.ConversationID).
 		SetRequest(h.Request).
-		SetResponse(h.Response)
+		SetResponse(h.Response).
+		SetTokenUsage(h.TokenUsage)
 
 	if h.ConversationIdx == 0 {
 		maxIdx, err := QueryMaxConversationIdx(ctx, h.UserID)

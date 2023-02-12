@@ -22,8 +22,9 @@ func (ChatHistory) Fields() []ent.Field {
 		field.UUID("conversation_id", uuid.UUID{}).Comment("Conversation ID for the whole conversation"),
 		field.String("message_id").Optional().Comment("Message ID inside the conversation"),
 		field.Int("message_idx").Optional().Comment("Index of the message inside the conversation"),
-		field.String("request").Optional().Comment("Request of the conversation"),
-		field.String("response").Optional().Comment("Response of the conversation"),
+		field.Text("request").Optional().Comment("Request of the conversation"),
+		field.Text("response").Optional().Comment("Response of the conversation"),
+		field.Int("token_usage").Optional().Comment("Token usage of the conversation"),
 	}
 }
 

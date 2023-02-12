@@ -139,6 +139,20 @@ func (chc *ChatHistoryCreate) SetNillableResponse(s *string) *ChatHistoryCreate 
 	return chc
 }
 
+// SetTokenUsage sets the "token_usage" field.
+func (chc *ChatHistoryCreate) SetTokenUsage(i int) *ChatHistoryCreate {
+	chc.mutation.SetTokenUsage(i)
+	return chc
+}
+
+// SetNillableTokenUsage sets the "token_usage" field if the given value is not nil.
+func (chc *ChatHistoryCreate) SetNillableTokenUsage(i *int) *ChatHistoryCreate {
+	if i != nil {
+		chc.SetTokenUsage(*i)
+	}
+	return chc
+}
+
 // Mutation returns the ChatHistoryMutation object of the builder.
 func (chc *ChatHistoryCreate) Mutation() *ChatHistoryMutation {
 	return chc.mutation
@@ -317,6 +331,10 @@ func (chc *ChatHistoryCreate) createSpec() (*ChatHistory, *sqlgraph.CreateSpec) 
 	if value, ok := chc.mutation.Response(); ok {
 		_spec.SetField(chathistory.FieldResponse, field.TypeString, value)
 		_node.Response = value
+	}
+	if value, ok := chc.mutation.TokenUsage(); ok {
+		_spec.SetField(chathistory.FieldTokenUsage, field.TypeInt, value)
+		_node.TokenUsage = value
 	}
 	return _node, _spec
 }
@@ -517,6 +535,30 @@ func (u *ChatHistoryUpsert) UpdateResponse() *ChatHistoryUpsert {
 // ClearResponse clears the value of the "response" field.
 func (u *ChatHistoryUpsert) ClearResponse() *ChatHistoryUpsert {
 	u.SetNull(chathistory.FieldResponse)
+	return u
+}
+
+// SetTokenUsage sets the "token_usage" field.
+func (u *ChatHistoryUpsert) SetTokenUsage(v int) *ChatHistoryUpsert {
+	u.Set(chathistory.FieldTokenUsage, v)
+	return u
+}
+
+// UpdateTokenUsage sets the "token_usage" field to the value that was provided on create.
+func (u *ChatHistoryUpsert) UpdateTokenUsage() *ChatHistoryUpsert {
+	u.SetExcluded(chathistory.FieldTokenUsage)
+	return u
+}
+
+// AddTokenUsage adds v to the "token_usage" field.
+func (u *ChatHistoryUpsert) AddTokenUsage(v int) *ChatHistoryUpsert {
+	u.Add(chathistory.FieldTokenUsage, v)
+	return u
+}
+
+// ClearTokenUsage clears the value of the "token_usage" field.
+func (u *ChatHistoryUpsert) ClearTokenUsage() *ChatHistoryUpsert {
+	u.SetNull(chathistory.FieldTokenUsage)
 	return u
 }
 
@@ -737,6 +779,34 @@ func (u *ChatHistoryUpsertOne) UpdateResponse() *ChatHistoryUpsertOne {
 func (u *ChatHistoryUpsertOne) ClearResponse() *ChatHistoryUpsertOne {
 	return u.Update(func(s *ChatHistoryUpsert) {
 		s.ClearResponse()
+	})
+}
+
+// SetTokenUsage sets the "token_usage" field.
+func (u *ChatHistoryUpsertOne) SetTokenUsage(v int) *ChatHistoryUpsertOne {
+	return u.Update(func(s *ChatHistoryUpsert) {
+		s.SetTokenUsage(v)
+	})
+}
+
+// AddTokenUsage adds v to the "token_usage" field.
+func (u *ChatHistoryUpsertOne) AddTokenUsage(v int) *ChatHistoryUpsertOne {
+	return u.Update(func(s *ChatHistoryUpsert) {
+		s.AddTokenUsage(v)
+	})
+}
+
+// UpdateTokenUsage sets the "token_usage" field to the value that was provided on create.
+func (u *ChatHistoryUpsertOne) UpdateTokenUsage() *ChatHistoryUpsertOne {
+	return u.Update(func(s *ChatHistoryUpsert) {
+		s.UpdateTokenUsage()
+	})
+}
+
+// ClearTokenUsage clears the value of the "token_usage" field.
+func (u *ChatHistoryUpsertOne) ClearTokenUsage() *ChatHistoryUpsertOne {
+	return u.Update(func(s *ChatHistoryUpsert) {
+		s.ClearTokenUsage()
 	})
 }
 
@@ -1119,6 +1189,34 @@ func (u *ChatHistoryUpsertBulk) UpdateResponse() *ChatHistoryUpsertBulk {
 func (u *ChatHistoryUpsertBulk) ClearResponse() *ChatHistoryUpsertBulk {
 	return u.Update(func(s *ChatHistoryUpsert) {
 		s.ClearResponse()
+	})
+}
+
+// SetTokenUsage sets the "token_usage" field.
+func (u *ChatHistoryUpsertBulk) SetTokenUsage(v int) *ChatHistoryUpsertBulk {
+	return u.Update(func(s *ChatHistoryUpsert) {
+		s.SetTokenUsage(v)
+	})
+}
+
+// AddTokenUsage adds v to the "token_usage" field.
+func (u *ChatHistoryUpsertBulk) AddTokenUsage(v int) *ChatHistoryUpsertBulk {
+	return u.Update(func(s *ChatHistoryUpsert) {
+		s.AddTokenUsage(v)
+	})
+}
+
+// UpdateTokenUsage sets the "token_usage" field to the value that was provided on create.
+func (u *ChatHistoryUpsertBulk) UpdateTokenUsage() *ChatHistoryUpsertBulk {
+	return u.Update(func(s *ChatHistoryUpsert) {
+		s.UpdateTokenUsage()
+	})
+}
+
+// ClearTokenUsage clears the value of the "token_usage" field.
+func (u *ChatHistoryUpsertBulk) ClearTokenUsage() *ChatHistoryUpsertBulk {
+	return u.Update(func(s *ChatHistoryUpsert) {
+		s.ClearTokenUsage()
 	})
 }
 

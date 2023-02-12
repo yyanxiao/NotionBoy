@@ -31,6 +31,8 @@ const (
 	FieldRequest = "request"
 	// FieldResponse holds the string denoting the response field in the database.
 	FieldResponse = "response"
+	// FieldTokenUsage holds the string denoting the token_usage field in the database.
+	FieldTokenUsage = "token_usage"
 	// Table holds the table name of the chathistory in the database.
 	Table = "chat_histories"
 )
@@ -48,6 +50,7 @@ var Columns = []string{
 	FieldMessageIdx,
 	FieldRequest,
 	FieldResponse,
+	FieldTokenUsage,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).

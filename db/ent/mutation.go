@@ -1002,6 +1002,8 @@ type ChatHistoryMutation struct {
 	addmessage_idx      *int
 	request             *string
 	response            *string
+	token_usage         *int
+	addtoken_usage      *int
 	clearedFields       map[string]struct{}
 	done                bool
 	oldValue            func(context.Context) (*ChatHistory, error)
@@ -1579,6 +1581,76 @@ func (m *ChatHistoryMutation) ResetResponse() {
 	delete(m.clearedFields, chathistory.FieldResponse)
 }
 
+// SetTokenUsage sets the "token_usage" field.
+func (m *ChatHistoryMutation) SetTokenUsage(i int) {
+	m.token_usage = &i
+	m.addtoken_usage = nil
+}
+
+// TokenUsage returns the value of the "token_usage" field in the mutation.
+func (m *ChatHistoryMutation) TokenUsage() (r int, exists bool) {
+	v := m.token_usage
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldTokenUsage returns the old "token_usage" field's value of the ChatHistory entity.
+// If the ChatHistory object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ChatHistoryMutation) OldTokenUsage(ctx context.Context) (v int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldTokenUsage is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldTokenUsage requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldTokenUsage: %w", err)
+	}
+	return oldValue.TokenUsage, nil
+}
+
+// AddTokenUsage adds i to the "token_usage" field.
+func (m *ChatHistoryMutation) AddTokenUsage(i int) {
+	if m.addtoken_usage != nil {
+		*m.addtoken_usage += i
+	} else {
+		m.addtoken_usage = &i
+	}
+}
+
+// AddedTokenUsage returns the value that was added to the "token_usage" field in this mutation.
+func (m *ChatHistoryMutation) AddedTokenUsage() (r int, exists bool) {
+	v := m.addtoken_usage
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ClearTokenUsage clears the value of the "token_usage" field.
+func (m *ChatHistoryMutation) ClearTokenUsage() {
+	m.token_usage = nil
+	m.addtoken_usage = nil
+	m.clearedFields[chathistory.FieldTokenUsage] = struct{}{}
+}
+
+// TokenUsageCleared returns if the "token_usage" field was cleared in this mutation.
+func (m *ChatHistoryMutation) TokenUsageCleared() bool {
+	_, ok := m.clearedFields[chathistory.FieldTokenUsage]
+	return ok
+}
+
+// ResetTokenUsage resets all changes to the "token_usage" field.
+func (m *ChatHistoryMutation) ResetTokenUsage() {
+	m.token_usage = nil
+	m.addtoken_usage = nil
+	delete(m.clearedFields, chathistory.FieldTokenUsage)
+}
+
 // Where appends a list predicates to the ChatHistoryMutation builder.
 func (m *ChatHistoryMutation) Where(ps ...predicate.ChatHistory) {
 	m.predicates = append(m.predicates, ps...)
@@ -1598,7 +1670,7 @@ func (m *ChatHistoryMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *ChatHistoryMutation) Fields() []string {
-	fields := make([]string, 0, 10)
+	fields := make([]string, 0, 11)
 	if m.created_at != nil {
 		fields = append(fields, chathistory.FieldCreatedAt)
 	}
@@ -1629,6 +1701,9 @@ func (m *ChatHistoryMutation) Fields() []string {
 	if m.response != nil {
 		fields = append(fields, chathistory.FieldResponse)
 	}
+	if m.token_usage != nil {
+		fields = append(fields, chathistory.FieldTokenUsage)
+	}
 	return fields
 }
 
@@ -1657,6 +1732,8 @@ func (m *ChatHistoryMutation) Field(name string) (ent.Value, bool) {
 		return m.Request()
 	case chathistory.FieldResponse:
 		return m.Response()
+	case chathistory.FieldTokenUsage:
+		return m.TokenUsage()
 	}
 	return nil, false
 }
@@ -1686,6 +1763,8 @@ func (m *ChatHistoryMutation) OldField(ctx context.Context, name string) (ent.Va
 		return m.OldRequest(ctx)
 	case chathistory.FieldResponse:
 		return m.OldResponse(ctx)
+	case chathistory.FieldTokenUsage:
+		return m.OldTokenUsage(ctx)
 	}
 	return nil, fmt.Errorf("unknown ChatHistory field %s", name)
 }
@@ -1765,6 +1844,13 @@ func (m *ChatHistoryMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetResponse(v)
 		return nil
+	case chathistory.FieldTokenUsage:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetTokenUsage(v)
+		return nil
 	}
 	return fmt.Errorf("unknown ChatHistory field %s", name)
 }
@@ -1782,6 +1868,9 @@ func (m *ChatHistoryMutation) AddedFields() []string {
 	if m.addmessage_idx != nil {
 		fields = append(fields, chathistory.FieldMessageIdx)
 	}
+	if m.addtoken_usage != nil {
+		fields = append(fields, chathistory.FieldTokenUsage)
+	}
 	return fields
 }
 
@@ -1796,6 +1885,8 @@ func (m *ChatHistoryMutation) AddedField(name string) (ent.Value, bool) {
 		return m.AddedConversationIdx()
 	case chathistory.FieldMessageIdx:
 		return m.AddedMessageIdx()
+	case chathistory.FieldTokenUsage:
+		return m.AddedTokenUsage()
 	}
 	return nil, false
 }
@@ -1826,6 +1917,13 @@ func (m *ChatHistoryMutation) AddField(name string, value ent.Value) error {
 		}
 		m.AddMessageIdx(v)
 		return nil
+	case chathistory.FieldTokenUsage:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddTokenUsage(v)
+		return nil
 	}
 	return fmt.Errorf("unknown ChatHistory numeric field %s", name)
 }
@@ -1845,6 +1943,9 @@ func (m *ChatHistoryMutation) ClearedFields() []string {
 	}
 	if m.FieldCleared(chathistory.FieldResponse) {
 		fields = append(fields, chathistory.FieldResponse)
+	}
+	if m.FieldCleared(chathistory.FieldTokenUsage) {
+		fields = append(fields, chathistory.FieldTokenUsage)
 	}
 	return fields
 }
@@ -1871,6 +1972,9 @@ func (m *ChatHistoryMutation) ClearField(name string) error {
 		return nil
 	case chathistory.FieldResponse:
 		m.ClearResponse()
+		return nil
+	case chathistory.FieldTokenUsage:
+		m.ClearTokenUsage()
 		return nil
 	}
 	return fmt.Errorf("unknown ChatHistory nullable field %s", name)
@@ -1909,6 +2013,9 @@ func (m *ChatHistoryMutation) ResetField(name string) error {
 		return nil
 	case chathistory.FieldResponse:
 		m.ResetResponse()
+		return nil
+	case chathistory.FieldTokenUsage:
+		m.ResetTokenUsage()
 		return nil
 	}
 	return fmt.Errorf("unknown ChatHistory field %s", name)

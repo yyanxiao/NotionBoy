@@ -3,6 +3,7 @@ package chatgpt
 import (
 	"context"
 	"errors"
+	"fmt"
 	"notionboy/db/ent"
 	"notionboy/db/ent/quota"
 	"notionboy/internal/pkg/config"
@@ -28,7 +29,7 @@ func newApiClient(apiKey string) Chatter {
 }
 
 func (cli *apiClient) ChatWithHistory(ctx context.Context, acc *ent.Account, prompt string) (string, error) {
-	isRateLimit, err := checkRateLimit(ctx, acc)
+	qt, isRateLimit, err := checkRateLimit(ctx, acc)
 	if err != nil {
 		return "", err
 	}
@@ -49,37 +50,41 @@ func (cli *apiClient) ChatWithHistory(ctx context.Context, acc *ent.Account, pro
 	h.Response = ProcessResponse(resp)
 	h.MessageIdx++
 	h.MessageID = resp.ID
-	logger.SugaredLogger.Debugw("Response", "conversation_id", h.MessageID, "error", nil, "message", h.Response, "usage", resp.Usage)
+	h.TokenUsage = resp.Usage.TotalTokens
+
+	respWithQuota := fmt.Sprintf("%s\n\nDaily quota usage: %d/%d; Token usage: %d", h.Response, qt.DailyUsed, qt.Daily, h.TokenUsage)
+
+	logger.SugaredLogger.Debugw("Response", "conversation_id", h.MessageID, "error", nil, "message", respWithQuota, "usage", resp.Usage)
 	if err == nil {
 		// save history to cache and db
 		setChatHistory(h)
 		err = h.SaveHistory()
 		if err != nil {
 			logger.SugaredLogger.Errorf("Save history error: %v", err)
-			return h.Response, err
+			return respWithQuota, err
 		}
 		err = dao.IncrDailyQuota(ctx, acc.ID, quota.CategoryChatgpt)
 		if err != nil {
 			logger.SugaredLogger.Errorf("Save history error: %v", err)
-			return h.Response, err
+			return respWithQuota, err
 		}
 	}
-	return h.Response, err
+	return respWithQuota, err
 }
 
-func checkRateLimit(ctx context.Context, acc *ent.Account) (bool, error) {
+func checkRateLimit(ctx context.Context, acc *ent.Account) (*ent.Quota, bool, error) {
 	qt, err := dao.QueryQuota(ctx, acc.ID, quota.CategoryChatgpt)
 	if err != nil {
 		logger.SugaredLogger.Errorf("Query Quota Error: %v", err)
-		return false, err
+		return nil, false, err
 	}
 	if qt.DailyUsed >= qt.Daily {
 		logger.SugaredLogger.Debugw("Hit rate limit", "account", acc.ID, "daily_used", qt.DailyUsed, "daily", qt.Daily)
-		return true, nil
+		return qt, true, nil
 	}
 	logger.SugaredLogger.Debugw("Not hit rate limit", "account", acc.ID, "daily_used", qt.DailyUsed, "daily", qt.Daily, "category", qt.Category)
 
-	return false, nil
+	return qt, false, nil
 }
 
 func (cli *apiClient) Chat(ctx context.Context, prompt string) (*gogpt.CompletionResponse, error) {

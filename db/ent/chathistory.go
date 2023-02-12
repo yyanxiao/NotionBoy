@@ -37,6 +37,8 @@ type ChatHistory struct {
 	Request string `json:"request,omitempty"`
 	// Response of the conversation
 	Response string `json:"response,omitempty"`
+	// Token usage of the conversation
+	TokenUsage int `json:"token_usage,omitempty"`
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -46,7 +48,7 @@ func (*ChatHistory) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case chathistory.FieldDeleted:
 			values[i] = new(sql.NullBool)
-		case chathistory.FieldID, chathistory.FieldUserID, chathistory.FieldConversationIdx, chathistory.FieldMessageIdx:
+		case chathistory.FieldID, chathistory.FieldUserID, chathistory.FieldConversationIdx, chathistory.FieldMessageIdx, chathistory.FieldTokenUsage:
 			values[i] = new(sql.NullInt64)
 		case chathistory.FieldMessageID, chathistory.FieldRequest, chathistory.FieldResponse:
 			values[i] = new(sql.NullString)
@@ -135,6 +137,12 @@ func (ch *ChatHistory) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				ch.Response = value.String
 			}
+		case chathistory.FieldTokenUsage:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field token_usage", values[i])
+			} else if value.Valid {
+				ch.TokenUsage = int(value.Int64)
+			}
 		}
 	}
 	return nil
@@ -192,6 +200,9 @@ func (ch *ChatHistory) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("response=")
 	builder.WriteString(ch.Response)
+	builder.WriteString(", ")
+	builder.WriteString("token_usage=")
+	builder.WriteString(fmt.Sprintf("%v", ch.TokenUsage))
 	builder.WriteByte(')')
 	return builder.String()
 }
