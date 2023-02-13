@@ -37,14 +37,15 @@ func QueryQuota(ctx context.Context, userID int, category quota.Category) (*ent.
 // initQuota init quota with default value
 func initQuota(ctx context.Context, userID int) error {
 	quotas := make([]*ent.QuotaCreate, 0)
-	newQuota := func(category quota.Category, daily int) *ent.QuotaCreate {
-		q := db.GetClient().Quota.Create()
-		q.SetUserID(userID)
-		q.SetCategory(category)
-		q.SetDaily(daily)
+	newQuota := func(category quota.Category, daily, monthly int) *ent.QuotaCreate {
+		q := db.GetClient().Quota.Create().
+			SetUserID(userID).
+			SetCategory(category).
+			SetDaily(daily).
+			SetMonthly(monthly)
 		return q
 	}
-	quotas = append(quotas, newQuota(quota.CategoryChatgpt, 10))
+	quotas = append(quotas, newQuota(quota.CategoryChatgpt, 10, 10*30))
 
 	err := db.GetClient().Quota.
 		CreateBulk(quotas...).
@@ -90,6 +91,22 @@ func ResetDailyQuota(ctx context.Context, userID int, category quota.Category) e
 		Update().
 		SetDailyUsed(0).
 		Where(quota.UserIDEQ(userID), quota.CategoryEQ(category)).
+		Exec(ctx)
+}
+
+// ResetDailyQuotaForAll reset daily quota for all users
+func ResetDailyQuotaForAll(ctx context.Context) error {
+	return db.GetClient().Quota.
+		Update().
+		SetDailyUsed(0).
+		Exec(ctx)
+}
+
+// ResetMonthlyQuotaForAll reset monthly quota for all users
+func ResetMonthlyQuotaForAll(ctx context.Context) error {
+	return db.GetClient().Quota.
+		Update().
+		SetMonthlyUsed(0).
 		Exec(ctx)
 }
 

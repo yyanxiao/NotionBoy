@@ -78,7 +78,7 @@ func checkRateLimit(ctx context.Context, acc *ent.Account) (*ent.Quota, bool, er
 		logger.SugaredLogger.Errorf("Query Quota Error: %v", err)
 		return nil, false, err
 	}
-	if qt.DailyUsed >= qt.Daily {
+	if qt.DailyUsed >= qt.Daily || qt.MonthlyUsed >= qt.Monthly {
 		logger.SugaredLogger.Debugw("Hit rate limit", "account", acc.ID, "daily_used", qt.DailyUsed, "daily", qt.Daily)
 		return qt, true, nil
 	}
