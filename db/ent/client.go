@@ -12,11 +12,14 @@ import (
 
 	"notionboy/db/ent/account"
 	"notionboy/db/ent/chathistory"
+	"notionboy/db/ent/conversation"
+	"notionboy/db/ent/conversationmessage"
 	"notionboy/db/ent/quota"
 	"notionboy/db/ent/wechatsession"
 
 	"entgo.io/ent/dialect"
 	"entgo.io/ent/dialect/sql"
+	"entgo.io/ent/dialect/sql/sqlgraph"
 )
 
 // Client is the client that holds all ent builders.
@@ -28,6 +31,10 @@ type Client struct {
 	Account *AccountClient
 	// ChatHistory is the client for interacting with the ChatHistory builders.
 	ChatHistory *ChatHistoryClient
+	// Conversation is the client for interacting with the Conversation builders.
+	Conversation *ConversationClient
+	// ConversationMessage is the client for interacting with the ConversationMessage builders.
+	ConversationMessage *ConversationMessageClient
 	// Quota is the client for interacting with the Quota builders.
 	Quota *QuotaClient
 	// WechatSession is the client for interacting with the WechatSession builders.
@@ -47,6 +54,8 @@ func (c *Client) init() {
 	c.Schema = migrate.NewSchema(c.driver)
 	c.Account = NewAccountClient(c.config)
 	c.ChatHistory = NewChatHistoryClient(c.config)
+	c.Conversation = NewConversationClient(c.config)
+	c.ConversationMessage = NewConversationMessageClient(c.config)
 	c.Quota = NewQuotaClient(c.config)
 	c.WechatSession = NewWechatSessionClient(c.config)
 }
@@ -80,12 +89,14 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 	cfg := c.config
 	cfg.driver = tx
 	return &Tx{
-		ctx:           ctx,
-		config:        cfg,
-		Account:       NewAccountClient(cfg),
-		ChatHistory:   NewChatHistoryClient(cfg),
-		Quota:         NewQuotaClient(cfg),
-		WechatSession: NewWechatSessionClient(cfg),
+		ctx:                 ctx,
+		config:              cfg,
+		Account:             NewAccountClient(cfg),
+		ChatHistory:         NewChatHistoryClient(cfg),
+		Conversation:        NewConversationClient(cfg),
+		ConversationMessage: NewConversationMessageClient(cfg),
+		Quota:               NewQuotaClient(cfg),
+		WechatSession:       NewWechatSessionClient(cfg),
 	}, nil
 }
 
@@ -103,12 +114,14 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 	cfg := c.config
 	cfg.driver = &txDriver{tx: tx, drv: c.driver}
 	return &Tx{
-		ctx:           ctx,
-		config:        cfg,
-		Account:       NewAccountClient(cfg),
-		ChatHistory:   NewChatHistoryClient(cfg),
-		Quota:         NewQuotaClient(cfg),
-		WechatSession: NewWechatSessionClient(cfg),
+		ctx:                 ctx,
+		config:              cfg,
+		Account:             NewAccountClient(cfg),
+		ChatHistory:         NewChatHistoryClient(cfg),
+		Conversation:        NewConversationClient(cfg),
+		ConversationMessage: NewConversationMessageClient(cfg),
+		Quota:               NewQuotaClient(cfg),
+		WechatSession:       NewWechatSessionClient(cfg),
 	}, nil
 }
 
@@ -139,6 +152,8 @@ func (c *Client) Close() error {
 func (c *Client) Use(hooks ...Hook) {
 	c.Account.Use(hooks...)
 	c.ChatHistory.Use(hooks...)
+	c.Conversation.Use(hooks...)
+	c.ConversationMessage.Use(hooks...)
 	c.Quota.Use(hooks...)
 	c.WechatSession.Use(hooks...)
 }
@@ -321,6 +336,218 @@ func (c *ChatHistoryClient) GetX(ctx context.Context, id int) *ChatHistory {
 // Hooks returns the client hooks.
 func (c *ChatHistoryClient) Hooks() []Hook {
 	return c.hooks.ChatHistory
+}
+
+// ConversationClient is a client for the Conversation schema.
+type ConversationClient struct {
+	config
+}
+
+// NewConversationClient returns a client for the Conversation from the given config.
+func NewConversationClient(c config) *ConversationClient {
+	return &ConversationClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `conversation.Hooks(f(g(h())))`.
+func (c *ConversationClient) Use(hooks ...Hook) {
+	c.hooks.Conversation = append(c.hooks.Conversation, hooks...)
+}
+
+// Create returns a builder for creating a Conversation entity.
+func (c *ConversationClient) Create() *ConversationCreate {
+	mutation := newConversationMutation(c.config, OpCreate)
+	return &ConversationCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of Conversation entities.
+func (c *ConversationClient) CreateBulk(builders ...*ConversationCreate) *ConversationCreateBulk {
+	return &ConversationCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for Conversation.
+func (c *ConversationClient) Update() *ConversationUpdate {
+	mutation := newConversationMutation(c.config, OpUpdate)
+	return &ConversationUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *ConversationClient) UpdateOne(co *Conversation) *ConversationUpdateOne {
+	mutation := newConversationMutation(c.config, OpUpdateOne, withConversation(co))
+	return &ConversationUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *ConversationClient) UpdateOneID(id int) *ConversationUpdateOne {
+	mutation := newConversationMutation(c.config, OpUpdateOne, withConversationID(id))
+	return &ConversationUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for Conversation.
+func (c *ConversationClient) Delete() *ConversationDelete {
+	mutation := newConversationMutation(c.config, OpDelete)
+	return &ConversationDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *ConversationClient) DeleteOne(co *Conversation) *ConversationDeleteOne {
+	return c.DeleteOneID(co.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *ConversationClient) DeleteOneID(id int) *ConversationDeleteOne {
+	builder := c.Delete().Where(conversation.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &ConversationDeleteOne{builder}
+}
+
+// Query returns a query builder for Conversation.
+func (c *ConversationClient) Query() *ConversationQuery {
+	return &ConversationQuery{
+		config: c.config,
+	}
+}
+
+// Get returns a Conversation entity by its id.
+func (c *ConversationClient) Get(ctx context.Context, id int) (*Conversation, error) {
+	return c.Query().Where(conversation.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *ConversationClient) GetX(ctx context.Context, id int) *Conversation {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryConversationMessages queries the conversation_messages edge of a Conversation.
+func (c *ConversationClient) QueryConversationMessages(co *Conversation) *ConversationMessageQuery {
+	query := &ConversationMessageQuery{config: c.config}
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := co.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(conversation.Table, conversation.FieldID, id),
+			sqlgraph.To(conversationmessage.Table, conversationmessage.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, conversation.ConversationMessagesTable, conversation.ConversationMessagesColumn),
+		)
+		fromV = sqlgraph.Neighbors(co.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *ConversationClient) Hooks() []Hook {
+	return c.hooks.Conversation
+}
+
+// ConversationMessageClient is a client for the ConversationMessage schema.
+type ConversationMessageClient struct {
+	config
+}
+
+// NewConversationMessageClient returns a client for the ConversationMessage from the given config.
+func NewConversationMessageClient(c config) *ConversationMessageClient {
+	return &ConversationMessageClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `conversationmessage.Hooks(f(g(h())))`.
+func (c *ConversationMessageClient) Use(hooks ...Hook) {
+	c.hooks.ConversationMessage = append(c.hooks.ConversationMessage, hooks...)
+}
+
+// Create returns a builder for creating a ConversationMessage entity.
+func (c *ConversationMessageClient) Create() *ConversationMessageCreate {
+	mutation := newConversationMessageMutation(c.config, OpCreate)
+	return &ConversationMessageCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of ConversationMessage entities.
+func (c *ConversationMessageClient) CreateBulk(builders ...*ConversationMessageCreate) *ConversationMessageCreateBulk {
+	return &ConversationMessageCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for ConversationMessage.
+func (c *ConversationMessageClient) Update() *ConversationMessageUpdate {
+	mutation := newConversationMessageMutation(c.config, OpUpdate)
+	return &ConversationMessageUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *ConversationMessageClient) UpdateOne(cm *ConversationMessage) *ConversationMessageUpdateOne {
+	mutation := newConversationMessageMutation(c.config, OpUpdateOne, withConversationMessage(cm))
+	return &ConversationMessageUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *ConversationMessageClient) UpdateOneID(id int) *ConversationMessageUpdateOne {
+	mutation := newConversationMessageMutation(c.config, OpUpdateOne, withConversationMessageID(id))
+	return &ConversationMessageUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for ConversationMessage.
+func (c *ConversationMessageClient) Delete() *ConversationMessageDelete {
+	mutation := newConversationMessageMutation(c.config, OpDelete)
+	return &ConversationMessageDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *ConversationMessageClient) DeleteOne(cm *ConversationMessage) *ConversationMessageDeleteOne {
+	return c.DeleteOneID(cm.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *ConversationMessageClient) DeleteOneID(id int) *ConversationMessageDeleteOne {
+	builder := c.Delete().Where(conversationmessage.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &ConversationMessageDeleteOne{builder}
+}
+
+// Query returns a query builder for ConversationMessage.
+func (c *ConversationMessageClient) Query() *ConversationMessageQuery {
+	return &ConversationMessageQuery{
+		config: c.config,
+	}
+}
+
+// Get returns a ConversationMessage entity by its id.
+func (c *ConversationMessageClient) Get(ctx context.Context, id int) (*ConversationMessage, error) {
+	return c.Query().Where(conversationmessage.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *ConversationMessageClient) GetX(ctx context.Context, id int) *ConversationMessage {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryConversations queries the conversations edge of a ConversationMessage.
+func (c *ConversationMessageClient) QueryConversations(cm *ConversationMessage) *ConversationQuery {
+	query := &ConversationQuery{config: c.config}
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := cm.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(conversationmessage.Table, conversationmessage.FieldID, id),
+			sqlgraph.To(conversation.Table, conversation.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, conversationmessage.ConversationsTable, conversationmessage.ConversationsColumn),
+		)
+		fromV = sqlgraph.Neighbors(cm.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *ConversationMessageClient) Hooks() []Hook {
+	return c.hooks.ConversationMessage
 }
 
 // QuotaClient is a client for the Quota schema.

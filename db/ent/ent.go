@@ -8,6 +8,8 @@ import (
 	"fmt"
 	"notionboy/db/ent/account"
 	"notionboy/db/ent/chathistory"
+	"notionboy/db/ent/conversation"
+	"notionboy/db/ent/conversationmessage"
 	"notionboy/db/ent/quota"
 	"notionboy/db/ent/wechatsession"
 
@@ -34,10 +36,12 @@ type OrderFunc func(*sql.Selector)
 // columnChecker returns a function indicates if the column exists in the given column.
 func columnChecker(table string) func(string) error {
 	checks := map[string]func(string) bool{
-		account.Table:       account.ValidColumn,
-		chathistory.Table:   chathistory.ValidColumn,
-		quota.Table:         quota.ValidColumn,
-		wechatsession.Table: wechatsession.ValidColumn,
+		account.Table:             account.ValidColumn,
+		chathistory.Table:         chathistory.ValidColumn,
+		conversation.Table:        conversation.ValidColumn,
+		conversationmessage.Table: conversationmessage.ValidColumn,
+		quota.Table:               quota.ValidColumn,
+		wechatsession.Table:       wechatsession.ValidColumn,
 	}
 	check, ok := checks[table]
 	if !ok {

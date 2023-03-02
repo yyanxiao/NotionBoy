@@ -12,6 +12,12 @@ type Account func(*sql.Selector)
 // ChatHistory is the predicate function for chathistory builders.
 type ChatHistory func(*sql.Selector)
 
+// Conversation is the predicate function for conversation builders.
+type Conversation func(*sql.Selector)
+
+// ConversationMessage is the predicate function for conversationmessage builders.
+type ConversationMessage func(*sql.Selector)
+
 // Quota is the predicate function for quota builders.
 type Quota func(*sql.Selector)
 

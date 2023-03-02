@@ -16,6 +16,9 @@ static: init
 run:
 	go run ./cmd/notionboy/main.go
 
+local:
+	cd .local && go run ./main.go
+
 rund:
 	docker run --rm -v `pwd`/data.db:/service/data.db -v `pwd`/settings_local.yaml:/service/settings_local.yaml --net=host ${IMAGE_NAME}:${IMAGE_TAG}
 
@@ -23,7 +26,16 @@ buildd:
 	docker build -t ${IMAGE_NAME}:${IMAGE_TAG} .
 
 clean:
-	rm -rf ./bin ./vendor go.sum
+	rm -rf ./bin ./vendor
 
 ent:
 	go generate ./db/ent/
+
+webui: clean
+	cd webui && npm run export
+	find webui/dist -type f -exec sed -i 's/\/_next\/static\//\.\/_next\/static\//g' {} +
+
+grpc:
+	rm -rf api/pb api/docs webui/lib.pb
+	buf format -w
+	buf generate

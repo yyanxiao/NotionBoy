@@ -8,10 +8,10 @@ import (
 
 var oauthMgr notion.OauthInterface
 
-func initNotion() {
+func initNotion(mux *http.ServeMux) {
 	oauthMgr = notion.GetOauthManager()
-	http.HandleFunc("/notion/oauth", notionOauth)
-	http.HandleFunc("/notion/oauth/callback", notionOauthCallback)
+	mux.HandleFunc("/notion/oauth", notionOauth)
+	mux.HandleFunc("/notion/oauth/callback", notionOauthCallback)
 }
 
 func notionOauth(w http.ResponseWriter, r *http.Request) {

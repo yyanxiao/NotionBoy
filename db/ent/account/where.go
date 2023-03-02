@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"entgo.io/ent/dialect/sql"
+	"github.com/google/uuid"
 )
 
 // ID filters vertices based on their ID field.
@@ -101,6 +102,13 @@ func Deleted(v bool) predicate.Account {
 	})
 }
 
+// UUID applies equality check predicate on the "uuid" field. It's identical to UUIDEQ.
+func UUID(v uuid.UUID) predicate.Account {
+	return predicate.Account(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldUUID), v))
+	})
+}
+
 // UserID applies equality check predicate on the "user_id" field. It's identical to UserIDEQ.
 func UserID(v string) predicate.Account {
 	return predicate.Account(func(s *sql.Selector) {
@@ -147,6 +155,20 @@ func IsLatestSchema(v bool) predicate.Account {
 func IsOpenaiAPIUser(v bool) predicate.Account {
 	return predicate.Account(func(s *sql.Selector) {
 		s.Where(sql.EQ(s.C(FieldIsOpenaiAPIUser), v))
+	})
+}
+
+// OpenaiAPIKey applies equality check predicate on the "openai_api_key" field. It's identical to OpenaiAPIKeyEQ.
+func OpenaiAPIKey(v string) predicate.Account {
+	return predicate.Account(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldOpenaiAPIKey), v))
+	})
+}
+
+// APIKey applies equality check predicate on the "api_key" field. It's identical to APIKeyEQ.
+func APIKey(v uuid.UUID) predicate.Account {
+	return predicate.Account(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldAPIKey), v))
 	})
 }
 
@@ -289,6 +311,84 @@ func DeletedEQ(v bool) predicate.Account {
 func DeletedNEQ(v bool) predicate.Account {
 	return predicate.Account(func(s *sql.Selector) {
 		s.Where(sql.NEQ(s.C(FieldDeleted), v))
+	})
+}
+
+// UUIDEQ applies the EQ predicate on the "uuid" field.
+func UUIDEQ(v uuid.UUID) predicate.Account {
+	return predicate.Account(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldUUID), v))
+	})
+}
+
+// UUIDNEQ applies the NEQ predicate on the "uuid" field.
+func UUIDNEQ(v uuid.UUID) predicate.Account {
+	return predicate.Account(func(s *sql.Selector) {
+		s.Where(sql.NEQ(s.C(FieldUUID), v))
+	})
+}
+
+// UUIDIn applies the In predicate on the "uuid" field.
+func UUIDIn(vs ...uuid.UUID) predicate.Account {
+	v := make([]any, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.Account(func(s *sql.Selector) {
+		s.Where(sql.In(s.C(FieldUUID), v...))
+	})
+}
+
+// UUIDNotIn applies the NotIn predicate on the "uuid" field.
+func UUIDNotIn(vs ...uuid.UUID) predicate.Account {
+	v := make([]any, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.Account(func(s *sql.Selector) {
+		s.Where(sql.NotIn(s.C(FieldUUID), v...))
+	})
+}
+
+// UUIDGT applies the GT predicate on the "uuid" field.
+func UUIDGT(v uuid.UUID) predicate.Account {
+	return predicate.Account(func(s *sql.Selector) {
+		s.Where(sql.GT(s.C(FieldUUID), v))
+	})
+}
+
+// UUIDGTE applies the GTE predicate on the "uuid" field.
+func UUIDGTE(v uuid.UUID) predicate.Account {
+	return predicate.Account(func(s *sql.Selector) {
+		s.Where(sql.GTE(s.C(FieldUUID), v))
+	})
+}
+
+// UUIDLT applies the LT predicate on the "uuid" field.
+func UUIDLT(v uuid.UUID) predicate.Account {
+	return predicate.Account(func(s *sql.Selector) {
+		s.Where(sql.LT(s.C(FieldUUID), v))
+	})
+}
+
+// UUIDLTE applies the LTE predicate on the "uuid" field.
+func UUIDLTE(v uuid.UUID) predicate.Account {
+	return predicate.Account(func(s *sql.Selector) {
+		s.Where(sql.LTE(s.C(FieldUUID), v))
+	})
+}
+
+// UUIDIsNil applies the IsNil predicate on the "uuid" field.
+func UUIDIsNil() predicate.Account {
+	return predicate.Account(func(s *sql.Selector) {
+		s.Where(sql.IsNull(s.C(FieldUUID)))
+	})
+}
+
+// UUIDNotNil applies the NotNil predicate on the "uuid" field.
+func UUIDNotNil() predicate.Account {
+	return predicate.Account(func(s *sql.Selector) {
+		s.Where(sql.NotNull(s.C(FieldUUID)))
 	})
 }
 
@@ -918,6 +1018,197 @@ func IsOpenaiAPIUserEQ(v bool) predicate.Account {
 func IsOpenaiAPIUserNEQ(v bool) predicate.Account {
 	return predicate.Account(func(s *sql.Selector) {
 		s.Where(sql.NEQ(s.C(FieldIsOpenaiAPIUser), v))
+	})
+}
+
+// OpenaiAPIKeyEQ applies the EQ predicate on the "openai_api_key" field.
+func OpenaiAPIKeyEQ(v string) predicate.Account {
+	return predicate.Account(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldOpenaiAPIKey), v))
+	})
+}
+
+// OpenaiAPIKeyNEQ applies the NEQ predicate on the "openai_api_key" field.
+func OpenaiAPIKeyNEQ(v string) predicate.Account {
+	return predicate.Account(func(s *sql.Selector) {
+		s.Where(sql.NEQ(s.C(FieldOpenaiAPIKey), v))
+	})
+}
+
+// OpenaiAPIKeyIn applies the In predicate on the "openai_api_key" field.
+func OpenaiAPIKeyIn(vs ...string) predicate.Account {
+	v := make([]any, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.Account(func(s *sql.Selector) {
+		s.Where(sql.In(s.C(FieldOpenaiAPIKey), v...))
+	})
+}
+
+// OpenaiAPIKeyNotIn applies the NotIn predicate on the "openai_api_key" field.
+func OpenaiAPIKeyNotIn(vs ...string) predicate.Account {
+	v := make([]any, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.Account(func(s *sql.Selector) {
+		s.Where(sql.NotIn(s.C(FieldOpenaiAPIKey), v...))
+	})
+}
+
+// OpenaiAPIKeyGT applies the GT predicate on the "openai_api_key" field.
+func OpenaiAPIKeyGT(v string) predicate.Account {
+	return predicate.Account(func(s *sql.Selector) {
+		s.Where(sql.GT(s.C(FieldOpenaiAPIKey), v))
+	})
+}
+
+// OpenaiAPIKeyGTE applies the GTE predicate on the "openai_api_key" field.
+func OpenaiAPIKeyGTE(v string) predicate.Account {
+	return predicate.Account(func(s *sql.Selector) {
+		s.Where(sql.GTE(s.C(FieldOpenaiAPIKey), v))
+	})
+}
+
+// OpenaiAPIKeyLT applies the LT predicate on the "openai_api_key" field.
+func OpenaiAPIKeyLT(v string) predicate.Account {
+	return predicate.Account(func(s *sql.Selector) {
+		s.Where(sql.LT(s.C(FieldOpenaiAPIKey), v))
+	})
+}
+
+// OpenaiAPIKeyLTE applies the LTE predicate on the "openai_api_key" field.
+func OpenaiAPIKeyLTE(v string) predicate.Account {
+	return predicate.Account(func(s *sql.Selector) {
+		s.Where(sql.LTE(s.C(FieldOpenaiAPIKey), v))
+	})
+}
+
+// OpenaiAPIKeyContains applies the Contains predicate on the "openai_api_key" field.
+func OpenaiAPIKeyContains(v string) predicate.Account {
+	return predicate.Account(func(s *sql.Selector) {
+		s.Where(sql.Contains(s.C(FieldOpenaiAPIKey), v))
+	})
+}
+
+// OpenaiAPIKeyHasPrefix applies the HasPrefix predicate on the "openai_api_key" field.
+func OpenaiAPIKeyHasPrefix(v string) predicate.Account {
+	return predicate.Account(func(s *sql.Selector) {
+		s.Where(sql.HasPrefix(s.C(FieldOpenaiAPIKey), v))
+	})
+}
+
+// OpenaiAPIKeyHasSuffix applies the HasSuffix predicate on the "openai_api_key" field.
+func OpenaiAPIKeyHasSuffix(v string) predicate.Account {
+	return predicate.Account(func(s *sql.Selector) {
+		s.Where(sql.HasSuffix(s.C(FieldOpenaiAPIKey), v))
+	})
+}
+
+// OpenaiAPIKeyIsNil applies the IsNil predicate on the "openai_api_key" field.
+func OpenaiAPIKeyIsNil() predicate.Account {
+	return predicate.Account(func(s *sql.Selector) {
+		s.Where(sql.IsNull(s.C(FieldOpenaiAPIKey)))
+	})
+}
+
+// OpenaiAPIKeyNotNil applies the NotNil predicate on the "openai_api_key" field.
+func OpenaiAPIKeyNotNil() predicate.Account {
+	return predicate.Account(func(s *sql.Selector) {
+		s.Where(sql.NotNull(s.C(FieldOpenaiAPIKey)))
+	})
+}
+
+// OpenaiAPIKeyEqualFold applies the EqualFold predicate on the "openai_api_key" field.
+func OpenaiAPIKeyEqualFold(v string) predicate.Account {
+	return predicate.Account(func(s *sql.Selector) {
+		s.Where(sql.EqualFold(s.C(FieldOpenaiAPIKey), v))
+	})
+}
+
+// OpenaiAPIKeyContainsFold applies the ContainsFold predicate on the "openai_api_key" field.
+func OpenaiAPIKeyContainsFold(v string) predicate.Account {
+	return predicate.Account(func(s *sql.Selector) {
+		s.Where(sql.ContainsFold(s.C(FieldOpenaiAPIKey), v))
+	})
+}
+
+// APIKeyEQ applies the EQ predicate on the "api_key" field.
+func APIKeyEQ(v uuid.UUID) predicate.Account {
+	return predicate.Account(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldAPIKey), v))
+	})
+}
+
+// APIKeyNEQ applies the NEQ predicate on the "api_key" field.
+func APIKeyNEQ(v uuid.UUID) predicate.Account {
+	return predicate.Account(func(s *sql.Selector) {
+		s.Where(sql.NEQ(s.C(FieldAPIKey), v))
+	})
+}
+
+// APIKeyIn applies the In predicate on the "api_key" field.
+func APIKeyIn(vs ...uuid.UUID) predicate.Account {
+	v := make([]any, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.Account(func(s *sql.Selector) {
+		s.Where(sql.In(s.C(FieldAPIKey), v...))
+	})
+}
+
+// APIKeyNotIn applies the NotIn predicate on the "api_key" field.
+func APIKeyNotIn(vs ...uuid.UUID) predicate.Account {
+	v := make([]any, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.Account(func(s *sql.Selector) {
+		s.Where(sql.NotIn(s.C(FieldAPIKey), v...))
+	})
+}
+
+// APIKeyGT applies the GT predicate on the "api_key" field.
+func APIKeyGT(v uuid.UUID) predicate.Account {
+	return predicate.Account(func(s *sql.Selector) {
+		s.Where(sql.GT(s.C(FieldAPIKey), v))
+	})
+}
+
+// APIKeyGTE applies the GTE predicate on the "api_key" field.
+func APIKeyGTE(v uuid.UUID) predicate.Account {
+	return predicate.Account(func(s *sql.Selector) {
+		s.Where(sql.GTE(s.C(FieldAPIKey), v))
+	})
+}
+
+// APIKeyLT applies the LT predicate on the "api_key" field.
+func APIKeyLT(v uuid.UUID) predicate.Account {
+	return predicate.Account(func(s *sql.Selector) {
+		s.Where(sql.LT(s.C(FieldAPIKey), v))
+	})
+}
+
+// APIKeyLTE applies the LTE predicate on the "api_key" field.
+func APIKeyLTE(v uuid.UUID) predicate.Account {
+	return predicate.Account(func(s *sql.Selector) {
+		s.Where(sql.LTE(s.C(FieldAPIKey), v))
+	})
+}
+
+// APIKeyIsNil applies the IsNil predicate on the "api_key" field.
+func APIKeyIsNil() predicate.Account {
+	return predicate.Account(func(s *sql.Selector) {
+		s.Where(sql.IsNull(s.C(FieldAPIKey)))
+	})
+}
+
+// APIKeyNotNil applies the NotNil predicate on the "api_key" field.
+func APIKeyNotNil() predicate.Account {
+	return predicate.Account(func(s *sql.Selector) {
+		s.Where(sql.NotNull(s.C(FieldAPIKey)))
 	})
 }
 

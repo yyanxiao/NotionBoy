@@ -53,7 +53,7 @@ log:
 
 chatGPT:
     apiKey:
-    model: text-davinci-003
+    model:
 
 telegram:
     token:
@@ -70,3 +70,7 @@ zlib:
 
 readability:
     host:
+
+jwt:
+    SigningKey: example key must be changed
+    ExpireTime: 3600

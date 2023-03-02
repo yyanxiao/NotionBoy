@@ -1,5 +1,7 @@
 package config
 
+import "time"
+
 type Config struct {
 	Wechat         WechatConfig
 	Service        ServiceConfig
@@ -14,6 +16,7 @@ type Config struct {
 	Zlib           ZlibConfig
 	Readability    ReadabilityConfig
 	NotionTestPage NotionTestPage
+	JWT            JWTConfig
 }
 
 type LogConfig struct {
@@ -103,4 +106,9 @@ type ReadabilityConfig struct {
 type NotionTestPage struct {
 	DatabaseID string
 	Token      string
+}
+
+type JWTConfig struct {
+	SigningKey string
+	Expiration time.Duration
 }

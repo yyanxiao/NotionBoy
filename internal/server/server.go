@@ -1,32 +1,112 @@
 package server
 
 import (
+	"context"
 	"fmt"
+	"net"
 	"net/http"
+	"notionboy/api/pb"
 	"notionboy/internal/pkg/config"
 	"notionboy/internal/pkg/logger"
-	"time"
+	"notionboy/internal/server/handler"
+	"notionboy/internal/server/middleware"
+	"notionboy/webui"
+	"strings"
+
+	grpc_auth "github.com/grpc-ecosystem/go-grpc-middleware/auth"
+	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
+	"golang.org/x/net/http2"
+	"golang.org/x/net/http2/h2c"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
+	"google.golang.org/grpc/reflection"
 )
 
-func Serve() {
-	initNotion()
-	initWx()
-	http.HandleFunc("/files/tg/", proxyTelegramFile)
-	http.HandleFunc("/files/ipfs/", proxyIpfs)
-	http.HandleFunc("/status", status)
-
-	svcConfig := config.GetConfig().Service
-	s := &http.Server{
-		Addr:           fmt.Sprintf("%s:%s", svcConfig.Host, svcConfig.Port),
-		ReadTimeout:    10 * time.Second,
-		WriteTimeout:   10 * time.Second,
-		MaxHeaderBytes: 1 << 20,
-	}
-
-	logger.SugaredLogger.Infof("Listening on %s", s.Addr)
-	logger.SugaredLogger.Fatal(s.ListenAndServe())
+func grpcHandlerFunc(grpcServer *grpc.Server, otherHandler http.Handler) http.Handler {
+	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.ProtoMajor == 2 && strings.Contains(r.Header.Get("Content-Type"), "application/grpc") {
+			grpcServer.ServeHTTP(w, r)
+		} else {
+			otherHandler.ServeHTTP(w, r)
+		}
+	})
+	return h2c.NewHandler(handler, &http2.Server{})
 }
 
-func status(w http.ResponseWriter, r *http.Request) {
-	renderHtml(w, "ok", http.StatusOK)
+func grpcSvc() *grpc.Server {
+	svc := grpc.NewServer(
+		// midddlewares
+		grpc.StreamInterceptor(grpc_auth.StreamServerInterceptor(middleware.NewAuthFunc())),
+		grpc.UnaryInterceptor(grpc_auth.UnaryServerInterceptor(middleware.NewAuthFunc())),
+	)
+	pb.RegisterServiceServer(svc, handler.NewServer())
+	reflection.Register(svc)
+	return svc
+}
+
+func registerHttpHandlers(ctx context.Context, mux *http.ServeMux) {
+	initNotion(mux)
+	initWx(mux)
+	mux.HandleFunc("/files/tg/", proxyTelegramFile)
+	mux.HandleFunc("/files/ipfs/", proxyIpfs)
+	mux.HandleFunc("/status", func(w http.ResponseWriter, r *http.Request) {
+		renderHtml(w, "ok", http.StatusOK)
+	})
+
+	webui.RegisterHandlers(mux)
+}
+
+func Serve() {
+	cfg := config.GetConfig().Service
+	addr := fmt.Sprintf("%s:%s", cfg.Host, cfg.Port)
+
+	ctx := context.Background()
+	ctx, cancel := context.WithCancel(ctx)
+	defer cancel()
+
+	mux := http.NewServeMux()
+	// register http handlers
+	registerHttpHandlers(ctx, mux)
+
+	gwmux := runtime.NewServeMux(
+		runtime.WithIncomingHeaderMatcher(CustomHeaderMatcher),
+	)
+	// register grpc-gateway
+	opts := []grpc.DialOption{grpc.WithTransportCredentials(insecure.NewCredentials())}
+	if err := pb.RegisterServiceHandlerFromEndpoint(ctx, gwmux, addr, opts); err != nil {
+		logger.SugaredLogger.Fatalw("failed to register gateway", "error", err)
+	}
+	mux.Handle("/", gwmux)
+
+	// wxgzh need use / as path, so we need to handle it manually
+	_ = gwmux.HandlePath("POST", "/", wxProcessMsg)
+	_ = gwmux.HandlePath("GET", "/", wxProcessMsg)
+
+	grpcServer := grpcSvc()
+	srv := &http.Server{
+		Addr:    addr,
+		Handler: grpcHandlerFunc(grpcServer, mux),
+	}
+	conn, err := net.Listen("tcp", addr)
+	if err != nil {
+		logger.SugaredLogger.Fatalw("failed to listen", "error", err)
+	}
+	logger.SugaredLogger.Infow("Server started", "addr", addr)
+	err = srv.Serve(conn)
+	if err != nil {
+		logger.SugaredLogger.Fatalw("failed to serve", "error", err)
+	}
+}
+
+// CustomHeaderMatcher is a custom header matcher for gRPC-Gateway.
+// https://grpc-ecosystem.github.io/grpc-gateway/docs/mapping/customizing_your_gateway/#mapping-from-http-request-headers-to-grpc-client-metadata
+func CustomHeaderMatcher(key string) (string, bool) {
+	switch strings.ToLower(key) {
+	case config.AUTH_HEADER_X_API_KEY:
+		return key, true
+	case config.AUTH_HEADER_COOKIE:
+		return key, true
+	default:
+		return runtime.DefaultHeaderMatcher(key)
+	}
 }

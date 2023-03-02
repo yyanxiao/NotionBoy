@@ -62,6 +62,8 @@ func (ex *OfficialAccount) messageHandler(ctx context.Context, msg *message.MixM
 			return searchZlibNextPage(ctx, msg), nil
 		case config.CMD_ZLIB_SAVE_TO_NOTION:
 			return searchZlibSaveToNotion(context.TODO(), msg), nil
+		case config.CMD_UI:
+			return webui(ctx, msg), nil
 		}
 
 		// process chatGPT

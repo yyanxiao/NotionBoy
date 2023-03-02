@@ -24,10 +24,12 @@ type config struct {
 
 // hooks per client, for fast access.
 type hooks struct {
-	Account       []ent.Hook
-	ChatHistory   []ent.Hook
-	Quota         []ent.Hook
-	WechatSession []ent.Hook
+	Account             []ent.Hook
+	ChatHistory         []ent.Hook
+	Conversation        []ent.Hook
+	ConversationMessage []ent.Hook
+	Quota               []ent.Hook
+	WechatSession       []ent.Hook
 }
 
 // Options applies the options on the config object.

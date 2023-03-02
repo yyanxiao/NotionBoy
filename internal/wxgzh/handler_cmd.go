@@ -7,6 +7,7 @@ import (
 	"notionboy/internal/pkg/config"
 	"notionboy/internal/pkg/db/dao"
 	"notionboy/internal/pkg/logger"
+	"notionboy/internal/service/auth"
 
 	notion "notionboy/internal/pkg/notion"
 
@@ -47,5 +48,32 @@ func sosInfo(c context.Context, msg *message.MixMessage) *message.Reply {
 	return &message.Reply{
 		MsgType: message.MsgTypeText,
 		MsgData: message.NewText(fmt.Sprintf("欢迎添加作者微信，请搜索🔍:  %s", config.GetConfig().Wechat.AuthorID)),
+	}
+}
+
+func webui(ctx context.Context, msg *message.MixMessage) *message.Reply {
+	acc, err := dao.QueryAccountByWxUser(ctx, msg.GetOpenID())
+	if err != nil {
+		return &message.Reply{
+			MsgType: message.MsgTypeText,
+			MsgData: message.NewText(fmt.Sprintf("查询账户信息失败: %s", err.Error())),
+		}
+	}
+
+	svc := auth.NewAuthServer()
+
+	token, err := svc.GenrateToken(ctx, acc.UUID.String())
+	if err != nil {
+		return &message.Reply{
+			MsgType: message.MsgTypeText,
+			MsgData: message.NewText(fmt.Sprintf("生成 Token 失败: %s", err.Error())),
+		}
+	}
+
+	webui := fmt.Sprintf("%s/web?token=%s", config.GetConfig().Service.URL, token)
+
+	return &message.Reply{
+		MsgType: message.MsgTypeText,
+		MsgData: message.NewText(fmt.Sprintf("欢迎访问 NotionBoy 的 WebUI: %s", webui)),
 	}
 }

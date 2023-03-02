@@ -15,6 +15,7 @@ var (
 		{Name: "created_at", Type: field.TypeTime},
 		{Name: "updated_at", Type: field.TypeTime},
 		{Name: "deleted", Type: field.TypeBool, Default: false},
+		{Name: "uuid", Type: field.TypeUUID, Unique: true, Nullable: true},
 		{Name: "user_id", Type: field.TypeString},
 		{Name: "user_type", Type: field.TypeEnum, Nullable: true, Enums: []string{"wechat", "telegram"}, Default: "wechat"},
 		{Name: "database_id", Type: field.TypeString, Nullable: true},
@@ -23,6 +24,8 @@ var (
 		{Name: "notion_user_email", Type: field.TypeString, Nullable: true},
 		{Name: "is_latest_schema", Type: field.TypeBool, Default: false},
 		{Name: "is_openai_api_user", Type: field.TypeBool, Default: false},
+		{Name: "openai_api_key", Type: field.TypeString, Nullable: true},
+		{Name: "api_key", Type: field.TypeUUID, Nullable: true},
 	}
 	// AccountsTable holds the schema information for the "accounts" table.
 	AccountsTable = &schema.Table{
@@ -33,7 +36,7 @@ var (
 			{
 				Name:    "account_user_id_user_type",
 				Unique:  true,
-				Columns: []*schema.Column{AccountsColumns[4], AccountsColumns[5]},
+				Columns: []*schema.Column{AccountsColumns[5], AccountsColumns[6]},
 			},
 		},
 	}
@@ -57,6 +60,64 @@ var (
 		Name:       "chat_histories",
 		Columns:    ChatHistoriesColumns,
 		PrimaryKey: []*schema.Column{ChatHistoriesColumns[0]},
+	}
+	// ConversationsColumns holds the columns for the "conversations" table.
+	ConversationsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "deleted", Type: field.TypeBool, Default: false},
+		{Name: "uuid", Type: field.TypeUUID, Unique: true},
+		{Name: "user_id", Type: field.TypeUUID},
+		{Name: "instruction", Type: field.TypeString, Nullable: true, Size: 2147483647},
+	}
+	// ConversationsTable holds the schema information for the "conversations" table.
+	ConversationsTable = &schema.Table{
+		Name:       "conversations",
+		Columns:    ConversationsColumns,
+		PrimaryKey: []*schema.Column{ConversationsColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "conversation_user_id_created_at",
+				Unique:  false,
+				Columns: []*schema.Column{ConversationsColumns[5], ConversationsColumns[1]},
+			},
+		},
+	}
+	// ConversationMessagesColumns holds the columns for the "conversation_messages" table.
+	ConversationMessagesColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "deleted", Type: field.TypeBool, Default: false},
+		{Name: "uuid", Type: field.TypeUUID, Unique: true},
+		{Name: "user_id", Type: field.TypeUUID},
+		{Name: "conversation_id", Type: field.TypeUUID},
+		{Name: "request", Type: field.TypeString, Nullable: true, Size: 2147483647},
+		{Name: "response", Type: field.TypeString, Nullable: true, Size: 2147483647},
+		{Name: "token_usage", Type: field.TypeInt, Nullable: true},
+		{Name: "conversation_conversation_messages", Type: field.TypeInt, Nullable: true},
+	}
+	// ConversationMessagesTable holds the schema information for the "conversation_messages" table.
+	ConversationMessagesTable = &schema.Table{
+		Name:       "conversation_messages",
+		Columns:    ConversationMessagesColumns,
+		PrimaryKey: []*schema.Column{ConversationMessagesColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "conversation_messages_conversations_conversation_messages",
+				Columns:    []*schema.Column{ConversationMessagesColumns[10]},
+				RefColumns: []*schema.Column{ConversationsColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "conversationmessage_user_id_conversation_id_created_at",
+				Unique:  false,
+				Columns: []*schema.Column{ConversationMessagesColumns[5], ConversationMessagesColumns[6], ConversationMessagesColumns[1]},
+			},
+		},
 	}
 	// QuotaColumns holds the columns for the "quota" table.
 	QuotaColumns = []*schema.Column{
@@ -105,12 +166,15 @@ var (
 	Tables = []*schema.Table{
 		AccountsTable,
 		ChatHistoriesTable,
+		ConversationsTable,
+		ConversationMessagesTable,
 		QuotaTable,
 		WechatSessionTable,
 	}
 )
 
 func init() {
+	ConversationMessagesTable.ForeignKeys[0].RefTable = ConversationsTable
 	WechatSessionTable.Annotation = &entsql.Annotation{
 		Table: "wechat_session",
 	}

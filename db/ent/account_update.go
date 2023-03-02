@@ -13,6 +13,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
 )
 
 // AccountUpdate is the builder for updating Account entities.
@@ -45,6 +46,26 @@ func (au *AccountUpdate) SetNillableDeleted(b *bool) *AccountUpdate {
 	if b != nil {
 		au.SetDeleted(*b)
 	}
+	return au
+}
+
+// SetUUID sets the "uuid" field.
+func (au *AccountUpdate) SetUUID(u uuid.UUID) *AccountUpdate {
+	au.mutation.SetUUID(u)
+	return au
+}
+
+// SetNillableUUID sets the "uuid" field if the given value is not nil.
+func (au *AccountUpdate) SetNillableUUID(u *uuid.UUID) *AccountUpdate {
+	if u != nil {
+		au.SetUUID(*u)
+	}
+	return au
+}
+
+// ClearUUID clears the value of the "uuid" field.
+func (au *AccountUpdate) ClearUUID() *AccountUpdate {
+	au.mutation.ClearUUID()
 	return au
 }
 
@@ -182,6 +203,46 @@ func (au *AccountUpdate) SetNillableIsOpenaiAPIUser(b *bool) *AccountUpdate {
 	return au
 }
 
+// SetOpenaiAPIKey sets the "openai_api_key" field.
+func (au *AccountUpdate) SetOpenaiAPIKey(s string) *AccountUpdate {
+	au.mutation.SetOpenaiAPIKey(s)
+	return au
+}
+
+// SetNillableOpenaiAPIKey sets the "openai_api_key" field if the given value is not nil.
+func (au *AccountUpdate) SetNillableOpenaiAPIKey(s *string) *AccountUpdate {
+	if s != nil {
+		au.SetOpenaiAPIKey(*s)
+	}
+	return au
+}
+
+// ClearOpenaiAPIKey clears the value of the "openai_api_key" field.
+func (au *AccountUpdate) ClearOpenaiAPIKey() *AccountUpdate {
+	au.mutation.ClearOpenaiAPIKey()
+	return au
+}
+
+// SetAPIKey sets the "api_key" field.
+func (au *AccountUpdate) SetAPIKey(u uuid.UUID) *AccountUpdate {
+	au.mutation.SetAPIKey(u)
+	return au
+}
+
+// SetNillableAPIKey sets the "api_key" field if the given value is not nil.
+func (au *AccountUpdate) SetNillableAPIKey(u *uuid.UUID) *AccountUpdate {
+	if u != nil {
+		au.SetAPIKey(*u)
+	}
+	return au
+}
+
+// ClearAPIKey clears the value of the "api_key" field.
+func (au *AccountUpdate) ClearAPIKey() *AccountUpdate {
+	au.mutation.ClearAPIKey()
+	return au
+}
+
 // Mutation returns the AccountMutation object of the builder.
 func (au *AccountUpdate) Mutation() *AccountMutation {
 	return au.mutation
@@ -290,6 +351,12 @@ func (au *AccountUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := au.mutation.Deleted(); ok {
 		_spec.SetField(account.FieldDeleted, field.TypeBool, value)
 	}
+	if value, ok := au.mutation.UUID(); ok {
+		_spec.SetField(account.FieldUUID, field.TypeUUID, value)
+	}
+	if au.mutation.UUIDCleared() {
+		_spec.ClearField(account.FieldUUID, field.TypeUUID)
+	}
 	if value, ok := au.mutation.UserID(); ok {
 		_spec.SetField(account.FieldUserID, field.TypeString, value)
 	}
@@ -329,6 +396,18 @@ func (au *AccountUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := au.mutation.IsOpenaiAPIUser(); ok {
 		_spec.SetField(account.FieldIsOpenaiAPIUser, field.TypeBool, value)
 	}
+	if value, ok := au.mutation.OpenaiAPIKey(); ok {
+		_spec.SetField(account.FieldOpenaiAPIKey, field.TypeString, value)
+	}
+	if au.mutation.OpenaiAPIKeyCleared() {
+		_spec.ClearField(account.FieldOpenaiAPIKey, field.TypeString)
+	}
+	if value, ok := au.mutation.APIKey(); ok {
+		_spec.SetField(account.FieldAPIKey, field.TypeUUID, value)
+	}
+	if au.mutation.APIKeyCleared() {
+		_spec.ClearField(account.FieldAPIKey, field.TypeUUID)
+	}
 	if n, err = sqlgraph.UpdateNodes(ctx, au.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{account.Label}
@@ -365,6 +444,26 @@ func (auo *AccountUpdateOne) SetNillableDeleted(b *bool) *AccountUpdateOne {
 	if b != nil {
 		auo.SetDeleted(*b)
 	}
+	return auo
+}
+
+// SetUUID sets the "uuid" field.
+func (auo *AccountUpdateOne) SetUUID(u uuid.UUID) *AccountUpdateOne {
+	auo.mutation.SetUUID(u)
+	return auo
+}
+
+// SetNillableUUID sets the "uuid" field if the given value is not nil.
+func (auo *AccountUpdateOne) SetNillableUUID(u *uuid.UUID) *AccountUpdateOne {
+	if u != nil {
+		auo.SetUUID(*u)
+	}
+	return auo
+}
+
+// ClearUUID clears the value of the "uuid" field.
+func (auo *AccountUpdateOne) ClearUUID() *AccountUpdateOne {
+	auo.mutation.ClearUUID()
 	return auo
 }
 
@@ -499,6 +598,46 @@ func (auo *AccountUpdateOne) SetNillableIsOpenaiAPIUser(b *bool) *AccountUpdateO
 	if b != nil {
 		auo.SetIsOpenaiAPIUser(*b)
 	}
+	return auo
+}
+
+// SetOpenaiAPIKey sets the "openai_api_key" field.
+func (auo *AccountUpdateOne) SetOpenaiAPIKey(s string) *AccountUpdateOne {
+	auo.mutation.SetOpenaiAPIKey(s)
+	return auo
+}
+
+// SetNillableOpenaiAPIKey sets the "openai_api_key" field if the given value is not nil.
+func (auo *AccountUpdateOne) SetNillableOpenaiAPIKey(s *string) *AccountUpdateOne {
+	if s != nil {
+		auo.SetOpenaiAPIKey(*s)
+	}
+	return auo
+}
+
+// ClearOpenaiAPIKey clears the value of the "openai_api_key" field.
+func (auo *AccountUpdateOne) ClearOpenaiAPIKey() *AccountUpdateOne {
+	auo.mutation.ClearOpenaiAPIKey()
+	return auo
+}
+
+// SetAPIKey sets the "api_key" field.
+func (auo *AccountUpdateOne) SetAPIKey(u uuid.UUID) *AccountUpdateOne {
+	auo.mutation.SetAPIKey(u)
+	return auo
+}
+
+// SetNillableAPIKey sets the "api_key" field if the given value is not nil.
+func (auo *AccountUpdateOne) SetNillableAPIKey(u *uuid.UUID) *AccountUpdateOne {
+	if u != nil {
+		auo.SetAPIKey(*u)
+	}
+	return auo
+}
+
+// ClearAPIKey clears the value of the "api_key" field.
+func (auo *AccountUpdateOne) ClearAPIKey() *AccountUpdateOne {
+	auo.mutation.ClearAPIKey()
 	return auo
 }
 
@@ -640,6 +779,12 @@ func (auo *AccountUpdateOne) sqlSave(ctx context.Context) (_node *Account, err e
 	if value, ok := auo.mutation.Deleted(); ok {
 		_spec.SetField(account.FieldDeleted, field.TypeBool, value)
 	}
+	if value, ok := auo.mutation.UUID(); ok {
+		_spec.SetField(account.FieldUUID, field.TypeUUID, value)
+	}
+	if auo.mutation.UUIDCleared() {
+		_spec.ClearField(account.FieldUUID, field.TypeUUID)
+	}
 	if value, ok := auo.mutation.UserID(); ok {
 		_spec.SetField(account.FieldUserID, field.TypeString, value)
 	}
@@ -678,6 +823,18 @@ func (auo *AccountUpdateOne) sqlSave(ctx context.Context) (_node *Account, err e
 	}
 	if value, ok := auo.mutation.IsOpenaiAPIUser(); ok {
 		_spec.SetField(account.FieldIsOpenaiAPIUser, field.TypeBool, value)
+	}
+	if value, ok := auo.mutation.OpenaiAPIKey(); ok {
+		_spec.SetField(account.FieldOpenaiAPIKey, field.TypeString, value)
+	}
+	if auo.mutation.OpenaiAPIKeyCleared() {
+		_spec.ClearField(account.FieldOpenaiAPIKey, field.TypeString)
+	}
+	if value, ok := auo.mutation.APIKey(); ok {
+		_spec.SetField(account.FieldAPIKey, field.TypeUUID, value)
+	}
+	if auo.mutation.APIKeyCleared() {
+		_spec.ClearField(account.FieldAPIKey, field.TypeUUID)
 	}
 	_node = &Account{config: auo.config}
 	_spec.Assign = _node.assignValues

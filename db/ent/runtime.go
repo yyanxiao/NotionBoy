@@ -5,6 +5,8 @@ package ent
 import (
 	"notionboy/db/ent/account"
 	"notionboy/db/ent/chathistory"
+	"notionboy/db/ent/conversation"
+	"notionboy/db/ent/conversationmessage"
 	"notionboy/db/ent/quota"
 	"notionboy/db/ent/schema"
 	"notionboy/db/ent/wechatsession"
@@ -37,11 +39,11 @@ func init() {
 	// account.DefaultDeleted holds the default value on creation for the deleted field.
 	account.DefaultDeleted = accountDescDeleted.Default.(bool)
 	// accountDescIsLatestSchema is the schema descriptor for is_latest_schema field.
-	accountDescIsLatestSchema := accountFields[6].Descriptor()
+	accountDescIsLatestSchema := accountFields[7].Descriptor()
 	// account.DefaultIsLatestSchema holds the default value on creation for the is_latest_schema field.
 	account.DefaultIsLatestSchema = accountDescIsLatestSchema.Default.(bool)
 	// accountDescIsOpenaiAPIUser is the schema descriptor for is_openai_api_user field.
-	accountDescIsOpenaiAPIUser := accountFields[7].Descriptor()
+	accountDescIsOpenaiAPIUser := accountFields[8].Descriptor()
 	// account.DefaultIsOpenaiAPIUser holds the default value on creation for the is_openai_api_user field.
 	account.DefaultIsOpenaiAPIUser = accountDescIsOpenaiAPIUser.Default.(bool)
 	chathistoryMixin := schema.ChatHistory{}.Mixin()
@@ -65,6 +67,48 @@ func init() {
 	chathistoryDescDeleted := chathistoryMixinFields1[0].Descriptor()
 	// chathistory.DefaultDeleted holds the default value on creation for the deleted field.
 	chathistory.DefaultDeleted = chathistoryDescDeleted.Default.(bool)
+	conversationMixin := schema.Conversation{}.Mixin()
+	conversationMixinFields0 := conversationMixin[0].Fields()
+	_ = conversationMixinFields0
+	conversationMixinFields1 := conversationMixin[1].Fields()
+	_ = conversationMixinFields1
+	conversationFields := schema.Conversation{}.Fields()
+	_ = conversationFields
+	// conversationDescCreatedAt is the schema descriptor for created_at field.
+	conversationDescCreatedAt := conversationMixinFields0[0].Descriptor()
+	// conversation.DefaultCreatedAt holds the default value on creation for the created_at field.
+	conversation.DefaultCreatedAt = conversationDescCreatedAt.Default.(func() time.Time)
+	// conversationDescUpdatedAt is the schema descriptor for updated_at field.
+	conversationDescUpdatedAt := conversationMixinFields0[1].Descriptor()
+	// conversation.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	conversation.DefaultUpdatedAt = conversationDescUpdatedAt.Default.(func() time.Time)
+	// conversation.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	conversation.UpdateDefaultUpdatedAt = conversationDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// conversationDescDeleted is the schema descriptor for deleted field.
+	conversationDescDeleted := conversationMixinFields1[0].Descriptor()
+	// conversation.DefaultDeleted holds the default value on creation for the deleted field.
+	conversation.DefaultDeleted = conversationDescDeleted.Default.(bool)
+	conversationmessageMixin := schema.ConversationMessage{}.Mixin()
+	conversationmessageMixinFields0 := conversationmessageMixin[0].Fields()
+	_ = conversationmessageMixinFields0
+	conversationmessageMixinFields1 := conversationmessageMixin[1].Fields()
+	_ = conversationmessageMixinFields1
+	conversationmessageFields := schema.ConversationMessage{}.Fields()
+	_ = conversationmessageFields
+	// conversationmessageDescCreatedAt is the schema descriptor for created_at field.
+	conversationmessageDescCreatedAt := conversationmessageMixinFields0[0].Descriptor()
+	// conversationmessage.DefaultCreatedAt holds the default value on creation for the created_at field.
+	conversationmessage.DefaultCreatedAt = conversationmessageDescCreatedAt.Default.(func() time.Time)
+	// conversationmessageDescUpdatedAt is the schema descriptor for updated_at field.
+	conversationmessageDescUpdatedAt := conversationmessageMixinFields0[1].Descriptor()
+	// conversationmessage.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	conversationmessage.DefaultUpdatedAt = conversationmessageDescUpdatedAt.Default.(func() time.Time)
+	// conversationmessage.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	conversationmessage.UpdateDefaultUpdatedAt = conversationmessageDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// conversationmessageDescDeleted is the schema descriptor for deleted field.
+	conversationmessageDescDeleted := conversationmessageMixinFields1[0].Descriptor()
+	// conversationmessage.DefaultDeleted holds the default value on creation for the deleted field.
+	conversationmessage.DefaultDeleted = conversationmessageDescDeleted.Default.(bool)
 	quotaMixin := schema.Quota{}.Mixin()
 	quotaMixinFields0 := quotaMixin[0].Fields()
 	_ = quotaMixinFields0

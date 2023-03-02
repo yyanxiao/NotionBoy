@@ -12,6 +12,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
 )
 
 // AccountCreate is the builder for creating a Account entity.
@@ -60,6 +61,20 @@ func (ac *AccountCreate) SetDeleted(b bool) *AccountCreate {
 func (ac *AccountCreate) SetNillableDeleted(b *bool) *AccountCreate {
 	if b != nil {
 		ac.SetDeleted(*b)
+	}
+	return ac
+}
+
+// SetUUID sets the "uuid" field.
+func (ac *AccountCreate) SetUUID(u uuid.UUID) *AccountCreate {
+	ac.mutation.SetUUID(u)
+	return ac
+}
+
+// SetNillableUUID sets the "uuid" field if the given value is not nil.
+func (ac *AccountCreate) SetNillableUUID(u *uuid.UUID) *AccountCreate {
+	if u != nil {
+		ac.SetUUID(*u)
 	}
 	return ac
 }
@@ -164,6 +179,34 @@ func (ac *AccountCreate) SetIsOpenaiAPIUser(b bool) *AccountCreate {
 func (ac *AccountCreate) SetNillableIsOpenaiAPIUser(b *bool) *AccountCreate {
 	if b != nil {
 		ac.SetIsOpenaiAPIUser(*b)
+	}
+	return ac
+}
+
+// SetOpenaiAPIKey sets the "openai_api_key" field.
+func (ac *AccountCreate) SetOpenaiAPIKey(s string) *AccountCreate {
+	ac.mutation.SetOpenaiAPIKey(s)
+	return ac
+}
+
+// SetNillableOpenaiAPIKey sets the "openai_api_key" field if the given value is not nil.
+func (ac *AccountCreate) SetNillableOpenaiAPIKey(s *string) *AccountCreate {
+	if s != nil {
+		ac.SetOpenaiAPIKey(*s)
+	}
+	return ac
+}
+
+// SetAPIKey sets the "api_key" field.
+func (ac *AccountCreate) SetAPIKey(u uuid.UUID) *AccountCreate {
+	ac.mutation.SetAPIKey(u)
+	return ac
+}
+
+// SetNillableAPIKey sets the "api_key" field if the given value is not nil.
+func (ac *AccountCreate) SetNillableAPIKey(u *uuid.UUID) *AccountCreate {
+	if u != nil {
+		ac.SetAPIKey(*u)
 	}
 	return ac
 }
@@ -336,6 +379,10 @@ func (ac *AccountCreate) createSpec() (*Account, *sqlgraph.CreateSpec) {
 		_spec.SetField(account.FieldDeleted, field.TypeBool, value)
 		_node.Deleted = value
 	}
+	if value, ok := ac.mutation.UUID(); ok {
+		_spec.SetField(account.FieldUUID, field.TypeUUID, value)
+		_node.UUID = value
+	}
 	if value, ok := ac.mutation.UserID(); ok {
 		_spec.SetField(account.FieldUserID, field.TypeString, value)
 		_node.UserID = value
@@ -367,6 +414,14 @@ func (ac *AccountCreate) createSpec() (*Account, *sqlgraph.CreateSpec) {
 	if value, ok := ac.mutation.IsOpenaiAPIUser(); ok {
 		_spec.SetField(account.FieldIsOpenaiAPIUser, field.TypeBool, value)
 		_node.IsOpenaiAPIUser = value
+	}
+	if value, ok := ac.mutation.OpenaiAPIKey(); ok {
+		_spec.SetField(account.FieldOpenaiAPIKey, field.TypeString, value)
+		_node.OpenaiAPIKey = value
+	}
+	if value, ok := ac.mutation.APIKey(); ok {
+		_spec.SetField(account.FieldAPIKey, field.TypeUUID, value)
+		_node.APIKey = value
 	}
 	return _node, _spec
 }
@@ -441,6 +496,24 @@ func (u *AccountUpsert) SetDeleted(v bool) *AccountUpsert {
 // UpdateDeleted sets the "deleted" field to the value that was provided on create.
 func (u *AccountUpsert) UpdateDeleted() *AccountUpsert {
 	u.SetExcluded(account.FieldDeleted)
+	return u
+}
+
+// SetUUID sets the "uuid" field.
+func (u *AccountUpsert) SetUUID(v uuid.UUID) *AccountUpsert {
+	u.Set(account.FieldUUID, v)
+	return u
+}
+
+// UpdateUUID sets the "uuid" field to the value that was provided on create.
+func (u *AccountUpsert) UpdateUUID() *AccountUpsert {
+	u.SetExcluded(account.FieldUUID)
+	return u
+}
+
+// ClearUUID clears the value of the "uuid" field.
+func (u *AccountUpsert) ClearUUID() *AccountUpsert {
+	u.SetNull(account.FieldUUID)
 	return u
 }
 
@@ -570,6 +643,42 @@ func (u *AccountUpsert) UpdateIsOpenaiAPIUser() *AccountUpsert {
 	return u
 }
 
+// SetOpenaiAPIKey sets the "openai_api_key" field.
+func (u *AccountUpsert) SetOpenaiAPIKey(v string) *AccountUpsert {
+	u.Set(account.FieldOpenaiAPIKey, v)
+	return u
+}
+
+// UpdateOpenaiAPIKey sets the "openai_api_key" field to the value that was provided on create.
+func (u *AccountUpsert) UpdateOpenaiAPIKey() *AccountUpsert {
+	u.SetExcluded(account.FieldOpenaiAPIKey)
+	return u
+}
+
+// ClearOpenaiAPIKey clears the value of the "openai_api_key" field.
+func (u *AccountUpsert) ClearOpenaiAPIKey() *AccountUpsert {
+	u.SetNull(account.FieldOpenaiAPIKey)
+	return u
+}
+
+// SetAPIKey sets the "api_key" field.
+func (u *AccountUpsert) SetAPIKey(v uuid.UUID) *AccountUpsert {
+	u.Set(account.FieldAPIKey, v)
+	return u
+}
+
+// UpdateAPIKey sets the "api_key" field to the value that was provided on create.
+func (u *AccountUpsert) UpdateAPIKey() *AccountUpsert {
+	u.SetExcluded(account.FieldAPIKey)
+	return u
+}
+
+// ClearAPIKey clears the value of the "api_key" field.
+func (u *AccountUpsert) ClearAPIKey() *AccountUpsert {
+	u.SetNull(account.FieldAPIKey)
+	return u
+}
+
 // UpdateNewValues updates the mutable fields using the new values that were set on create.
 // Using this option is equivalent to using:
 //
@@ -640,6 +749,27 @@ func (u *AccountUpsertOne) SetDeleted(v bool) *AccountUpsertOne {
 func (u *AccountUpsertOne) UpdateDeleted() *AccountUpsertOne {
 	return u.Update(func(s *AccountUpsert) {
 		s.UpdateDeleted()
+	})
+}
+
+// SetUUID sets the "uuid" field.
+func (u *AccountUpsertOne) SetUUID(v uuid.UUID) *AccountUpsertOne {
+	return u.Update(func(s *AccountUpsert) {
+		s.SetUUID(v)
+	})
+}
+
+// UpdateUUID sets the "uuid" field to the value that was provided on create.
+func (u *AccountUpsertOne) UpdateUUID() *AccountUpsertOne {
+	return u.Update(func(s *AccountUpsert) {
+		s.UpdateUUID()
+	})
+}
+
+// ClearUUID clears the value of the "uuid" field.
+func (u *AccountUpsertOne) ClearUUID() *AccountUpsertOne {
+	return u.Update(func(s *AccountUpsert) {
+		s.ClearUUID()
 	})
 }
 
@@ -787,6 +917,48 @@ func (u *AccountUpsertOne) SetIsOpenaiAPIUser(v bool) *AccountUpsertOne {
 func (u *AccountUpsertOne) UpdateIsOpenaiAPIUser() *AccountUpsertOne {
 	return u.Update(func(s *AccountUpsert) {
 		s.UpdateIsOpenaiAPIUser()
+	})
+}
+
+// SetOpenaiAPIKey sets the "openai_api_key" field.
+func (u *AccountUpsertOne) SetOpenaiAPIKey(v string) *AccountUpsertOne {
+	return u.Update(func(s *AccountUpsert) {
+		s.SetOpenaiAPIKey(v)
+	})
+}
+
+// UpdateOpenaiAPIKey sets the "openai_api_key" field to the value that was provided on create.
+func (u *AccountUpsertOne) UpdateOpenaiAPIKey() *AccountUpsertOne {
+	return u.Update(func(s *AccountUpsert) {
+		s.UpdateOpenaiAPIKey()
+	})
+}
+
+// ClearOpenaiAPIKey clears the value of the "openai_api_key" field.
+func (u *AccountUpsertOne) ClearOpenaiAPIKey() *AccountUpsertOne {
+	return u.Update(func(s *AccountUpsert) {
+		s.ClearOpenaiAPIKey()
+	})
+}
+
+// SetAPIKey sets the "api_key" field.
+func (u *AccountUpsertOne) SetAPIKey(v uuid.UUID) *AccountUpsertOne {
+	return u.Update(func(s *AccountUpsert) {
+		s.SetAPIKey(v)
+	})
+}
+
+// UpdateAPIKey sets the "api_key" field to the value that was provided on create.
+func (u *AccountUpsertOne) UpdateAPIKey() *AccountUpsertOne {
+	return u.Update(func(s *AccountUpsert) {
+		s.UpdateAPIKey()
+	})
+}
+
+// ClearAPIKey clears the value of the "api_key" field.
+func (u *AccountUpsertOne) ClearAPIKey() *AccountUpsertOne {
+	return u.Update(func(s *AccountUpsert) {
+		s.ClearAPIKey()
 	})
 }
 
@@ -1025,6 +1197,27 @@ func (u *AccountUpsertBulk) UpdateDeleted() *AccountUpsertBulk {
 	})
 }
 
+// SetUUID sets the "uuid" field.
+func (u *AccountUpsertBulk) SetUUID(v uuid.UUID) *AccountUpsertBulk {
+	return u.Update(func(s *AccountUpsert) {
+		s.SetUUID(v)
+	})
+}
+
+// UpdateUUID sets the "uuid" field to the value that was provided on create.
+func (u *AccountUpsertBulk) UpdateUUID() *AccountUpsertBulk {
+	return u.Update(func(s *AccountUpsert) {
+		s.UpdateUUID()
+	})
+}
+
+// ClearUUID clears the value of the "uuid" field.
+func (u *AccountUpsertBulk) ClearUUID() *AccountUpsertBulk {
+	return u.Update(func(s *AccountUpsert) {
+		s.ClearUUID()
+	})
+}
+
 // SetUserID sets the "user_id" field.
 func (u *AccountUpsertBulk) SetUserID(v string) *AccountUpsertBulk {
 	return u.Update(func(s *AccountUpsert) {
@@ -1169,6 +1362,48 @@ func (u *AccountUpsertBulk) SetIsOpenaiAPIUser(v bool) *AccountUpsertBulk {
 func (u *AccountUpsertBulk) UpdateIsOpenaiAPIUser() *AccountUpsertBulk {
 	return u.Update(func(s *AccountUpsert) {
 		s.UpdateIsOpenaiAPIUser()
+	})
+}
+
+// SetOpenaiAPIKey sets the "openai_api_key" field.
+func (u *AccountUpsertBulk) SetOpenaiAPIKey(v string) *AccountUpsertBulk {
+	return u.Update(func(s *AccountUpsert) {
+		s.SetOpenaiAPIKey(v)
+	})
+}
+
+// UpdateOpenaiAPIKey sets the "openai_api_key" field to the value that was provided on create.
+func (u *AccountUpsertBulk) UpdateOpenaiAPIKey() *AccountUpsertBulk {
+	return u.Update(func(s *AccountUpsert) {
+		s.UpdateOpenaiAPIKey()
+	})
+}
+
+// ClearOpenaiAPIKey clears the value of the "openai_api_key" field.
+func (u *AccountUpsertBulk) ClearOpenaiAPIKey() *AccountUpsertBulk {
+	return u.Update(func(s *AccountUpsert) {
+		s.ClearOpenaiAPIKey()
+	})
+}
+
+// SetAPIKey sets the "api_key" field.
+func (u *AccountUpsertBulk) SetAPIKey(v uuid.UUID) *AccountUpsertBulk {
+	return u.Update(func(s *AccountUpsert) {
+		s.SetAPIKey(v)
+	})
+}
+
+// UpdateAPIKey sets the "api_key" field to the value that was provided on create.
+func (u *AccountUpsertBulk) UpdateAPIKey() *AccountUpsertBulk {
+	return u.Update(func(s *AccountUpsert) {
+		s.UpdateAPIKey()
+	})
+}
+
+// ClearAPIKey clears the value of the "api_key" field.
+func (u *AccountUpsertBulk) ClearAPIKey() *AccountUpsertBulk {
+	return u.Update(func(s *AccountUpsert) {
+		s.ClearAPIKey()
 	})
 }
 

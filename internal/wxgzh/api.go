@@ -34,7 +34,6 @@ func NewOfficialAccount(wc *wechat.Wechat) *OfficialAccount {
 		Token:          wechatConfig.Token,
 		EncodingAESKey: wechatConfig.EncodingAESKey,
 	}
-	logger.SugaredLogger.Debug("AppID: ", offCfg.AppID)
 	wc.SetCache(cache.NewMemory())
 	officialAccount := wc.GetOfficialAccount(offCfg)
 	return &OfficialAccount{

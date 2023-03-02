@@ -34,6 +34,32 @@ func (f ChatHistoryFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value,
 	return f(ctx, mv)
 }
 
+// The ConversationFunc type is an adapter to allow the use of ordinary
+// function as Conversation mutator.
+type ConversationFunc func(context.Context, *ent.ConversationMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f ConversationFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	mv, ok := m.(*ent.ConversationMutation)
+	if !ok {
+		return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.ConversationMutation", m)
+	}
+	return f(ctx, mv)
+}
+
+// The ConversationMessageFunc type is an adapter to allow the use of ordinary
+// function as ConversationMessage mutator.
+type ConversationMessageFunc func(context.Context, *ent.ConversationMessageMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f ConversationMessageFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	mv, ok := m.(*ent.ConversationMessageMutation)
+	if !ok {
+		return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.ConversationMessageMutation", m)
+	}
+	return f(ctx, mv)
+}
+
 // The QuotaFunc type is an adapter to allow the use of ordinary
 // function as Quota mutator.
 type QuotaFunc func(context.Context, *ent.QuotaMutation) (ent.Value, error)

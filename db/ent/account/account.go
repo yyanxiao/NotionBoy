@@ -18,6 +18,8 @@ const (
 	FieldUpdatedAt = "updated_at"
 	// FieldDeleted holds the string denoting the deleted field in the database.
 	FieldDeleted = "deleted"
+	// FieldUUID holds the string denoting the uuid field in the database.
+	FieldUUID = "uuid"
 	// FieldUserID holds the string denoting the user_id field in the database.
 	FieldUserID = "user_id"
 	// FieldUserType holds the string denoting the user_type field in the database.
@@ -34,6 +36,10 @@ const (
 	FieldIsLatestSchema = "is_latest_schema"
 	// FieldIsOpenaiAPIUser holds the string denoting the is_openai_api_user field in the database.
 	FieldIsOpenaiAPIUser = "is_openai_api_user"
+	// FieldOpenaiAPIKey holds the string denoting the openai_api_key field in the database.
+	FieldOpenaiAPIKey = "openai_api_key"
+	// FieldAPIKey holds the string denoting the api_key field in the database.
+	FieldAPIKey = "api_key"
 	// Table holds the table name of the account in the database.
 	Table = "accounts"
 )
@@ -44,6 +50,7 @@ var Columns = []string{
 	FieldCreatedAt,
 	FieldUpdatedAt,
 	FieldDeleted,
+	FieldUUID,
 	FieldUserID,
 	FieldUserType,
 	FieldDatabaseID,
@@ -52,6 +59,8 @@ var Columns = []string{
 	FieldNotionUserEmail,
 	FieldIsLatestSchema,
 	FieldIsOpenaiAPIUser,
+	FieldOpenaiAPIKey,
+	FieldAPIKey,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).

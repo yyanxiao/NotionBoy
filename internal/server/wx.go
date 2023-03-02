@@ -12,19 +12,20 @@ var (
 	wxAccount *wxgzh.OfficialAccount
 )
 
-func initWx() {
+func initWx(mux *http.ServeMux) {
 	wc = wechat.NewWechat()
 	wxAccount = wxgzh.NewOfficialAccount(wc)
 	// 获取ak
-	http.HandleFunc("/api/v1/oa/basic/get_access_token", wxGetAccessToken)
+	mux.HandleFunc("/api/v1/oa/basic/get_access_token", wxGetAccessToken)
 	// 获取微信callback IP
-	http.HandleFunc("/api/v1/oa/basic/get_callback_ip", wxGetCallbackIP)
+	mux.HandleFunc("/api/v1/oa/basic/get_callback_ip", wxGetCallbackIP)
 	// 获取微信API接口 IP
-	http.HandleFunc("/api/v1/oa/basic/get_api_domain_ip", wxGetAPIDomainIP)
+	mux.HandleFunc("/api/v1/oa/basic/get_api_domain_ip", wxGetAPIDomainIP)
 	// 清理接口调用次数
-	http.HandleFunc("/api/v1/oa/basic/clear_quota", wxClearQuota)
+	mux.HandleFunc("/api/v1/oa/basic/clear_quota", wxClearQuota)
 	// 处理消息
-	http.HandleFunc("/", wxProcessMsg)
+
+	// mux.HandleFunc("/", wxProcessMsg)
 }
 
 func wxGetAccessToken(w http.ResponseWriter, r *http.Request) {
@@ -63,6 +64,6 @@ func wxClearQuota(w http.ResponseWriter, r *http.Request) {
 	renderHtml(w, msg, http.StatusOK)
 }
 
-func wxProcessMsg(w http.ResponseWriter, r *http.Request) {
+func wxProcessMsg(w http.ResponseWriter, r *http.Request, _ map[string]string) {
 	wxAccount.Serve(w, r)
 }

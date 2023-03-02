@@ -105,6 +105,7 @@ const (
 	CMD_ZLIB                = "/ZLIB"
 	CMD_ZLIB_NEXT           = "ZLIBM"
 	CMD_ZLIB_SAVE_TO_NOTION = "ZLIBS"
+	CMD_UI                  = "/WEBUI"
 )
 
 const (
@@ -124,3 +125,20 @@ func (c contextKey) String() string {
 }
 
 var DATABASE_ID contextKey = "database"
+
+const (
+	AUTH_HEADER_X_API_KEY  = "x-api-key"
+	AUTH_HEADER_TOKEN_TYPE = "Bearer"
+	AUTH_HEADER_COOKIE     = "cookie"
+	AUTH_HEADER_TOKEN      = "token"
+	AUTH_USER_ID           = "user_id"
+	AUTH_USER_ACC          = "acc"
+)
+
+type ContextKey string
+
+const (
+	ContextKeyUserId      ContextKey = AUTH_USER_ID
+	ContextKeyUserAccount ContextKey = AUTH_USER_ACC
+	ContentKeyTransaction ContextKey = "transaction"
+)

@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"entgo.io/ent/dialect/sql"
+	"github.com/google/uuid"
 )
 
 // Account is the model entity for the Account schema.
@@ -22,6 +23,8 @@ type Account struct {
 	UpdatedAt time.Time `json:"updated_at,omitempty"`
 	// Deleted holds the value of the "deleted" field.
 	Deleted bool `json:"deleted,omitempty"`
+	// UUID
+	UUID uuid.UUID `json:"uuid,omitempty"`
 	// user id
 	UserID string `json:"user_id,omitempty"`
 	// UserType holds the value of the "user_type" field.
@@ -38,6 +41,10 @@ type Account struct {
 	IsLatestSchema bool `json:"is_latest_schema,omitempty"`
 	// Dose this user can use openai API instead of reverse session
 	IsOpenaiAPIUser bool `json:"is_openai_api_user,omitempty"`
+	// OpenAI API Key
+	OpenaiAPIKey string `json:"-"`
+	// API Key
+	APIKey uuid.UUID `json:"api_key,omitempty"`
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -49,10 +56,12 @@ func (*Account) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullBool)
 		case account.FieldID:
 			values[i] = new(sql.NullInt64)
-		case account.FieldUserID, account.FieldUserType, account.FieldDatabaseID, account.FieldAccessToken, account.FieldNotionUserID, account.FieldNotionUserEmail:
+		case account.FieldUserID, account.FieldUserType, account.FieldDatabaseID, account.FieldAccessToken, account.FieldNotionUserID, account.FieldNotionUserEmail, account.FieldOpenaiAPIKey:
 			values[i] = new(sql.NullString)
 		case account.FieldCreatedAt, account.FieldUpdatedAt:
 			values[i] = new(sql.NullTime)
+		case account.FieldUUID, account.FieldAPIKey:
+			values[i] = new(uuid.UUID)
 		default:
 			return nil, fmt.Errorf("unexpected column %q for type Account", columns[i])
 		}
@@ -91,6 +100,12 @@ func (a *Account) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field deleted", values[i])
 			} else if value.Valid {
 				a.Deleted = value.Bool
+			}
+		case account.FieldUUID:
+			if value, ok := values[i].(*uuid.UUID); !ok {
+				return fmt.Errorf("unexpected type %T for field uuid", values[i])
+			} else if value != nil {
+				a.UUID = *value
 			}
 		case account.FieldUserID:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -140,6 +155,18 @@ func (a *Account) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				a.IsOpenaiAPIUser = value.Bool
 			}
+		case account.FieldOpenaiAPIKey:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field openai_api_key", values[i])
+			} else if value.Valid {
+				a.OpenaiAPIKey = value.String
+			}
+		case account.FieldAPIKey:
+			if value, ok := values[i].(*uuid.UUID); !ok {
+				return fmt.Errorf("unexpected type %T for field api_key", values[i])
+			} else if value != nil {
+				a.APIKey = *value
+			}
 		}
 	}
 	return nil
@@ -177,6 +204,9 @@ func (a *Account) String() string {
 	builder.WriteString("deleted=")
 	builder.WriteString(fmt.Sprintf("%v", a.Deleted))
 	builder.WriteString(", ")
+	builder.WriteString("uuid=")
+	builder.WriteString(fmt.Sprintf("%v", a.UUID))
+	builder.WriteString(", ")
 	builder.WriteString("user_id=")
 	builder.WriteString(a.UserID)
 	builder.WriteString(", ")
@@ -199,6 +229,11 @@ func (a *Account) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("is_openai_api_user=")
 	builder.WriteString(fmt.Sprintf("%v", a.IsOpenaiAPIUser))
+	builder.WriteString(", ")
+	builder.WriteString("openai_api_key=<sensitive>")
+	builder.WriteString(", ")
+	builder.WriteString("api_key=")
+	builder.WriteString(fmt.Sprintf("%v", a.APIKey))
 	builder.WriteByte(')')
 	return builder.String()
 }

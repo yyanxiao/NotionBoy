@@ -5,21 +5,25 @@ go 1.18
 require (
 	entgo.io/ent v0.11.4
 	github.com/aws/aws-sdk-go v1.44.167
-	github.com/eatmoreapple/openwechat v1.2.4
+	github.com/envoyproxy/protoc-gen-validate v0.1.0
 	github.com/fsnotify/fsnotify v1.6.0
 	github.com/go-co-op/gocron v1.18.0
 	github.com/go-resty/resty/v2 v2.7.0
 	github.com/go-rod/rod v0.112.2
 	github.com/go-sql-driver/mysql v1.6.0
+	github.com/golang-jwt/jwt/v5 v5.0.0-rc.1
+	github.com/grpc-ecosystem/grpc-gateway/v2 v2.15.0
 	github.com/jomei/notionapi v1.9.3
 	github.com/mattn/go-sqlite3 v1.14.16
 	github.com/patrickmn/go-cache v2.1.0+incompatible
-	github.com/sashabaranov/go-gpt3 v0.0.0-20221202105456-0f9f4aa343ad
+	github.com/sashabaranov/go-gpt3 v1.3.0
 	github.com/silenceper/wechat/v2 v2.1.4
 	github.com/spf13/viper v1.14.0
 	github.com/stretchr/testify v1.8.1
-	golang.org/x/oauth2 v0.2.0
-	golang.org/x/text v0.4.0
+	golang.org/x/oauth2 v0.3.0
+	golang.org/x/text v0.5.0
+	google.golang.org/genproto v0.0.0-20221207170731-23e4bf6bdc37
+	google.golang.org/grpc v1.51.0
 	gopkg.in/telebot.v3 v3.1.2
 )
 
@@ -54,6 +58,7 @@ require (
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/google/go-cmp v0.5.9 // indirect
 	github.com/google/uuid v1.3.0
+	github.com/grpc-ecosystem/go-grpc-middleware v1.3.0
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/hashicorp/hcl/v2 v2.15.0 // indirect
 	github.com/magiconair/properties v1.8.6 // indirect
@@ -71,11 +76,11 @@ require (
 	go.uber.org/zap v1.24.0
 	golang.org/x/crypto v0.3.0 // indirect
 	golang.org/x/mod v0.7.0 // indirect
-	golang.org/x/net v0.2.0 // indirect
+	golang.org/x/net v0.3.0
 	golang.org/x/sync v0.1.0
-	golang.org/x/sys v0.2.0 // indirect
+	golang.org/x/sys v0.3.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
-	google.golang.org/protobuf v1.28.1 // indirect
+	google.golang.org/protobuf v1.28.1
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
