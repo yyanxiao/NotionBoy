@@ -670,6 +670,7 @@
         "details": {
           "type": "array",
           "items": {
+            "type": "object",
             "$ref": "#/definitions/protobufAny"
           },
           "description": "A list of messages that carry the error details.  There is a common set of\nmessage types for APIs to use."
@@ -701,6 +702,7 @@
         "messages": {
           "type": "array",
           "items": {
+            "type": "object",
             "$ref": "#/definitions/servicev1Message"
           }
         }
@@ -759,6 +761,7 @@
         "conversations": {
           "type": "array",
           "items": {
+            "type": "object",
             "$ref": "#/definitions/servicev1ConversationWithoutMessages"
           }
         }
@@ -770,6 +773,7 @@
         "messages": {
           "type": "array",
           "items": {
+            "type": "object",
             "$ref": "#/definitions/servicev1Message"
           }
         }

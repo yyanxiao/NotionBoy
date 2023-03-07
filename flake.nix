@@ -17,6 +17,7 @@
           postShellHook = ''
             echo "Welcome to buf env build by nix"
             export PATH="~/go/bin:$PATH"
+            export PATH=$PATH:/usr/local/go/bin
           '';
         };
       });

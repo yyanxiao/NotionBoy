@@ -36,6 +36,6 @@ webui: clean
 	find webui/dist -type f -exec sed -i 's/\/_next\/static\//\.\/_next\/static\//g' {} +
 
 grpc:
-	rm -rf api/pb api/docs webui/lib.pb
+	rm -rf api/pb api/docs webui/src/lib.pb
 	buf format -w
 	buf generate

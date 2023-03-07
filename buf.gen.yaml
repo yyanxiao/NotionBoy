@@ -33,5 +33,5 @@ plugins:
       opt: markdown,apidocs.md
     # generate ts code
     - name: grpc-gateway-ts
-      out: webui/lib/pb
+      out: webui/src/lib/pb
       opt: paths=source_relative
