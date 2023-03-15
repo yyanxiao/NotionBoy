@@ -22,7 +22,7 @@ func init() {
 	if err != nil {
 		panic("failed to connect database: " + err.Error())
 	}
-	migrateDB()
+	// migrateDB()
 }
 
 func GetClient() *ent.Client {
