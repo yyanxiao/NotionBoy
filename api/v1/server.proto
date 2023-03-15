@@ -128,7 +128,7 @@ service Service {
     option (google.api.http) = {delete: "/v1/conversations/{id}"};
   }
 
-  rpc CreateMessage(CreateMessageRequest) returns (Message) {
+  rpc CreateMessage(CreateMessageRequest) returns (stream Message) {
     option (google.api.http) = {
       post: "/v1/conversations/{conversation_id}/messages"
       body: "*"

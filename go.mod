@@ -16,7 +16,7 @@ require (
 	github.com/jomei/notionapi v1.9.3
 	github.com/mattn/go-sqlite3 v1.14.16
 	github.com/patrickmn/go-cache v2.1.0+incompatible
-	github.com/sashabaranov/go-gpt3 v1.3.0
+	github.com/sashabaranov/go-openai v1.5.0
 	github.com/silenceper/wechat/v2 v2.1.4
 	github.com/spf13/viper v1.14.0
 	github.com/stretchr/testify v1.8.1

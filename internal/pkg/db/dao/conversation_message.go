@@ -30,7 +30,7 @@ func GetConversationMessage(ctx context.Context, ConversationMessageId uuid.UUID
 func ListConversationMessages(ctx context.Context, conversationId uuid.UUID, limit, offset int) ([]*ent.ConversationMessage, error) {
 	return db.GetClient().ConversationMessage.Query().
 		Where(conversationmessage.ConversationID(conversationId)).
-		Order(ent.Desc(conversationmessage.FieldCreatedAt)).
+		Order(ent.Asc(conversationmessage.FieldCreatedAt)).
 		Limit(limit).
 		Offset(offset).
 		All(ctx)

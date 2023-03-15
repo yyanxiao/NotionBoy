@@ -489,7 +489,7 @@ NumericEnum is one or zero.
 | GetConversation | [GetConversationRequest](#servicev1-GetConversationRequest) | [Conversation](#servicev1-Conversation) |  |
 | ListConversations | [ListConversationsRequest](#servicev1-ListConversationsRequest) | [ListConversationsResponse](#servicev1-ListConversationsResponse) |  |
 | DeleteConversation | [DeleteConversationRequest](#servicev1-DeleteConversationRequest) | [.google.protobuf.Empty](#google-protobuf-Empty) |  |
-| CreateMessage | [CreateMessageRequest](#servicev1-CreateMessageRequest) | [Message](#servicev1-Message) |  |
+| CreateMessage | [CreateMessageRequest](#servicev1-CreateMessageRequest) | [Message](#servicev1-Message) stream |  |
 | GetMessage | [GetMessageRequest](#servicev1-GetMessageRequest) | [Message](#servicev1-Message) |  |
 | ListMessages | [ListMessagesRequest](#servicev1-ListMessagesRequest) | [ListMessagesResponse](#servicev1-ListMessagesResponse) |  |
 | DeleteMessage | [DeleteMessageRequest](#servicev1-DeleteMessageRequest) | [.google.protobuf.Empty](#google-protobuf-Empty) |  |

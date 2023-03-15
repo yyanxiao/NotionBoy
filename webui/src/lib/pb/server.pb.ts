@@ -47,8 +47,8 @@ export class Service {
   static DeleteConversation(req: Servicev1Conversation.DeleteConversationRequest, initReq?: fm.InitReq): Promise<GoogleProtobufEmpty.Empty> {
     return fm.fetchReq<Servicev1Conversation.DeleteConversationRequest, GoogleProtobufEmpty.Empty>(`/v1/conversations/${req["id"]}`, {...initReq, method: "DELETE"})
   }
-  static CreateMessage(req: Servicev1Conversation.CreateMessageRequest, initReq?: fm.InitReq): Promise<Servicev1Conversation.Message> {
-    return fm.fetchReq<Servicev1Conversation.CreateMessageRequest, Servicev1Conversation.Message>(`/v1/conversations/${req["conversationId"]}/messages`, {...initReq, method: "POST", body: JSON.stringify(req, fm.replacer)})
+  static CreateMessage(req: Servicev1Conversation.CreateMessageRequest, entityNotifier?: fm.NotifyStreamEntityArrival<Servicev1Conversation.Message>, initReq?: fm.InitReq): Promise<void> {
+    return fm.fetchStreamingRequest<Servicev1Conversation.CreateMessageRequest, Servicev1Conversation.Message>(`/v1/conversations/${req["conversationId"]}/messages`, entityNotifier, {...initReq, method: "POST", body: JSON.stringify(req, fm.replacer)})
   }
   static GetMessage(req: Servicev1Conversation.GetMessageRequest, initReq?: fm.InitReq): Promise<Servicev1Conversation.Message> {
     return fm.fetchReq<Servicev1Conversation.GetMessageRequest, Servicev1Conversation.Message>(`/v1/conversations/${req["conversationId"]}/messages/${req["id"]}?${fm.renderURLSearchParams(req, ["conversationId", "id"])}`, {...initReq, method: "GET"})

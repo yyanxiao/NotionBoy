@@ -49,11 +49,6 @@ export function Auth() {
 		for (const path of PROTECTED_PATHS) {
 			if (router.pathname.startsWith(path)) {
 				const tokenExpire = Cookies.get(TOKEN_EXPIRE);
-				console.log("tokenExpire", tokenExpire);
-				// if (tokenExpire == undefined) {
-				// 	redirectToLogin();
-				// 	return;
-				// }
 				const diff = Date.parse(tokenExpire as string) - Date.now();
 
 				if (diff < 0) {

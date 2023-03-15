@@ -8,7 +8,6 @@ import {
 } from "@/lib/pb/model/conversation.pb";
 
 import { Service } from "@/lib/pb/server.pb";
-import Cookies from "js-cookie";
 import { useRouter } from "next/router";
 import ConversationList from "@/components/chat/conversation-list";
 import ChatWindow from "@/components/chat/chat-window";
@@ -39,7 +38,6 @@ export default function Chat() {
 		if (conversations.length == 0) {
 			Service.ListConversations({})
 				.then((response) => {
-					console.log("ListConversations", response);
 					if (response.conversations === undefined) {
 						return;
 					}
@@ -70,15 +68,12 @@ export default function Chat() {
 		if (selectedConversation === undefined) {
 			return;
 		}
-		console.log("selectedConversation", selectedConversation);
-		console.log("messageMap", messageMap);
 		if (messageMap.has(selectedConversation.id as string)) {
 			return;
 		}
 		setIsLoading(true);
 		Service.ListMessages({ conversationId: selectedConversation.id })
 			.then((response) => {
-				console.log("ListMessages", response);
 				if (response.messages === undefined) {
 					return;
 				}
@@ -166,15 +161,25 @@ export default function Chat() {
 			messageMap
 		);
 		setMessageMap(new Map(messageMap));
-
+		let fullMessage = "";
 		// send message request to server
-		Service.CreateMessage(createMessageRequest)
-			.then((response) => {
-				message.response = response.response;
-				message.createdAt = response.createdAt;
-				message.updatedAt = response.updatedAt;
-				message.tokenUsage = response.tokenUsage;
-			})
+		Service.CreateMessage(createMessageRequest, (msg) => {
+			if (msg.response === undefined) {
+				return;
+			}
+			fullMessage += msg.response;
+			message.response = fullMessage;
+			message.createdAt = msg.createdAt;
+			message.updatedAt = msg.updatedAt;
+			message.tokenUsage = msg.tokenUsage;
+
+			addMessageToMessageMap(
+				selectedConversation?.id as string,
+				message,
+				messageMap
+			);
+			setMessageMap(new Map(messageMap));
+		})
 			.catch((error) => {
 				toast({
 					variant: "destructive",
@@ -185,13 +190,6 @@ export default function Chat() {
 			.finally(() => {
 				setIsLoading(false);
 			});
-
-		addMessageToMessageMap(
-			selectedConversation?.id as string,
-			message,
-			messageMap
-		);
-		setMessageMap(new Map(messageMap));
 	};
 
 	return (

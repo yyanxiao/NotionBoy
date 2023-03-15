@@ -3,22 +3,26 @@ package conversation
 import (
 	"context"
 	"fmt"
+	"time"
+
 	"notionboy/db/ent"
 	"notionboy/db/ent/quota"
 	"notionboy/internal/pkg/db/dao"
 	"notionboy/internal/pkg/logger"
 	"notionboy/internal/pkg/utils/cache"
-	"time"
 
 	"github.com/google/uuid"
-	gogpt "github.com/sashabaranov/go-gpt3"
+	gogpt "github.com/sashabaranov/go-openai"
 )
 
 const DEFAULT_INSTRUCTION = `
 You are ChatGPT, a large language model trained by OpenAI. You Respond as concisely as possible for each response. It's essential to respond concisely and use the same language as the user, Please keep this in mind.
 `
-const DEFAULT_TITLE = "ChatGPT"
-const DEFAULT_MESSAGE_LIMIT = 10
+
+const (
+	DEFAULT_TITLE         = "ChatGPT"
+	DEFAULT_MESSAGE_LIMIT = 10
+)
 
 const (
 	ROLE_USER      = "user"

@@ -59,7 +59,7 @@ type ServiceClient interface {
 	GetConversation(ctx context.Context, in *model.GetConversationRequest, opts ...grpc.CallOption) (*model.Conversation, error)
 	ListConversations(ctx context.Context, in *model.ListConversationsRequest, opts ...grpc.CallOption) (*model.ListConversationsResponse, error)
 	DeleteConversation(ctx context.Context, in *model.DeleteConversationRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
-	CreateMessage(ctx context.Context, in *model.CreateMessageRequest, opts ...grpc.CallOption) (*model.Message, error)
+	CreateMessage(ctx context.Context, in *model.CreateMessageRequest, opts ...grpc.CallOption) (Service_CreateMessageClient, error)
 	GetMessage(ctx context.Context, in *model.GetMessageRequest, opts ...grpc.CallOption) (*model.Message, error)
 	ListMessages(ctx context.Context, in *model.ListMessagesRequest, opts ...grpc.CallOption) (*model.ListMessagesResponse, error)
 	DeleteMessage(ctx context.Context, in *model.DeleteMessageRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
@@ -172,13 +172,36 @@ func (c *serviceClient) DeleteConversation(ctx context.Context, in *model.Delete
 	return out, nil
 }
 
-func (c *serviceClient) CreateMessage(ctx context.Context, in *model.CreateMessageRequest, opts ...grpc.CallOption) (*model.Message, error) {
-	out := new(model.Message)
-	err := c.cc.Invoke(ctx, Service_CreateMessage_FullMethodName, in, out, opts...)
+func (c *serviceClient) CreateMessage(ctx context.Context, in *model.CreateMessageRequest, opts ...grpc.CallOption) (Service_CreateMessageClient, error) {
+	stream, err := c.cc.NewStream(ctx, &Service_ServiceDesc.Streams[0], Service_CreateMessage_FullMethodName, opts...)
 	if err != nil {
 		return nil, err
 	}
-	return out, nil
+	x := &serviceCreateMessageClient{stream}
+	if err := x.ClientStream.SendMsg(in); err != nil {
+		return nil, err
+	}
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	return x, nil
+}
+
+type Service_CreateMessageClient interface {
+	Recv() (*model.Message, error)
+	grpc.ClientStream
+}
+
+type serviceCreateMessageClient struct {
+	grpc.ClientStream
+}
+
+func (x *serviceCreateMessageClient) Recv() (*model.Message, error) {
+	m := new(model.Message)
+	if err := x.ClientStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
 }
 
 func (c *serviceClient) GetMessage(ctx context.Context, in *model.GetMessageRequest, opts ...grpc.CallOption) (*model.Message, error) {
@@ -229,7 +252,7 @@ type ServiceServer interface {
 	GetConversation(context.Context, *model.GetConversationRequest) (*model.Conversation, error)
 	ListConversations(context.Context, *model.ListConversationsRequest) (*model.ListConversationsResponse, error)
 	DeleteConversation(context.Context, *model.DeleteConversationRequest) (*emptypb.Empty, error)
-	CreateMessage(context.Context, *model.CreateMessageRequest) (*model.Message, error)
+	CreateMessage(*model.CreateMessageRequest, Service_CreateMessageServer) error
 	GetMessage(context.Context, *model.GetMessageRequest) (*model.Message, error)
 	ListMessages(context.Context, *model.ListMessagesRequest) (*model.ListMessagesResponse, error)
 	DeleteMessage(context.Context, *model.DeleteMessageRequest) (*emptypb.Empty, error)
@@ -273,8 +296,8 @@ func (UnimplementedServiceServer) ListConversations(context.Context, *model.List
 func (UnimplementedServiceServer) DeleteConversation(context.Context, *model.DeleteConversationRequest) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteConversation not implemented")
 }
-func (UnimplementedServiceServer) CreateMessage(context.Context, *model.CreateMessageRequest) (*model.Message, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method CreateMessage not implemented")
+func (UnimplementedServiceServer) CreateMessage(*model.CreateMessageRequest, Service_CreateMessageServer) error {
+	return status.Errorf(codes.Unimplemented, "method CreateMessage not implemented")
 }
 func (UnimplementedServiceServer) GetMessage(context.Context, *model.GetMessageRequest) (*model.Message, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetMessage not implemented")
@@ -496,22 +519,25 @@ func _Service_DeleteConversation_Handler(srv interface{}, ctx context.Context, d
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Service_CreateMessage_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(model.CreateMessageRequest)
-	if err := dec(in); err != nil {
-		return nil, err
+func _Service_CreateMessage_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(model.CreateMessageRequest)
+	if err := stream.RecvMsg(m); err != nil {
+		return err
 	}
-	if interceptor == nil {
-		return srv.(ServiceServer).CreateMessage(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: Service_CreateMessage_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ServiceServer).CreateMessage(ctx, req.(*model.CreateMessageRequest))
-	}
-	return interceptor(ctx, in, info, handler)
+	return srv.(ServiceServer).CreateMessage(m, &serviceCreateMessageServer{stream})
+}
+
+type Service_CreateMessageServer interface {
+	Send(*model.Message) error
+	grpc.ServerStream
+}
+
+type serviceCreateMessageServer struct {
+	grpc.ServerStream
+}
+
+func (x *serviceCreateMessageServer) Send(m *model.Message) error {
+	return x.ServerStream.SendMsg(m)
 }
 
 func _Service_GetMessage_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -620,10 +646,6 @@ var Service_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Service_DeleteConversation_Handler,
 		},
 		{
-			MethodName: "CreateMessage",
-			Handler:    _Service_CreateMessage_Handler,
-		},
-		{
 			MethodName: "GetMessage",
 			Handler:    _Service_GetMessage_Handler,
 		},
@@ -636,6 +658,12 @@ var Service_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Service_DeleteMessage_Handler,
 		},
 	},
-	Streams:  []grpc.StreamDesc{},
+	Streams: []grpc.StreamDesc{
+		{
+			StreamName:    "CreateMessage",
+			Handler:       _Service_CreateMessage_Handler,
+			ServerStreams: true,
+		},
+	},
 	Metadata: "server.proto",
 }

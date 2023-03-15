@@ -3,6 +3,7 @@ package handler
 import (
 	"context"
 
+	"notionboy/api/pb"
 	model "notionboy/api/pb/model"
 	"notionboy/internal/pkg/logger"
 
@@ -79,17 +80,19 @@ func (s *Server) DeleteConversation(ctx context.Context, req *model.DeleteConver
 	return &emptypb.Empty{}, err
 }
 
-func (s *Server) CreateMessage(ctx context.Context, req *model.CreateMessageRequest) (*model.Message, error) {
+func (s *Server) CreateMessage(req *model.CreateMessageRequest, stream pb.Service_CreateMessageServer) error {
+	ctx := stream.Context()
 	acc := getAccFromContext(ctx)
 	if acc == nil {
-		return nil, status.Errorf(codes.Unauthenticated, "Request unauthenticated")
+		return status.Errorf(codes.Unauthenticated, "Request unauthenticated")
 	}
 
-	dto, err := s.ConversationService.CreateConversationMessage(ctx, acc, req.GetConversationId(), req.GetRequest())
+	err := s.ConversationService.CreateStreamConversationMessage(ctx, acc, stream, req.GetConversationId(), req.GetRequest())
 	if err != nil {
-		return nil, err
+		return err
 	}
-	return dto.ToPB(), nil
+
+	return nil
 }
 
 func (s *Server) GetMessage(ctx context.Context, req *model.GetMessageRequest) (*model.Message, error) {

@@ -4,6 +4,7 @@ import (
 	"context"
 	"strings"
 
+	"notionboy/api/pb"
 	"notionboy/db/ent"
 	"notionboy/internal/pkg/db/dao"
 	"notionboy/internal/pkg/logger"
@@ -123,4 +124,44 @@ func (m *conversationMgr) DeleteConversationMessage(ctx context.Context, acc *en
 		return status.Errorf(400, "invalid id %s", err.Error())
 	}
 	return dao.DeleteConversationMessage(ctx, id)
+}
+
+func (m *conversationMgr) CreateStreamConversationMessage(ctx context.Context, acc *ent.Account, stream pb.Service_CreateMessageServer, conversationId, request string) error {
+	id, err := uuid.Parse(conversationId)
+	if err != nil {
+		return status.Errorf(400, "invalid id %s", err.Error())
+	}
+	conversation, err := dao.GetConversation(ctx, id)
+	logger.SugaredLogger.Debugw("get conversation", "conversation", conversation, "err", err)
+	if err != nil {
+		if strings.Contains(err.Error(), "not found") {
+			logger.SugaredLogger.Debugw("conversation not found, create a new one", "conversationId", conversationId)
+			conversationDTO, err := m.CreateConversation(ctx, acc, "", "")
+			if err != nil {
+				return err
+			}
+			logger.SugaredLogger.Debugw("create conversation", "conversationDTO", conversationDTO)
+			conversation = conversationDTO.ToDB()
+		} else {
+			return err
+		}
+	}
+
+	apiClient := NewApiClient(acc.OpenaiAPIKey)
+
+	conversationMessage, err := apiClient.StreamChatWithHistory(ctx, acc, conversation.Instruction, conversationId, request, stream)
+	// logger.SugaredLogger.Debugw("chat with history", "message", message, "err", err)
+	if err != nil {
+		logger.SugaredLogger.Debugw("chat with history error", "err", err)
+		return err
+	}
+
+	logger.SugaredLogger.Debugw("chat with history", "conversationMessage", conversationMessage)
+	dto := ConversationMessageDTOFromDB(conversationMessage)
+	if err = stream.Send(dto.ToPB()); err != nil {
+		logger.SugaredLogger.Debugw("send message error", "err", err)
+		return err
+	}
+
+	return nil
 }

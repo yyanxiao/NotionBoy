@@ -1,63 +1,38 @@
-import {
-	Inspect,
-	List,
-	Mail,
-	Menu,
-	MessageSquare,
-	Plus,
-	PlusCircle,
-	Settings,
-	Settings2,
-	SidebarOpen,
-	Trash2,
-	UserPlus,
-} from "lucide-react";
-import { v4 as uuidv4 } from "uuid";
 import { Button } from "@/components/ui/button";
+import {
+	DefaultInstruction,
+	Instruction,
+	InstructionList,
+} from "@/config/prompts";
+import { useToast } from "@/hooks/use-toast";
 import {
 	Conversation,
 	DeleteConversationRequest,
 } from "@/lib/pb/model/conversation.pb";
-import {
-	Sheet,
-	SheetContent,
-	SheetDescription,
-	SheetHeader,
-	SheetTitle,
-	SheetTrigger,
-} from "@/components/ui/sheet";
 import { Service } from "@/lib/pb/server.pb";
-import { useToast } from "@/hooks/use-toast";
-import {
-	Popover,
-	PopoverContent,
-	PopoverTrigger,
-} from "@radix-ui/react-popover";
-import { useState } from "react";
 import {
 	DropdownMenu,
 	DropdownMenuContent,
 	DropdownMenuItem,
-	DropdownMenuLabel,
 	DropdownMenuPortal,
-	DropdownMenuSeparator,
 	DropdownMenuSub,
 	DropdownMenuSubContent,
 	DropdownMenuSubTrigger,
 	DropdownMenuTrigger,
 } from "@radix-ui/react-dropdown-menu";
 import {
-	DefaultInstruction,
-	Instruction,
-	InstructionList,
-	InstructionMap,
-} from "@/config/prompts";
-import {
 	HoverCard,
 	HoverCardContent,
 	HoverCardTrigger,
 } from "@radix-ui/react-hover-card";
-import { Textarea } from "../ui/textarea";
+import {
+	Popover,
+	PopoverContent,
+	PopoverTrigger,
+} from "@radix-ui/react-popover";
+import { List, Plus, Settings, Trash2 } from "lucide-react";
+import { useState } from "react";
+import { v4 as uuidv4 } from "uuid";
 
 type ConversationListProps = {
 	conversations: Conversation[];
@@ -242,7 +217,14 @@ export default function ConversationList({
 									onSelectConversation(conversation)
 								}
 							>
-								{conversation.title || conversation.id}
+								<div>
+									<p>
+										{conversation.title || conversation.id}
+									</p>
+									<p className="text-xs">
+										{conversation.createdAt}
+									</p>
+								</div>
 							</Button>
 							<Button
 								onClick={() =>
@@ -278,13 +260,6 @@ export default function ConversationList({
 					<Plus />
 				</Button>
 				{setInstructionComponent()}
-				{/* <Popover>
-					<PopoverTrigger className="px-2">
-						<Settings />
-					</PopoverTrigger>
-					<PopoverContent className="bg-stone-100 w-96 h-96 p-1 rounded-3xl">
-					</PopoverContent>
-				</Popover> */}
 			</div>
 		</div>
 	);
