@@ -1,278 +1,239 @@
-import { useRef, useState, useEffect } from "react";
-import { Menu, Send, Plus } from "lucide-react";
-import { marked } from "marked";
-
+import { useState, useEffect } from "react";
+import { useToast } from "@/hooks/use-toast";
+import { v4 as uuidv4 } from "uuid";
 import {
 	Conversation,
 	CreateMessageRequest,
 	Message,
 } from "@/lib/pb/model/conversation.pb";
 
-import { v4 as uuidv4 } from "uuid";
 import { Service } from "@/lib/pb/server.pb";
-
-function parseMarkdown(text: string) {
-	return { __html: marked(text) };
-}
+import Cookies from "js-cookie";
+import { useRouter } from "next/router";
+import ConversationList from "@/components/chat/conversation-list";
+import ChatWindow from "@/components/chat/chat-window";
+import { ChatInputBox } from "@/components/chat/input-box";
+import { isLogin } from "@/lib/utils";
+import { siteConfig } from "@/config/site";
 
 export default function Chat() {
 	const [conversations, setConversations] = useState<Conversation[]>([]);
-	const [currentConversation, setCurrentConversation] =
-		useState<Conversation>({
-			id: uuidv4(),
-		} as Conversation);
-	const [currentConversationId, setCurrentConversationId] =
-		useState<string>("");
-	const [currentMessages, setCurrentMessages] = useState<Message[]>([]);
-	const [inputValue, setInputValue] = useState<string>("");
-	const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(false);
+	const [selectedConversation, setSelectedConversation] =
+		useState<Conversation>();
+	const [messageMap, setMessageMap] = useState<Map<string, Message[]>>(
+		new Map()
+	);
 	const [isLoading, setIsLoading] = useState(false);
 
-	// on page load
+	const router = useRouter();
+	const { toast } = useToast();
+
 	useEffect(() => {
-		let conversations: Conversation[] = [];
-		Service.ListConversations({})
-			.then((response) => {
-				console.log("ListConversations", response);
-				if (response.conversations === undefined) {
-					return;
-				}
-				conversations = response.conversations;
-				setConversations(conversations);
-			})
-			.catch((error) => {
-				console.log(error);
-			});
+		// check if user is logged in
+		if (!isLogin()) {
+			router.push(siteConfig.links.login);
+			return;
+		}
+
+		// list conversatons when pages loads and there are no conversations
+		if (conversations.length == 0) {
+			Service.ListConversations({})
+				.then((response) => {
+					console.log("ListConversations", response);
+					if (response.conversations === undefined) {
+						return;
+					}
+					setConversations(response.conversations);
+				})
+				.catch((error) => {
+					toast({
+						variant: "destructive",
+						title: "ListConversations error",
+						description: JSON.stringify(error),
+					});
+				});
+		}
+		// create conversation on page load
 		const conversation = {
 			id: uuidv4(),
 			createdAt: new Date().toISOString(),
 			updatedAt: new Date().toISOString(),
 		} as Conversation;
-		setCurrentConversation(conversation);
-		setConversations([...conversations, conversation]);
+		setConversations([conversation, ...conversations]);
+
+		// select conversation on page load
+		setSelectedConversation(conversation);
 	}, []);
 
-	// on currentConversation change, set currentConversationId and fetch messages
+	// handle conversation selection with messages
 	useEffect(() => {
-		if (currentConversation.id === undefined) {
+		if (selectedConversation === undefined) {
 			return;
 		}
-		console.log("currentConversation", JSON.stringify(currentConversation));
-		setCurrentConversationId(currentConversation.id);
-		if (currentConversation.messages === undefined) {
-			handleListMessages(currentConversationId);
-		}
-	}, [currentConversation]);
-
-	// create conversation on local, only create on server when user sends message
-	const handleCreateConversation = () => {
-		const conversation = {
-			id: uuidv4(),
-			createdAt: new Date().toISOString(),
-			updatedAt: new Date().toISOString(),
-			messages: [],
-		} as Conversation;
-		setCurrentConversation(conversation);
-		setConversations([...conversations, conversation]);
-	};
-
-	const handleListMessages = (conversationId: string) => {
-		if (conversationId === undefined || conversationId === "") {
-			return;
-		}
-		Service.ListMessages({ conversationId: conversationId })
-			.then((response) => {
-				console.log(
-					"handleConversationClick list messages: ",
-					response
-				);
-				response.messages?.sort((a, b) => {
-					if (a.createdAt === undefined) {
-						return 1;
-					} else if (b.createdAt === undefined) {
-						return -1;
-					}
-					return (
-						new Date(a.createdAt).getTime() -
-						new Date(b.createdAt).getTime()
-					);
-				});
-				// update current conversation and messages
-				setCurrentMessages(response.messages ?? []);
-				let conversation = currentConversation;
-				conversation.messages = response.messages ?? [];
-				setCurrentConversation(conversation);
-			})
-			.catch((error) => {
-				console.log(
-					"handleConversationClick list message error: ",
-					error
-				);
-			});
-	};
-
-	const handleConversationClick = (conversation: Conversation) => {
-		if (conversation.id != undefined) {
-			conversations.forEach((c) => {
-				if (c.id === conversation.id) {
-					setCurrentConversation(c);
-				}
-			});
-		}
-	};
-
-	const leftSideBar = () => {
-		return (
-			<div className="h-full flex flex-col max-w-lg bg-gray-400 text-white">
-				<button
-					key="button"
-					className="btn"
-					onClick={handleCreateConversation}
-				>
-					<Plus />
-				</button>
-				{conversations.map((conversation) => {
-					return (
-						<button
-							key={conversation.id}
-							className="btn hover:bg-slate-500 focus:bg-slate-800"
-							value={currentConversationId}
-							onClick={() =>
-								handleConversationClick(conversation)
-							}
-						>
-							<p>{conversation.id}</p>
-						</button>
-					);
-				})}
-			</div>
-		);
-	};
-
-	const inputWithSendButton = () => {
-		return (
-			<div className="relative">
-				<input
-					type="text"
-					placeholder="Type here"
-					className="input input-bordered w-full p-2"
-					onChange={(e) => setInputValue(e.target.value)}
-					value={inputValue}
-					onKeyDown={(e) => {
-						if (e.key === "Enter") {
-							handleMessageSend(inputValue);
-						}
-					}}
-				/>
-				<button
-					className="absolute right-2 mt-2 p-1 disabled:opacity-50"
-					disabled={isLoading}
-					onClick={() => handleMessageSend(inputValue)}
-				>
-					<Send />
-				</button>
-			</div>
-		);
-	};
-
-	const renderMessages = (messages: Message[]) => {
-		return messages.map((message) => {
-			return (
-				<div key={message.id}>
-					{message.request !== undefined &&
-						message.request !== "" && (
-							<div
-								className="chat chat-start"
-								key={`${message.id}-req`}
-							>
-								<div
-									className="chat-bubble chat-bubble-accent prose text-sm"
-									dangerouslySetInnerHTML={parseMarkdown(
-										message.request
-									)}
-								></div>
-							</div>
-						)}
-					{message.response !== undefined &&
-						message.response !== "" && (
-							<div
-								className="chat chat-end"
-								key={`${message.id}-resp`}
-							>
-								<div
-									className="chat-bubble chat-bubble-info prose text-sm"
-									dangerouslySetInnerHTML={parseMarkdown(
-										message.response
-									)}
-								></div>
-							</div>
-						)}
-				</div>
-			);
-		});
-	};
-
-	const handleMessageSend = (request: string | undefined) => {
-		if (request === undefined || request === "") {
+		console.log("selectedConversation", selectedConversation);
+		console.log("messageMap", messageMap);
+		if (messageMap.has(selectedConversation.id as string)) {
 			return;
 		}
 		setIsLoading(true);
-		console.log("handleMessageSend", currentConversation.id, request);
-		setInputValue("");
+		Service.ListMessages({ conversationId: selectedConversation.id })
+			.then((response) => {
+				console.log("ListMessages", response);
+				if (response.messages === undefined) {
+					return;
+				}
+				if (selectedConversation.id) {
+					messageMap.set(selectedConversation.id, response.messages);
+					setMessageMap(new Map(messageMap));
+				}
+			})
+			.catch((error) => {
+				toast({
+					variant: "destructive",
+					title: "ListMessage error",
+					description: JSON.stringify(error),
+				});
+			})
+			.finally(() => {
+				setIsLoading(false);
+			});
+	}, [selectedConversation]);
+
+	const handleSelectConversation = (
+		conversation: Conversation | undefined
+	) => {
+		if (conversation === undefined) {
+			return;
+		}
+		setSelectedConversation(conversation);
+		if (messageMap && messageMap.has(conversation.id as string)) {
+			return;
+		}
+		setIsLoading(true);
+		Service.ListMessages({ conversationId: conversation.id })
+			.then((response) => {
+				if (response.messages === undefined) {
+					toast({
+						variant: "destructive",
+						description: "No messages for the conversation",
+					});
+					return;
+				}
+				if (response.messages.length == 0) {
+					toast({
+						description: "No messages for the conversation",
+					});
+					return;
+				}
+
+				if (conversation.id) {
+					messageMap.set(conversation.id, response.messages);
+					setMessageMap(new Map(messageMap));
+				}
+			})
+			.catch((error) => {
+				toast({
+					variant: "default",
+					title: "ListMessages Error",
+					description: error.message,
+				});
+			})
+			.finally(() => {
+				setIsLoading(false);
+			});
+	};
+
+	const handleMessageSend = (request: string) => {
+		setIsLoading(true);
+		if (request === undefined || request === "") {
+			return;
+		}
+
 		const createMessageRequest = {
-			conversationId: currentConversation.id,
+			conversationId: selectedConversation?.id,
 			request: request,
 		} as CreateMessageRequest;
 
 		let message: Message = {
 			id: uuidv4(),
-			conversationId: currentConversation.id,
+			conversationId: selectedConversation?.id as string,
 			request: request,
 		};
-		setCurrentMessages([...currentMessages, message]);
+		// add message request to messageMap
+		addMessageToMessageMap(
+			selectedConversation?.id as string,
+			message,
+			messageMap
+		);
+		setMessageMap(new Map(messageMap));
 
+		// send message request to server
 		Service.CreateMessage(createMessageRequest)
 			.then((response) => {
-				setCurrentMessages([...currentMessages, response]);
+				message.response = response.response;
+				message.createdAt = response.createdAt;
+				message.updatedAt = response.updatedAt;
+				message.tokenUsage = response.tokenUsage;
 			})
 			.catch((error) => {
-				// todo: handle error
-				console.log(error);
+				toast({
+					variant: "destructive",
+					title: "Send Message Failed",
+					description: error.message,
+				});
+			})
+			.finally(() => {
+				setIsLoading(false);
 			});
-		setIsLoading(false);
-		setInputValue("");
-	};
 
-	const handleMenuClick = () => {
-		setIsSidebarOpen(!isSidebarOpen);
+		addMessageToMessageMap(
+			selectedConversation?.id as string,
+			message,
+			messageMap
+		);
+		setMessageMap(new Map(messageMap));
 	};
 
 	return (
-		<div className="w-full h-screen flex flex-row overflow-hidden">
-			<header>
-				<title>NotionBoy Chat</title>
-			</header>
-			{isSidebarOpen && leftSideBar()}
-			<div className="flex-1 w-full flex flex-col bg-gray-2">
-				<div className="w-full h-12 bg-success dark:bg-black items-center justify-between flex flex-row rounded-lg">
-					<button
-						className="btn bg-success dark:bg-black border-0"
-						onClick={handleMenuClick}
-					>
-						<Menu />
-					</button>
-					<div className="prose">
-						<h1>NotionBoy Chat</h1>
-					</div>
-					<div></div>
-				</div>
-
-				<div className="flex-1 w-full flex flex-col overflow-auto box-border bg-stone-100 dark:bg-neutral-focus rounded-lg p-4">
-					{renderMessages(currentMessages)}
-				</div>
-				{isLoading && <progress className="progress w-full"></progress>}
-				<div className="w-full">{inputWithSendButton()}</div>
-			</div>
+		<div className="flex-grow container mx-auto flex flex-col ">
+			<ConversationList
+				conversations={conversations}
+				selectedConversation={selectedConversation}
+				onSelectConversation={handleSelectConversation}
+				onSetConversations={setConversations}
+			/>
+			<ChatWindow
+				messages={messageMap.get(selectedConversation?.id as string)}
+				selectedConversation={selectedConversation as Conversation}
+			/>
+			<ChatInputBox
+				onSendMessage={handleMessageSend}
+				isLoading={isLoading}
+			/>
 		</div>
 	);
+}
+
+function addMessageToMessageMap(
+	conversationId: string,
+	message: Message,
+	messageMap: Map<string, Message[]>
+) {
+	const messages = messageMap.get(conversationId);
+	if (messages === undefined) {
+		messageMap.set(conversationId, [message]);
+	} else {
+		if (messages.length > 0) {
+			const latestMessage = messages[messages.length - 1];
+			if (latestMessage.id === message.id) {
+				messages[messages.length - 1] = message;
+			} else {
+				messages.push(message);
+			}
+		} else {
+			messages.push(message);
+		}
+
+		messageMap.set(conversationId, messages);
+	}
 }

@@ -22,6 +22,7 @@ func (Conversation) Fields() []ent.Field {
 		field.UUID("uuid", uuid.UUID{}).Unique().Immutable().Comment("UUID"),
 		field.UUID("user_id", uuid.UUID{}).Comment("user id"),
 		field.Text("instruction").Optional().Comment("Instructions for the conversation"),
+		field.String("title").Optional().Comment("Conversation title"),
 	}
 }
 

@@ -106,6 +106,8 @@ const (
 	CMD_ZLIB_NEXT           = "ZLIBM"
 	CMD_ZLIB_SAVE_TO_NOTION = "ZLIBS"
 	CMD_UI                  = "/WEBUI"
+	CMD_MAGIC_CODE          = "/MAGICCODE"
+	MAGIC_CODE_CACHE_KEY    = "MAGIC_CODE_CACHE_KEY"
 )
 
 const (
@@ -131,6 +133,7 @@ const (
 	AUTH_HEADER_TOKEN_TYPE = "Bearer"
 	AUTH_HEADER_COOKIE     = "cookie"
 	AUTH_HEADER_TOKEN      = "token"
+	AUTH_HEADER_PATH       = "path"
 	AUTH_USER_ID           = "user_id"
 	AUTH_USER_ACC          = "acc"
 )

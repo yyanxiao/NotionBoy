@@ -27,6 +27,8 @@ message ConversationWithoutMessages {
   // user_id uuid of the user
   string created_at = 2;
   string updated_at = 3;
+  string instruction = 4;
+  string title = 5;
 }
 
 message Conversation {
@@ -34,7 +36,9 @@ message Conversation {
   string id = 1 [(validate.rules).string.min_len = 1];
   string created_at = 2;
   string updated_at = 3;
-  repeated Message messages = 5;
+  string instruction = 4;
+  string title = 5;
+  repeated Message messages = 6;
 }
 
 message ListConversationsRequest {
@@ -55,6 +59,16 @@ message CreateConversationRequest {
   // instruction instruction of the conversation, if this is empty, the
   // conversation will be created with a default instruction
   string instruction = 1;
+  string title = 2;
+}
+
+message UpdateConversationRequest {
+  // id uuid of the conversation
+  string id = 1 [(validate.rules).string.min_len = 1];
+  // instruction instruction of the conversation, if this is empty, the
+  // conversation will be created with a default instruction
+  string instruction = 2;
+  string title = 3;
 }
 
 message DeleteConversationRequest {

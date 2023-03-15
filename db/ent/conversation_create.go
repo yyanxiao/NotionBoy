@@ -92,6 +92,20 @@ func (cc *ConversationCreate) SetNillableInstruction(s *string) *ConversationCre
 	return cc
 }
 
+// SetTitle sets the "title" field.
+func (cc *ConversationCreate) SetTitle(s string) *ConversationCreate {
+	cc.mutation.SetTitle(s)
+	return cc
+}
+
+// SetNillableTitle sets the "title" field if the given value is not nil.
+func (cc *ConversationCreate) SetNillableTitle(s *string) *ConversationCreate {
+	if s != nil {
+		cc.SetTitle(*s)
+	}
+	return cc
+}
+
 // AddConversationMessageIDs adds the "conversation_messages" edge to the ConversationMessage entity by IDs.
 func (cc *ConversationCreate) AddConversationMessageIDs(ids ...int) *ConversationCreate {
 	cc.mutation.AddConversationMessageIDs(ids...)
@@ -267,6 +281,10 @@ func (cc *ConversationCreate) createSpec() (*Conversation, *sqlgraph.CreateSpec)
 		_spec.SetField(conversation.FieldInstruction, field.TypeString, value)
 		_node.Instruction = value
 	}
+	if value, ok := cc.mutation.Title(); ok {
+		_spec.SetField(conversation.FieldTitle, field.TypeString, value)
+		_node.Title = value
+	}
 	if nodes := cc.mutation.ConversationMessagesIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
@@ -392,6 +410,24 @@ func (u *ConversationUpsert) ClearInstruction() *ConversationUpsert {
 	return u
 }
 
+// SetTitle sets the "title" field.
+func (u *ConversationUpsert) SetTitle(v string) *ConversationUpsert {
+	u.Set(conversation.FieldTitle, v)
+	return u
+}
+
+// UpdateTitle sets the "title" field to the value that was provided on create.
+func (u *ConversationUpsert) UpdateTitle() *ConversationUpsert {
+	u.SetExcluded(conversation.FieldTitle)
+	return u
+}
+
+// ClearTitle clears the value of the "title" field.
+func (u *ConversationUpsert) ClearTitle() *ConversationUpsert {
+	u.SetNull(conversation.FieldTitle)
+	return u
+}
+
 // UpdateNewValues updates the mutable fields using the new values that were set on create.
 // Using this option is equivalent to using:
 //
@@ -500,6 +536,27 @@ func (u *ConversationUpsertOne) UpdateInstruction() *ConversationUpsertOne {
 func (u *ConversationUpsertOne) ClearInstruction() *ConversationUpsertOne {
 	return u.Update(func(s *ConversationUpsert) {
 		s.ClearInstruction()
+	})
+}
+
+// SetTitle sets the "title" field.
+func (u *ConversationUpsertOne) SetTitle(v string) *ConversationUpsertOne {
+	return u.Update(func(s *ConversationUpsert) {
+		s.SetTitle(v)
+	})
+}
+
+// UpdateTitle sets the "title" field to the value that was provided on create.
+func (u *ConversationUpsertOne) UpdateTitle() *ConversationUpsertOne {
+	return u.Update(func(s *ConversationUpsert) {
+		s.UpdateTitle()
+	})
+}
+
+// ClearTitle clears the value of the "title" field.
+func (u *ConversationUpsertOne) ClearTitle() *ConversationUpsertOne {
+	return u.Update(func(s *ConversationUpsert) {
+		s.ClearTitle()
 	})
 }
 
@@ -773,6 +830,27 @@ func (u *ConversationUpsertBulk) UpdateInstruction() *ConversationUpsertBulk {
 func (u *ConversationUpsertBulk) ClearInstruction() *ConversationUpsertBulk {
 	return u.Update(func(s *ConversationUpsert) {
 		s.ClearInstruction()
+	})
+}
+
+// SetTitle sets the "title" field.
+func (u *ConversationUpsertBulk) SetTitle(v string) *ConversationUpsertBulk {
+	return u.Update(func(s *ConversationUpsert) {
+		s.SetTitle(v)
+	})
+}
+
+// UpdateTitle sets the "title" field to the value that was provided on create.
+func (u *ConversationUpsertBulk) UpdateTitle() *ConversationUpsertBulk {
+	return u.Update(func(s *ConversationUpsert) {
+		s.UpdateTitle()
+	})
+}
+
+// ClearTitle clears the value of the "title" field.
+func (u *ConversationUpsertBulk) ClearTitle() *ConversationUpsertBulk {
+	return u.Update(func(s *ConversationUpsert) {
+		s.ClearTitle()
 	})
 }
 

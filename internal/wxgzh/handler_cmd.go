@@ -3,16 +3,22 @@ package wxgzh
 import (
 	"context"
 	"fmt"
+	"time"
+
 	"notionboy/db/ent/account"
 	"notionboy/internal/pkg/config"
 	"notionboy/internal/pkg/db/dao"
 	"notionboy/internal/pkg/logger"
+	"notionboy/internal/pkg/utils/cache"
 	"notionboy/internal/service/auth"
 
 	notion "notionboy/internal/pkg/notion"
 
+	"github.com/google/uuid"
 	"github.com/silenceper/wechat/v2/officialaccount/message"
 )
+
+var cacheClient = cache.DefaultClient()
 
 func unsubscribe(c context.Context, msg *message.MixMessage) {
 	if err := dao.DeleteAccount(c, account.UserTypeWechat, msg.GetOpenID()); err != nil {
@@ -62,7 +68,7 @@ func webui(ctx context.Context, msg *message.MixMessage) *message.Reply {
 
 	svc := auth.NewAuthServer()
 
-	token, err := svc.GenrateToken(ctx, acc.UUID.String())
+	token, err := svc.GenrateToken(ctx, acc.UUID.String(), "")
 	if err != nil {
 		return &message.Reply{
 			MsgType: message.MsgTypeText,
@@ -76,4 +82,15 @@ func webui(ctx context.Context, msg *message.MixMessage) *message.Reply {
 		MsgType: message.MsgTypeText,
 		MsgData: message.NewText(fmt.Sprintf("欢迎访问 NotionBoy 的 WebUI: %s", webui)),
 	}
+}
+
+func magicCode(ctx context.Context, msg *message.MixMessage) *message.Reply {
+	acc, err := dao.QueryAccountByWxUser(ctx, msg.GetOpenID())
+	if err != nil {
+		logger.SugaredLogger.Errorf("Query Account Error: %v", err)
+		return &message.Reply{MsgType: message.MsgTypeText, MsgData: message.NewText(config.MSG_ERROR_ACCOUNT_NOT_FOUND)}
+	}
+	code := uuid.New().String()
+	cacheClient.Set(fmt.Sprintf("%s:%s", config.MAGIC_CODE_CACHE_KEY, code), acc, time.Duration(5)*time.Minute)
+	return &message.Reply{MsgType: message.MsgTypeText, MsgData: message.NewText(code)}
 }

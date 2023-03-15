@@ -71,8 +71,24 @@ service Service {
   }
 
   // GenrateToken generates a token for the user. using api key in the header.
-  rpc GenrateToken(google.protobuf.Empty) returns (GenrateTokenResponse) {
-    option (google.api.http) = {post: "/v1/auth/token"};
+  rpc GenrateToken(GenrateTokenRequest) returns (GenrateTokenResponse) {
+    option (google.api.http) = {
+      post: "/v1/auth/token",
+      body: "*"
+    };
+  }
+
+  // get Oauth url
+  rpc OAuthURL(OAuthURLRequest) returns (OAuthURLResponse) {
+    option (google.api.http) = {get: "/v1/auth/url/{provider}"};
+  }
+
+  // AuthCallback callback for oauth, will generate a token for the user
+  rpc OAuthCallback(OAuthCallbackRequest) returns (GenrateTokenResponse) {
+    option (google.api.http) = {
+      post: "/v1/auth/callback"
+      body: "*"
+    };
   }
 
   // GenerateApiKey generate a new api key for the user
@@ -88,6 +104,14 @@ service Service {
   rpc CreateConversation(CreateConversationRequest) returns (Conversation) {
     option (google.api.http) = {
       post: "/v1/conversations"
+      body: "*"
+    };
+  }
+
+  // UpdateConversation update the conversation
+  rpc UpdateConversation(UpdateConversationRequest) returns (Conversation) {
+    option (google.api.http) = {
+      put: "/v1/conversations/{id}"
       body: "*"
     };
   }

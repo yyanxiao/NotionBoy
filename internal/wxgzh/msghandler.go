@@ -2,13 +2,14 @@ package wxgzh
 
 import (
 	"context"
+	"strconv"
+	"strings"
+	"time"
+
 	"notionboy/db/ent"
 	"notionboy/internal/pkg/config"
 	"notionboy/internal/pkg/db/dao"
 	"notionboy/internal/pkg/logger"
-	"strconv"
-	"strings"
-	"time"
 
 	notion "notionboy/internal/pkg/notion"
 
@@ -64,6 +65,8 @@ func (ex *OfficialAccount) messageHandler(ctx context.Context, msg *message.MixM
 			return searchZlibSaveToNotion(context.TODO(), msg), nil
 		case config.CMD_UI:
 			return webui(ctx, msg), nil
+		case config.CMD_MAGIC_CODE:
+			return magicCode(ctx, msg), nil
 		}
 
 		// process chatGPT

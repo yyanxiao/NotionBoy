@@ -1,13 +1,12 @@
 package db
 
 import (
-	"context"
 	"fmt"
+	"time"
+
 	"notionboy/db/ent"
-	"notionboy/db/ent/migrate"
 	"notionboy/internal/pkg/config"
 	"notionboy/internal/pkg/logger"
-	"time"
 
 	"entgo.io/ent/dialect/sql"
 	_ "github.com/go-sql-driver/mysql"
@@ -62,13 +61,13 @@ func openDB() (*ent.Client, error) {
 	return ent.NewClient(ent.Driver(drv)), nil
 }
 
-func migrateDB() {
-	ctx := context.Background()
-	if err := client.Debug().Schema.Create(
-		ctx,
-		migrate.WithDropColumn(true),
-		migrate.WithDropIndex(true),
-	); err != nil {
-		logger.SugaredLogger.Fatalw("Failed creating schema resources", "err", err)
-	}
-}
+// func migrateDB() {
+// 	ctx := context.Background()
+// 	if err := client.Debug().Schema.Create(
+// 		ctx,
+// 		migrate.WithDropColumn(true),
+// 		migrate.WithDropIndex(true),
+// 	); err != nil {
+// 		logger.SugaredLogger.Fatalw("Failed creating schema resources", "err", err)
+// 	}
+// }

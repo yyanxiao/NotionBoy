@@ -2,49 +2,66 @@ package auth
 
 import (
 	"context"
+	"fmt"
+
 	"notionboy/db/ent"
 	"notionboy/internal/pkg/config"
 	"notionboy/internal/pkg/db/dao"
 	"notionboy/internal/pkg/jwt"
+	"notionboy/internal/pkg/logger"
+	"notionboy/internal/pkg/utils/cache"
 
 	"github.com/google/uuid"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
 
+var cacheClient = cache.DefaultClient()
+
 type authServerImpl struct{}
 
 type AuthServer interface {
-	GenrateToken(ctx context.Context, userId string) (string, error)
+	GenrateToken(ctx context.Context, userId, magicCode string) (string, error)
 	GenerateApiKey(ctx context.Context) (string, error)
 	DeleteApiKey(ctx context.Context) error
 	GetUserIDFromContext(ctx context.Context) (uuid.UUID, error)
 	GetAccountByApiKey(ctx context.Context, appiKey string) (*ent.Account, error)
 	GetAccountByUserId(ctx context.Context, userId uuid.UUID) *ent.Account
+	GetOAuthURL(ctx context.Context, provider string) (string, error)
+	OAuthCallback(ctx context.Context, code string, state string) (string, error)
 }
 
 func NewAuthServer() AuthServer {
 	return &authServerImpl{}
 }
 
-func (s *authServerImpl) GenrateToken(ctx context.Context, userId string) (string, error) {
+func (s *authServerImpl) GenrateToken(ctx context.Context, userId, magicCode string) (string, error) {
 	var id uuid.UUID
 	var err error
-	if userId == "" {
-		id, err = s.GetUserIDFromContext(ctx)
+	logger.SugaredLogger.Debugw("GenrateToken", "userId", userId, "magicCode", magicCode)
+	if magicCode != "" {
+		val, ok := cacheClient.Get(fmt.Sprintf("%s:%s", config.MAGIC_CODE_CACHE_KEY, magicCode))
+		if !ok {
+			return "", status.Errorf(codes.Unauthenticated, "Invalid Magic Code")
+		}
+		acc := val.(*ent.Account)
+		id = acc.UUID
+	} else {
+		if userId == "" {
+			id, err = s.GetUserIDFromContext(ctx)
+			if err != nil {
+				return "", err
+			}
+		} else {
+			id, err = uuid.Parse(userId)
+			if err != nil {
+				return "", status.Errorf(codes.Unauthenticated, "Invalid User")
+			}
+		}
+		_, err = dao.QueryAccountByUUID(ctx, id)
 		if err != nil {
 			return "", err
 		}
-	} else {
-		id, err = uuid.Parse(userId)
-		if err != nil {
-			return "", status.Errorf(codes.Unauthenticated, "Invalid User")
-		}
-	}
-
-	_, err = dao.QueryAccountByUUID(ctx, id)
-	if err != nil {
-		return "", err
 	}
 	return jwt.GenerateToken(id.String())
 }

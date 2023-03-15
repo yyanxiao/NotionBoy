@@ -7,7 +7,11 @@
     - [ErrorObject](#servicev1-ErrorObject)
     - [ErrorResponse](#servicev1-ErrorResponse)
     - [GenerateApiKeyResponse](#servicev1-GenerateApiKeyResponse)
+    - [GenrateTokenRequest](#servicev1-GenrateTokenRequest)
     - [GenrateTokenResponse](#servicev1-GenrateTokenResponse)
+    - [OAuthCallbackRequest](#servicev1-OAuthCallbackRequest)
+    - [OAuthURLRequest](#servicev1-OAuthURLRequest)
+    - [OAuthURLResponse](#servicev1-OAuthURLResponse)
 
     - [NumericEnum](#servicev1-NumericEnum)
 
@@ -25,6 +29,7 @@
     - [ListMessagesRequest](#servicev1-ListMessagesRequest)
     - [ListMessagesResponse](#servicev1-ListMessagesResponse)
     - [Message](#servicev1-Message)
+    - [UpdateConversationRequest](#servicev1-UpdateConversationRequest)
 
 - [server.proto](#server-proto)
     - [CheckStatusResponse](#servicev1-CheckStatusResponse)
@@ -89,6 +94,21 @@
 
 
 
+<a name="servicev1-GenrateTokenRequest"></a>
+
+### GenrateTokenRequest
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| magicCode | [string](#string) |  |  |
+
+
+
+
+
+
 <a name="servicev1-GenrateTokenResponse"></a>
 
 ### GenrateTokenResponse
@@ -100,6 +120,52 @@
 | token | [string](#string) |  |  |
 | type | [string](#string) |  |  |
 | expiry | [string](#string) |  |  |
+
+
+
+
+
+
+<a name="servicev1-OAuthCallbackRequest"></a>
+
+### OAuthCallbackRequest
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| code | [string](#string) |  |  |
+| state | [string](#string) |  |  |
+
+
+
+
+
+
+<a name="servicev1-OAuthURLRequest"></a>
+
+### OAuthURLRequest
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| provider | [string](#string) |  |  |
+
+
+
+
+
+
+<a name="servicev1-OAuthURLResponse"></a>
+
+### OAuthURLResponse
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| url | [string](#string) |  |  |
 
 
 
@@ -145,6 +211,8 @@ NumericEnum is one or zero.
 | id | [string](#string) |  | id uuid of the conversation |
 | created_at | [string](#string) |  |  |
 | updated_at | [string](#string) |  |  |
+| instruction | [string](#string) |  |  |
+| title | [string](#string) |  |  |
 | messages | [Message](#servicev1-Message) | repeated |  |
 
 
@@ -163,6 +231,8 @@ NumericEnum is one or zero.
 | id | [string](#string) |  | id uuid of the conversation |
 | created_at | [string](#string) |  | user_id uuid of the user |
 | updated_at | [string](#string) |  |  |
+| instruction | [string](#string) |  |  |
+| title | [string](#string) |  |  |
 
 
 
@@ -178,6 +248,7 @@ NumericEnum is one or zero.
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | instruction | [string](#string) |  | instruction instruction of the conversation, if this is empty, the conversation will be created with a default instruction |
+| title | [string](#string) |  |  |
 
 
 
@@ -346,6 +417,23 @@ NumericEnum is one or zero.
 
 
 
+<a name="servicev1-UpdateConversationRequest"></a>
+
+### UpdateConversationRequest
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| id | [string](#string) |  | id uuid of the conversation |
+| instruction | [string](#string) |  | instruction instruction of the conversation, if this is empty, the conversation will be created with a default instruction |
+| title | [string](#string) |  |  |
+
+
+
+
+
+
 
 
 
@@ -391,10 +479,13 @@ NumericEnum is one or zero.
 | Method Name | Request Type | Response Type | Description |
 | ----------- | ------------ | ------------- | ------------|
 | Status | [.google.protobuf.Empty](#google-protobuf-Empty) | [CheckStatusResponse](#servicev1-CheckStatusResponse) |  |
-| GenrateToken | [.google.protobuf.Empty](#google-protobuf-Empty) | [GenrateTokenResponse](#servicev1-GenrateTokenResponse) | GenrateToken generates a token for the user. using api key in the header. |
+| GenrateToken | [GenrateTokenRequest](#servicev1-GenrateTokenRequest) | [GenrateTokenResponse](#servicev1-GenrateTokenResponse) | GenrateToken generates a token for the user. using api key in the header. |
+| OAuthURL | [OAuthURLRequest](#servicev1-OAuthURLRequest) | [OAuthURLResponse](#servicev1-OAuthURLResponse) | get Oauth url |
+| OAuthCallback | [OAuthCallbackRequest](#servicev1-OAuthCallbackRequest) | [GenrateTokenResponse](#servicev1-GenrateTokenResponse) | AuthCallback callback for oauth, will generate a token for the user |
 | GenerateApiKey | [.google.protobuf.Empty](#google-protobuf-Empty) | [GenerateApiKeyResponse](#servicev1-GenerateApiKeyResponse) | GenerateApiKey generate a new api key for the user |
 | DeleteApiKey | [.google.protobuf.Empty](#google-protobuf-Empty) | [.google.protobuf.Empty](#google-protobuf-Empty) | DeleteApiKey delete the api key for the user |
 | CreateConversation | [CreateConversationRequest](#servicev1-CreateConversationRequest) | [Conversation](#servicev1-Conversation) |  |
+| UpdateConversation | [UpdateConversationRequest](#servicev1-UpdateConversationRequest) | [Conversation](#servicev1-Conversation) | UpdateConversation update the conversation |
 | GetConversation | [GetConversationRequest](#servicev1-GetConversationRequest) | [Conversation](#servicev1-Conversation) |  |
 | ListConversations | [ListConversationsRequest](#servicev1-ListConversationsRequest) | [ListConversationsResponse](#servicev1-ListConversationsResponse) |  |
 | DeleteConversation | [DeleteConversationRequest](#servicev1-DeleteConversationRequest) | [.google.protobuf.Empty](#google-protobuf-Empty) |  |

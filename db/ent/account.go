@@ -25,7 +25,7 @@ type Account struct {
 	Deleted bool `json:"deleted,omitempty"`
 	// UUID
 	UUID uuid.UUID `json:"uuid,omitempty"`
-	// user id
+	// For wechat, it's openid, for telegram, it's telegram user id, for oauth, it's oauth user email
 	UserID string `json:"user_id,omitempty"`
 	// UserType holds the value of the "user_type" field.
 	UserType account.UserType `json:"user_type,omitempty"`

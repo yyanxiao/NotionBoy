@@ -14,7 +14,9 @@ func NewConversationService() ConversationService {
 // ConversationService is the interface for the RPC service
 type ConversationService interface {
 	// CreateConversation creates a new conversation
-	CreateConversation(ctx context.Context, acc *ent.Account, instruction string) (*ConversationDTO, error)
+	CreateConversation(ctx context.Context, acc *ent.Account, instruction, title string) (*ConversationDTO, error)
+	// UpdateConversation updates a conversation
+	UpdateConversation(ctx context.Context, acc *ent.Account, Id, instruction, title string) (*ConversationDTO, error)
 
 	// GetConversation gets a conversation by Id
 	GetConversation(ctx context.Context, acc *ent.Account, Id string) (*ConversationDTO, error)

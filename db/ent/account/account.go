@@ -96,8 +96,12 @@ const DefaultUserType = UserTypeWechat
 
 // UserType values.
 const (
-	UserTypeWechat   UserType = "wechat"
-	UserTypeTelegram UserType = "telegram"
+	UserTypeWechat    UserType = "wechat"
+	UserTypeTelegram  UserType = "telegram"
+	UserTypeGithub    UserType = "github"
+	UserTypeGoogle    UserType = "google"
+	UserTypeTwitter   UserType = "twitter"
+	UserTypeMicrosoft UserType = "microsoft"
 )
 
 func (ut UserType) String() string {
@@ -107,7 +111,7 @@ func (ut UserType) String() string {
 // UserTypeValidator is a validator for the "user_type" field enum values. It is called by the builders before save.
 func UserTypeValidator(ut UserType) error {
 	switch ut {
-	case UserTypeWechat, UserTypeTelegram:
+	case UserTypeWechat, UserTypeTelegram, UserTypeGithub, UserTypeGoogle, UserTypeTwitter, UserTypeMicrosoft:
 		return nil
 	default:
 		return fmt.Errorf("account: invalid enum value for user_type field: %q", ut)

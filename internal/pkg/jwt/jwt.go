@@ -48,6 +48,7 @@ func ValidateToken(tokenString string) (string, error) {
 		return []byte(signingKey), nil
 	})
 	if err != nil {
+		logger.SugaredLogger.Errorw("parse token failed", "token", tokenString, "err", err)
 		return "", err
 	}
 
@@ -55,6 +56,8 @@ func ValidateToken(tokenString string) (string, error) {
 	if !token.Valid {
 		return "", fmt.Errorf("invalid token")
 	}
+
+	logger.SugaredLogger.Debugw("check token", "token", token)
 
 	// Get the custom claims from the token.
 	claims, ok := token.Claims.(jwt.MapClaims)
@@ -87,6 +90,7 @@ func NewClaims(userID string) jwt.Claims {
 	if expiration == 0 {
 		expiration = time.Hour
 	}
+	logger.SugaredLogger.Debugw("generate token", "userID", userID, "expiration", expiration)
 
 	// Return the custom claims as a map.
 	return jwt.MapClaims{

@@ -23,9 +23,12 @@ const _ = grpc.SupportPackageIsVersion7
 const (
 	Service_Status_FullMethodName             = "/servicev1.Service/Status"
 	Service_GenrateToken_FullMethodName       = "/servicev1.Service/GenrateToken"
+	Service_OAuthURL_FullMethodName           = "/servicev1.Service/OAuthURL"
+	Service_OAuthCallback_FullMethodName      = "/servicev1.Service/OAuthCallback"
 	Service_GenerateApiKey_FullMethodName     = "/servicev1.Service/GenerateApiKey"
 	Service_DeleteApiKey_FullMethodName       = "/servicev1.Service/DeleteApiKey"
 	Service_CreateConversation_FullMethodName = "/servicev1.Service/CreateConversation"
+	Service_UpdateConversation_FullMethodName = "/servicev1.Service/UpdateConversation"
 	Service_GetConversation_FullMethodName    = "/servicev1.Service/GetConversation"
 	Service_ListConversations_FullMethodName  = "/servicev1.Service/ListConversations"
 	Service_DeleteConversation_FullMethodName = "/servicev1.Service/DeleteConversation"
@@ -41,12 +44,18 @@ const (
 type ServiceClient interface {
 	Status(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*CheckStatusResponse, error)
 	// GenrateToken generates a token for the user. using api key in the header.
-	GenrateToken(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*model.GenrateTokenResponse, error)
+	GenrateToken(ctx context.Context, in *model.GenrateTokenRequest, opts ...grpc.CallOption) (*model.GenrateTokenResponse, error)
+	// get Oauth url
+	OAuthURL(ctx context.Context, in *model.OAuthURLRequest, opts ...grpc.CallOption) (*model.OAuthURLResponse, error)
+	// AuthCallback callback for oauth, will generate a token for the user
+	OAuthCallback(ctx context.Context, in *model.OAuthCallbackRequest, opts ...grpc.CallOption) (*model.GenrateTokenResponse, error)
 	// GenerateApiKey generate a new api key for the user
 	GenerateApiKey(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*model.GenerateApiKeyResponse, error)
 	// DeleteApiKey delete the api key for the user
 	DeleteApiKey(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	CreateConversation(ctx context.Context, in *model.CreateConversationRequest, opts ...grpc.CallOption) (*model.Conversation, error)
+	// UpdateConversation update the conversation
+	UpdateConversation(ctx context.Context, in *model.UpdateConversationRequest, opts ...grpc.CallOption) (*model.Conversation, error)
 	GetConversation(ctx context.Context, in *model.GetConversationRequest, opts ...grpc.CallOption) (*model.Conversation, error)
 	ListConversations(ctx context.Context, in *model.ListConversationsRequest, opts ...grpc.CallOption) (*model.ListConversationsResponse, error)
 	DeleteConversation(ctx context.Context, in *model.DeleteConversationRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
@@ -73,9 +82,27 @@ func (c *serviceClient) Status(ctx context.Context, in *emptypb.Empty, opts ...g
 	return out, nil
 }
 
-func (c *serviceClient) GenrateToken(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*model.GenrateTokenResponse, error) {
+func (c *serviceClient) GenrateToken(ctx context.Context, in *model.GenrateTokenRequest, opts ...grpc.CallOption) (*model.GenrateTokenResponse, error) {
 	out := new(model.GenrateTokenResponse)
 	err := c.cc.Invoke(ctx, Service_GenrateToken_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *serviceClient) OAuthURL(ctx context.Context, in *model.OAuthURLRequest, opts ...grpc.CallOption) (*model.OAuthURLResponse, error) {
+	out := new(model.OAuthURLResponse)
+	err := c.cc.Invoke(ctx, Service_OAuthURL_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *serviceClient) OAuthCallback(ctx context.Context, in *model.OAuthCallbackRequest, opts ...grpc.CallOption) (*model.GenrateTokenResponse, error) {
+	out := new(model.GenrateTokenResponse)
+	err := c.cc.Invoke(ctx, Service_OAuthCallback_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -103,6 +130,15 @@ func (c *serviceClient) DeleteApiKey(ctx context.Context, in *emptypb.Empty, opt
 func (c *serviceClient) CreateConversation(ctx context.Context, in *model.CreateConversationRequest, opts ...grpc.CallOption) (*model.Conversation, error) {
 	out := new(model.Conversation)
 	err := c.cc.Invoke(ctx, Service_CreateConversation_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *serviceClient) UpdateConversation(ctx context.Context, in *model.UpdateConversationRequest, opts ...grpc.CallOption) (*model.Conversation, error) {
+	out := new(model.Conversation)
+	err := c.cc.Invoke(ctx, Service_UpdateConversation_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -178,12 +214,18 @@ func (c *serviceClient) DeleteMessage(ctx context.Context, in *model.DeleteMessa
 type ServiceServer interface {
 	Status(context.Context, *emptypb.Empty) (*CheckStatusResponse, error)
 	// GenrateToken generates a token for the user. using api key in the header.
-	GenrateToken(context.Context, *emptypb.Empty) (*model.GenrateTokenResponse, error)
+	GenrateToken(context.Context, *model.GenrateTokenRequest) (*model.GenrateTokenResponse, error)
+	// get Oauth url
+	OAuthURL(context.Context, *model.OAuthURLRequest) (*model.OAuthURLResponse, error)
+	// AuthCallback callback for oauth, will generate a token for the user
+	OAuthCallback(context.Context, *model.OAuthCallbackRequest) (*model.GenrateTokenResponse, error)
 	// GenerateApiKey generate a new api key for the user
 	GenerateApiKey(context.Context, *emptypb.Empty) (*model.GenerateApiKeyResponse, error)
 	// DeleteApiKey delete the api key for the user
 	DeleteApiKey(context.Context, *emptypb.Empty) (*emptypb.Empty, error)
 	CreateConversation(context.Context, *model.CreateConversationRequest) (*model.Conversation, error)
+	// UpdateConversation update the conversation
+	UpdateConversation(context.Context, *model.UpdateConversationRequest) (*model.Conversation, error)
 	GetConversation(context.Context, *model.GetConversationRequest) (*model.Conversation, error)
 	ListConversations(context.Context, *model.ListConversationsRequest) (*model.ListConversationsResponse, error)
 	DeleteConversation(context.Context, *model.DeleteConversationRequest) (*emptypb.Empty, error)
@@ -201,8 +243,14 @@ type UnimplementedServiceServer struct {
 func (UnimplementedServiceServer) Status(context.Context, *emptypb.Empty) (*CheckStatusResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Status not implemented")
 }
-func (UnimplementedServiceServer) GenrateToken(context.Context, *emptypb.Empty) (*model.GenrateTokenResponse, error) {
+func (UnimplementedServiceServer) GenrateToken(context.Context, *model.GenrateTokenRequest) (*model.GenrateTokenResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GenrateToken not implemented")
+}
+func (UnimplementedServiceServer) OAuthURL(context.Context, *model.OAuthURLRequest) (*model.OAuthURLResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method OAuthURL not implemented")
+}
+func (UnimplementedServiceServer) OAuthCallback(context.Context, *model.OAuthCallbackRequest) (*model.GenrateTokenResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method OAuthCallback not implemented")
 }
 func (UnimplementedServiceServer) GenerateApiKey(context.Context, *emptypb.Empty) (*model.GenerateApiKeyResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GenerateApiKey not implemented")
@@ -212,6 +260,9 @@ func (UnimplementedServiceServer) DeleteApiKey(context.Context, *emptypb.Empty) 
 }
 func (UnimplementedServiceServer) CreateConversation(context.Context, *model.CreateConversationRequest) (*model.Conversation, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateConversation not implemented")
+}
+func (UnimplementedServiceServer) UpdateConversation(context.Context, *model.UpdateConversationRequest) (*model.Conversation, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateConversation not implemented")
 }
 func (UnimplementedServiceServer) GetConversation(context.Context, *model.GetConversationRequest) (*model.Conversation, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetConversation not implemented")
@@ -266,7 +317,7 @@ func _Service_Status_Handler(srv interface{}, ctx context.Context, dec func(inte
 }
 
 func _Service_GenrateToken_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(emptypb.Empty)
+	in := new(model.GenrateTokenRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -278,7 +329,43 @@ func _Service_GenrateToken_Handler(srv interface{}, ctx context.Context, dec fun
 		FullMethod: Service_GenrateToken_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ServiceServer).GenrateToken(ctx, req.(*emptypb.Empty))
+		return srv.(ServiceServer).GenrateToken(ctx, req.(*model.GenrateTokenRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Service_OAuthURL_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(model.OAuthURLRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ServiceServer).OAuthURL(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Service_OAuthURL_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ServiceServer).OAuthURL(ctx, req.(*model.OAuthURLRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Service_OAuthCallback_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(model.OAuthCallbackRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ServiceServer).OAuthCallback(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Service_OAuthCallback_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ServiceServer).OAuthCallback(ctx, req.(*model.OAuthCallbackRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -333,6 +420,24 @@ func _Service_CreateConversation_Handler(srv interface{}, ctx context.Context, d
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(ServiceServer).CreateConversation(ctx, req.(*model.CreateConversationRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Service_UpdateConversation_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(model.UpdateConversationRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ServiceServer).UpdateConversation(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Service_UpdateConversation_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ServiceServer).UpdateConversation(ctx, req.(*model.UpdateConversationRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -479,6 +584,14 @@ var Service_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Service_GenrateToken_Handler,
 		},
 		{
+			MethodName: "OAuthURL",
+			Handler:    _Service_OAuthURL_Handler,
+		},
+		{
+			MethodName: "OAuthCallback",
+			Handler:    _Service_OAuthCallback_Handler,
+		},
+		{
 			MethodName: "GenerateApiKey",
 			Handler:    _Service_GenerateApiKey_Handler,
 		},
@@ -489,6 +602,10 @@ var Service_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "CreateConversation",
 			Handler:    _Service_CreateConversation_Handler,
+		},
+		{
+			MethodName: "UpdateConversation",
+			Handler:    _Service_UpdateConversation_Handler,
 		},
 		{
 			MethodName: "GetConversation",

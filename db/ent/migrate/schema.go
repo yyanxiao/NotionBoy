@@ -17,7 +17,7 @@ var (
 		{Name: "deleted", Type: field.TypeBool, Default: false},
 		{Name: "uuid", Type: field.TypeUUID, Unique: true, Nullable: true},
 		{Name: "user_id", Type: field.TypeString},
-		{Name: "user_type", Type: field.TypeEnum, Nullable: true, Enums: []string{"wechat", "telegram"}, Default: "wechat"},
+		{Name: "user_type", Type: field.TypeEnum, Nullable: true, Enums: []string{"wechat", "telegram", "github", "google", "twitter", "microsoft"}, Default: "wechat"},
 		{Name: "database_id", Type: field.TypeString, Nullable: true},
 		{Name: "access_token", Type: field.TypeString, Nullable: true},
 		{Name: "notion_user_id", Type: field.TypeString, Nullable: true},
@@ -70,6 +70,7 @@ var (
 		{Name: "uuid", Type: field.TypeUUID, Unique: true},
 		{Name: "user_id", Type: field.TypeUUID},
 		{Name: "instruction", Type: field.TypeString, Nullable: true, Size: 2147483647},
+		{Name: "title", Type: field.TypeString, Nullable: true},
 	}
 	// ConversationsTable holds the schema information for the "conversations" table.
 	ConversationsTable = &schema.Table{

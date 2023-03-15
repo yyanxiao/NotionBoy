@@ -18,8 +18,8 @@ type Account struct {
 func (Account) Fields() []ent.Field {
 	return []ent.Field{
 		field.UUID("uuid", uuid.UUID{}).Unique().Optional().Comment("UUID"),
-		field.String("user_id").Comment("user id"),
-		field.Enum("user_type").Values("wechat", "telegram").Optional().Default("wechat"),
+		field.String("user_id").Comment("user id").Comment("For wechat, it's openid, for telegram, it's telegram user id, for oauth, it's oauth user email"),
+		field.Enum("user_type").Values("wechat", "telegram", "github", "google", "twitter", "microsoft").Optional().Default("wechat"),
 		field.String("database_id").Optional().Comment("Notion Database ID"),
 		field.String("access_token").Optional().Sensitive().Comment("Notion Access Token"),
 		field.String("notion_user_id").Optional().Comment("Notion User ID"),

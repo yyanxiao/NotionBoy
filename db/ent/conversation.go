@@ -29,6 +29,8 @@ type Conversation struct {
 	UserID uuid.UUID `json:"user_id,omitempty"`
 	// Instructions for the conversation
 	Instruction string `json:"instruction,omitempty"`
+	// Conversation title
+	Title string `json:"title,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the ConversationQuery when eager-loading is set.
 	Edges ConversationEdges `json:"edges"`
@@ -61,7 +63,7 @@ func (*Conversation) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullBool)
 		case conversation.FieldID:
 			values[i] = new(sql.NullInt64)
-		case conversation.FieldInstruction:
+		case conversation.FieldInstruction, conversation.FieldTitle:
 			values[i] = new(sql.NullString)
 		case conversation.FieldCreatedAt, conversation.FieldUpdatedAt:
 			values[i] = new(sql.NullTime)
@@ -124,6 +126,12 @@ func (c *Conversation) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				c.Instruction = value.String
 			}
+		case conversation.FieldTitle:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field title", values[i])
+			} else if value.Valid {
+				c.Title = value.String
+			}
 		}
 	}
 	return nil
@@ -174,6 +182,9 @@ func (c *Conversation) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("instruction=")
 	builder.WriteString(c.Instruction)
+	builder.WriteString(", ")
+	builder.WriteString("title=")
+	builder.WriteString(c.Title)
 	builder.WriteByte(')')
 	return builder.String()
 }

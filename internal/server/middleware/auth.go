@@ -2,11 +2,12 @@ package middleware
 
 import (
 	"context"
+	"strings"
+
 	"notionboy/internal/pkg/config"
 	"notionboy/internal/pkg/jwt"
 	"notionboy/internal/pkg/logger"
 	"notionboy/internal/service/auth"
-	"strings"
 
 	"github.com/google/uuid"
 	grpc_auth "github.com/grpc-ecosystem/go-grpc-middleware/auth"
@@ -15,18 +16,28 @@ import (
 	"google.golang.org/grpc/status"
 )
 
+var skipAuthPaths = []string{
+	"/v1/auth/token",
+	"/v1/auth/callback",
+	"/v1/auth/url",
+}
+
 // NewAuthFunc returns a new AuthFunc
 // get key order:
 // 1. get api key from header
 // 2. get token from cookie
 // 3. get Beare token from header
+// 4. skip auth for some paths
 func NewAuthFunc() grpc_auth.AuthFunc {
 	return func(c context.Context) (context.Context, error) {
 		md := metautils.ExtractIncoming(c)
+
 		// validate using api key
-		val := md.Get(config.AUTH_HEADER_X_API_KEY)
-		if val != "" {
-			acc, err := auth.NewAuthServer().GetAccountByApiKey(c, val)
+		apiKey := md.Get(config.AUTH_HEADER_X_API_KEY)
+		if apiKey != "" {
+			logger.SugaredLogger.Debugw("auth by api key", "apiKey", apiKey)
+			acc, err := auth.NewAuthServer().GetAccountByApiKey(c, apiKey)
+			logger.SugaredLogger.Debugw("auth by api key", "apiKey", apiKey, "account", acc, "err", err)
 			if err != nil {
 				return nil, err
 			}
@@ -35,38 +46,68 @@ func NewAuthFunc() grpc_auth.AuthFunc {
 			return newCtx, nil
 		}
 
-		// try to get token from cookie
-		// if token is not exist, try to get token from Authorization header
-		var err error
-		token, ok := queryCookie(md, config.AUTH_HEADER_TOKEN)
-		if !ok {
-			// validate using jwt token
-			token, err = grpc_auth.AuthFromMD(c, config.AUTH_HEADER_TOKEN_TYPE)
-			if err != nil {
-				return nil, err
+		// validate using token
+		cookieToken, hasCookieToken := queryCookie(md, config.AUTH_HEADER_TOKEN)
+
+		bearerToken, err := authFromMD(c, config.AUTH_HEADER_TOKEN_TYPE)
+		if err != nil {
+			return nil, err
+		}
+		if hasCookieToken || bearerToken != "" {
+			newCtx, err := validateByToken(c, cookieToken, bearerToken)
+			if err == nil {
+				return newCtx, nil
 			}
 		}
 
-		userId, err := jwt.ValidateToken(token)
-		if err != nil {
-			return nil, status.Errorf(codes.Unauthenticated, err.Error())
+		// skip auth for some paths
+		path := md.Get("path")
+		if path != "" {
+			for _, skipPath := range skipAuthPaths {
+				if strings.HasPrefix(path, skipPath) {
+					return c, nil
+				}
+			}
 		}
 
-		uid, err := uuid.Parse(userId)
-		if err != nil {
-			return nil, status.Errorf(codes.Unauthenticated, err.Error())
-		}
-
-		acc := auth.NewAuthServer().GetAccountByUserId(c, uid)
-		if acc == nil {
-			return nil, status.Errorf(codes.Unauthenticated, "Invalid User")
-		}
-
-		newCtx := context.WithValue(c, config.ContextKeyUserId, userId)
-		newCtx = context.WithValue(newCtx, config.ContextKeyUserAccount, acc)
-		logger.SugaredLogger.Debugw("auth success", "userId", userId)
-		return newCtx, nil
+		// if no api key, cookie token, bearer token and not skip auth path return error
+		return nil, status.Errorf(codes.Unauthenticated, "Unauthenticated")
 	}
+}
+
+func validateByToken(ctx context.Context, cookieToken, bearerToken string) (context.Context, error) {
+	var token string
+	if cookieToken != "" {
+		token = cookieToken
+	} else {
+		token = bearerToken
+	}
+	if token == "" {
+		return nil, status.Errorf(codes.Unauthenticated, "Invalid Token")
+	}
+	logger.SugaredLogger.Debugw("auth by token", "token", token)
+
+	userId, err := jwt.ValidateToken(token)
+	if err != nil {
+		logger.SugaredLogger.Errorw("auth failed", "token", token, "err", err)
+		return nil, status.Errorf(codes.Unauthenticated, err.Error())
+	}
+
+	uid, err := uuid.Parse(userId)
+	if err != nil {
+		logger.SugaredLogger.Errorw("auth failed with user id", "token", token, "err", err, "userId", userId)
+		return nil, status.Errorf(codes.Unauthenticated, err.Error())
+	}
+
+	acc := auth.NewAuthServer().GetAccountByUserId(ctx, uid)
+	if acc == nil {
+		return nil, status.Errorf(codes.Unauthenticated, "Invalid User")
+	}
+
+	newCtx := context.WithValue(ctx, config.ContextKeyUserId, userId)
+	newCtx = context.WithValue(newCtx, config.ContextKeyUserAccount, acc)
+	logger.SugaredLogger.Debugw("auth success", "userId", userId)
+	return newCtx, nil
 }
 
 func queryCookie(md metautils.NiceMD, name string) (string, bool) {
@@ -86,4 +127,19 @@ func queryCookie(md metautils.NiceMD, name string) (string, bool) {
 		}
 	}
 	return "", false
+}
+
+func authFromMD(ctx context.Context, expectedScheme string) (string, error) {
+	val := metautils.ExtractIncoming(ctx).Get("authorization")
+	if val == "" {
+		return "", nil
+	}
+	splits := strings.SplitN(val, " ", 2)
+	if len(splits) < 2 {
+		return "", status.Errorf(codes.Unauthenticated, "Bad authorization string")
+	}
+	if !strings.EqualFold(splits[0], expectedScheme) {
+		return "", status.Errorf(codes.Unauthenticated, "Request unauthenticated with "+expectedScheme)
+	}
+	return splits[1], nil
 }

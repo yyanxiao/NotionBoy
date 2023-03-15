@@ -12,11 +12,23 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-func (m *conversationMgr) CreateConversation(ctx context.Context, acc *ent.Account, instruction string) (*ConversationDTO, error) {
+func (m *conversationMgr) CreateConversation(ctx context.Context, acc *ent.Account, instruction, title string) (*ConversationDTO, error) {
 	if instruction == "" {
 		instruction = DEFAULT_INSTRUCTION
 	}
-	res, err := dao.SaveConversation(ctx, acc.UUID, instruction)
+	if title == "" {
+		title = DEFAULT_TITLE
+	}
+	res, err := dao.CreateConversation(ctx, acc.UUID, instruction, title)
+	return ConversationDTOFromDB(res), err
+}
+
+func (m *conversationMgr) UpdateConversation(ctx context.Context, acc *ent.Account, Id, instruction, title string) (*ConversationDTO, error) {
+	id, err := uuid.Parse(Id)
+	if err != nil {
+		return nil, status.Errorf(400, "invalid id, %s", err.Error())
+	}
+	res, err := dao.UpdateConversation(ctx, acc.UUID, id, instruction, title)
 	return ConversationDTOFromDB(res), err
 }
 
@@ -59,7 +71,7 @@ func (m *conversationMgr) CreateConversationMessage(ctx context.Context, acc *en
 	if err != nil {
 		if strings.Contains(err.Error(), "not found") {
 			logger.SugaredLogger.Debugw("conversation not found, create a new one", "conversationId", conversationId)
-			conversationDTO, err := m.CreateConversation(ctx, acc, "")
+			conversationDTO, err := m.CreateConversation(ctx, acc, "", "")
 			if err != nil {
 				return nil, err
 			}

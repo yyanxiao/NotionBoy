@@ -2304,6 +2304,7 @@ type ConversationMutation struct {
 	uuid                         *uuid.UUID
 	user_id                      *uuid.UUID
 	instruction                  *string
+	title                        *string
 	clearedFields                map[string]struct{}
 	conversation_messages        map[int]struct{}
 	removedconversation_messages map[int]struct{}
@@ -2640,6 +2641,55 @@ func (m *ConversationMutation) ResetInstruction() {
 	delete(m.clearedFields, conversation.FieldInstruction)
 }
 
+// SetTitle sets the "title" field.
+func (m *ConversationMutation) SetTitle(s string) {
+	m.title = &s
+}
+
+// Title returns the value of the "title" field in the mutation.
+func (m *ConversationMutation) Title() (r string, exists bool) {
+	v := m.title
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldTitle returns the old "title" field's value of the Conversation entity.
+// If the Conversation object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ConversationMutation) OldTitle(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldTitle is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldTitle requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldTitle: %w", err)
+	}
+	return oldValue.Title, nil
+}
+
+// ClearTitle clears the value of the "title" field.
+func (m *ConversationMutation) ClearTitle() {
+	m.title = nil
+	m.clearedFields[conversation.FieldTitle] = struct{}{}
+}
+
+// TitleCleared returns if the "title" field was cleared in this mutation.
+func (m *ConversationMutation) TitleCleared() bool {
+	_, ok := m.clearedFields[conversation.FieldTitle]
+	return ok
+}
+
+// ResetTitle resets all changes to the "title" field.
+func (m *ConversationMutation) ResetTitle() {
+	m.title = nil
+	delete(m.clearedFields, conversation.FieldTitle)
+}
+
 // AddConversationMessageIDs adds the "conversation_messages" edge to the ConversationMessage entity by ids.
 func (m *ConversationMutation) AddConversationMessageIDs(ids ...int) {
 	if m.conversation_messages == nil {
@@ -2713,7 +2763,7 @@ func (m *ConversationMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *ConversationMutation) Fields() []string {
-	fields := make([]string, 0, 6)
+	fields := make([]string, 0, 7)
 	if m.created_at != nil {
 		fields = append(fields, conversation.FieldCreatedAt)
 	}
@@ -2731,6 +2781,9 @@ func (m *ConversationMutation) Fields() []string {
 	}
 	if m.instruction != nil {
 		fields = append(fields, conversation.FieldInstruction)
+	}
+	if m.title != nil {
+		fields = append(fields, conversation.FieldTitle)
 	}
 	return fields
 }
@@ -2752,6 +2805,8 @@ func (m *ConversationMutation) Field(name string) (ent.Value, bool) {
 		return m.UserID()
 	case conversation.FieldInstruction:
 		return m.Instruction()
+	case conversation.FieldTitle:
+		return m.Title()
 	}
 	return nil, false
 }
@@ -2773,6 +2828,8 @@ func (m *ConversationMutation) OldField(ctx context.Context, name string) (ent.V
 		return m.OldUserID(ctx)
 	case conversation.FieldInstruction:
 		return m.OldInstruction(ctx)
+	case conversation.FieldTitle:
+		return m.OldTitle(ctx)
 	}
 	return nil, fmt.Errorf("unknown Conversation field %s", name)
 }
@@ -2824,6 +2881,13 @@ func (m *ConversationMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetInstruction(v)
 		return nil
+	case conversation.FieldTitle:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetTitle(v)
+		return nil
 	}
 	return fmt.Errorf("unknown Conversation field %s", name)
 }
@@ -2857,6 +2921,9 @@ func (m *ConversationMutation) ClearedFields() []string {
 	if m.FieldCleared(conversation.FieldInstruction) {
 		fields = append(fields, conversation.FieldInstruction)
 	}
+	if m.FieldCleared(conversation.FieldTitle) {
+		fields = append(fields, conversation.FieldTitle)
+	}
 	return fields
 }
 
@@ -2873,6 +2940,9 @@ func (m *ConversationMutation) ClearField(name string) error {
 	switch name {
 	case conversation.FieldInstruction:
 		m.ClearInstruction()
+		return nil
+	case conversation.FieldTitle:
+		m.ClearTitle()
 		return nil
 	}
 	return fmt.Errorf("unknown Conversation nullable field %s", name)
@@ -2899,6 +2969,9 @@ func (m *ConversationMutation) ResetField(name string) error {
 		return nil
 	case conversation.FieldInstruction:
 		m.ResetInstruction()
+		return nil
+	case conversation.FieldTitle:
+		m.ResetTitle()
 		return nil
 	}
 	return fmt.Errorf("unknown Conversation field %s", name)

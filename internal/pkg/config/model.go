@@ -6,7 +6,7 @@ type Config struct {
 	Wechat         WechatConfig
 	Service        ServiceConfig
 	Database       DatabaseConfig
-	NotionOauth    NotionOauthConfig
+	NotionOauth    OAuthConfig
 	R2             R2Config
 	Log            LogConfig
 	DevToolsURL    string
@@ -17,6 +17,7 @@ type Config struct {
 	Readability    ReadabilityConfig
 	NotionTestPage NotionTestPage
 	JWT            JWTConfig
+	OAuth          OAuthConfigMap
 }
 
 type LogConfig struct {
@@ -33,14 +34,6 @@ type ServiceConfig struct {
 type Notion struct {
 	BearerToken string
 	DatabaseID  string
-}
-
-type NotionOauthConfig struct {
-	ClientID     string
-	ClientSecret string
-	URLRedirect  string
-	AuthURL      string
-	AuthToken    string
 }
 
 type DatabaseConfig struct {
@@ -111,4 +104,18 @@ type NotionTestPage struct {
 type JWTConfig struct {
 	SigningKey string
 	Expiration time.Duration
+}
+
+type OAuthConfigMap struct {
+	Notion OAuthConfig
+	Github OAuthConfig
+}
+
+type OAuthConfig struct {
+	ClientID     string
+	ClientSecret string
+	URLRedirect  string
+	AuthURL      string
+	AuthToken    string
+	State        string
 }

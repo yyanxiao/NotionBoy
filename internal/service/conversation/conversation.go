@@ -17,6 +17,7 @@ import (
 const DEFAULT_INSTRUCTION = `
 You are ChatGPT, a large language model trained by OpenAI. You Respond as concisely as possible for each response. It's essential to respond concisely and use the same language as the user, Please keep this in mind.
 `
+const DEFAULT_TITLE = "ChatGPT"
 const DEFAULT_MESSAGE_LIMIT = 10
 
 const (

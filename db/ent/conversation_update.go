@@ -76,6 +76,26 @@ func (cu *ConversationUpdate) ClearInstruction() *ConversationUpdate {
 	return cu
 }
 
+// SetTitle sets the "title" field.
+func (cu *ConversationUpdate) SetTitle(s string) *ConversationUpdate {
+	cu.mutation.SetTitle(s)
+	return cu
+}
+
+// SetNillableTitle sets the "title" field if the given value is not nil.
+func (cu *ConversationUpdate) SetNillableTitle(s *string) *ConversationUpdate {
+	if s != nil {
+		cu.SetTitle(*s)
+	}
+	return cu
+}
+
+// ClearTitle clears the value of the "title" field.
+func (cu *ConversationUpdate) ClearTitle() *ConversationUpdate {
+	cu.mutation.ClearTitle()
+	return cu
+}
+
 // AddConversationMessageIDs adds the "conversation_messages" edge to the ConversationMessage entity by IDs.
 func (cu *ConversationUpdate) AddConversationMessageIDs(ids ...int) *ConversationUpdate {
 	cu.mutation.AddConversationMessageIDs(ids...)
@@ -213,6 +233,12 @@ func (cu *ConversationUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if cu.mutation.InstructionCleared() {
 		_spec.ClearField(conversation.FieldInstruction, field.TypeString)
 	}
+	if value, ok := cu.mutation.Title(); ok {
+		_spec.SetField(conversation.FieldTitle, field.TypeString, value)
+	}
+	if cu.mutation.TitleCleared() {
+		_spec.ClearField(conversation.FieldTitle, field.TypeString)
+	}
 	if cu.mutation.ConversationMessagesCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
@@ -329,6 +355,26 @@ func (cuo *ConversationUpdateOne) SetNillableInstruction(s *string) *Conversatio
 // ClearInstruction clears the value of the "instruction" field.
 func (cuo *ConversationUpdateOne) ClearInstruction() *ConversationUpdateOne {
 	cuo.mutation.ClearInstruction()
+	return cuo
+}
+
+// SetTitle sets the "title" field.
+func (cuo *ConversationUpdateOne) SetTitle(s string) *ConversationUpdateOne {
+	cuo.mutation.SetTitle(s)
+	return cuo
+}
+
+// SetNillableTitle sets the "title" field if the given value is not nil.
+func (cuo *ConversationUpdateOne) SetNillableTitle(s *string) *ConversationUpdateOne {
+	if s != nil {
+		cuo.SetTitle(*s)
+	}
+	return cuo
+}
+
+// ClearTitle clears the value of the "title" field.
+func (cuo *ConversationUpdateOne) ClearTitle() *ConversationUpdateOne {
+	cuo.mutation.ClearTitle()
 	return cuo
 }
 
@@ -498,6 +544,12 @@ func (cuo *ConversationUpdateOne) sqlSave(ctx context.Context) (_node *Conversat
 	}
 	if cuo.mutation.InstructionCleared() {
 		_spec.ClearField(conversation.FieldInstruction, field.TypeString)
+	}
+	if value, ok := cuo.mutation.Title(); ok {
+		_spec.SetField(conversation.FieldTitle, field.TypeString, value)
+	}
+	if cuo.mutation.TitleCleared() {
+		_spec.ClearField(conversation.FieldTitle, field.TypeString)
 	}
 	if cuo.mutation.ConversationMessagesCleared() {
 		edge := &sqlgraph.EdgeSpec{

@@ -4,6 +4,7 @@ import (
 	"context"
 
 	model "notionboy/api/pb/model"
+	"notionboy/internal/pkg/logger"
 
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -16,7 +17,20 @@ func (s *Server) CreateConversation(ctx context.Context, req *model.CreateConver
 		return nil, status.Errorf(codes.Unauthenticated, "Request unauthenticated")
 	}
 
-	dto, err := s.ConversationService.CreateConversation(ctx, acc, req.GetInstruction())
+	dto, err := s.ConversationService.CreateConversation(ctx, acc, req.GetInstruction(), req.GetTitle())
+	if err != nil {
+		return nil, err
+	}
+	return dto.ToPB(), nil
+}
+
+func (s *Server) UpdateConversation(ctx context.Context, req *model.UpdateConversationRequest) (*model.Conversation, error) {
+	acc := getAccFromContext(ctx)
+	if acc == nil {
+		return nil, status.Errorf(codes.Unauthenticated, "Request unauthenticated")
+	}
+	logger.SugaredLogger.Debugw("UpdateConversation", "req", req)
+	dto, err := s.ConversationService.UpdateConversation(ctx, acc, req.Id, req.GetInstruction(), req.GetTitle())
 	if err != nil {
 		return nil, err
 	}

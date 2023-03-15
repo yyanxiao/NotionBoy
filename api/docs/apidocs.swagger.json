@@ -105,6 +105,59 @@
         ]
       }
     },
+    "/v1/auth/callback": {
+      "post": {
+        "summary": "AuthCallback callback for oauth, will generate a token for the user",
+        "operationId": "Service_OAuthCallback",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/servicev1GenrateTokenResponse"
+            }
+          },
+          "404": {
+            "description": "Returned when the resource does not exist.",
+            "schema": {
+              "type": "string",
+              "format": "string"
+            }
+          },
+          "418": {
+            "description": "I'm a teapot.",
+            "schema": {
+              "type": "string",
+              "format": "string"
+            }
+          },
+          "500": {
+            "description": "Server error",
+            "schema": {
+              "$ref": "common.ErrorResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/servicev1OAuthCallbackRequest"
+            }
+          }
+        ],
+        "tags": [
+          "Service"
+        ]
+      }
+    },
     "/v1/auth/token": {
       "post": {
         "summary": "GenrateToken generates a token for the user. using api key in the header.",
@@ -143,6 +196,67 @@
             }
           }
         },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/servicev1GenrateTokenRequest"
+            }
+          }
+        ],
+        "tags": [
+          "Service"
+        ]
+      }
+    },
+    "/v1/auth/url/{provider}": {
+      "get": {
+        "summary": "get Oauth url",
+        "operationId": "Service_OAuthURL",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/servicev1OAuthURLResponse"
+            }
+          },
+          "404": {
+            "description": "Returned when the resource does not exist.",
+            "schema": {
+              "type": "string",
+              "format": "string"
+            }
+          },
+          "418": {
+            "description": "I'm a teapot.",
+            "schema": {
+              "type": "string",
+              "format": "string"
+            }
+          },
+          "500": {
+            "description": "Server error",
+            "schema": {
+              "$ref": "common.ErrorResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "provider",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
         "tags": [
           "Service"
         ]
@@ -598,6 +712,73 @@
         "tags": [
           "Service"
         ]
+      },
+      "put": {
+        "summary": "UpdateConversation update the conversation",
+        "operationId": "Service_UpdateConversation",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/servicev1Conversation"
+            }
+          },
+          "404": {
+            "description": "Returned when the resource does not exist.",
+            "schema": {
+              "type": "string",
+              "format": "string"
+            }
+          },
+          "418": {
+            "description": "I'm a teapot.",
+            "schema": {
+              "type": "string",
+              "format": "string"
+            }
+          },
+          "500": {
+            "description": "Server error",
+            "schema": {
+              "$ref": "common.ErrorResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "description": "id uuid of the conversation",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "instruction": {
+                  "type": "string",
+                  "title": "instruction instruction of the conversation, if this is empty, the\nconversation will be created with a default instruction"
+                },
+                "title": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "tags": [
+          "Service"
+        ]
       }
     },
     "/v1/status": {
@@ -699,6 +880,12 @@
         "updatedAt": {
           "type": "string"
         },
+        "instruction": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
         "messages": {
           "type": "array",
           "items": {
@@ -721,6 +908,12 @@
         },
         "updatedAt": {
           "type": "string"
+        },
+        "instruction": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
         }
       }
     },
@@ -730,6 +923,9 @@
         "instruction": {
           "type": "string",
           "title": "instruction instruction of the conversation, if this is empty, the\nconversation will be created with a default instruction"
+        },
+        "title": {
+          "type": "string"
         }
       }
     },
@@ -737,6 +933,14 @@
       "type": "object",
       "properties": {
         "apiKey": {
+          "type": "string"
+        }
+      }
+    },
+    "servicev1GenrateTokenRequest": {
+      "type": "object",
+      "properties": {
+        "magicCode": {
           "type": "string"
         }
       }
@@ -806,6 +1010,25 @@
         "tokenUsage": {
           "type": "integer",
           "format": "int32"
+        }
+      }
+    },
+    "servicev1OAuthCallbackRequest": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "string"
+        },
+        "state": {
+          "type": "string"
+        }
+      }
+    },
+    "servicev1OAuthURLResponse": {
+      "type": "object",
+      "properties": {
+        "url": {
+          "type": "string"
         }
       }
     }

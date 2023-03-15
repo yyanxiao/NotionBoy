@@ -5,13 +5,14 @@ import (
 	"fmt"
 	"net"
 	"net/http"
+	"strings"
+
 	"notionboy/api/pb"
 	"notionboy/internal/pkg/config"
 	"notionboy/internal/pkg/logger"
 	"notionboy/internal/server/handler"
 	"notionboy/internal/server/middleware"
 	"notionboy/webui"
-	"strings"
 
 	grpc_auth "github.com/grpc-ecosystem/go-grpc-middleware/auth"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
@@ -19,6 +20,7 @@ import (
 	"golang.org/x/net/http2/h2c"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
+	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/reflection"
 )
 
@@ -70,6 +72,7 @@ func Serve() {
 
 	gwmux := runtime.NewServeMux(
 		runtime.WithIncomingHeaderMatcher(CustomHeaderMatcher),
+		runtime.WithMetadata(MetadataInjector),
 	)
 	// register grpc-gateway
 	opts := []grpc.DialOption{grpc.WithTransportCredentials(insecure.NewCredentials())}
@@ -98,15 +101,28 @@ func Serve() {
 	}
 }
 
+var headersMap = map[string]struct{}{
+	config.AUTH_HEADER_X_API_KEY: {},
+	config.AUTH_HEADER_COOKIE:    {},
+}
+
 // CustomHeaderMatcher is a custom header matcher for gRPC-Gateway.
 // https://grpc-ecosystem.github.io/grpc-gateway/docs/mapping/customizing_your_gateway/#mapping-from-http-request-headers-to-grpc-client-metadata
 func CustomHeaderMatcher(key string) (string, bool) {
-	switch strings.ToLower(key) {
-	case config.AUTH_HEADER_X_API_KEY:
+	key = strings.ToLower(key)
+	if _, ok := headersMap[key]; ok {
 		return key, true
-	case config.AUTH_HEADER_COOKIE:
-		return key, true
-	default:
-		return runtime.DefaultHeaderMatcher(key)
 	}
+	return runtime.DefaultHeaderMatcher(key)
+}
+
+func MetadataInjector(ctx context.Context, req *http.Request) metadata.MD {
+	md := make(map[string]string)
+	// if method, ok := runtime.RPCMethod(ctx); ok {
+	// 	md["method"] = method
+	// }
+	if pattern, ok := runtime.HTTPPathPattern(ctx); ok {
+		md[config.AUTH_HEADER_PATH] = pattern
+	}
+	return metadata.New(md)
 }

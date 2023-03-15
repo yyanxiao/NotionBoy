@@ -17,12 +17,16 @@ export type ConversationWithoutMessages = {
   id?: string
   createdAt?: string
   updatedAt?: string
+  instruction?: string
+  title?: string
 }
 
 export type Conversation = {
   id?: string
   createdAt?: string
   updatedAt?: string
+  instruction?: string
+  title?: string
   messages?: Message[]
 }
 
@@ -41,6 +45,13 @@ export type GetConversationRequest = {
 
 export type CreateConversationRequest = {
   instruction?: string
+  title?: string
+}
+
+export type UpdateConversationRequest = {
+  id?: string
+  instruction?: string
+  title?: string
 }
 
 export type DeleteConversationRequest = {

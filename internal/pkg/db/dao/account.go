@@ -2,12 +2,13 @@ package dao
 
 import (
 	"context"
+	"strings"
+
 	"notionboy/db/ent"
 	"notionboy/db/ent/account"
 	"notionboy/internal/pkg/config"
 	"notionboy/internal/pkg/db"
 	"notionboy/internal/pkg/logger"
-	"strings"
 
 	"github.com/google/uuid"
 )
@@ -79,6 +80,26 @@ func initAccount(ctx context.Context, userID string, userType account.UserType) 
 		logger.SugaredLogger.Errorw("init account failed", "err", err)
 	}
 	return err
+}
+
+// Create new Account
+func CreateAccount(ctx context.Context, acc *ent.Account) (*ent.Account, error) {
+	query := db.GetClient().Account.
+		Create().
+		SetUserID(acc.UserID).
+		SetUserType(acc.UserType).
+		SetDatabaseID(acc.DatabaseID).
+		SetAccessToken(acc.AccessToken).
+		SetIsLatestSchema(acc.IsLatestSchema).
+		SetNotionUserID(acc.NotionUserID).
+		SetNotionUserEmail(acc.NotionUserEmail)
+	if acc.UUID != uuid.Nil {
+		query.SetUUID(acc.UUID)
+	} else {
+		query.SetUUID(uuid.New())
+	}
+	return query.
+		Save(ctx)
 }
 
 // SaveAccount Save Account

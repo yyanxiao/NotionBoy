@@ -4,16 +4,21 @@ import (
 	"context"
 	"fmt"
 	"strconv"
+	"time"
 
 	"notionboy/db/ent/account"
 	"notionboy/internal/pkg/config"
 	"notionboy/internal/pkg/db/dao"
 	"notionboy/internal/pkg/logger"
 	"notionboy/internal/pkg/notion"
+	"notionboy/internal/pkg/utils/cache"
 	"notionboy/internal/service/auth"
 
+	"github.com/google/uuid"
 	tele "gopkg.in/telebot.v3"
 )
+
+var cacheClient = cache.DefaultClient()
 
 const HELP_MSG = `
 这些命令和基本操作描述的是通过 NotionBoy 将内容保存到 Notion 中的功能。
@@ -80,7 +85,7 @@ func OnWebUI(c tele.Context) error {
 	}
 
 	svc := auth.NewAuthServer()
-	token, err := svc.GenrateToken(ctx, acc.UUID.String())
+	token, err := svc.GenrateToken(ctx, acc.UUID.String(), "")
 	if err != nil {
 		return c.Reply(fmt.Sprintf("生成 Token 失败: %s", err.Error()))
 	}
@@ -88,4 +93,22 @@ func OnWebUI(c tele.Context) error {
 	webui := fmt.Sprintf("%s/web?token=%s", config.GetConfig().Service.URL, token)
 
 	return c.Reply(webui)
+}
+
+func OnMagicCode(c tele.Context) error {
+	sender := c.Sender()
+	if sender == nil {
+		return c.Reply("User do not exist")
+	}
+	ctx := context.Background()
+	acc, err := queryUserAccount(ctx, c)
+	if err != nil {
+		logger.SugaredLogger.Errorf("Query Account Error: %v", err)
+		return c.Reply("Query Account Error: " + err.Error())
+	}
+
+	code := uuid.New().String()
+	cacheClient.Set(fmt.Sprintf("%s:%s", config.MAGIC_CODE_CACHE_KEY, code), acc, time.Duration(5)*time.Minute)
+
+	return c.Reply(code)
 }

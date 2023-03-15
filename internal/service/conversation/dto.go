@@ -1,9 +1,10 @@
 package conversation
 
 import (
+	"time"
+
 	"notionboy/api/pb/model"
 	"notionboy/db/ent"
-	"time"
 
 	"github.com/google/uuid"
 )
@@ -15,6 +16,7 @@ type ConversationDTO struct {
 	Deleted     bool                      `json:"deleted"`
 	UserID      string                    `json:"user_id"`
 	Instruction string                    `json:"instruction"`
+	Title       string                    `json:"title"`
 	Messages    []*ConversationMessageDTO `json:"messages"`
 }
 
@@ -26,6 +28,7 @@ func (d *ConversationDTO) ToDB() *ent.Conversation {
 		UUID:        uuid.MustParse(d.ID),
 		UserID:      uuid.MustParse(d.UserID),
 		Instruction: d.Instruction,
+		Title:       d.Title,
 	}
 }
 
@@ -35,28 +38,34 @@ func (d *ConversationDTO) ToPB() *model.Conversation {
 		messages = append(messages, message.ToPB())
 	}
 	return &model.Conversation{
-		Id:        d.ID,
-		CreatedAt: d.CreatedAt.Format(time.RFC3339),
-		UpdatedAt: d.UpdatedAt.Format(time.RFC3339),
-		Messages:  messages,
+		Id:          d.ID,
+		CreatedAt:   d.CreatedAt.Format(time.RFC3339),
+		UpdatedAt:   d.UpdatedAt.Format(time.RFC3339),
+		Instruction: d.Instruction,
+		Title:       d.Title,
+		Messages:    messages,
 	}
 }
 
 func (d *ConversationDTO) ToPBWithoutMessages() *model.ConversationWithoutMessages {
 	return &model.ConversationWithoutMessages{
-		Id:        d.ID,
-		CreatedAt: d.CreatedAt.Format(time.RFC3339),
-		UpdatedAt: d.UpdatedAt.Format(time.RFC3339),
+		Id:          d.ID,
+		CreatedAt:   d.CreatedAt.Format(time.RFC3339),
+		UpdatedAt:   d.UpdatedAt.Format(time.RFC3339),
+		Instruction: d.Instruction,
+		Title:       d.Title,
 	}
 }
 
 func (d *ConversationDTO) FromDB(c *ent.Conversation) *ConversationDTO {
+	// logger.SugaredLogger.Debugw("ConversationDTO.FromDB", "conversation", c)
 	d.CreatedAt = c.CreatedAt
 	d.UpdatedAt = c.UpdatedAt
 	d.Deleted = c.Deleted
 	d.ID = c.UUID.String()
 	d.UserID = c.UserID.String()
 	d.Instruction = c.Instruction
+	d.Title = c.Title
 	return d
 }
 

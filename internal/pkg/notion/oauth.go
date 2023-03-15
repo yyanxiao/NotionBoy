@@ -3,12 +3,13 @@ package notion
 import (
 	"context"
 	"fmt"
+	"strings"
+
 	"notionboy/db/ent"
 	"notionboy/db/ent/account"
 	"notionboy/internal/pkg/config"
 	"notionboy/internal/pkg/db/dao"
 	"notionboy/internal/pkg/logger"
-	"strings"
 
 	"github.com/jomei/notionapi"
 	"github.com/mitchellh/mapstructure"
@@ -29,13 +30,15 @@ func GetOauthManager() OauthInterface {
 }
 
 func getOauthConf() *oauth2.Config {
-	logger.SugaredLogger.Infof("oauthConf: %#v", config.GetConfig().NotionOauth)
+	cfg := config.GetConfig().OAuth.Notion
+	logger.SugaredLogger.Infof("oauthConf: %#v", cfg)
+
 	return &oauth2.Config{
-		ClientID:     config.GetConfig().NotionOauth.ClientID,
-		ClientSecret: config.GetConfig().NotionOauth.ClientSecret,
+		ClientID:     cfg.ClientID,
+		ClientSecret: cfg.ClientSecret,
 		Endpoint: oauth2.Endpoint{
-			AuthURL:  config.GetConfig().NotionOauth.AuthURL,
-			TokenURL: config.GetConfig().NotionOauth.AuthToken,
+			AuthURL:  cfg.AuthURL,
+			TokenURL: cfg.AuthToken,
 		},
 	}
 }

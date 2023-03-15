@@ -19,6 +19,10 @@ export type ErrorObject = {
   message?: string
 }
 
+export type GenrateTokenRequest = {
+  magicCode?: string
+}
+
 export type GenrateTokenResponse = {
   token?: string
   type?: string
@@ -27,4 +31,17 @@ export type GenrateTokenResponse = {
 
 export type GenerateApiKeyResponse = {
   apiKey?: string
+}
+
+export type OAuthCallbackRequest = {
+  code?: string
+  state?: string
+}
+
+export type OAuthURLRequest = {
+  provider?: string
+}
+
+export type OAuthURLResponse = {
+  url?: string
 }

@@ -17,8 +17,14 @@ export class Service {
   static Status(req: GoogleProtobufEmpty.Empty, initReq?: fm.InitReq): Promise<CheckStatusResponse> {
     return fm.fetchReq<GoogleProtobufEmpty.Empty, CheckStatusResponse>(`/v1/status?${fm.renderURLSearchParams(req, [])}`, {...initReq, method: "GET"})
   }
-  static GenrateToken(req: GoogleProtobufEmpty.Empty, initReq?: fm.InitReq): Promise<Servicev1Common.GenrateTokenResponse> {
-    return fm.fetchReq<GoogleProtobufEmpty.Empty, Servicev1Common.GenrateTokenResponse>(`/v1/auth/token`, {...initReq, method: "POST"})
+  static GenrateToken(req: Servicev1Common.GenrateTokenRequest, initReq?: fm.InitReq): Promise<Servicev1Common.GenrateTokenResponse> {
+    return fm.fetchReq<Servicev1Common.GenrateTokenRequest, Servicev1Common.GenrateTokenResponse>(`/v1/auth/token`, {...initReq, method: "POST", body: JSON.stringify(req, fm.replacer)})
+  }
+  static OAuthURL(req: Servicev1Common.OAuthURLRequest, initReq?: fm.InitReq): Promise<Servicev1Common.OAuthURLResponse> {
+    return fm.fetchReq<Servicev1Common.OAuthURLRequest, Servicev1Common.OAuthURLResponse>(`/v1/auth/url/${req["provider"]}?${fm.renderURLSearchParams(req, ["provider"])}`, {...initReq, method: "GET"})
+  }
+  static OAuthCallback(req: Servicev1Common.OAuthCallbackRequest, initReq?: fm.InitReq): Promise<Servicev1Common.GenrateTokenResponse> {
+    return fm.fetchReq<Servicev1Common.OAuthCallbackRequest, Servicev1Common.GenrateTokenResponse>(`/v1/auth/callback`, {...initReq, method: "POST", body: JSON.stringify(req, fm.replacer)})
   }
   static GenerateApiKey(req: GoogleProtobufEmpty.Empty, initReq?: fm.InitReq): Promise<Servicev1Common.GenerateApiKeyResponse> {
     return fm.fetchReq<GoogleProtobufEmpty.Empty, Servicev1Common.GenerateApiKeyResponse>(`/v1/auth/apikey`, {...initReq, method: "POST"})
@@ -28,6 +34,9 @@ export class Service {
   }
   static CreateConversation(req: Servicev1Conversation.CreateConversationRequest, initReq?: fm.InitReq): Promise<Servicev1Conversation.Conversation> {
     return fm.fetchReq<Servicev1Conversation.CreateConversationRequest, Servicev1Conversation.Conversation>(`/v1/conversations`, {...initReq, method: "POST", body: JSON.stringify(req, fm.replacer)})
+  }
+  static UpdateConversation(req: Servicev1Conversation.UpdateConversationRequest, initReq?: fm.InitReq): Promise<Servicev1Conversation.Conversation> {
+    return fm.fetchReq<Servicev1Conversation.UpdateConversationRequest, Servicev1Conversation.Conversation>(`/v1/conversations/${req["id"]}`, {...initReq, method: "PUT", body: JSON.stringify(req, fm.replacer)})
   }
   static GetConversation(req: Servicev1Conversation.GetConversationRequest, initReq?: fm.InitReq): Promise<Servicev1Conversation.Conversation> {
     return fm.fetchReq<Servicev1Conversation.GetConversationRequest, Servicev1Conversation.Conversation>(`/v1/conversations/${req["id"]}?${fm.renderURLSearchParams(req, ["id"])}`, {...initReq, method: "GET"})

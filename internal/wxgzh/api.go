@@ -56,6 +56,7 @@ func (ex *OfficialAccount) Serve(w http.ResponseWriter, r *http.Request) {
 	server := ex.officialAccount.GetServer(r, w)
 	_, ok := server.GetQuery("signature")
 	if !ok {
+		http.Redirect(w, r, "/web/", http.StatusFound)
 		w.WriteHeader(http.StatusOK)
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
 		_, _ = w.Write([]byte("ok"))
