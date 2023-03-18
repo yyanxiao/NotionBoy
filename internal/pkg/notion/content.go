@@ -2,12 +2,13 @@ package notion
 
 import (
 	"context"
-	"notionboy/db/ent"
-	"notionboy/internal/pkg/config"
-	"notionboy/internal/pkg/logger"
 	"regexp"
 	"strings"
 	"time"
+
+	"notionboy/db/ent"
+	"notionboy/internal/pkg/config"
+	"notionboy/internal/pkg/logger"
 
 	"github.com/jomei/notionapi"
 
@@ -71,7 +72,9 @@ func (c *Content) parseFulltext(ctx context.Context) {
 }
 
 func (c *Content) buildTitle() string {
-	title := c.Text
+	// parse title from text until first line break
+	title := strings.Split(c.Text, "\n")[0]
+	// title := c.Text
 	if c.IsMedia && c.Text == "" {
 		loc, _ := time.LoadLocation("Asia/Shanghai")
 		title = cases.Title(language.English).String(c.Media.Type) + " " + time.Now().UTC().In(loc).Format(time.RFC3339)
