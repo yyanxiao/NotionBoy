@@ -31,7 +31,7 @@ type Content struct {
 
 // Process 从 text 提取 tags，配置全文
 func (c *Content) Process(ctx context.Context) {
-	r, _ := regexp.Compile(`#(.+?)($|\s)`)
+	r, _ := regexp.Compile(`[#＃](.+?)($|\s)`)
 	match := r.FindAllStringSubmatch(c.Text, -1)
 	if len(match) > 0 {
 		tags := make([]string, 0)
