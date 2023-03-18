@@ -1,15 +1,10 @@
-import { cn } from "@/lib/utils";
-import { SiteFooter } from "./site-footer";
-import { SiteHeader } from "./site-header";
 import { Toaster } from "./ui/toaster";
 
 export const Layout = ({ children }: { children: React.ReactNode }) => {
 	return (
-		<div className={cn("min-h-screen container mx-auto flex flex-col ")}>
-			<SiteHeader />
+		<div className="min-h-screen max-w-8xl sm:px-6 md:px-8">
 			<Toaster />
 			{children}
-			<SiteFooter />
 		</div>
 	);
 };

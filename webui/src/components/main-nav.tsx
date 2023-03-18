@@ -13,7 +13,7 @@ import {
 
 export function MainNav() {
 	return (
-		<div className="hidden md:flex">
+		<div className="flex">
 			<NavigationMenu>
 				<NavigationMenuList>
 					<NavigationMenuItem>

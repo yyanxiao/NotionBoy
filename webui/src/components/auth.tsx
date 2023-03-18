@@ -12,7 +12,7 @@ export const TOKEN_EXPIRE = "tokenExpire";
 
 const PROTECTED_PATHS = siteConfig.authPages;
 
-export function Auth() {
+export function AuthLoginButton() {
 	const [token, setToken] = useState<string | null>(null);
 	// add a const to show if the user is logged in or not
 
@@ -100,11 +100,11 @@ export function Auth() {
 	const loginButton = () => {
 		if (isShowLoginButton) {
 			return token ? (
-				<Button variant="outline" size="sm" onClick={handleSignOut}>
+				<Button variant="ghost" size="sm" onClick={handleSignOut}>
 					Logout
 				</Button>
 			) : (
-				<Button variant="outline" size="sm" onClick={redirectToLogin}>
+				<Button variant="ghost" size="sm" onClick={redirectToLogin}>
 					Login
 				</Button>
 			);

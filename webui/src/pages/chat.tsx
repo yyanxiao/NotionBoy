@@ -9,16 +9,20 @@ import {
 
 import { Service } from "@/lib/pb/server.pb";
 import { useRouter } from "next/router";
-import ConversationList from "@/components/chat/conversation-list";
+
 import ChatWindow from "@/components/chat/chat-window";
 import { ChatInputBox } from "@/components/chat/input-box";
 import { isLogin } from "@/lib/utils";
 import { siteConfig } from "@/config/site";
 
+import { SideBarComponent } from "@/components/chat/sidebar";
+import MobileChatHeader from "@/components/chat/mobile-chat-header";
+import { DefaultInstruction } from "@/config/prompts";
+
 export default function Chat() {
 	const [conversations, setConversations] = useState<Conversation[]>([]);
 	const [selectedConversation, setSelectedConversation] =
-		useState<Conversation>();
+		useState<Conversation>(newConversation());
 	const [messageMap, setMessageMap] = useState<Map<string, Message[]>>(
 		new Map()
 	);
@@ -51,16 +55,23 @@ export default function Chat() {
 					});
 				});
 		}
-		// create conversation on page load
-		const conversation = {
-			id: uuidv4(),
-			createdAt: new Date().toISOString(),
-			updatedAt: new Date().toISOString(),
-		} as Conversation;
-		setConversations([conversation, ...conversations]);
 
-		// select conversation on page load
-		setSelectedConversation(conversation);
+		if (selectedConversation === undefined) {
+			// create conversation on page load
+			const conversation = newConversation();
+			setConversations([conversation, ...conversations]);
+
+			// select conversation on page load
+			setSelectedConversation(conversation);
+		} else {
+			// check if conversation is already in the list
+			const conversation = conversations.find(
+				(c) => c.id === selectedConversation.id
+			);
+			if (conversation === undefined) {
+				setConversations([selectedConversation, ...conversations]);
+			}
+		}
 	}, []);
 
 	// handle conversation selection with messages
@@ -68,6 +79,7 @@ export default function Chat() {
 		if (selectedConversation === undefined) {
 			return;
 		}
+		// router.asPath = `/chat/${selectedConversation.id}`;
 		if (messageMap.has(selectedConversation.id as string)) {
 			return;
 		}
@@ -167,12 +179,13 @@ export default function Chat() {
 			if (msg.response === undefined) {
 				return;
 			}
-			fullMessage += msg.response;
+			if (fullMessage != msg.response) {
+				fullMessage += msg.response;
+			}
 			message.response = fullMessage;
 			message.createdAt = msg.createdAt;
 			message.updatedAt = msg.updatedAt;
 			message.tokenUsage = msg.tokenUsage;
-
 			addMessageToMessageMap(
 				selectedConversation?.id as string,
 				message,
@@ -193,21 +206,45 @@ export default function Chat() {
 	};
 
 	return (
-		<div className="flex-grow container mx-auto flex flex-col ">
-			<ConversationList
-				conversations={conversations}
-				selectedConversation={selectedConversation}
-				onSelectConversation={handleSelectConversation}
-				onSetConversations={setConversations}
-			/>
-			<ChatWindow
-				messages={messageMap.get(selectedConversation?.id as string)}
-				selectedConversation={selectedConversation as Conversation}
-			/>
-			<ChatInputBox
-				onSendMessage={handleMessageSend}
-				isLoading={isLoading}
-			/>
+		<div>
+			<div className="hidden lg:block fixed left-0 top-0 bottom-0 w-[19.5rem]">
+				<SideBarComponent
+					conversations={conversations}
+					selectedConversation={selectedConversation}
+					onSelectConversation={handleSelectConversation}
+					onSetConversations={setConversations}
+				/>
+			</div>
+			<div className="lg:pl-[19.5rem]">
+				<div className="max-w-6xl mx-auto flex flex-col h-full">
+					<div className="flex flex-col relative min-h-screen">
+						<div className="lg:hidden sticky top-0 left-0 h-10 rounded-sm bg-gray-200 ">
+							<MobileChatHeader
+								conversations={conversations}
+								selectedConversation={selectedConversation}
+								onSelectConversation={handleSelectConversation}
+								onSetConversations={setConversations}
+							/>
+						</div>
+						<div className="flex-grow">
+							<ChatWindow
+								messages={messageMap.get(
+									selectedConversation?.id as string
+								)}
+								selectedConversation={
+									selectedConversation as Conversation
+								}
+							/>
+						</div>
+						<div className="sticky bottom-0 bg-white">
+							<ChatInputBox
+								onSendMessage={handleMessageSend}
+								isLoading={isLoading}
+							/>
+						</div>
+					</div>
+				</div>
+			</div>
 		</div>
 	);
 }
@@ -234,4 +271,14 @@ function addMessageToMessageMap(
 
 		messageMap.set(conversationId, messages);
 	}
+}
+
+function newConversation(): Conversation {
+	return {
+		id: uuidv4(),
+		instruction: DefaultInstruction.instruction,
+		title: DefaultInstruction.title,
+		createdAt: new Date().toISOString(),
+		updatedAt: new Date().toISOString(),
+	} as Conversation;
 }

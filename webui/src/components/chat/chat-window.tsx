@@ -1,5 +1,7 @@
 import { Conversation, Message } from "@/lib/pb/model/conversation.pb";
+import { Bot, User } from "lucide-react";
 import { marked } from "marked";
+import { useEffect, useRef } from "react";
 
 type Props = {
 	messages: Message[] | undefined;
@@ -11,8 +13,17 @@ function parseMarkdown(text: string) {
 }
 
 export default function ChatWindow(props: Props) {
+	const messagesEndRef = useRef<HTMLDivElement | null>(null);
+	useEffect(() => {
+		if (messagesEndRef.current) {
+			messagesEndRef.current.scrollTo({
+				top: messagesEndRef.current.scrollHeight,
+				behavior: "smooth",
+			});
+		}
+	}, [props.messages, messagesEndRef]);
 	return (
-		<div className="flex-grow container mx-auto flex flex-col items-center justify-center overflow-hidden bg-white border-2 border-b-0 rounded-lg border-blue-200">
+		<div ref={messagesEndRef} className="flex-1 flex flex-col">
 			{props.selectedConversation ? (
 				<div className="flex-1 w-full flex flex-col overflow-auto box-border rounded-lg p-4">
 					{props.messages?.map((message) => {
@@ -21,31 +32,31 @@ export default function ChatWindow(props: Props) {
 								{message.request !== undefined &&
 									message.request !== "" && (
 										<div
-											className=" w-full flex flex-row"
+											className="w-full flex flex-row justify-start items-center"
 											key={`${message.id}-req`}
 										>
+											<User className="flex-none w-8 h-8 " />
 											<div
-												className="prose text-start bg-blue-200 m-1 p-2 rounded-xl"
+												className="prose text-start bg-blue-200 m-1 p-2 rounded-xl overflow-auto"
 												dangerouslySetInnerHTML={parseMarkdown(
 													message.request
 												)}
 											></div>
-											<div className="flex-1"></div>
 										</div>
 									)}
 								{message.response !== undefined &&
 									message.response !== "" && (
 										<div
-											className=" w-full flex flex-row"
+											className=" w-full flex flex-row justify-end items-center"
 											key={`${message.id}-resp`}
 										>
-											<div className="flex-1"></div>
 											<div
-												className="prose text-start bg-green-200 p-2 rounded-xl"
+												className="prose text-start bg-green-200 p-2 rounded-xl overflow-auto"
 												dangerouslySetInnerHTML={parseMarkdown(
 													message.response
 												)}
 											></div>
+											<Bot className="flex-none w-8 h-8" />
 										</div>
 									)}
 							</div>

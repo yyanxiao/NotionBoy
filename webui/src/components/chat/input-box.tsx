@@ -1,6 +1,7 @@
 import { Loader2, Send } from "lucide-react";
 import { useState } from "react";
 import { Button } from "../ui/button";
+import { Textarea } from "../ui/textarea";
 
 type ChatInputBoxProps = {
 	onSendMessage: (message: string) => void;
@@ -20,37 +21,34 @@ export function ChatInputBox({ onSendMessage, isLoading }: ChatInputBoxProps) {
 	const isEmptyInput = () => inputValue.trim() === "";
 
 	return (
-		// <div className="fixed bottom-8  h-fit container mx-auto">
-		<div className="h-fit container mx-auto">
-			<div className="relative">
-				<textarea
-					placeholder="Type a message..."
-					className="w-full p-2 border-sky-200 border-2 disabled:opacity-50"
-					onChange={(e) => setInputValue(e.target.value)}
-					value={inputValue}
-					disabled={isLoading}
-					rows={2}
-					onKeyDown={(e) => {
-						if (e.key === "Enter" && !isEmptyInput()) {
-							e.preventDefault();
-							handleMessageSend();
-						}
-					}}
-				/>
+		<div className="relative m-2">
+			<Textarea
+				placeholder="Type a message..."
+				className="w-full disabled:opacity-50 h-10 md:h-20"
+				onChange={(e) => setInputValue(e.target.value)}
+				value={inputValue}
+				disabled={isLoading}
+				rows={1}
+				onKeyDown={(e) => {
+					if (e.key === "Enter" && !isEmptyInput()) {
+						e.preventDefault();
+						handleMessageSend();
+					}
+				}}
+			/>
 
-				<Button
-					variant="ghost"
-					disabled={isLoading || isEmptyInput()}
-					className="absolute right-1 mt-4 p-1 disabled:opacity-50"
-					onClick={handleMessageSend}
-				>
-					{isLoading || isSending ? (
-						<Loader2 className="animate-spin" />
-					) : (
-						<Send />
-					)}
-				</Button>
-			</div>
+			<Button
+				variant="ghost"
+				disabled={isLoading || isEmptyInput()}
+				className="absolute right-0 bottom-0"
+				onClick={handleMessageSend}
+			>
+				{isLoading || isSending ? (
+					<Loader2 className="animate-spin" />
+				) : (
+					<Send />
+				)}
+			</Button>
 		</div>
 	);
 }

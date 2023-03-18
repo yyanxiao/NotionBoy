@@ -5,8 +5,8 @@ import { buttonVariants } from "./ui/button";
 
 export function SiteFooter() {
 	return (
-		<footer className="container mx-auto border-b border-b-slate-200 bg-white dark:border-b-slate-700 dark:bg-slate-900">
-			<div className="flex flex-row items-center justify-between px-2 border-t border-t-slate-200 py-1 dark:border-t-slate-700 md:flex-row md:py-0">
+		<footer className="absolute bottom-0 left-0 w-full container mx-auto border-b border-b-slate-200 bg-white dark:border-b-slate-700 dark:bg-slate-900">
+			<div className="hidden md:flex flex-row items-center justify-between px-2 border-t border-t-slate-200 py-1 dark:border-t-slate-700 md:flex-row md:py-0">
 				<p className="text-center text-sm leading-loose text-slate-600 dark:text-slate-400 md:text-center">
 					Built by{" "}
 					<a

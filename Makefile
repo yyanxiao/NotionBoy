@@ -17,7 +17,10 @@ run:
 	go run ./cmd/notionboy/main.go
 
 local:
-	cd .local && go run ./main.go
+	cd .local && ENV=dev go run ./main.go
+
+localui:
+	cd webui && NODE_ENV="development" pnpm dev
 
 rund:
 	docker run --rm -v `pwd`/data.db:/service/data.db -v `pwd`/settings_local.yaml:/service/settings_local.yaml --net=host ${IMAGE_NAME}:${IMAGE_TAG}
@@ -33,7 +36,8 @@ ent:
 
 webui: clean
 	cd webui && npm run export
-	find webui/dist -type f -exec sed -i 's/\/_next\/static\//\.\/_next\/static\//g' {} +
+	# set base path, so we don't need change it anymore
+	# find webui/dist -type f -exec sed -i 's/\/_next\/static\//\.\/_next\/static\//g' {} +
 
 grpc:
 	rm -rf api/pb api/docs webui/src/lib.pb

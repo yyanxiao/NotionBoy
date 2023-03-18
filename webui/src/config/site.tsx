@@ -12,6 +12,13 @@ interface SiteConfig {
 	authPages: string[];
 }
 
+function buildPath(path: string): string {
+	if (process.env.NODE_ENV === "development") {
+		return path;
+	}
+	return path + ".html";
+}
+
 export const siteConfig: SiteConfig = {
 	name: "NotionBoy",
 	description:
@@ -19,10 +26,10 @@ export const siteConfig: SiteConfig = {
 	links: {
 		twitter: "https://twitter.com/LiuVaayne",
 		github: "https://github.com/vaayne/NotionBoy",
-		chatgpt: "/web/chat.html",
-		login: "/web/login.html",
-		home: "/web/",
-		authCallback: "/web/auth-callback.html",
+		chatgpt: buildPath("/chat"),
+		login: buildPath("/login"),
+		home: "/",
+		authCallback: buildPath("/authcallback"),
 	},
-	authPages: ["/web/chat.html"],
+	authPages: [buildPath("/chat")],
 };

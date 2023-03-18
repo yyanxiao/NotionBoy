@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"net/http/httputil"
 	"net/url"
+	"os"
 
 	"notionboy/internal/pkg/logger"
 )
@@ -26,9 +27,14 @@ func init() {
 }
 
 func RegisterHandlers(mux *http.ServeMux) {
-	mux.Handle("/web/", http.StripPrefix("/web/", http.FileServer(http.FS(distDirFS))))
-	// mux.HandleFunc("/web", ReverseProxy)
-	// mux.HandleFunc("/web/", ReverseProxy)
+	env := os.Getenv("ENV")
+	logger.SugaredLogger.Infow("env", "env", env)
+	if env == "dev" {
+		mux.HandleFunc("/web", ReverseProxy)
+		mux.HandleFunc("/web/", ReverseProxy)
+	} else {
+		mux.Handle("/web/", http.StripPrefix("/web/", http.FileServer(http.FS(distDirFS))))
+	}
 }
 
 func ReverseProxy(w http.ResponseWriter, r *http.Request) {
