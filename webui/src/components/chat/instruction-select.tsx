@@ -14,7 +14,7 @@ import {
 
 import { useEffect, useState } from "react";
 
-type ConversationListProps = {
+type InstructionSelectProps = {
 	instruction: Instruction;
 	setInstruction: (instruction: Instruction) => void;
 };
@@ -22,13 +22,11 @@ type ConversationListProps = {
 export function InstructionSelectComponent({
 	instruction,
 	setInstruction,
-}: ConversationListProps) {
-	const [selectedList, setSelectedList] = useState<Instruction[]>([
-		DefaultInstruction,
-	]);
-	const [title, setTitle] = useState<string>(DefaultInstruction.title);
+}: InstructionSelectProps) {
+	const [selectedList, setSelectedList] = useState<Instruction[]>([]);
+	const [title, setTitle] = useState<string>();
 
-	const [category, setCategory] = useState<string>("default");
+	const [category, setCategory] = useState<string>();
 
 	useEffect(() => {
 		const list = InstructionList.find((item) => item.key === category);
@@ -38,7 +36,7 @@ export function InstructionSelectComponent({
 	}, [category]);
 
 	useEffect(() => {
-		const instruction = selectedList.find((item) => item.title === title);
+		const instruction = selectedList?.find((item) => item.title === title);
 		if (instruction) {
 			setInstruction(instruction);
 		}

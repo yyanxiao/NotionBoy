@@ -9,38 +9,48 @@ import {
 	SheetTitle,
 	SheetTrigger,
 } from "@/components/ui/sheet";
-import { DefaultInstruction, Instruction } from "@/config/prompts";
+
 import { Conversation } from "@/lib/pb/model/conversation.pb";
 import { Settings2 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { Textarea } from "../ui/textarea";
 
 import { useToast } from "@/hooks/use-toast";
 import { Service } from "@/lib/pb/server.pb";
 import { InstructionSelectComponent } from "./instruction-select";
-type ChatSettingsProps = {
-	conversations: Conversation[];
-	selectedConversation: Conversation | undefined;
-	onSelectConversation: (conversation: Conversation | undefined) => void;
-	onSetConversations: (conversations: Conversation[]) => void;
-};
+import { ChatContext } from "@/lib/states/chat-context";
+import {
+	DefaultInstruction,
+	Instruction,
+	Instructions,
+} from "@/config/prompts";
 
-export function ChatSettings({
-	conversations,
-	selectedConversation,
-	onSelectConversation,
-	onSetConversations,
-}: ChatSettingsProps) {
+export function ChatSettings() {
+	const {
+		conversations,
+		setConversations,
+		selectedConversation,
+		setSelectedConversation,
+		handleCreateConversation,
+	} = useContext(ChatContext);
 	const { toast } = useToast();
-	const [instruction, setInstruction] = useState<Instruction>({
-		title: DefaultInstruction.title,
-		instruction: DefaultInstruction.instruction,
-		instructioncn: DefaultInstruction.instructioncn,
-	} as Instruction);
-	const [title, setTitle] = useState<string>(instruction.title);
-	const [instructionStr, setInstructionStr] = useState<string>(
-		instruction.instruction
+
+	const [instruction, setInstruction] = useState<Instruction>(
+		Instructions.find(
+			(i) => i.instruction === selectedConversation?.instruction
+		) ?? DefaultInstruction
 	);
+
+	const [title, setTitle] = useState<string>("");
+	const [instructionStr, setInstructionStr] = useState<string>("");
+
+	useEffect(() => {
+		setInstruction(
+			Instructions.find(
+				(i) => i.instruction === selectedConversation?.instruction
+			) ?? DefaultInstruction
+		);
+	}, [selectedConversation]);
 
 	useEffect(() => {
 		setTitle(instruction.title);
@@ -55,8 +65,8 @@ export function ChatSettings({
 		} as Conversation;
 		Service.UpdateConversation(conversation)
 			.then((resp) => {
-				onSelectConversation(conversation);
-				onSetConversations(
+				setSelectedConversation(conversation);
+				setConversations(
 					conversations.map((c) => {
 						if (c.id === conversation.id) {
 							return conversation;

@@ -18,6 +18,7 @@ import { siteConfig } from "@/config/site";
 import { SideBarComponent } from "@/components/chat/sidebar";
 import MobileChatHeader from "@/components/chat/mobile-chat-header";
 import { DefaultInstruction } from "@/config/prompts";
+import { ChatContext } from "@/lib/states/chat-context";
 
 export default function Chat() {
 	const [conversations, setConversations] = useState<Conversation[]>([]);
@@ -83,6 +84,16 @@ export default function Chat() {
 		if (messageMap.has(selectedConversation.id as string)) {
 			return;
 		}
+
+		// check if selected conversation in conversations
+		// if not exists, add it to conversations as it is a new conversation
+		const conversation = conversations.find(
+			(c) => c.id === selectedConversation.id
+		);
+		if (conversation === undefined) {
+			setConversations([selectedConversation, ...conversations]);
+		}
+
 		setIsLoading(true);
 		Service.ListMessages({ conversationId: selectedConversation.id })
 			.then((response) => {
@@ -105,50 +116,6 @@ export default function Chat() {
 				setIsLoading(false);
 			});
 	}, [selectedConversation]);
-
-	const handleSelectConversation = (
-		conversation: Conversation | undefined
-	) => {
-		if (conversation === undefined) {
-			return;
-		}
-		setSelectedConversation(conversation);
-		if (messageMap && messageMap.has(conversation.id as string)) {
-			return;
-		}
-		setIsLoading(true);
-		Service.ListMessages({ conversationId: conversation.id })
-			.then((response) => {
-				if (response.messages === undefined) {
-					toast({
-						variant: "destructive",
-						description: "No messages for the conversation",
-					});
-					return;
-				}
-				if (response.messages.length == 0) {
-					toast({
-						description: "No messages for the conversation",
-					});
-					return;
-				}
-
-				if (conversation.id) {
-					messageMap.set(conversation.id, response.messages);
-					setMessageMap(new Map(messageMap));
-				}
-			})
-			.catch((error) => {
-				toast({
-					variant: "default",
-					title: "ListMessages Error",
-					description: error.message,
-				});
-			})
-			.finally(() => {
-				setIsLoading(false);
-			});
-	};
 
 	const handleMessageSend = (request: string) => {
 		setIsLoading(true);
@@ -205,47 +172,53 @@ export default function Chat() {
 			});
 	};
 
+	const handleCreateConversation = () => {
+		const conversation = newConversation();
+		setSelectedConversation(conversation);
+		setConversations([conversation, ...conversations]);
+	};
+
 	return (
-		<div>
-			<div className="hidden lg:block fixed left-0 top-0 bottom-0 w-[19.5rem]">
-				<SideBarComponent
-					conversations={conversations}
-					selectedConversation={selectedConversation}
-					onSelectConversation={handleSelectConversation}
-					onSetConversations={setConversations}
-				/>
-			</div>
-			<div className="lg:pl-[19.5rem]">
-				<div className="max-w-6xl mx-auto flex flex-col h-full">
-					<div className="flex flex-col relative min-h-screen">
-						<div className="lg:hidden sticky top-0 left-0 h-10 rounded-sm bg-gray-200 ">
-							<MobileChatHeader
-								conversations={conversations}
-								selectedConversation={selectedConversation}
-								onSelectConversation={handleSelectConversation}
-								onSetConversations={setConversations}
-							/>
-						</div>
-						<div className="flex-grow">
-							<ChatWindow
-								messages={messageMap.get(
-									selectedConversation?.id as string
-								)}
-								selectedConversation={
-									selectedConversation as Conversation
-								}
-							/>
-						</div>
-						<div className="sticky bottom-0 bg-white">
-							<ChatInputBox
-								onSendMessage={handleMessageSend}
-								isLoading={isLoading}
-							/>
+		<ChatContext.Provider
+			value={{
+				conversations,
+				setConversations,
+				selectedConversation,
+				setSelectedConversation,
+				handleCreateConversation,
+			}}
+		>
+			<div>
+				<div className="hidden lg:block fixed left-0 top-0 bottom-0 w-[19.5rem]">
+					<SideBarComponent />
+				</div>
+				<div className="lg:pl-[19.5rem]">
+					<div className="max-w-6xl mx-auto flex flex-col h-full">
+						<div className="flex flex-col relative min-h-screen">
+							<div className="lg:hidden sticky top-0 left-0 h-10 rounded-sm bg-gray-200 ">
+								<MobileChatHeader />
+							</div>
+							<div className="flex-grow">
+								<ChatWindow
+									messages={messageMap.get(
+										selectedConversation?.id as string
+									)}
+									selectedConversation={
+										selectedConversation as Conversation
+									}
+								/>
+							</div>
+							<div className="sticky bottom-0 bg-white">
+								<ChatInputBox
+									onSendMessage={handleMessageSend}
+									isLoading={isLoading}
+								/>
+							</div>
 						</div>
 					</div>
 				</div>
 			</div>
-		</div>
+		</ChatContext.Provider>
 	);
 }
 

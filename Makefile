@@ -17,9 +17,12 @@ run:
 	go run ./cmd/notionboy/main.go
 
 local:
+	cd .local && go run ./main.go
+
+dev:
 	cd .local && ENV=dev go run ./main.go
 
-localui:
+devui:
 	cd webui && NODE_ENV="development" pnpm dev
 
 rund:

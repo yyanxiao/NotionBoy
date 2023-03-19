@@ -26,6 +26,7 @@ export enum TagTypeEnum {
 	PROFESSIONAL = "professional 🎓",
 	CONTRIBUTE = "contribute 🤝",
 	PERSONAL = "personal 🧑‍💻",
+	DEFAULT = "default 🤷‍♂️",
 }
 
 // Add prompts to this list
@@ -2058,6 +2059,7 @@ export const DefaultInstruction = {
 	instructioncn:
 		"你是ChatGPT, 一种由OpenAI训练的大型语言模型. 你应该尽可能简洁地回复每个问题. 回答时使用与用户相同的语言非常重要, 请记住这一点.",
 	remark: "ChatGPT",
+	tags: [TagTypeEnum.DEFAULT],
 } as Instruction;
 
 // group prompts by tags
@@ -2071,7 +2073,7 @@ Instructions.forEach((ist) => {
 	});
 });
 
-InstructionMap.set("default", [DefaultInstruction]);
+InstructionMap.set(TagTypeEnum.DEFAULT, [DefaultInstruction]);
 
 // InstructionMap to list with key
 export const InstructionList: { key: string; data: Instruction[] }[] = [];

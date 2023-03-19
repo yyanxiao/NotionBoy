@@ -1,48 +1,27 @@
-import { Separator } from "@/components/ui/separator";
-import { DefaultInstruction, Instruction } from "@/config/prompts";
 import { siteConfig } from "@/config/site";
-
-import { Conversation } from "@/lib/pb/model/conversation.pb";
 
 import { Home, LogOut, Plus } from "lucide-react";
 import Link from "next/link";
-import { useState } from "react";
+import { useContext } from "react";
 import { AuthLoginButton } from "../auth";
-import { Button } from "../ui/button";
+import { Button, buttonVariants } from "../ui/button";
 import ConversationListComponent from "./conversations";
 import { ChatSettings } from "./settings";
-import { v4 as uuidv4 } from "uuid";
+import { ChatContext } from "@/lib/states/chat-context";
+import { Separator } from "../ui/separator";
+import { Icons } from "../icons";
 
-type ConversationListProps = {
-	conversations: Conversation[];
-	selectedConversation: Conversation | undefined;
-	onSelectConversation: (conversation: Conversation | undefined) => void;
-	onSetConversations: (conversations: Conversation[]) => void;
-};
-
-export function SideBarComponent({
-	conversations,
-	selectedConversation,
-	onSelectConversation,
-	onSetConversations,
-}: ConversationListProps) {
-	const [instruction, setInstruction] =
-		useState<Instruction>(DefaultInstruction);
-
-	const handleCreateConversation = () => {
-		const conversation = {
-			id: uuidv4(),
-			createdAt: new Date().toISOString(),
-			updatedAt: new Date().toISOString(),
-			instruction: instruction.instruction,
-			title: instruction.title,
-		} as Conversation;
-		onSelectConversation(conversation);
-		onSetConversations([conversation, ...conversations]);
-	};
+export function SideBarComponent() {
+	const {
+		conversations,
+		setConversations,
+		selectedConversation,
+		setSelectedConversation,
+		handleCreateConversation,
+	} = useContext(ChatContext);
 
 	return (
-		<div className="bg-gray-100 text-gray-800 h-screen overflow-hidden">
+		<div className="bg-gray-100 text-gray-800 h-full overflow-hidden">
 			<div className="relative flex flex-col justify-between h-full ">
 				<div className="sticky top-0 left-0 flex flex-row items-center justify-center">
 					<Button
@@ -52,21 +31,12 @@ export function SideBarComponent({
 					>
 						<Plus />
 					</Button>
-					<ChatSettings
-						conversations={conversations}
-						selectedConversation={selectedConversation}
-						onSelectConversation={onSelectConversation}
-						onSetConversations={onSetConversations}
-					/>
+					<ChatSettings />
 				</div>
-				<ConversationListComponent
-					conversations={conversations}
-					selectedConversation={selectedConversation}
-					onSelectConversation={onSelectConversation}
-					onSetConversations={onSetConversations}
-				/>
-				{/* <Separator /> */}
-				<div className="sticky bottom-0 left-0 container mx-auto flex flex-col items-start p-2 bg-gray-300">
+
+				<ConversationListComponent />
+
+				<div className="sticky bottom-0 left-0 container mx-auto flex flex-col items-start p-2 bg-gray-400 rounded-lg">
 					<div className="w-full h-10 flex flex-row items-center p-2">
 						<Home />
 						<Link className="px-2" href={siteConfig.links.home}>
@@ -76,6 +46,43 @@ export function SideBarComponent({
 					<div className="w-full h-10 flex flex-row items-center p-2">
 						<LogOut />
 						<AuthLoginButton />
+					</div>
+					<Separator />
+					<div className="flex flex-row my-2">
+						<Link
+							href={siteConfig.links.github}
+							target="_blank"
+							rel="noreferrer"
+						>
+							<div
+								className={buttonVariants({
+									size: "sm",
+									variant: "ghost",
+									className:
+										"text-slate-700 dark:text-slate-400",
+								})}
+							>
+								<Icons.gitHub className="h-5 w-5" />
+								<span className="sr-only">GitHub</span>
+							</div>
+						</Link>
+						<Link
+							href={siteConfig.links.twitter}
+							target="_blank"
+							rel="noreferrer"
+						>
+							<div
+								className={buttonVariants({
+									size: "sm",
+									variant: "ghost",
+									className:
+										"text-slate-700 dark:text-slate-400",
+								})}
+							>
+								<Icons.twitter className="h-5 w-5 fill-current" />
+								<span className="sr-only">Twitter</span>
+							</div>
+						</Link>
 					</div>
 				</div>
 			</div>

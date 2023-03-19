@@ -5,22 +5,19 @@ import {
 	DeleteConversationRequest,
 } from "@/lib/pb/model/conversation.pb";
 import { Service } from "@/lib/pb/server.pb";
-
+import { ChatContext } from "@/lib/states/chat-context";
+import { v4 as uuidv4 } from "uuid";
 import { Trash2 } from "lucide-react";
+import { useContext } from "react";
+import { DefaultInstruction } from "@/config/prompts";
 
-type ConversationListProps = {
-	conversations: Conversation[];
-	selectedConversation: Conversation | undefined;
-	onSelectConversation: (conversation: Conversation | undefined) => void;
-	onSetConversations: (conversations: Conversation[]) => void;
-};
-
-export default function ConversationListComponent({
-	conversations,
-	selectedConversation,
-	onSelectConversation,
-	onSetConversations,
-}: ConversationListProps) {
+export default function ConversationListComponent() {
+	const {
+		conversations,
+		setConversations,
+		selectedConversation,
+		setSelectedConversation,
+	} = useContext(ChatContext);
 	const { toast } = useToast();
 
 	const handleDeleteConversation = (conversation: Conversation) => {
@@ -28,12 +25,21 @@ export default function ConversationListComponent({
 			id: conversation.id,
 		} as DeleteConversationRequest)
 			.then(() => {
-				onSetConversations(
+				setConversations(
 					conversations.filter((c) => c.id !== conversation.id)
 				);
-				const newCovId =
-					conversations.length > 0 ? conversations[0] : undefined;
-				onSelectConversation(newCovId);
+
+				if (conversations.length > 0) {
+					setSelectedConversation(conversations[0]);
+				} else {
+					const newCov = {
+						id: uuidv4(),
+						instruction: DefaultInstruction.instruction,
+						title: DefaultInstruction.title,
+					} as Conversation;
+					setSelectedConversation(newCov);
+				}
+
 				toast({
 					title: "Success",
 					description: `Conversation ${conversation.id} deleted`,
@@ -51,7 +57,7 @@ export default function ConversationListComponent({
 	};
 
 	return (
-		<div className="flex-grow flex flex-col w-full overflow-auto">
+		<div className="flex flex-col h-full w-full overflow-auto">
 			{conversations.map((conversation) => {
 				return (
 					<div
@@ -66,7 +72,9 @@ export default function ConversationListComponent({
 									? "bg-blue-400"
 									: ""
 							} }`}
-							onClick={() => onSelectConversation(conversation)}
+							onClick={() =>
+								setSelectedConversation(conversation)
+							}
 						>
 							<div className="text-xs">
 								<p>{conversation.title || conversation.id}</p>
