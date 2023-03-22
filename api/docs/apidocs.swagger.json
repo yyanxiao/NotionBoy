@@ -158,6 +158,49 @@
         ]
       }
     },
+    "/v1/auth/providers": {
+      "get": {
+        "summary": "get all Oauth providers",
+        "operationId": "Service_OAuthProviders",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/servicev1OAuthURLResponse"
+            }
+          },
+          "404": {
+            "description": "Returned when the resource does not exist.",
+            "schema": {
+              "type": "string",
+              "format": "string"
+            }
+          },
+          "418": {
+            "description": "I'm a teapot.",
+            "schema": {
+              "type": "string",
+              "format": "string"
+            }
+          },
+          "500": {
+            "description": "Server error",
+            "schema": {
+              "$ref": "common.ErrorResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "tags": [
+          "Service"
+        ]
+      }
+    },
     "/v1/auth/token": {
       "post": {
         "summary": "GenrateToken generates a token for the user. using api key in the header.",
@@ -211,15 +254,14 @@
         ]
       }
     },
-    "/v1/auth/url/{provider}": {
-      "get": {
-        "summary": "get Oauth url",
-        "operationId": "Service_OAuthURL",
+    "/v1/auth/wechat/qrcode": {
+      "post": {
+        "operationId": "Service_GenerateWechatQRCode",
         "responses": {
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/servicev1OAuthURLResponse"
+              "$ref": "#/definitions/servicev1GenerateWechatQRCodeResponse"
             }
           },
           "404": {
@@ -251,10 +293,13 @@
         },
         "parameters": [
           {
-            "name": "provider",
-            "in": "path",
+            "name": "body",
+            "in": "body",
             "required": true,
-            "type": "string"
+            "schema": {
+              "type": "object",
+              "properties": {}
+            }
           }
         ],
         "tags": [
@@ -946,10 +991,24 @@
         }
       }
     },
+    "servicev1GenerateWechatQRCodeResponse": {
+      "type": "object",
+      "properties": {
+        "url": {
+          "type": "string"
+        },
+        "qrcode": {
+          "type": "string"
+        }
+      }
+    },
     "servicev1GenrateTokenRequest": {
       "type": "object",
       "properties": {
         "magicCode": {
+          "type": "string"
+        },
+        "qrcode": {
           "type": "string"
         }
       }
@@ -1033,11 +1092,26 @@
         }
       }
     },
+    "servicev1OAuthProvider": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "url": {
+          "type": "string"
+        }
+      }
+    },
     "servicev1OAuthURLResponse": {
       "type": "object",
       "properties": {
-        "url": {
-          "type": "string"
+        "providers": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/servicev1OAuthProvider"
+          }
         }
       }
     }

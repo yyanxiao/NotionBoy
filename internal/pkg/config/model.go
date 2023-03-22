@@ -109,6 +109,7 @@ type JWTConfig struct {
 type OAuthConfigMap struct {
 	Notion OAuthConfig
 	Github OAuthConfig
+	Wechat OAuthConfig
 }
 
 type OAuthConfig struct {

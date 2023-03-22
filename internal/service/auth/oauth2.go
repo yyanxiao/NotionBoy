@@ -11,11 +11,18 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-func getProvider(provider string) OauthProvider {
-	var p OauthProvider
+const (
+	PROVIDER_GITHUB = "Github"
+	PROVIDER_WECHAT = "Wechat"
+)
+
+func getProvider(provider string) OAuthProviderService {
+	var p OAuthProviderService
 	switch provider {
-	case "github":
+	case PROVIDER_GITHUB:
 		p = NewGithubProvider()
+	case PROVIDER_WECHAT:
+		p = NewWeixinProvider()
 	}
 	return p
 }
@@ -39,7 +46,7 @@ func (s *authServerImpl) OAuthCallback(ctx context.Context, code, state string) 
 		return "", status.Errorf(codes.InvalidArgument, "invalid provider")
 	}
 
-	tok, err := provider.GetOAuthConf().Exchange(ctx, code)
+	tok, err := provider.GetOAuthToken(ctx, code)
 	if err != nil {
 		logger.SugaredLogger.Errorw("OAuthCallback failed", "error", err, "state", state, "provider", provider, "code", code, "token", tok)
 		return "", err

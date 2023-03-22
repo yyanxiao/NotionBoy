@@ -19,7 +19,8 @@ import (
 var skipAuthPaths = []string{
 	"/v1/auth/token",
 	"/v1/auth/callback",
-	"/v1/auth/url",
+	"/v1/auth/providers",
+	"/v1/auth/wechat/qrcode",
 }
 
 // NewAuthFunc returns a new AuthFunc
@@ -31,6 +32,12 @@ var skipAuthPaths = []string{
 func NewAuthFunc() grpc_auth.AuthFunc {
 	return func(c context.Context) (context.Context, error) {
 		md := metautils.ExtractIncoming(c)
+		// logger.SugaredLogger.Debugw("auth", "md", md)
+
+		ua := md.Get(config.ContextKeyUserAgent.String())
+		if ua != "" {
+			c = context.WithValue(c, config.ContextKeyUserAgent, ua)
+		}
 
 		// validate using api key
 		apiKey := md.Get(config.AUTH_HEADER_X_API_KEY)

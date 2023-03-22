@@ -21,21 +21,22 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	Service_Status_FullMethodName             = "/servicev1.Service/Status"
-	Service_GenrateToken_FullMethodName       = "/servicev1.Service/GenrateToken"
-	Service_OAuthURL_FullMethodName           = "/servicev1.Service/OAuthURL"
-	Service_OAuthCallback_FullMethodName      = "/servicev1.Service/OAuthCallback"
-	Service_GenerateApiKey_FullMethodName     = "/servicev1.Service/GenerateApiKey"
-	Service_DeleteApiKey_FullMethodName       = "/servicev1.Service/DeleteApiKey"
-	Service_CreateConversation_FullMethodName = "/servicev1.Service/CreateConversation"
-	Service_UpdateConversation_FullMethodName = "/servicev1.Service/UpdateConversation"
-	Service_GetConversation_FullMethodName    = "/servicev1.Service/GetConversation"
-	Service_ListConversations_FullMethodName  = "/servicev1.Service/ListConversations"
-	Service_DeleteConversation_FullMethodName = "/servicev1.Service/DeleteConversation"
-	Service_CreateMessage_FullMethodName      = "/servicev1.Service/CreateMessage"
-	Service_GetMessage_FullMethodName         = "/servicev1.Service/GetMessage"
-	Service_ListMessages_FullMethodName       = "/servicev1.Service/ListMessages"
-	Service_DeleteMessage_FullMethodName      = "/servicev1.Service/DeleteMessage"
+	Service_Status_FullMethodName               = "/servicev1.Service/Status"
+	Service_GenrateToken_FullMethodName         = "/servicev1.Service/GenrateToken"
+	Service_OAuthProviders_FullMethodName       = "/servicev1.Service/OAuthProviders"
+	Service_OAuthCallback_FullMethodName        = "/servicev1.Service/OAuthCallback"
+	Service_GenerateApiKey_FullMethodName       = "/servicev1.Service/GenerateApiKey"
+	Service_DeleteApiKey_FullMethodName         = "/servicev1.Service/DeleteApiKey"
+	Service_GenerateWechatQRCode_FullMethodName = "/servicev1.Service/GenerateWechatQRCode"
+	Service_CreateConversation_FullMethodName   = "/servicev1.Service/CreateConversation"
+	Service_UpdateConversation_FullMethodName   = "/servicev1.Service/UpdateConversation"
+	Service_GetConversation_FullMethodName      = "/servicev1.Service/GetConversation"
+	Service_ListConversations_FullMethodName    = "/servicev1.Service/ListConversations"
+	Service_DeleteConversation_FullMethodName   = "/servicev1.Service/DeleteConversation"
+	Service_CreateMessage_FullMethodName        = "/servicev1.Service/CreateMessage"
+	Service_GetMessage_FullMethodName           = "/servicev1.Service/GetMessage"
+	Service_ListMessages_FullMethodName         = "/servicev1.Service/ListMessages"
+	Service_DeleteMessage_FullMethodName        = "/servicev1.Service/DeleteMessage"
 )
 
 // ServiceClient is the client API for Service service.
@@ -45,14 +46,15 @@ type ServiceClient interface {
 	Status(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*CheckStatusResponse, error)
 	// GenrateToken generates a token for the user. using api key in the header.
 	GenrateToken(ctx context.Context, in *model.GenrateTokenRequest, opts ...grpc.CallOption) (*model.GenrateTokenResponse, error)
-	// get Oauth url
-	OAuthURL(ctx context.Context, in *model.OAuthURLRequest, opts ...grpc.CallOption) (*model.OAuthURLResponse, error)
+	// get all Oauth providers
+	OAuthProviders(ctx context.Context, in *model.OAuthURLRequest, opts ...grpc.CallOption) (*model.OAuthURLResponse, error)
 	// AuthCallback callback for oauth, will generate a token for the user
 	OAuthCallback(ctx context.Context, in *model.OAuthCallbackRequest, opts ...grpc.CallOption) (*model.GenrateTokenResponse, error)
 	// GenerateApiKey generate a new api key for the user
 	GenerateApiKey(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*model.GenerateApiKeyResponse, error)
 	// DeleteApiKey delete the api key for the user
 	DeleteApiKey(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	GenerateWechatQRCode(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*model.GenerateWechatQRCodeResponse, error)
 	CreateConversation(ctx context.Context, in *model.CreateConversationRequest, opts ...grpc.CallOption) (*model.Conversation, error)
 	// UpdateConversation update the conversation
 	UpdateConversation(ctx context.Context, in *model.UpdateConversationRequest, opts ...grpc.CallOption) (*model.Conversation, error)
@@ -91,9 +93,9 @@ func (c *serviceClient) GenrateToken(ctx context.Context, in *model.GenrateToken
 	return out, nil
 }
 
-func (c *serviceClient) OAuthURL(ctx context.Context, in *model.OAuthURLRequest, opts ...grpc.CallOption) (*model.OAuthURLResponse, error) {
+func (c *serviceClient) OAuthProviders(ctx context.Context, in *model.OAuthURLRequest, opts ...grpc.CallOption) (*model.OAuthURLResponse, error) {
 	out := new(model.OAuthURLResponse)
-	err := c.cc.Invoke(ctx, Service_OAuthURL_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, Service_OAuthProviders_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -121,6 +123,15 @@ func (c *serviceClient) GenerateApiKey(ctx context.Context, in *emptypb.Empty, o
 func (c *serviceClient) DeleteApiKey(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	out := new(emptypb.Empty)
 	err := c.cc.Invoke(ctx, Service_DeleteApiKey_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *serviceClient) GenerateWechatQRCode(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*model.GenerateWechatQRCodeResponse, error) {
+	out := new(model.GenerateWechatQRCodeResponse)
+	err := c.cc.Invoke(ctx, Service_GenerateWechatQRCode_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -238,14 +249,15 @@ type ServiceServer interface {
 	Status(context.Context, *emptypb.Empty) (*CheckStatusResponse, error)
 	// GenrateToken generates a token for the user. using api key in the header.
 	GenrateToken(context.Context, *model.GenrateTokenRequest) (*model.GenrateTokenResponse, error)
-	// get Oauth url
-	OAuthURL(context.Context, *model.OAuthURLRequest) (*model.OAuthURLResponse, error)
+	// get all Oauth providers
+	OAuthProviders(context.Context, *model.OAuthURLRequest) (*model.OAuthURLResponse, error)
 	// AuthCallback callback for oauth, will generate a token for the user
 	OAuthCallback(context.Context, *model.OAuthCallbackRequest) (*model.GenrateTokenResponse, error)
 	// GenerateApiKey generate a new api key for the user
 	GenerateApiKey(context.Context, *emptypb.Empty) (*model.GenerateApiKeyResponse, error)
 	// DeleteApiKey delete the api key for the user
 	DeleteApiKey(context.Context, *emptypb.Empty) (*emptypb.Empty, error)
+	GenerateWechatQRCode(context.Context, *emptypb.Empty) (*model.GenerateWechatQRCodeResponse, error)
 	CreateConversation(context.Context, *model.CreateConversationRequest) (*model.Conversation, error)
 	// UpdateConversation update the conversation
 	UpdateConversation(context.Context, *model.UpdateConversationRequest) (*model.Conversation, error)
@@ -269,8 +281,8 @@ func (UnimplementedServiceServer) Status(context.Context, *emptypb.Empty) (*Chec
 func (UnimplementedServiceServer) GenrateToken(context.Context, *model.GenrateTokenRequest) (*model.GenrateTokenResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GenrateToken not implemented")
 }
-func (UnimplementedServiceServer) OAuthURL(context.Context, *model.OAuthURLRequest) (*model.OAuthURLResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method OAuthURL not implemented")
+func (UnimplementedServiceServer) OAuthProviders(context.Context, *model.OAuthURLRequest) (*model.OAuthURLResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method OAuthProviders not implemented")
 }
 func (UnimplementedServiceServer) OAuthCallback(context.Context, *model.OAuthCallbackRequest) (*model.GenrateTokenResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method OAuthCallback not implemented")
@@ -280,6 +292,9 @@ func (UnimplementedServiceServer) GenerateApiKey(context.Context, *emptypb.Empty
 }
 func (UnimplementedServiceServer) DeleteApiKey(context.Context, *emptypb.Empty) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteApiKey not implemented")
+}
+func (UnimplementedServiceServer) GenerateWechatQRCode(context.Context, *emptypb.Empty) (*model.GenerateWechatQRCodeResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GenerateWechatQRCode not implemented")
 }
 func (UnimplementedServiceServer) CreateConversation(context.Context, *model.CreateConversationRequest) (*model.Conversation, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateConversation not implemented")
@@ -357,20 +372,20 @@ func _Service_GenrateToken_Handler(srv interface{}, ctx context.Context, dec fun
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Service_OAuthURL_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Service_OAuthProviders_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(model.OAuthURLRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ServiceServer).OAuthURL(ctx, in)
+		return srv.(ServiceServer).OAuthProviders(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Service_OAuthURL_FullMethodName,
+		FullMethod: Service_OAuthProviders_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ServiceServer).OAuthURL(ctx, req.(*model.OAuthURLRequest))
+		return srv.(ServiceServer).OAuthProviders(ctx, req.(*model.OAuthURLRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -425,6 +440,24 @@ func _Service_DeleteApiKey_Handler(srv interface{}, ctx context.Context, dec fun
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(ServiceServer).DeleteApiKey(ctx, req.(*emptypb.Empty))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Service_GenerateWechatQRCode_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(emptypb.Empty)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ServiceServer).GenerateWechatQRCode(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Service_GenerateWechatQRCode_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ServiceServer).GenerateWechatQRCode(ctx, req.(*emptypb.Empty))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -610,8 +643,8 @@ var Service_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Service_GenrateToken_Handler,
 		},
 		{
-			MethodName: "OAuthURL",
-			Handler:    _Service_OAuthURL_Handler,
+			MethodName: "OAuthProviders",
+			Handler:    _Service_OAuthProviders_Handler,
 		},
 		{
 			MethodName: "OAuthCallback",
@@ -624,6 +657,10 @@ var Service_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "DeleteApiKey",
 			Handler:    _Service_DeleteApiKey_Handler,
+		},
+		{
+			MethodName: "GenerateWechatQRCode",
+			Handler:    _Service_GenerateWechatQRCode_Handler,
 		},
 		{
 			MethodName: "CreateConversation",

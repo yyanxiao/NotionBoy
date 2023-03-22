@@ -43,6 +43,7 @@ enum NumericEnum {
 
 message GenrateTokenRequest {
   string magicCode = 1 [(validate.rules).string.pattern = "^[a-zA-Z0-9]{1, 32}$"];
+  string qrcode = 2 [(validate.rules).string.pattern = "^[a-zA-Z0-9]{1, 32}$"];
 }
 
 message GenrateTokenResponse {
@@ -60,10 +61,18 @@ message OAuthCallbackRequest {
   string state = 2;
 }
 
-message OAuthURLRequest {
-  string provider = 1;
+message OAuthURLRequest {}
+
+message OAuthProvider {
+  string name = 1;
+  string url = 2;
 }
 
 message OAuthURLResponse {
+  repeated OAuthProvider providers = 1;
+}
+
+message GenerateWechatQRCodeResponse {
   string url = 1;
+  string qrcode = 2;
 }

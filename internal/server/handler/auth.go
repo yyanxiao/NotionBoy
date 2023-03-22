@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"notionboy/internal/pkg/config"
+	"notionboy/internal/pkg/logger"
 
 	model "notionboy/api/pb/model"
 
@@ -12,7 +13,7 @@ import (
 )
 
 func (s *Server) GenrateToken(ctx context.Context, req *model.GenrateTokenRequest) (*model.GenrateTokenResponse, error) {
-	tokenStr, err := s.AuthService.GenrateToken(ctx, "", req.GetMagicCode())
+	tokenStr, err := s.AuthService.GenrateToken(ctx, "", req.GetMagicCode(), req.Qrcode)
 	if err != nil {
 		return nil, err
 	}
@@ -51,12 +52,32 @@ func (s *Server) OAuthCallback(ctx context.Context, req *model.OAuthCallbackRequ
 	}, nil
 }
 
-func (s *Server) OAuthURL(ctx context.Context, req *model.OAuthURLRequest) (*model.OAuthURLResponse, error) {
-	url, err := s.AuthService.GetOAuthURL(ctx, req.Provider)
+func (s *Server) OAuthProviders(ctx context.Context, req *model.OAuthURLRequest) (*model.OAuthURLResponse, error) {
+	providers, err := s.AuthService.GetOAuthProviders(ctx)
 	if err != nil {
 		return nil, err
 	}
+
+	resp := make([]*model.OAuthProvider, 0, len(providers))
+	for _, p := range providers {
+		resp = append(resp, &model.OAuthProvider{
+			Name: p.Name,
+			Url:  p.URL,
+		})
+	}
 	return &model.OAuthURLResponse{
-		Url: url,
+		Providers: resp,
+	}, nil
+}
+
+func (s *Server) GenerateWechatQRCode(ctx context.Context, req *emptypb.Empty) (*model.GenerateWechatQRCodeResponse, error) {
+	url, code, err := s.AuthService.GenerateWechatQRCode(ctx)
+	logger.SugaredLogger.Debugw("GenerateWechatQRCode", "url", url, "code", code, "err", err)
+	if err != nil {
+		return nil, err
+	}
+	return &model.GenerateWechatQRCodeResponse{
+		Url:    url,
+		Qrcode: code,
 	}, nil
 }

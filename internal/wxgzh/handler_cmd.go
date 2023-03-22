@@ -68,7 +68,7 @@ func webui(ctx context.Context, msg *message.MixMessage) *message.Reply {
 
 	svc := auth.NewAuthServer()
 
-	token, err := svc.GenrateToken(ctx, acc.UUID.String(), "")
+	token, err := svc.GenrateToken(ctx, acc.UUID.String(), "", "")
 	if err != nil {
 		return &message.Reply{
 			MsgType: message.MsgTypeText,
@@ -93,4 +93,17 @@ func magicCode(ctx context.Context, msg *message.MixMessage) *message.Reply {
 	code := uuid.New().String()
 	cacheClient.Set(fmt.Sprintf("%s:%s", config.MAGIC_CODE_CACHE_KEY, code), acc, time.Duration(5)*time.Minute)
 	return &message.Reply{MsgType: message.MsgTypeText, MsgData: message.NewText(code)}
+}
+
+func scanQrcode(ctx context.Context, msg *message.MixMessage) *message.Reply {
+	acc, err := dao.QueryAccountByWxUser(ctx, msg.GetOpenID())
+	if err != nil {
+		logger.SugaredLogger.Errorf("Query Account Error: %v", err)
+		return &message.Reply{MsgType: message.MsgTypeText, MsgData: message.NewText(config.MSG_ERROR_ACCOUNT_NOT_FOUND)}
+	}
+
+	id := msg.Ticket
+	logger.SugaredLogger.Debugw("scan qrcode", "qrcode", id, "acc", acc, "msg", msg)
+	cache.DefaultClient().Set(fmt.Sprintf("%s:%s", config.QRCODE_CACHE_KEY, id), acc, time.Duration(5)*time.Minute)
+	return &message.Reply{MsgType: message.MsgTypeText, MsgData: message.NewText("登录成功")}
 }

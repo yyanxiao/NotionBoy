@@ -21,6 +21,7 @@ export type ErrorObject = {
 
 export type GenrateTokenRequest = {
   magicCode?: string
+  qrcode?: string
 }
 
 export type GenrateTokenResponse = {
@@ -39,9 +40,18 @@ export type OAuthCallbackRequest = {
 }
 
 export type OAuthURLRequest = {
-  provider?: string
+}
+
+export type OAuthProvider = {
+  name?: string
+  url?: string
 }
 
 export type OAuthURLResponse = {
+  providers?: OAuthProvider[]
+}
+
+export type GenerateWechatQRCodeResponse = {
   url?: string
+  qrcode?: string
 }

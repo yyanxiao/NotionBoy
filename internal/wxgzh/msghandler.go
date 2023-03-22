@@ -31,12 +31,15 @@ func init() {
 }
 
 func (ex *OfficialAccount) messageHandler(ctx context.Context, msg *message.MixMessage) *message.Reply {
-	if msg.Event == message.EventSubscribe {
+	switch msg.Event {
+	case message.EventSubscribe:
 		return helpInfo(ctx, msg)
-	}
-	if msg.Event == message.EventUnsubscribe {
+
+	case message.EventUnsubscribe:
 		unsubscribe(ctx, msg)
 		return nil
+	case message.EventScan:
+		return scanQrcode(ctx, msg)
 	}
 	// TrimSpace will remove all space in the beginning and end of the string for matching commands
 	msg.Content = strings.TrimSpace(msg.Content)

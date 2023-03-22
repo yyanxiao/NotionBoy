@@ -122,7 +122,7 @@ func (cli *ConversationClient) StreamChatWithHistory(ctx context.Context, acc *e
 		}
 
 		msg := response.Choices[0].Delta.Content
-		logger.SugaredLogger.Debugw("Stream chat response", "response", msg)
+		// logger.SugaredLogger.Debugw("Stream chat response", "response", msg)
 		sb.WriteString(msg)
 		conversationMessage.Response = msg
 		dto := ConversationMessageDTOFromDB(conversationMessage)

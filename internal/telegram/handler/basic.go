@@ -27,7 +27,7 @@ const HELP_MSG = `
 - /unbind 命令可以用于解绑 Notion 账户, 使 NotionBoy 不再能够访问 Notion 中的内容。
 - /chat 命令可以与 ChatGPT 畅聊, ChatGPT 是一种自然语言生成模型, 能够通过对话方式回答用户的问题。
 - /zlib 命令可以搜索 Z-Library 中的电子书, 加上 #ext(e.g: #pdf) 可以指定搜索的文件类型。
-- /webui 命令可以打开 NotionBoy 的 WebUI, WebUI 可以让用户在浏览器中管理 NotionBoy 的内容。
+- /magiccode 命令可以获取一个 Magic Code, Magic Code 可以用于网页登录。
 
 
 基本操作
@@ -85,7 +85,7 @@ func OnWebUI(c tele.Context) error {
 	}
 
 	svc := auth.NewAuthServer()
-	token, err := svc.GenrateToken(ctx, acc.UUID.String(), "")
+	token, err := svc.GenrateToken(ctx, acc.UUID.String(), "", "")
 	if err != nil {
 		return c.Reply(fmt.Sprintf("生成 Token 失败: %s", err.Error()))
 	}

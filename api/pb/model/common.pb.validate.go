@@ -302,6 +302,17 @@ func (m *GenrateTokenRequest) validate(all bool) error {
 		errors = append(errors, err)
 	}
 
+	if !_GenrateTokenRequest_Qrcode_Pattern.MatchString(m.GetQrcode()) {
+		err := GenrateTokenRequestValidationError{
+			field:  "Qrcode",
+			reason: "value does not match regex pattern \"^[a-zA-Z0-9]{1, 32}$\"",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
 	if len(errors) > 0 {
 		return GenrateTokenRequestMultiError(errors)
 	}
@@ -383,6 +394,8 @@ var _ interface {
 } = GenrateTokenRequestValidationError{}
 
 var _GenrateTokenRequest_MagicCode_Pattern = regexp.MustCompile("^[a-zA-Z0-9]{1, 32}$")
+
+var _GenrateTokenRequest_Qrcode_Pattern = regexp.MustCompile("^[a-zA-Z0-9]{1, 32}$")
 
 // Validate checks the field values on GenrateTokenResponse with the rules
 // defined in the proto definition for this message. If any rules are
@@ -724,8 +737,6 @@ func (m *OAuthURLRequest) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for Provider
-
 	if len(errors) > 0 {
 		return OAuthURLRequestMultiError(errors)
 	}
@@ -804,6 +815,110 @@ var _ interface {
 	ErrorName() string
 } = OAuthURLRequestValidationError{}
 
+// Validate checks the field values on OAuthProvider with the rules defined in
+// the proto definition for this message. If any rules are violated, the first
+// error encountered is returned, or nil if there are no violations.
+func (m *OAuthProvider) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on OAuthProvider with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// result is a list of violation errors wrapped in OAuthProviderMultiError, or
+// nil if none found.
+func (m *OAuthProvider) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *OAuthProvider) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Name
+
+	// no validation rules for Url
+
+	if len(errors) > 0 {
+		return OAuthProviderMultiError(errors)
+	}
+
+	return nil
+}
+
+// OAuthProviderMultiError is an error wrapping multiple validation errors
+// returned by OAuthProvider.ValidateAll() if the designated constraints
+// aren't met.
+type OAuthProviderMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m OAuthProviderMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m OAuthProviderMultiError) AllErrors() []error { return m }
+
+// OAuthProviderValidationError is the validation error returned by
+// OAuthProvider.Validate if the designated constraints aren't met.
+type OAuthProviderValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e OAuthProviderValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e OAuthProviderValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e OAuthProviderValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e OAuthProviderValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e OAuthProviderValidationError) ErrorName() string { return "OAuthProviderValidationError" }
+
+// Error satisfies the builtin error interface
+func (e OAuthProviderValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sOAuthProvider.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = OAuthProviderValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = OAuthProviderValidationError{}
+
 // Validate checks the field values on OAuthURLResponse with the rules defined
 // in the proto definition for this message. If any rules are violated, the
 // first error encountered is returned, or nil if there are no violations.
@@ -826,7 +941,39 @@ func (m *OAuthURLResponse) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for Url
+	for idx, item := range m.GetProviders() {
+		_, _ = idx, item
+
+		if all {
+			switch v := interface{}(item).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, OAuthURLResponseValidationError{
+						field:  fmt.Sprintf("Providers[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, OAuthURLResponseValidationError{
+						field:  fmt.Sprintf("Providers[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return OAuthURLResponseValidationError{
+					field:  fmt.Sprintf("Providers[%v]", idx),
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	}
 
 	if len(errors) > 0 {
 		return OAuthURLResponseMultiError(errors)
@@ -905,3 +1052,110 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = OAuthURLResponseValidationError{}
+
+// Validate checks the field values on GenerateWechatQRCodeResponse with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *GenerateWechatQRCodeResponse) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on GenerateWechatQRCodeResponse with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// GenerateWechatQRCodeResponseMultiError, or nil if none found.
+func (m *GenerateWechatQRCodeResponse) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GenerateWechatQRCodeResponse) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Url
+
+	// no validation rules for Qrcode
+
+	if len(errors) > 0 {
+		return GenerateWechatQRCodeResponseMultiError(errors)
+	}
+
+	return nil
+}
+
+// GenerateWechatQRCodeResponseMultiError is an error wrapping multiple
+// validation errors returned by GenerateWechatQRCodeResponse.ValidateAll() if
+// the designated constraints aren't met.
+type GenerateWechatQRCodeResponseMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GenerateWechatQRCodeResponseMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GenerateWechatQRCodeResponseMultiError) AllErrors() []error { return m }
+
+// GenerateWechatQRCodeResponseValidationError is the validation error returned
+// by GenerateWechatQRCodeResponse.Validate if the designated constraints
+// aren't met.
+type GenerateWechatQRCodeResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GenerateWechatQRCodeResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GenerateWechatQRCodeResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GenerateWechatQRCodeResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GenerateWechatQRCodeResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GenerateWechatQRCodeResponseValidationError) ErrorName() string {
+	return "GenerateWechatQRCodeResponseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GenerateWechatQRCodeResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGenerateWechatQRCodeResponse.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GenerateWechatQRCodeResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GenerateWechatQRCodeResponseValidationError{}

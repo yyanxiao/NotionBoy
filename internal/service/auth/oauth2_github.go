@@ -14,15 +14,21 @@ import (
 )
 
 type GithubProvider struct {
+	Name     string
 	userType string
 	State    string
 }
 
-func NewGithubProvider() OauthProvider {
+func NewGithubProvider() OAuthProviderService {
 	return &GithubProvider{
+		Name:     PROVIDER_GITHUB,
 		userType: PROVIDER_GITHUB,
 		State:    config.GetConfig().OAuth.Github.State,
 	}
+}
+
+func (o *GithubProvider) GetProviderName() string {
+	return o.Name
 }
 
 func (o *GithubProvider) GetOAuthConf() *oauth2.Config {
@@ -37,6 +43,10 @@ func (o *GithubProvider) GetOAuthConf() *oauth2.Config {
 
 func (o *GithubProvider) GetOAuthURL() string {
 	return o.GetOAuthConf().AuthCodeURL(fmt.Sprintf("%s:%s", o.userType, o.State))
+}
+
+func (o *GithubProvider) GetOAuthToken(ctx context.Context, code string) (*oauth2.Token, error) {
+	return o.GetOAuthConf().Exchange(ctx, code)
 }
 
 func (o *GithubProvider) QueryOrCreateNewUser(ctx context.Context, token *oauth2.Token) (*ent.Account, error) {

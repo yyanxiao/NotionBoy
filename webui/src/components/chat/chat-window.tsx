@@ -37,7 +37,7 @@ export default function ChatWindow(props: Props) {
 										>
 											<User className="flex-none w-8 h-8 " />
 											<div
-												className="prose text-start bg-blue-200 m-1 p-2 rounded-xl overflow-auto"
+												className="prose dark:prose-invert lg:prose-xl text-start bg-blue-200 m-1 p-2 rounded-xl overflow-auto"
 												dangerouslySetInnerHTML={parseMarkdown(
 													message.request
 												)}
@@ -51,7 +51,7 @@ export default function ChatWindow(props: Props) {
 											key={`${message.id}-resp`}
 										>
 											<div
-												className="prose text-start bg-green-200 p-2 rounded-xl overflow-auto"
+												className="prose dark:prose-invert lg:prose-xl text-start bg-green-200 p-2 rounded-xl overflow-auto"
 												dangerouslySetInnerHTML={parseMarkdown(
 													message.response
 												)}

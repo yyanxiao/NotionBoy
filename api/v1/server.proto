@@ -78,9 +78,9 @@ service Service {
     };
   }
 
-  // get Oauth url
-  rpc OAuthURL(OAuthURLRequest) returns (OAuthURLResponse) {
-    option (google.api.http) = {get: "/v1/auth/url/{provider}"};
+  // get all Oauth providers
+  rpc OAuthProviders(OAuthURLRequest) returns (OAuthURLResponse) {
+    option (google.api.http) = {get: "/v1/auth/providers"};
   }
 
   // AuthCallback callback for oauth, will generate a token for the user
@@ -99,6 +99,13 @@ service Service {
   // DeleteApiKey delete the api key for the user
   rpc DeleteApiKey(google.protobuf.Empty) returns (google.protobuf.Empty) {
     option (google.api.http) = {delete: "/v1/auth/apikey"};
+  }
+
+  rpc GenerateWechatQRCode(google.protobuf.Empty) returns (GenerateWechatQRCodeResponse) {
+    option (google.api.http) = {
+      post: "/v1/auth/wechat/qrcode"
+      body: "*"
+    };
   }
 
   rpc CreateConversation(CreateConversationRequest) returns (Conversation) {

@@ -108,6 +108,7 @@ const (
 	CMD_UI                  = "/WEBUI"
 	CMD_MAGIC_CODE          = "/MAGICCODE"
 	MAGIC_CODE_CACHE_KEY    = "MAGIC_CODE_CACHE_KEY"
+	QRCODE_CACHE_KEY        = "QRCODE_CACHE_KEY"
 )
 
 const (
@@ -140,8 +141,13 @@ const (
 
 type ContextKey string
 
+func (c ContextKey) String() string {
+	return string(c)
+}
+
 const (
 	ContextKeyUserId      ContextKey = AUTH_USER_ID
 	ContextKeyUserAccount ContextKey = AUTH_USER_ACC
 	ContentKeyTransaction ContextKey = "transaction"
+	ContextKeyUserAgent   ContextKey = "grpcgateway-user-agent"
 )

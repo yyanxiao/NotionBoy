@@ -7,9 +7,11 @@
     - [ErrorObject](#servicev1-ErrorObject)
     - [ErrorResponse](#servicev1-ErrorResponse)
     - [GenerateApiKeyResponse](#servicev1-GenerateApiKeyResponse)
+    - [GenerateWechatQRCodeResponse](#servicev1-GenerateWechatQRCodeResponse)
     - [GenrateTokenRequest](#servicev1-GenrateTokenRequest)
     - [GenrateTokenResponse](#servicev1-GenrateTokenResponse)
     - [OAuthCallbackRequest](#servicev1-OAuthCallbackRequest)
+    - [OAuthProvider](#servicev1-OAuthProvider)
     - [OAuthURLRequest](#servicev1-OAuthURLRequest)
     - [OAuthURLResponse](#servicev1-OAuthURLResponse)
 
@@ -94,6 +96,22 @@
 
 
 
+<a name="servicev1-GenerateWechatQRCodeResponse"></a>
+
+### GenerateWechatQRCodeResponse
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| url | [string](#string) |  |  |
+| qrcode | [string](#string) |  |  |
+
+
+
+
+
+
 <a name="servicev1-GenrateTokenRequest"></a>
 
 ### GenrateTokenRequest
@@ -103,6 +121,7 @@
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | magicCode | [string](#string) |  |  |
+| qrcode | [string](#string) |  |  |
 
 
 
@@ -142,15 +161,26 @@
 
 
 
-<a name="servicev1-OAuthURLRequest"></a>
+<a name="servicev1-OAuthProvider"></a>
 
-### OAuthURLRequest
+### OAuthProvider
 
 
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| provider | [string](#string) |  |  |
+| name | [string](#string) |  |  |
+| url | [string](#string) |  |  |
+
+
+
+
+
+
+<a name="servicev1-OAuthURLRequest"></a>
+
+### OAuthURLRequest
+
 
 
 
@@ -165,7 +195,7 @@
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| url | [string](#string) |  |  |
+| providers | [OAuthProvider](#servicev1-OAuthProvider) | repeated |  |
 
 
 
@@ -480,10 +510,11 @@ NumericEnum is one or zero.
 | ----------- | ------------ | ------------- | ------------|
 | Status | [.google.protobuf.Empty](#google-protobuf-Empty) | [CheckStatusResponse](#servicev1-CheckStatusResponse) |  |
 | GenrateToken | [GenrateTokenRequest](#servicev1-GenrateTokenRequest) | [GenrateTokenResponse](#servicev1-GenrateTokenResponse) | GenrateToken generates a token for the user. using api key in the header. |
-| OAuthURL | [OAuthURLRequest](#servicev1-OAuthURLRequest) | [OAuthURLResponse](#servicev1-OAuthURLResponse) | get Oauth url |
+| OAuthProviders | [OAuthURLRequest](#servicev1-OAuthURLRequest) | [OAuthURLResponse](#servicev1-OAuthURLResponse) | get all Oauth providers |
 | OAuthCallback | [OAuthCallbackRequest](#servicev1-OAuthCallbackRequest) | [GenrateTokenResponse](#servicev1-GenrateTokenResponse) | AuthCallback callback for oauth, will generate a token for the user |
 | GenerateApiKey | [.google.protobuf.Empty](#google-protobuf-Empty) | [GenerateApiKeyResponse](#servicev1-GenerateApiKeyResponse) | GenerateApiKey generate a new api key for the user |
 | DeleteApiKey | [.google.protobuf.Empty](#google-protobuf-Empty) | [.google.protobuf.Empty](#google-protobuf-Empty) | DeleteApiKey delete the api key for the user |
+| GenerateWechatQRCode | [.google.protobuf.Empty](#google-protobuf-Empty) | [GenerateWechatQRCodeResponse](#servicev1-GenerateWechatQRCodeResponse) |  |
 | CreateConversation | [CreateConversationRequest](#servicev1-CreateConversationRequest) | [Conversation](#servicev1-Conversation) |  |
 | UpdateConversation | [UpdateConversationRequest](#servicev1-UpdateConversationRequest) | [Conversation](#servicev1-Conversation) | UpdateConversation update the conversation |
 | GetConversation | [GetConversationRequest](#servicev1-GetConversationRequest) | [Conversation](#servicev1-Conversation) |  |
