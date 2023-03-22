@@ -3,6 +3,7 @@ package auth
 import (
 	"context"
 	"fmt"
+	"strings"
 	"sync"
 
 	"notionboy/db/ent"
@@ -52,7 +53,7 @@ func NewWeixinProvider() OAuthProviderService {
 	officialAccount := getWechatOA()
 	return &WeixinProvider{
 		Name:        PROVIDER_WECHAT,
-		userType:    PROVIDER_WECHAT,
+		userType:    strings.ToLower(PROVIDER_WECHAT),
 		State:       config.GetConfig().OAuth.Wechat.State,
 		RedirectUri: config.GetConfig().OAuth.Wechat.URLRedirect,
 		OAuthObj:    oauth.NewOauth(officialAccount.GetContext()),
