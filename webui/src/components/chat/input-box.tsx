@@ -23,14 +23,16 @@ export function ChatInputBox({ onSendMessage, isLoading }: ChatInputBoxProps) {
 	return (
 		<div className="relative m-2">
 			<Textarea
-				placeholder="Type a message..."
+				placeholder="Type a message and send with Shift+Enter ..."
 				className="w-full disabled:opacity-50 h-10 md:h-20"
 				onChange={(e) => setInputValue(e.target.value)}
 				value={inputValue}
 				disabled={isLoading}
 				rows={1}
 				onKeyDown={(e) => {
-					if (e.key === "Enter" && !isEmptyInput()) {
+					// using shift + enter to send a message
+					// using enter to create a new line
+					if (e.key === "Enter" && e.shiftKey && !isEmptyInput()) {
 						e.preventDefault();
 						handleMessageSend();
 					}
