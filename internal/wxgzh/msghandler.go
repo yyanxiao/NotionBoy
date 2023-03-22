@@ -34,12 +34,13 @@ func (ex *OfficialAccount) messageHandler(ctx context.Context, msg *message.MixM
 	switch msg.Event {
 	case message.EventSubscribe:
 		return helpInfo(ctx, msg)
-
 	case message.EventUnsubscribe:
 		unsubscribe(ctx, msg)
 		return nil
 	case message.EventScan:
 		return scanQrcode(ctx, msg)
+	case message.EventClick:
+		return handleMenuClick(ctx, msg)
 	}
 	// TrimSpace will remove all space in the beginning and end of the string for matching commands
 	msg.Content = strings.TrimSpace(msg.Content)

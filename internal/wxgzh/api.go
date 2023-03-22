@@ -3,10 +3,11 @@ package wxgzh
 import (
 	"fmt"
 	"net/http"
+	"strings"
+
 	"notionboy/internal/chatgpt"
 	"notionboy/internal/pkg/config"
 	"notionboy/internal/pkg/logger"
-	"strings"
 
 	notion "notionboy/internal/pkg/notion"
 
@@ -14,6 +15,7 @@ import (
 	"github.com/silenceper/wechat/v2/cache"
 	"github.com/silenceper/wechat/v2/officialaccount"
 	offConfig "github.com/silenceper/wechat/v2/officialaccount/config"
+	"github.com/silenceper/wechat/v2/officialaccount/menu"
 	"github.com/silenceper/wechat/v2/officialaccount/message"
 )
 
@@ -36,6 +38,13 @@ func NewOfficialAccount(wc *wechat.Wechat) *OfficialAccount {
 	}
 	wc.SetCache(cache.NewMemory())
 	officialAccount := wc.GetOfficialAccount(offCfg)
+	// 设置菜单
+	logger.SugaredLogger.Infof("SetMenu")
+	m := menu.NewMenu(officialAccount.GetContext())
+	if err := m.SetMenu(buildMenuButton()); err != nil {
+		logger.SugaredLogger.Errorf("SetMenu error, err=%v", err)
+	}
+
 	return &OfficialAccount{
 		wc:              wc,
 		officialAccount: officialAccount,
