@@ -11,9 +11,10 @@ import (
 	"google.golang.org/grpc/status"
 )
 
+// provider should be lower case
 const (
-	PROVIDER_GITHUB = "Github"
-	PROVIDER_WECHAT = "Wechat"
+	PROVIDER_GITHUB = "github"
+	PROVIDER_WECHAT = "wechat"
 )
 
 func getProvider(provider string) OAuthProviderService {
