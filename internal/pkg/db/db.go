@@ -3,11 +3,10 @@ package db
 import (
 	"context"
 	"fmt"
-	"time"
-
 	"notionboy/db/ent"
 	"notionboy/internal/pkg/config"
 	"notionboy/internal/pkg/logger"
+	"time"
 
 	"entgo.io/ent/dialect/sql"
 	_ "github.com/go-sql-driver/mysql"
