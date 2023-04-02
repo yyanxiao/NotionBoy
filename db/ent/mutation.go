@@ -2830,24 +2830,10 @@ func (m *ConversationMutation) AddedTokenUsage() (r int64, exists bool) {
 	return *v, true
 }
 
-// ClearTokenUsage clears the value of the "token_usage" field.
-func (m *ConversationMutation) ClearTokenUsage() {
-	m.token_usage = nil
-	m.addtoken_usage = nil
-	m.clearedFields[conversation.FieldTokenUsage] = struct{}{}
-}
-
-// TokenUsageCleared returns if the "token_usage" field was cleared in this mutation.
-func (m *ConversationMutation) TokenUsageCleared() bool {
-	_, ok := m.clearedFields[conversation.FieldTokenUsage]
-	return ok
-}
-
 // ResetTokenUsage resets all changes to the "token_usage" field.
 func (m *ConversationMutation) ResetTokenUsage() {
 	m.token_usage = nil
 	m.addtoken_usage = nil
-	delete(m.clearedFields, conversation.FieldTokenUsage)
 }
 
 // AddConversationMessageIDs adds the "conversation_messages" edge to the ConversationMessage entity by ids.
@@ -3128,9 +3114,6 @@ func (m *ConversationMutation) ClearedFields() []string {
 	if m.FieldCleared(conversation.FieldTitle) {
 		fields = append(fields, conversation.FieldTitle)
 	}
-	if m.FieldCleared(conversation.FieldTokenUsage) {
-		fields = append(fields, conversation.FieldTokenUsage)
-	}
 	return fields
 }
 
@@ -3150,9 +3133,6 @@ func (m *ConversationMutation) ClearField(name string) error {
 		return nil
 	case conversation.FieldTitle:
 		m.ClearTitle()
-		return nil
-	case conversation.FieldTokenUsage:
-		m.ClearTokenUsage()
 		return nil
 	}
 	return fmt.Errorf("unknown Conversation nullable field %s", name)

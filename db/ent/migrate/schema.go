@@ -72,7 +72,7 @@ var (
 		{Name: "user_id", Type: field.TypeUUID},
 		{Name: "instruction", Type: field.TypeString, Nullable: true, Size: 2147483647},
 		{Name: "title", Type: field.TypeString, Nullable: true},
-		{Name: "token_usage", Type: field.TypeInt64, Nullable: true},
+		{Name: "token_usage", Type: field.TypeInt64, Default: 0},
 	}
 	// ConversationsTable holds the schema information for the "conversations" table.
 	ConversationsTable = &schema.Table{

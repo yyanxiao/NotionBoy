@@ -117,12 +117,6 @@ func (cu *ConversationUpdate) AddTokenUsage(i int64) *ConversationUpdate {
 	return cu
 }
 
-// ClearTokenUsage clears the value of the "token_usage" field.
-func (cu *ConversationUpdate) ClearTokenUsage() *ConversationUpdate {
-	cu.mutation.ClearTokenUsage()
-	return cu
-}
-
 // AddConversationMessageIDs adds the "conversation_messages" edge to the ConversationMessage entity by IDs.
 func (cu *ConversationUpdate) AddConversationMessageIDs(ids ...int) *ConversationUpdate {
 	cu.mutation.AddConversationMessageIDs(ids...)
@@ -235,9 +229,6 @@ func (cu *ConversationUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if value, ok := cu.mutation.AddedTokenUsage(); ok {
 		_spec.AddField(conversation.FieldTokenUsage, field.TypeInt64, value)
-	}
-	if cu.mutation.TokenUsageCleared() {
-		_spec.ClearField(conversation.FieldTokenUsage, field.TypeInt64)
 	}
 	if cu.mutation.ConversationMessagesCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -391,12 +382,6 @@ func (cuo *ConversationUpdateOne) AddTokenUsage(i int64) *ConversationUpdateOne 
 	return cuo
 }
 
-// ClearTokenUsage clears the value of the "token_usage" field.
-func (cuo *ConversationUpdateOne) ClearTokenUsage() *ConversationUpdateOne {
-	cuo.mutation.ClearTokenUsage()
-	return cuo
-}
-
 // AddConversationMessageIDs adds the "conversation_messages" edge to the ConversationMessage entity by IDs.
 func (cuo *ConversationUpdateOne) AddConversationMessageIDs(ids ...int) *ConversationUpdateOne {
 	cuo.mutation.AddConversationMessageIDs(ids...)
@@ -539,9 +524,6 @@ func (cuo *ConversationUpdateOne) sqlSave(ctx context.Context) (_node *Conversat
 	}
 	if value, ok := cuo.mutation.AddedTokenUsage(); ok {
 		_spec.AddField(conversation.FieldTokenUsage, field.TypeInt64, value)
-	}
-	if cuo.mutation.TokenUsageCleared() {
-		_spec.ClearField(conversation.FieldTokenUsage, field.TypeInt64)
 	}
 	if cuo.mutation.ConversationMessagesCleared() {
 		edge := &sqlgraph.EdgeSpec{

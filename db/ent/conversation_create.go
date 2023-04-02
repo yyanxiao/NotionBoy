@@ -182,6 +182,10 @@ func (cc *ConversationCreate) defaults() {
 		v := conversation.DefaultDeleted
 		cc.mutation.SetDeleted(v)
 	}
+	if _, ok := cc.mutation.TokenUsage(); !ok {
+		v := conversation.DefaultTokenUsage
+		cc.mutation.SetTokenUsage(v)
+	}
 }
 
 // check runs all checks and user-defined validators on the builder.
@@ -194,6 +198,9 @@ func (cc *ConversationCreate) check() error {
 	}
 	if _, ok := cc.mutation.UserID(); !ok {
 		return &ValidationError{Name: "user_id", err: errors.New(`ent: missing required field "Conversation.user_id"`)}
+	}
+	if _, ok := cc.mutation.TokenUsage(); !ok {
+		return &ValidationError{Name: "token_usage", err: errors.New(`ent: missing required field "Conversation.token_usage"`)}
 	}
 	return nil
 }
@@ -412,12 +419,6 @@ func (u *ConversationUpsert) AddTokenUsage(v int64) *ConversationUpsert {
 	return u
 }
 
-// ClearTokenUsage clears the value of the "token_usage" field.
-func (u *ConversationUpsert) ClearTokenUsage() *ConversationUpsert {
-	u.SetNull(conversation.FieldTokenUsage)
-	return u
-}
-
 // UpdateNewValues updates the mutable fields using the new values that were set on create.
 // Using this option is equivalent to using:
 //
@@ -568,13 +569,6 @@ func (u *ConversationUpsertOne) AddTokenUsage(v int64) *ConversationUpsertOne {
 func (u *ConversationUpsertOne) UpdateTokenUsage() *ConversationUpsertOne {
 	return u.Update(func(s *ConversationUpsert) {
 		s.UpdateTokenUsage()
-	})
-}
-
-// ClearTokenUsage clears the value of the "token_usage" field.
-func (u *ConversationUpsertOne) ClearTokenUsage() *ConversationUpsertOne {
-	return u.Update(func(s *ConversationUpsert) {
-		s.ClearTokenUsage()
 	})
 }
 
@@ -890,13 +884,6 @@ func (u *ConversationUpsertBulk) AddTokenUsage(v int64) *ConversationUpsertBulk 
 func (u *ConversationUpsertBulk) UpdateTokenUsage() *ConversationUpsertBulk {
 	return u.Update(func(s *ConversationUpsert) {
 		s.UpdateTokenUsage()
-	})
-}
-
-// ClearTokenUsage clears the value of the "token_usage" field.
-func (u *ConversationUpsertBulk) ClearTokenUsage() *ConversationUpsertBulk {
-	return u.Update(func(s *ConversationUpsert) {
-		s.ClearTokenUsage()
 	})
 }
 

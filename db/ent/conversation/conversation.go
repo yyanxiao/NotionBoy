@@ -72,4 +72,6 @@ var (
 	UpdateDefaultUpdatedAt func() time.Time
 	// DefaultDeleted holds the default value on creation for the "deleted" field.
 	DefaultDeleted bool
+	// DefaultTokenUsage holds the default value on creation for the "token_usage" field.
+	DefaultTokenUsage int64
 )

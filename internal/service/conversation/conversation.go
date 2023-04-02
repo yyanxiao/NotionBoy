@@ -67,8 +67,10 @@ func (m *Message) calculateTokens() int64 {
 	usage := m.Usage
 
 	if usage == nil {
-		promptTokens := len(m.Request)
-		completionTokens := len(m.Response)
+		// TODO fix it calculate tokens
+		// for now, just use len([]byte) / 4 as tokens
+		promptTokens := len(m.Request) / 4
+		completionTokens := len(m.Response) / 4
 		usage = &gogpt.Usage{
 			PromptTokens:     promptTokens,
 			CompletionTokens: completionTokens,
@@ -226,6 +228,7 @@ func (h *History) saveMessageToDB(message *Message) (*ent.ConversationMessage, e
 		SetRequest(msg.Request).
 		SetResponse(msg.Response).
 		SetTokenUsage(msg.TokenUsage).
+		SetModel(message.Model).
 		SetUUID(uuid.New()).Exec(h.Ctx); err != nil {
 		if err != nil {
 			logger.SugaredLogger.Errorw("SaveConversationMessage", "err", err)

@@ -23,7 +23,7 @@ func (Conversation) Fields() []ent.Field {
 		field.UUID("user_id", uuid.UUID{}).Comment("user id"),
 		field.Text("instruction").Optional().Comment("Instructions for the conversation"),
 		field.String("title").Optional().Comment("Conversation title"),
-		field.Int64("token_usage").Optional().Comment("Token usage of the conversation"),
+		field.Int64("token_usage").Default(0).Comment("Token usage of the conversation"),
 	}
 }
 

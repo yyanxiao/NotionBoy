@@ -94,6 +94,10 @@ func init() {
 	conversationDescDeleted := conversationMixinFields1[0].Descriptor()
 	// conversation.DefaultDeleted holds the default value on creation for the deleted field.
 	conversation.DefaultDeleted = conversationDescDeleted.Default.(bool)
+	// conversationDescTokenUsage is the schema descriptor for token_usage field.
+	conversationDescTokenUsage := conversationFields[4].Descriptor()
+	// conversation.DefaultTokenUsage holds the default value on creation for the token_usage field.
+	conversation.DefaultTokenUsage = conversationDescTokenUsage.Default.(int64)
 	conversationmessageMixin := schema.ConversationMessage{}.Mixin()
 	conversationmessageMixinFields0 := conversationmessageMixin[0].Fields()
 	_ = conversationmessageMixinFields0

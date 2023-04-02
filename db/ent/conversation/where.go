@@ -456,16 +456,6 @@ func TokenUsageLTE(v int64) predicate.Conversation {
 	return predicate.Conversation(sql.FieldLTE(FieldTokenUsage, v))
 }
 
-// TokenUsageIsNil applies the IsNil predicate on the "token_usage" field.
-func TokenUsageIsNil() predicate.Conversation {
-	return predicate.Conversation(sql.FieldIsNull(FieldTokenUsage))
-}
-
-// TokenUsageNotNil applies the NotNil predicate on the "token_usage" field.
-func TokenUsageNotNil() predicate.Conversation {
-	return predicate.Conversation(sql.FieldNotNull(FieldTokenUsage))
-}
-
 // HasConversationMessages applies the HasEdge predicate on the "conversation_messages" edge.
 func HasConversationMessages() predicate.Conversation {
 	return predicate.Conversation(func(s *sql.Selector) {
