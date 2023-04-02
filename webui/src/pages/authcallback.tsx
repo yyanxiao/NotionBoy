@@ -43,11 +43,11 @@ export default function Callback() {
 				setErrorMessage(err.message);
 				setIsLoading(false);
 			});
-	}, [router.isReady]);
+	}, [router]);
 
 	return (
-		<div className="container mx-auto p-8 ">
-			<article className="prose prose-sm sm:prose lg:prose-lg xl:prose-2xl">
+		<div className="container p-8 mx-auto ">
+			<article className="prose-sm prose sm:prose lg:prose-lg xl:prose-2xl">
 				{!isLoading && isValid && <h1>Redirecting...</h1>}
 				{!isLoading && !isValid && (
 					<div>

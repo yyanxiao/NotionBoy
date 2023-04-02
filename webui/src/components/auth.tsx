@@ -33,7 +33,7 @@ export function AuthLoginButton() {
 			}
 			handleProtectedPage();
 		}
-	}, [router.isReady]);
+	}, [router]);
 
 	useEffect(() => {
 		if (errorMessage) {

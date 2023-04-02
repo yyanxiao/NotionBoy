@@ -44,6 +44,8 @@ type History struct {
 type Message struct {
 	Request  string
 	Response string
+	Model    string
+	Usage    *gogpt.Usage
 }
 
 func (m *Message) toChatMessage() []gogpt.ChatCompletionMessage {
@@ -57,6 +59,36 @@ func (m *Message) toChatMessage() []gogpt.ChatCompletionMessage {
 			Content: m.Response,
 		},
 	}
+}
+
+func (m *Message) calculateTokens() int64 {
+	// 1. get raw tokens
+	// 2. calculate tokens base on model
+	usage := m.Usage
+
+	if usage == nil {
+		promptTokens := len(m.Request)
+		completionTokens := len(m.Response)
+		usage = &gogpt.Usage{
+			PromptTokens:     promptTokens,
+			CompletionTokens: completionTokens,
+			TotalTokens:      promptTokens + completionTokens,
+		}
+	}
+
+	totalTokens := 0
+
+	// https://openai.com/pricing#faq-token
+	switch m.Model {
+	case gogpt.GPT3Dot5Turbo, gogpt.GPT3Dot5Turbo0301:
+		totalTokens = usage.TotalTokens
+	case gogpt.GPT4, gogpt.GPT40314:
+		totalTokens = usage.PromptTokens*15 + usage.CompletionTokens*30
+	case gogpt.GPT432K, gogpt.GPT432K0314:
+		totalTokens = usage.PromptTokens*30 + usage.CompletionTokens*60
+	}
+
+	return int64(totalTokens)
 }
 
 func NewHistory(ctx context.Context, acc *ent.Account, conversationId string, instruction string) *History {
@@ -102,11 +134,13 @@ func (h *History) Save(req *gogpt.ChatCompletionMessage, resp *gogpt.ChatComplet
 	msg := &Message{
 		Request:  req.Content,
 		Response: getResponse(resp),
+		Model:    resp.Model,
+		Usage:    &resp.Usage,
 	}
 
 	h.append(msg)
 	h.saveToCache()
-	return h.saveMessageToDB(msg, resp.Usage.TotalTokens)
+	return h.saveMessageToDB(msg)
 }
 
 func (h *History) getFromCache() {
@@ -132,6 +166,7 @@ func (h *History) getMessagesFromDB() error {
 		h.append(&Message{
 			Request:  message.Request,
 			Response: message.Response,
+			Model:    message.Model,
 		})
 	}
 	h.saveToCache()
@@ -150,14 +185,16 @@ func (h *History) getQuotaFromDB() error {
 	return nil
 }
 
-func (h *History) saveMessageToDB(message *Message, tokenUsage int) (*ent.ConversationMessage, error) {
+func (h *History) saveMessageToDB(message *Message) (*ent.ConversationMessage, error) {
+	usage := message.calculateTokens()
+
 	msg := &ent.ConversationMessage{
 		UUID:           uuid.New(),
 		ConversationID: h.ConversationId,
 		UserID:         h.Account.UUID,
 		Request:        message.Request,
 		Response:       message.Response,
-		TokenUsage:     int64(tokenUsage),
+		TokenUsage:     usage,
 	}
 	tx, err := db.GetClient().Tx(h.Ctx)
 	if err != nil {
@@ -165,7 +202,7 @@ func (h *History) saveMessageToDB(message *Message, tokenUsage int) (*ent.Conver
 		return nil, err
 	}
 	// save quota
-	err = dao.IncrUsedTokenQuota(tx.Client(), h.Ctx, h.Account.ID, int64(tokenUsage))
+	err = dao.IncrUsedTokenQuota(tx.Client(), h.Ctx, h.Account.ID, usage)
 
 	if err != nil {
 		logger.SugaredLogger.Errorw("IncrUsedTokenQuota", "err", err)
@@ -174,6 +211,15 @@ func (h *History) saveMessageToDB(message *Message, tokenUsage int) (*ent.Conver
 		}
 		return nil, err
 	}
+
+	if err := dao.IncrConversationUsedToken(tx.Client(), h.Ctx, h.ConversationId, usage); err != nil {
+		logger.SugaredLogger.Errorw("IncrConversationUsedToken", "err", err)
+		if e := tx.Rollback(); e != nil {
+			return nil, e
+		}
+		return nil, err
+	}
+
 	if err := tx.ConversationMessage.Create().
 		SetUserID(msg.UserID).
 		SetConversationID(msg.ConversationID).

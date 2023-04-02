@@ -69,3 +69,11 @@ func DeleteConversation(ctx context.Context, conversationId uuid.UUID) error {
 		Exec(ctx)
 	return err
 }
+
+func IncrConversationUsedToken(cli *ent.Client, ctx context.Context, conversationId uuid.UUID, tokens int64) error {
+	return cli.Conversation.
+		Update().
+		Where(conversation.UUIDEQ(conversationId)).
+		AddTokenUsage(tokens).
+		Exec(ctx)
+}

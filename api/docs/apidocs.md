@@ -264,6 +264,7 @@ NumericEnum is one or zero.
 | instruction | [string](#string) |  |  |
 | title | [string](#string) |  |  |
 | messages | [Message](#servicev1-Message) | repeated |  |
+| token_usage | [int32](#int32) |  |  |
 
 
 
@@ -314,6 +315,7 @@ NumericEnum is one or zero.
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | conversation_id | [string](#string) |  | conversation_id uuid of the conversation |
+| model | [string](#string) |  |  |
 | request | [string](#string) |  | request request of the message |
 
 
@@ -461,6 +463,7 @@ NumericEnum is one or zero.
 | created_at | [string](#string) |  |  |
 | updated_at | [string](#string) |  |  |
 | token_usage | [int32](#int32) |  |  |
+| model | [string](#string) |  |  |
 
 
 

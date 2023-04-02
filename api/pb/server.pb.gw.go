@@ -1821,7 +1821,7 @@ func RegisterServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux, se
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/servicev1.Service/CreateProduct", runtime.WithHTTPPathPattern("/internal/v1/products"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/servicev1.Service/CreateProduct", runtime.WithHTTPPathPattern("/v1/products"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1846,7 +1846,7 @@ func RegisterServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux, se
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/servicev1.Service/GetProduct", runtime.WithHTTPPathPattern("/internal/v1/products/{id}"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/servicev1.Service/GetProduct", runtime.WithHTTPPathPattern("/v1/products/{id}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1871,7 +1871,7 @@ func RegisterServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux, se
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/servicev1.Service/ListProducts", runtime.WithHTTPPathPattern("/internal/v1/products"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/servicev1.Service/ListProducts", runtime.WithHTTPPathPattern("/v1/products"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1896,7 +1896,7 @@ func RegisterServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux, se
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/servicev1.Service/DeleteProduct", runtime.WithHTTPPathPattern("/internal/v1/products/{id}"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/servicev1.Service/DeleteProduct", runtime.WithHTTPPathPattern("/v1/products/{id}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1921,7 +1921,7 @@ func RegisterServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux, se
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/servicev1.Service/UpdateProduct", runtime.WithHTTPPathPattern("/internal/v1/products/{id}"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/servicev1.Service/UpdateProduct", runtime.WithHTTPPathPattern("/v1/products/{id}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -2469,7 +2469,7 @@ func RegisterServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux, cl
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/servicev1.Service/CreateProduct", runtime.WithHTTPPathPattern("/internal/v1/products"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/servicev1.Service/CreateProduct", runtime.WithHTTPPathPattern("/v1/products"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -2491,7 +2491,7 @@ func RegisterServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux, cl
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/servicev1.Service/GetProduct", runtime.WithHTTPPathPattern("/internal/v1/products/{id}"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/servicev1.Service/GetProduct", runtime.WithHTTPPathPattern("/v1/products/{id}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -2513,7 +2513,7 @@ func RegisterServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux, cl
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/servicev1.Service/ListProducts", runtime.WithHTTPPathPattern("/internal/v1/products"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/servicev1.Service/ListProducts", runtime.WithHTTPPathPattern("/v1/products"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -2535,7 +2535,7 @@ func RegisterServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux, cl
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/servicev1.Service/DeleteProduct", runtime.WithHTTPPathPattern("/internal/v1/products/{id}"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/servicev1.Service/DeleteProduct", runtime.WithHTTPPathPattern("/v1/products/{id}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -2557,7 +2557,7 @@ func RegisterServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux, cl
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/servicev1.Service/UpdateProduct", runtime.WithHTTPPathPattern("/internal/v1/products/{id}"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/servicev1.Service/UpdateProduct", runtime.WithHTTPPathPattern("/v1/products/{id}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -2621,15 +2621,15 @@ var (
 
 	pattern_Service_PayOrder_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2, 2, 3}, []string{"v1", "orders", "id", "pay"}, ""))
 
-	pattern_Service_CreateProduct_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"internal", "v1", "products"}, ""))
+	pattern_Service_CreateProduct_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"v1", "products"}, ""))
 
-	pattern_Service_GetProduct_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3}, []string{"internal", "v1", "products", "id"}, ""))
+	pattern_Service_GetProduct_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"v1", "products", "id"}, ""))
 
-	pattern_Service_ListProducts_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"internal", "v1", "products"}, ""))
+	pattern_Service_ListProducts_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"v1", "products"}, ""))
 
-	pattern_Service_DeleteProduct_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3}, []string{"internal", "v1", "products", "id"}, ""))
+	pattern_Service_DeleteProduct_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"v1", "products", "id"}, ""))
 
-	pattern_Service_UpdateProduct_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3}, []string{"internal", "v1", "products", "id"}, ""))
+	pattern_Service_UpdateProduct_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"v1", "products", "id"}, ""))
 )
 
 var (

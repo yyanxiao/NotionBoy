@@ -27,7 +27,7 @@ func OnChatGPT(c tele.Context) error {
 		return c.Reply(config.MSG_RESET_CHATGPT_HISTORY)
 	}
 
-	msg, err := chatgpt.DefaultApiClient().ChatWithHistory(ctx, acc, prompt)
+	msg, err := chatgpt.DefaultApiClient().ChatWithHistory(ctx, acc, prompt, "")
 	if err != nil {
 		return c.Reply(err.Error())
 	}

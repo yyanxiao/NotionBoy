@@ -3,6 +3,7 @@ package conversation
 import (
 	"context"
 	"notionboy/api/pb"
+	"notionboy/api/pb/model"
 	"notionboy/db/ent"
 	"notionboy/internal/pkg/db/dao"
 	"notionboy/internal/pkg/logger"
@@ -61,7 +62,7 @@ func (m *conversationMgr) DeleteConversation(ctx context.Context, acc *ent.Accou
 	return dao.DeleteConversation(ctx, id)
 }
 
-func (m *conversationMgr) CreateConversationMessage(ctx context.Context, acc *ent.Account, conversationId, request string) (*ConversationMessageDTO, error) {
+func (m *conversationMgr) CreateConversationMessage(ctx context.Context, acc *ent.Account, conversationId, request, model string) (*ConversationMessageDTO, error) {
 	id, err := uuid.Parse(conversationId)
 	if err != nil {
 		return nil, status.Errorf(400, "invalid id %s", err.Error())
@@ -83,7 +84,7 @@ func (m *conversationMgr) CreateConversationMessage(ctx context.Context, acc *en
 	}
 
 	apiClient := NewApiClient(acc.OpenaiAPIKey)
-	message, err := apiClient.ChatWithHistory(ctx, acc, conversation.Instruction, conversationId, request)
+	message, err := apiClient.ChatWithHistory(ctx, acc, conversation.Instruction, conversationId, request, model)
 	logger.SugaredLogger.Debugw("chat with history", "message", message, "err", err)
 	if err != nil {
 		logger.SugaredLogger.Debugw("chat with history error", "err", err)
@@ -125,7 +126,10 @@ func (m *conversationMgr) DeleteConversationMessage(ctx context.Context, acc *en
 	return dao.DeleteConversationMessage(ctx, id)
 }
 
-func (m *conversationMgr) CreateStreamConversationMessage(ctx context.Context, acc *ent.Account, stream pb.Service_CreateMessageServer, conversationId, request string) error {
+func (m *conversationMgr) CreateStreamConversationMessage(ctx context.Context, acc *ent.Account, stream pb.Service_CreateMessageServer, req *model.CreateMessageRequest) error {
+	conversationId := req.GetConversationId()
+	request := req.GetRequest()
+	model := req.GetModel()
 	id, err := uuid.Parse(conversationId)
 	if err != nil {
 		return status.Errorf(400, "invalid id %s", err.Error())
@@ -148,7 +152,7 @@ func (m *conversationMgr) CreateStreamConversationMessage(ctx context.Context, a
 
 	apiClient := NewApiClient(acc.OpenaiAPIKey)
 
-	conversationMessage, err := apiClient.StreamChatWithHistory(ctx, acc, conversation.Instruction, conversationId, request, stream)
+	conversationMessage, err := apiClient.StreamChatWithHistory(ctx, acc, conversation.Instruction, conversationId, request, model, stream)
 	// logger.SugaredLogger.Debugw("chat with history", "message", message, "err", err)
 	if err != nil {
 		logger.SugaredLogger.Debugw("chat with history error", "err", err)

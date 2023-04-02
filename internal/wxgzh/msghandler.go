@@ -76,6 +76,8 @@ func (ex *OfficialAccount) messageHandler(ctx context.Context, msg *message.MixM
 			return magicCode(ctx, msg), nil
 		case config.CMD_WHOAMI:
 			return whoAMI(ctx, msg), nil
+		case config.CMD_API_KEY:
+			return apiKey(ctx, msg), nil
 		}
 
 		// process chatGPT

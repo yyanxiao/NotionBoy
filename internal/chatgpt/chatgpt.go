@@ -13,7 +13,7 @@ import (
 )
 
 type Chatter interface {
-	ChatWithHistory(ctx context.Context, acc *ent.Account, prompt string) (string, error)
+	ChatWithHistory(ctx context.Context, acc *ent.Account, prompt, model string) (string, error)
 	ResetHistory(acc *ent.Account)
 }
 
@@ -79,7 +79,7 @@ type chatMgr struct {
 	Client *conversation.ConversationClient
 }
 
-func (m *chatMgr) ChatWithHistory(ctx context.Context, acc *ent.Account, prompt string) (string, error) {
+func (m *chatMgr) ChatWithHistory(ctx context.Context, acc *ent.Account, prompt, model string) (string, error) {
 	history := &History{
 		Account: acc,
 	}
@@ -95,7 +95,7 @@ func (m *chatMgr) ChatWithHistory(ctx context.Context, acc *ent.Account, prompt 
 
 	logger.SugaredLogger.Debugw("Get prompt message for api client", "prompt", prompt, "conversationId", history.ConversationID)
 
-	msg, err := m.Client.ChatWithHistory(ctx, acc, "", history.ConversationID, prompt)
+	msg, err := m.Client.ChatWithHistory(ctx, acc, "", history.ConversationID, prompt, model)
 	if err != nil {
 		return "", err
 	}

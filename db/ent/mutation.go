@@ -2393,6 +2393,8 @@ type ConversationMutation struct {
 	user_id                      *uuid.UUID
 	instruction                  *string
 	title                        *string
+	token_usage                  *int64
+	addtoken_usage               *int64
 	clearedFields                map[string]struct{}
 	conversation_messages        map[int]struct{}
 	removedconversation_messages map[int]struct{}
@@ -2778,6 +2780,76 @@ func (m *ConversationMutation) ResetTitle() {
 	delete(m.clearedFields, conversation.FieldTitle)
 }
 
+// SetTokenUsage sets the "token_usage" field.
+func (m *ConversationMutation) SetTokenUsage(i int64) {
+	m.token_usage = &i
+	m.addtoken_usage = nil
+}
+
+// TokenUsage returns the value of the "token_usage" field in the mutation.
+func (m *ConversationMutation) TokenUsage() (r int64, exists bool) {
+	v := m.token_usage
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldTokenUsage returns the old "token_usage" field's value of the Conversation entity.
+// If the Conversation object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ConversationMutation) OldTokenUsage(ctx context.Context) (v int64, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldTokenUsage is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldTokenUsage requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldTokenUsage: %w", err)
+	}
+	return oldValue.TokenUsage, nil
+}
+
+// AddTokenUsage adds i to the "token_usage" field.
+func (m *ConversationMutation) AddTokenUsage(i int64) {
+	if m.addtoken_usage != nil {
+		*m.addtoken_usage += i
+	} else {
+		m.addtoken_usage = &i
+	}
+}
+
+// AddedTokenUsage returns the value that was added to the "token_usage" field in this mutation.
+func (m *ConversationMutation) AddedTokenUsage() (r int64, exists bool) {
+	v := m.addtoken_usage
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ClearTokenUsage clears the value of the "token_usage" field.
+func (m *ConversationMutation) ClearTokenUsage() {
+	m.token_usage = nil
+	m.addtoken_usage = nil
+	m.clearedFields[conversation.FieldTokenUsage] = struct{}{}
+}
+
+// TokenUsageCleared returns if the "token_usage" field was cleared in this mutation.
+func (m *ConversationMutation) TokenUsageCleared() bool {
+	_, ok := m.clearedFields[conversation.FieldTokenUsage]
+	return ok
+}
+
+// ResetTokenUsage resets all changes to the "token_usage" field.
+func (m *ConversationMutation) ResetTokenUsage() {
+	m.token_usage = nil
+	m.addtoken_usage = nil
+	delete(m.clearedFields, conversation.FieldTokenUsage)
+}
+
 // AddConversationMessageIDs adds the "conversation_messages" edge to the ConversationMessage entity by ids.
 func (m *ConversationMutation) AddConversationMessageIDs(ids ...int) {
 	if m.conversation_messages == nil {
@@ -2866,7 +2938,7 @@ func (m *ConversationMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *ConversationMutation) Fields() []string {
-	fields := make([]string, 0, 7)
+	fields := make([]string, 0, 8)
 	if m.created_at != nil {
 		fields = append(fields, conversation.FieldCreatedAt)
 	}
@@ -2887,6 +2959,9 @@ func (m *ConversationMutation) Fields() []string {
 	}
 	if m.title != nil {
 		fields = append(fields, conversation.FieldTitle)
+	}
+	if m.token_usage != nil {
+		fields = append(fields, conversation.FieldTokenUsage)
 	}
 	return fields
 }
@@ -2910,6 +2985,8 @@ func (m *ConversationMutation) Field(name string) (ent.Value, bool) {
 		return m.Instruction()
 	case conversation.FieldTitle:
 		return m.Title()
+	case conversation.FieldTokenUsage:
+		return m.TokenUsage()
 	}
 	return nil, false
 }
@@ -2933,6 +3010,8 @@ func (m *ConversationMutation) OldField(ctx context.Context, name string) (ent.V
 		return m.OldInstruction(ctx)
 	case conversation.FieldTitle:
 		return m.OldTitle(ctx)
+	case conversation.FieldTokenUsage:
+		return m.OldTokenUsage(ctx)
 	}
 	return nil, fmt.Errorf("unknown Conversation field %s", name)
 }
@@ -2991,6 +3070,13 @@ func (m *ConversationMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetTitle(v)
 		return nil
+	case conversation.FieldTokenUsage:
+		v, ok := value.(int64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetTokenUsage(v)
+		return nil
 	}
 	return fmt.Errorf("unknown Conversation field %s", name)
 }
@@ -2998,13 +3084,21 @@ func (m *ConversationMutation) SetField(name string, value ent.Value) error {
 // AddedFields returns all numeric fields that were incremented/decremented during
 // this mutation.
 func (m *ConversationMutation) AddedFields() []string {
-	return nil
+	var fields []string
+	if m.addtoken_usage != nil {
+		fields = append(fields, conversation.FieldTokenUsage)
+	}
+	return fields
 }
 
 // AddedField returns the numeric value that was incremented/decremented on a field
 // with the given name. The second boolean return value indicates that this field
 // was not set, or was not defined in the schema.
 func (m *ConversationMutation) AddedField(name string) (ent.Value, bool) {
+	switch name {
+	case conversation.FieldTokenUsage:
+		return m.AddedTokenUsage()
+	}
 	return nil, false
 }
 
@@ -3013,6 +3107,13 @@ func (m *ConversationMutation) AddedField(name string) (ent.Value, bool) {
 // type.
 func (m *ConversationMutation) AddField(name string, value ent.Value) error {
 	switch name {
+	case conversation.FieldTokenUsage:
+		v, ok := value.(int64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddTokenUsage(v)
+		return nil
 	}
 	return fmt.Errorf("unknown Conversation numeric field %s", name)
 }
@@ -3026,6 +3127,9 @@ func (m *ConversationMutation) ClearedFields() []string {
 	}
 	if m.FieldCleared(conversation.FieldTitle) {
 		fields = append(fields, conversation.FieldTitle)
+	}
+	if m.FieldCleared(conversation.FieldTokenUsage) {
+		fields = append(fields, conversation.FieldTokenUsage)
 	}
 	return fields
 }
@@ -3046,6 +3150,9 @@ func (m *ConversationMutation) ClearField(name string) error {
 		return nil
 	case conversation.FieldTitle:
 		m.ClearTitle()
+		return nil
+	case conversation.FieldTokenUsage:
+		m.ClearTokenUsage()
 		return nil
 	}
 	return fmt.Errorf("unknown Conversation nullable field %s", name)
@@ -3075,6 +3182,9 @@ func (m *ConversationMutation) ResetField(name string) error {
 		return nil
 	case conversation.FieldTitle:
 		m.ResetTitle()
+		return nil
+	case conversation.FieldTokenUsage:
+		m.ResetTokenUsage()
 		return nil
 	}
 	return fmt.Errorf("unknown Conversation field %s", name)
@@ -3180,6 +3290,7 @@ type ConversationMessageMutation struct {
 	response             *string
 	token_usage          *int64
 	addtoken_usage       *int64
+	model                *string
 	clearedFields        map[string]struct{}
 	conversations        *int
 	clearedconversations bool
@@ -3670,6 +3781,42 @@ func (m *ConversationMessageMutation) ResetTokenUsage() {
 	delete(m.clearedFields, conversationmessage.FieldTokenUsage)
 }
 
+// SetModel sets the "model" field.
+func (m *ConversationMessageMutation) SetModel(s string) {
+	m.model = &s
+}
+
+// Model returns the value of the "model" field in the mutation.
+func (m *ConversationMessageMutation) Model() (r string, exists bool) {
+	v := m.model
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldModel returns the old "model" field's value of the ConversationMessage entity.
+// If the ConversationMessage object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *ConversationMessageMutation) OldModel(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldModel is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldModel requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldModel: %w", err)
+	}
+	return oldValue.Model, nil
+}
+
+// ResetModel resets all changes to the "model" field.
+func (m *ConversationMessageMutation) ResetModel() {
+	m.model = nil
+}
+
 // SetConversationsID sets the "conversations" edge to the Conversation entity by id.
 func (m *ConversationMessageMutation) SetConversationsID(id int) {
 	m.conversations = &id
@@ -3743,7 +3890,7 @@ func (m *ConversationMessageMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *ConversationMessageMutation) Fields() []string {
-	fields := make([]string, 0, 9)
+	fields := make([]string, 0, 10)
 	if m.created_at != nil {
 		fields = append(fields, conversationmessage.FieldCreatedAt)
 	}
@@ -3771,6 +3918,9 @@ func (m *ConversationMessageMutation) Fields() []string {
 	if m.token_usage != nil {
 		fields = append(fields, conversationmessage.FieldTokenUsage)
 	}
+	if m.model != nil {
+		fields = append(fields, conversationmessage.FieldModel)
+	}
 	return fields
 }
 
@@ -3797,6 +3947,8 @@ func (m *ConversationMessageMutation) Field(name string) (ent.Value, bool) {
 		return m.Response()
 	case conversationmessage.FieldTokenUsage:
 		return m.TokenUsage()
+	case conversationmessage.FieldModel:
+		return m.Model()
 	}
 	return nil, false
 }
@@ -3824,6 +3976,8 @@ func (m *ConversationMessageMutation) OldField(ctx context.Context, name string)
 		return m.OldResponse(ctx)
 	case conversationmessage.FieldTokenUsage:
 		return m.OldTokenUsage(ctx)
+	case conversationmessage.FieldModel:
+		return m.OldModel(ctx)
 	}
 	return nil, fmt.Errorf("unknown ConversationMessage field %s", name)
 }
@@ -3895,6 +4049,13 @@ func (m *ConversationMessageMutation) SetField(name string, value ent.Value) err
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetTokenUsage(v)
+		return nil
+	case conversationmessage.FieldModel:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetModel(v)
 		return nil
 	}
 	return fmt.Errorf("unknown ConversationMessage field %s", name)
@@ -4007,6 +4168,9 @@ func (m *ConversationMessageMutation) ResetField(name string) error {
 		return nil
 	case conversationmessage.FieldTokenUsage:
 		m.ResetTokenUsage()
+		return nil
+	case conversationmessage.FieldModel:
+		m.ResetModel()
 		return nil
 	}
 	return fmt.Errorf("unknown ConversationMessage field %s", name)

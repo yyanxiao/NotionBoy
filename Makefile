@@ -47,3 +47,28 @@ grpc:
 	rm -rf api/pb api/docs webui/src/lib.pb
 	buf format -w
 	buf generate
+
+mdiff:
+	atlas migrate diff init \
+		--dir "file://db/ent/migrate/migrations" \
+		--to "ent://db/ent/schema" \
+		--dev-url "docker://mysql/8/ent"
+
+mrehash:
+	atlas migrate hash --dir "file://db/ent/migrate/migrations"
+
+mapply:
+	atlas migrate apply \
+		--dir "file://db/ent/migrate/migrations" \
+		--url "mysql://$(DB_NAME):$(DB_PASSWORD)@$(DB_HOST):$(DB_PORT)/$(DB_NAME)" --baseline 20230402035028
+
+mstatus:
+	atlas migrate status \
+		--dir "file://db/ent/migrate/migrations" \
+		--url "mysql://$(DB_NAME):$(DB_PASSWORD)@$(DB_HOST):$(DB_PORT)/$(DB_NAME)"
+
+mlint:
+	atlas migrate lint \
+		--dir "file://db/ent/migrate/migrations" \
+		--dev-url "mysql://$(DB_NAME):$(DB_PASSWORD)@$(DB_HOST):$(DB_PORT)/$(DB_NAME)" \
+		--latest 1

@@ -101,6 +101,11 @@ func TokenUsage(v int64) predicate.ConversationMessage {
 	return predicate.ConversationMessage(sql.FieldEQ(FieldTokenUsage, v))
 }
 
+// Model applies equality check predicate on the "model" field. It's identical to ModelEQ.
+func Model(v string) predicate.ConversationMessage {
+	return predicate.ConversationMessage(sql.FieldEQ(FieldModel, v))
+}
+
 // CreatedAtEQ applies the EQ predicate on the "created_at" field.
 func CreatedAtEQ(v time.Time) predicate.ConversationMessage {
 	return predicate.ConversationMessage(sql.FieldEQ(FieldCreatedAt, v))
@@ -509,6 +514,71 @@ func TokenUsageIsNil() predicate.ConversationMessage {
 // TokenUsageNotNil applies the NotNil predicate on the "token_usage" field.
 func TokenUsageNotNil() predicate.ConversationMessage {
 	return predicate.ConversationMessage(sql.FieldNotNull(FieldTokenUsage))
+}
+
+// ModelEQ applies the EQ predicate on the "model" field.
+func ModelEQ(v string) predicate.ConversationMessage {
+	return predicate.ConversationMessage(sql.FieldEQ(FieldModel, v))
+}
+
+// ModelNEQ applies the NEQ predicate on the "model" field.
+func ModelNEQ(v string) predicate.ConversationMessage {
+	return predicate.ConversationMessage(sql.FieldNEQ(FieldModel, v))
+}
+
+// ModelIn applies the In predicate on the "model" field.
+func ModelIn(vs ...string) predicate.ConversationMessage {
+	return predicate.ConversationMessage(sql.FieldIn(FieldModel, vs...))
+}
+
+// ModelNotIn applies the NotIn predicate on the "model" field.
+func ModelNotIn(vs ...string) predicate.ConversationMessage {
+	return predicate.ConversationMessage(sql.FieldNotIn(FieldModel, vs...))
+}
+
+// ModelGT applies the GT predicate on the "model" field.
+func ModelGT(v string) predicate.ConversationMessage {
+	return predicate.ConversationMessage(sql.FieldGT(FieldModel, v))
+}
+
+// ModelGTE applies the GTE predicate on the "model" field.
+func ModelGTE(v string) predicate.ConversationMessage {
+	return predicate.ConversationMessage(sql.FieldGTE(FieldModel, v))
+}
+
+// ModelLT applies the LT predicate on the "model" field.
+func ModelLT(v string) predicate.ConversationMessage {
+	return predicate.ConversationMessage(sql.FieldLT(FieldModel, v))
+}
+
+// ModelLTE applies the LTE predicate on the "model" field.
+func ModelLTE(v string) predicate.ConversationMessage {
+	return predicate.ConversationMessage(sql.FieldLTE(FieldModel, v))
+}
+
+// ModelContains applies the Contains predicate on the "model" field.
+func ModelContains(v string) predicate.ConversationMessage {
+	return predicate.ConversationMessage(sql.FieldContains(FieldModel, v))
+}
+
+// ModelHasPrefix applies the HasPrefix predicate on the "model" field.
+func ModelHasPrefix(v string) predicate.ConversationMessage {
+	return predicate.ConversationMessage(sql.FieldHasPrefix(FieldModel, v))
+}
+
+// ModelHasSuffix applies the HasSuffix predicate on the "model" field.
+func ModelHasSuffix(v string) predicate.ConversationMessage {
+	return predicate.ConversationMessage(sql.FieldHasSuffix(FieldModel, v))
+}
+
+// ModelEqualFold applies the EqualFold predicate on the "model" field.
+func ModelEqualFold(v string) predicate.ConversationMessage {
+	return predicate.ConversationMessage(sql.FieldEqualFold(FieldModel, v))
+}
+
+// ModelContainsFold applies the ContainsFold predicate on the "model" field.
+func ModelContainsFold(v string) predicate.ConversationMessage {
+	return predicate.ConversationMessage(sql.FieldContainsFold(FieldModel, v))
 }
 
 // HasConversations applies the HasEdge predicate on the "conversations" edge.

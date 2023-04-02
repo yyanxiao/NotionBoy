@@ -25,6 +25,7 @@ func (ConversationMessage) Fields() []ent.Field {
 		field.Text("request").Optional().Comment("Request of the message"),
 		field.Text("response").Optional().Comment("Response of the message"),
 		field.Int64("token_usage").Optional().Comment("Token usage of the message in the conversation"),
+		field.String("model").Default("gpt-3.5-turbo").Comment("Model used for the message"),
 	}
 }
 

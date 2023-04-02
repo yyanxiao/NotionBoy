@@ -36,6 +36,8 @@ type ConversationMessage struct {
 	Response string `json:"response,omitempty"`
 	// Token usage of the message in the conversation
 	TokenUsage int64 `json:"token_usage,omitempty"`
+	// Model used for the message
+	Model string `json:"model,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the ConversationMessageQuery when eager-loading is set.
 	Edges                              ConversationMessageEdges `json:"edges"`
@@ -73,7 +75,7 @@ func (*ConversationMessage) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullBool)
 		case conversationmessage.FieldID, conversationmessage.FieldTokenUsage:
 			values[i] = new(sql.NullInt64)
-		case conversationmessage.FieldRequest, conversationmessage.FieldResponse:
+		case conversationmessage.FieldRequest, conversationmessage.FieldResponse, conversationmessage.FieldModel:
 			values[i] = new(sql.NullString)
 		case conversationmessage.FieldCreatedAt, conversationmessage.FieldUpdatedAt:
 			values[i] = new(sql.NullTime)
@@ -156,6 +158,12 @@ func (cm *ConversationMessage) assignValues(columns []string, values []any) erro
 			} else if value.Valid {
 				cm.TokenUsage = value.Int64
 			}
+		case conversationmessage.FieldModel:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field model", values[i])
+			} else if value.Valid {
+				cm.Model = value.String
+			}
 		case conversationmessage.ForeignKeys[0]:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for edge-field conversation_conversation_messages", value)
@@ -222,6 +230,9 @@ func (cm *ConversationMessage) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("token_usage=")
 	builder.WriteString(fmt.Sprintf("%v", cm.TokenUsage))
+	builder.WriteString(", ")
+	builder.WriteString("model=")
+	builder.WriteString(cm.Model)
 	builder.WriteByte(')')
 	return builder.String()
 }

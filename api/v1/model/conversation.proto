@@ -19,6 +19,7 @@ message Message {
   string created_at = 5;
   string updated_at = 6;
   int32 token_usage = 7;
+  string model = 8;
 }
 
 message ConversationWithoutMessages {
@@ -39,6 +40,7 @@ message Conversation {
   string instruction = 4;
   string title = 5;
   repeated Message messages = 6;
+  int32 token_usage = 7;
 }
 
 message ListConversationsRequest {
@@ -79,6 +81,7 @@ message DeleteConversationRequest {
 message CreateMessageRequest {
   // conversation_id uuid of the conversation
   string conversation_id = 1;
+  string model = 2;
   // request request of the message
   string request = 3;
 }

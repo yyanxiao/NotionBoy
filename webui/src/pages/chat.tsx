@@ -117,7 +117,7 @@ export default function Chat() {
 			});
 	}, [selectedConversation]);
 
-	const handleMessageSend = (request: string) => {
+	const handleMessageSend = (request: string, model: string) => {
 		setIsLoading(true);
 		if (request === undefined || request === "") {
 			return;
@@ -126,7 +126,10 @@ export default function Chat() {
 		const createMessageRequest = {
 			conversationId: selectedConversation?.id,
 			request: request,
+			model: model,
 		} as CreateMessageRequest;
+
+		console.log("createMessageRequest", createMessageRequest);
 
 		let message: Message = {
 			id: uuidv4(),

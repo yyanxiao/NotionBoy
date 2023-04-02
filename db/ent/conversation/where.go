@@ -91,6 +91,11 @@ func Title(v string) predicate.Conversation {
 	return predicate.Conversation(sql.FieldEQ(FieldTitle, v))
 }
 
+// TokenUsage applies equality check predicate on the "token_usage" field. It's identical to TokenUsageEQ.
+func TokenUsage(v int64) predicate.Conversation {
+	return predicate.Conversation(sql.FieldEQ(FieldTokenUsage, v))
+}
+
 // CreatedAtEQ applies the EQ predicate on the "created_at" field.
 func CreatedAtEQ(v time.Time) predicate.Conversation {
 	return predicate.Conversation(sql.FieldEQ(FieldCreatedAt, v))
@@ -409,6 +414,56 @@ func TitleEqualFold(v string) predicate.Conversation {
 // TitleContainsFold applies the ContainsFold predicate on the "title" field.
 func TitleContainsFold(v string) predicate.Conversation {
 	return predicate.Conversation(sql.FieldContainsFold(FieldTitle, v))
+}
+
+// TokenUsageEQ applies the EQ predicate on the "token_usage" field.
+func TokenUsageEQ(v int64) predicate.Conversation {
+	return predicate.Conversation(sql.FieldEQ(FieldTokenUsage, v))
+}
+
+// TokenUsageNEQ applies the NEQ predicate on the "token_usage" field.
+func TokenUsageNEQ(v int64) predicate.Conversation {
+	return predicate.Conversation(sql.FieldNEQ(FieldTokenUsage, v))
+}
+
+// TokenUsageIn applies the In predicate on the "token_usage" field.
+func TokenUsageIn(vs ...int64) predicate.Conversation {
+	return predicate.Conversation(sql.FieldIn(FieldTokenUsage, vs...))
+}
+
+// TokenUsageNotIn applies the NotIn predicate on the "token_usage" field.
+func TokenUsageNotIn(vs ...int64) predicate.Conversation {
+	return predicate.Conversation(sql.FieldNotIn(FieldTokenUsage, vs...))
+}
+
+// TokenUsageGT applies the GT predicate on the "token_usage" field.
+func TokenUsageGT(v int64) predicate.Conversation {
+	return predicate.Conversation(sql.FieldGT(FieldTokenUsage, v))
+}
+
+// TokenUsageGTE applies the GTE predicate on the "token_usage" field.
+func TokenUsageGTE(v int64) predicate.Conversation {
+	return predicate.Conversation(sql.FieldGTE(FieldTokenUsage, v))
+}
+
+// TokenUsageLT applies the LT predicate on the "token_usage" field.
+func TokenUsageLT(v int64) predicate.Conversation {
+	return predicate.Conversation(sql.FieldLT(FieldTokenUsage, v))
+}
+
+// TokenUsageLTE applies the LTE predicate on the "token_usage" field.
+func TokenUsageLTE(v int64) predicate.Conversation {
+	return predicate.Conversation(sql.FieldLTE(FieldTokenUsage, v))
+}
+
+// TokenUsageIsNil applies the IsNil predicate on the "token_usage" field.
+func TokenUsageIsNil() predicate.Conversation {
+	return predicate.Conversation(sql.FieldIsNull(FieldTokenUsage))
+}
+
+// TokenUsageNotNil applies the NotNil predicate on the "token_usage" field.
+func TokenUsageNotNil() predicate.Conversation {
+	return predicate.Conversation(sql.FieldNotNull(FieldTokenUsage))
 }
 
 // HasConversationMessages applies the HasEdge predicate on the "conversation_messages" edge.

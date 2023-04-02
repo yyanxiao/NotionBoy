@@ -114,3 +114,11 @@ func whoAMI(ctx context.Context, msg *message.MixMessage) *message.Reply {
 	}
 	return &message.Reply{MsgType: message.MsgTypeText, MsgData: message.NewText(myInfo.String())}
 }
+
+func apiKey(ctx context.Context, msg *message.MixMessage) *message.Reply {
+	key, err := auth.GenerateApiKey(ctx, account.UserTypeWechat, msg.GetOpenID())
+	if err != nil {
+		return &message.Reply{MsgType: message.MsgTypeText, MsgData: message.NewText(err.Error())}
+	}
+	return &message.Reply{MsgType: message.MsgTypeText, MsgData: message.NewText(key)}
+}

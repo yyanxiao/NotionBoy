@@ -83,18 +83,18 @@ export class Service {
     return fm.fetchReq<Servicev1Order.PayOrderRequest, Servicev1Order.PayOrderResponse>(`/v1/orders/${req["id"]}/pay`, {...initReq, method: "POST", body: JSON.stringify(req, fm.replacer)})
   }
   static CreateProduct(req: Servicev1Product.CreateProductRequest, initReq?: fm.InitReq): Promise<Servicev1Product.Product> {
-    return fm.fetchReq<Servicev1Product.CreateProductRequest, Servicev1Product.Product>(`/internal/v1/products`, {...initReq, method: "POST", body: JSON.stringify(req, fm.replacer)})
+    return fm.fetchReq<Servicev1Product.CreateProductRequest, Servicev1Product.Product>(`/v1/products`, {...initReq, method: "POST", body: JSON.stringify(req, fm.replacer)})
   }
   static GetProduct(req: Servicev1Product.GetProductRequest, initReq?: fm.InitReq): Promise<Servicev1Product.Product> {
-    return fm.fetchReq<Servicev1Product.GetProductRequest, Servicev1Product.Product>(`/internal/v1/products/${req["id"]}?${fm.renderURLSearchParams(req, ["id"])}`, {...initReq, method: "GET"})
+    return fm.fetchReq<Servicev1Product.GetProductRequest, Servicev1Product.Product>(`/v1/products/${req["id"]}?${fm.renderURLSearchParams(req, ["id"])}`, {...initReq, method: "GET"})
   }
   static ListProducts(req: Servicev1Product.ListProductsRequest, initReq?: fm.InitReq): Promise<Servicev1Product.ListProductsResponse> {
-    return fm.fetchReq<Servicev1Product.ListProductsRequest, Servicev1Product.ListProductsResponse>(`/internal/v1/products?${fm.renderURLSearchParams(req, [])}`, {...initReq, method: "GET"})
+    return fm.fetchReq<Servicev1Product.ListProductsRequest, Servicev1Product.ListProductsResponse>(`/v1/products?${fm.renderURLSearchParams(req, [])}`, {...initReq, method: "GET"})
   }
   static DeleteProduct(req: Servicev1Product.DeleteProductRequest, initReq?: fm.InitReq): Promise<GoogleProtobufEmpty.Empty> {
-    return fm.fetchReq<Servicev1Product.DeleteProductRequest, GoogleProtobufEmpty.Empty>(`/internal/v1/products/${req["id"]}`, {...initReq, method: "DELETE"})
+    return fm.fetchReq<Servicev1Product.DeleteProductRequest, GoogleProtobufEmpty.Empty>(`/v1/products/${req["id"]}`, {...initReq, method: "DELETE"})
   }
   static UpdateProduct(req: Servicev1Product.UpdateProductRequest, initReq?: fm.InitReq): Promise<Servicev1Product.Product> {
-    return fm.fetchReq<Servicev1Product.UpdateProductRequest, Servicev1Product.Product>(`/internal/v1/products/${req["id"]}`, {...initReq, method: "PATCH", body: JSON.stringify(req, fm.replacer)})
+    return fm.fetchReq<Servicev1Product.UpdateProductRequest, Servicev1Product.Product>(`/v1/products/${req["id"]}`, {...initReq, method: "PATCH", body: JSON.stringify(req, fm.replacer)})
   }
 }

@@ -106,6 +106,20 @@ func (cc *ConversationCreate) SetNillableTitle(s *string) *ConversationCreate {
 	return cc
 }
 
+// SetTokenUsage sets the "token_usage" field.
+func (cc *ConversationCreate) SetTokenUsage(i int64) *ConversationCreate {
+	cc.mutation.SetTokenUsage(i)
+	return cc
+}
+
+// SetNillableTokenUsage sets the "token_usage" field if the given value is not nil.
+func (cc *ConversationCreate) SetNillableTokenUsage(i *int64) *ConversationCreate {
+	if i != nil {
+		cc.SetTokenUsage(*i)
+	}
+	return cc
+}
+
 // AddConversationMessageIDs adds the "conversation_messages" edge to the ConversationMessage entity by IDs.
 func (cc *ConversationCreate) AddConversationMessageIDs(ids ...int) *ConversationCreate {
 	cc.mutation.AddConversationMessageIDs(ids...)
@@ -235,6 +249,10 @@ func (cc *ConversationCreate) createSpec() (*Conversation, *sqlgraph.CreateSpec)
 	if value, ok := cc.mutation.Title(); ok {
 		_spec.SetField(conversation.FieldTitle, field.TypeString, value)
 		_node.Title = value
+	}
+	if value, ok := cc.mutation.TokenUsage(); ok {
+		_spec.SetField(conversation.FieldTokenUsage, field.TypeInt64, value)
+		_node.TokenUsage = value
 	}
 	if nodes := cc.mutation.ConversationMessagesIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
@@ -376,6 +394,30 @@ func (u *ConversationUpsert) ClearTitle() *ConversationUpsert {
 	return u
 }
 
+// SetTokenUsage sets the "token_usage" field.
+func (u *ConversationUpsert) SetTokenUsage(v int64) *ConversationUpsert {
+	u.Set(conversation.FieldTokenUsage, v)
+	return u
+}
+
+// UpdateTokenUsage sets the "token_usage" field to the value that was provided on create.
+func (u *ConversationUpsert) UpdateTokenUsage() *ConversationUpsert {
+	u.SetExcluded(conversation.FieldTokenUsage)
+	return u
+}
+
+// AddTokenUsage adds v to the "token_usage" field.
+func (u *ConversationUpsert) AddTokenUsage(v int64) *ConversationUpsert {
+	u.Add(conversation.FieldTokenUsage, v)
+	return u
+}
+
+// ClearTokenUsage clears the value of the "token_usage" field.
+func (u *ConversationUpsert) ClearTokenUsage() *ConversationUpsert {
+	u.SetNull(conversation.FieldTokenUsage)
+	return u
+}
+
 // UpdateNewValues updates the mutable fields using the new values that were set on create.
 // Using this option is equivalent to using:
 //
@@ -505,6 +547,34 @@ func (u *ConversationUpsertOne) UpdateTitle() *ConversationUpsertOne {
 func (u *ConversationUpsertOne) ClearTitle() *ConversationUpsertOne {
 	return u.Update(func(s *ConversationUpsert) {
 		s.ClearTitle()
+	})
+}
+
+// SetTokenUsage sets the "token_usage" field.
+func (u *ConversationUpsertOne) SetTokenUsage(v int64) *ConversationUpsertOne {
+	return u.Update(func(s *ConversationUpsert) {
+		s.SetTokenUsage(v)
+	})
+}
+
+// AddTokenUsage adds v to the "token_usage" field.
+func (u *ConversationUpsertOne) AddTokenUsage(v int64) *ConversationUpsertOne {
+	return u.Update(func(s *ConversationUpsert) {
+		s.AddTokenUsage(v)
+	})
+}
+
+// UpdateTokenUsage sets the "token_usage" field to the value that was provided on create.
+func (u *ConversationUpsertOne) UpdateTokenUsage() *ConversationUpsertOne {
+	return u.Update(func(s *ConversationUpsert) {
+		s.UpdateTokenUsage()
+	})
+}
+
+// ClearTokenUsage clears the value of the "token_usage" field.
+func (u *ConversationUpsertOne) ClearTokenUsage() *ConversationUpsertOne {
+	return u.Update(func(s *ConversationUpsert) {
+		s.ClearTokenUsage()
 	})
 }
 
@@ -799,6 +869,34 @@ func (u *ConversationUpsertBulk) UpdateTitle() *ConversationUpsertBulk {
 func (u *ConversationUpsertBulk) ClearTitle() *ConversationUpsertBulk {
 	return u.Update(func(s *ConversationUpsert) {
 		s.ClearTitle()
+	})
+}
+
+// SetTokenUsage sets the "token_usage" field.
+func (u *ConversationUpsertBulk) SetTokenUsage(v int64) *ConversationUpsertBulk {
+	return u.Update(func(s *ConversationUpsert) {
+		s.SetTokenUsage(v)
+	})
+}
+
+// AddTokenUsage adds v to the "token_usage" field.
+func (u *ConversationUpsertBulk) AddTokenUsage(v int64) *ConversationUpsertBulk {
+	return u.Update(func(s *ConversationUpsert) {
+		s.AddTokenUsage(v)
+	})
+}
+
+// UpdateTokenUsage sets the "token_usage" field to the value that was provided on create.
+func (u *ConversationUpsertBulk) UpdateTokenUsage() *ConversationUpsertBulk {
+	return u.Update(func(s *ConversationUpsert) {
+		s.UpdateTokenUsage()
+	})
+}
+
+// ClearTokenUsage clears the value of the "token_usage" field.
+func (u *ConversationUpsertBulk) ClearTokenUsage() *ConversationUpsertBulk {
+	return u.Update(func(s *ConversationUpsert) {
+		s.ClearTokenUsage()
 	})
 }
 

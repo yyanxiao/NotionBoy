@@ -96,6 +96,33 @@ func (cu *ConversationUpdate) ClearTitle() *ConversationUpdate {
 	return cu
 }
 
+// SetTokenUsage sets the "token_usage" field.
+func (cu *ConversationUpdate) SetTokenUsage(i int64) *ConversationUpdate {
+	cu.mutation.ResetTokenUsage()
+	cu.mutation.SetTokenUsage(i)
+	return cu
+}
+
+// SetNillableTokenUsage sets the "token_usage" field if the given value is not nil.
+func (cu *ConversationUpdate) SetNillableTokenUsage(i *int64) *ConversationUpdate {
+	if i != nil {
+		cu.SetTokenUsage(*i)
+	}
+	return cu
+}
+
+// AddTokenUsage adds i to the "token_usage" field.
+func (cu *ConversationUpdate) AddTokenUsage(i int64) *ConversationUpdate {
+	cu.mutation.AddTokenUsage(i)
+	return cu
+}
+
+// ClearTokenUsage clears the value of the "token_usage" field.
+func (cu *ConversationUpdate) ClearTokenUsage() *ConversationUpdate {
+	cu.mutation.ClearTokenUsage()
+	return cu
+}
+
 // AddConversationMessageIDs adds the "conversation_messages" edge to the ConversationMessage entity by IDs.
 func (cu *ConversationUpdate) AddConversationMessageIDs(ids ...int) *ConversationUpdate {
 	cu.mutation.AddConversationMessageIDs(ids...)
@@ -202,6 +229,15 @@ func (cu *ConversationUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if cu.mutation.TitleCleared() {
 		_spec.ClearField(conversation.FieldTitle, field.TypeString)
+	}
+	if value, ok := cu.mutation.TokenUsage(); ok {
+		_spec.SetField(conversation.FieldTokenUsage, field.TypeInt64, value)
+	}
+	if value, ok := cu.mutation.AddedTokenUsage(); ok {
+		_spec.AddField(conversation.FieldTokenUsage, field.TypeInt64, value)
+	}
+	if cu.mutation.TokenUsageCleared() {
+		_spec.ClearField(conversation.FieldTokenUsage, field.TypeInt64)
 	}
 	if cu.mutation.ConversationMessagesCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -331,6 +367,33 @@ func (cuo *ConversationUpdateOne) SetNillableTitle(s *string) *ConversationUpdat
 // ClearTitle clears the value of the "title" field.
 func (cuo *ConversationUpdateOne) ClearTitle() *ConversationUpdateOne {
 	cuo.mutation.ClearTitle()
+	return cuo
+}
+
+// SetTokenUsage sets the "token_usage" field.
+func (cuo *ConversationUpdateOne) SetTokenUsage(i int64) *ConversationUpdateOne {
+	cuo.mutation.ResetTokenUsage()
+	cuo.mutation.SetTokenUsage(i)
+	return cuo
+}
+
+// SetNillableTokenUsage sets the "token_usage" field if the given value is not nil.
+func (cuo *ConversationUpdateOne) SetNillableTokenUsage(i *int64) *ConversationUpdateOne {
+	if i != nil {
+		cuo.SetTokenUsage(*i)
+	}
+	return cuo
+}
+
+// AddTokenUsage adds i to the "token_usage" field.
+func (cuo *ConversationUpdateOne) AddTokenUsage(i int64) *ConversationUpdateOne {
+	cuo.mutation.AddTokenUsage(i)
+	return cuo
+}
+
+// ClearTokenUsage clears the value of the "token_usage" field.
+func (cuo *ConversationUpdateOne) ClearTokenUsage() *ConversationUpdateOne {
+	cuo.mutation.ClearTokenUsage()
 	return cuo
 }
 
@@ -470,6 +533,15 @@ func (cuo *ConversationUpdateOne) sqlSave(ctx context.Context) (_node *Conversat
 	}
 	if cuo.mutation.TitleCleared() {
 		_spec.ClearField(conversation.FieldTitle, field.TypeString)
+	}
+	if value, ok := cuo.mutation.TokenUsage(); ok {
+		_spec.SetField(conversation.FieldTokenUsage, field.TypeInt64, value)
+	}
+	if value, ok := cuo.mutation.AddedTokenUsage(); ok {
+		_spec.AddField(conversation.FieldTokenUsage, field.TypeInt64, value)
+	}
+	if cuo.mutation.TokenUsageCleared() {
+		_spec.ClearField(conversation.FieldTokenUsage, field.TypeInt64)
 	}
 	if cuo.mutation.ConversationMessagesCleared() {
 		edge := &sqlgraph.EdgeSpec{

@@ -97,6 +97,8 @@ func (m *Message) validate(all bool) error {
 
 	// no validation rules for TokenUsage
 
+	// no validation rules for Model
+
 	if len(errors) > 0 {
 		return MessageMultiError(errors)
 	}
@@ -370,6 +372,8 @@ func (m *Conversation) validate(all bool) error {
 		}
 
 	}
+
+	// no validation rules for TokenUsage
 
 	if len(errors) > 0 {
 		return ConversationMultiError(errors)
@@ -1162,6 +1166,8 @@ func (m *CreateMessageRequest) validate(all bool) error {
 	var errors []error
 
 	// no validation rules for ConversationId
+
+	// no validation rules for Model
 
 	// no validation rules for Request
 

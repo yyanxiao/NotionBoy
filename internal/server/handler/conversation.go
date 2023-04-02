@@ -87,7 +87,7 @@ func (s *Server) CreateMessage(req *model.CreateMessageRequest, stream pb.Servic
 		return status.Errorf(codes.Unauthenticated, "Request unauthenticated")
 	}
 
-	err := s.ConversationService.CreateStreamConversationMessage(ctx, acc, stream, req.GetConversationId(), req.GetRequest())
+	err := s.ConversationService.CreateStreamConversationMessage(ctx, acc, stream, req)
 	if err != nil {
 		return err
 	}

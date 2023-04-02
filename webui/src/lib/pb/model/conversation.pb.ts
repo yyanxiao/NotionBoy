@@ -11,6 +11,7 @@ export type Message = {
   createdAt?: string
   updatedAt?: string
   tokenUsage?: number
+  model?: string
 }
 
 export type ConversationWithoutMessages = {
@@ -28,6 +29,7 @@ export type Conversation = {
   instruction?: string
   title?: string
   messages?: Message[]
+  tokenUsage?: number
 }
 
 export type ListConversationsRequest = {
@@ -60,6 +62,7 @@ export type DeleteConversationRequest = {
 
 export type CreateMessageRequest = {
   conversationId?: string
+  model?: string
   request?: string
 }
 

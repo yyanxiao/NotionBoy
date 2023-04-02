@@ -86,7 +86,7 @@ func (ex *OfficialAccount) processChat(ctx context.Context, msg *message.MixMess
 	if accountInfo.IsOpenaiAPIUser {
 		chatter = chatgpt.DefaultApiClient()
 	}
-	resp, err := chatter.ChatWithHistory(ctx, accountInfo, strings.TrimSpace(content.Text[5:]))
+	resp, err := chatter.ChatWithHistory(ctx, accountInfo, strings.TrimSpace(content.Text[5:]), "")
 	var chatResp string
 	if err != nil {
 		chatResp = err.Error()

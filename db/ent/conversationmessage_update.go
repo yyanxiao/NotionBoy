@@ -129,6 +129,20 @@ func (cmu *ConversationMessageUpdate) ClearTokenUsage() *ConversationMessageUpda
 	return cmu
 }
 
+// SetModel sets the "model" field.
+func (cmu *ConversationMessageUpdate) SetModel(s string) *ConversationMessageUpdate {
+	cmu.mutation.SetModel(s)
+	return cmu
+}
+
+// SetNillableModel sets the "model" field if the given value is not nil.
+func (cmu *ConversationMessageUpdate) SetNillableModel(s *string) *ConversationMessageUpdate {
+	if s != nil {
+		cmu.SetModel(*s)
+	}
+	return cmu
+}
+
 // SetConversationsID sets the "conversations" edge to the Conversation entity by ID.
 func (cmu *ConversationMessageUpdate) SetConversationsID(id int) *ConversationMessageUpdate {
 	cmu.mutation.SetConversationsID(id)
@@ -236,6 +250,9 @@ func (cmu *ConversationMessageUpdate) sqlSave(ctx context.Context) (n int, err e
 	}
 	if cmu.mutation.TokenUsageCleared() {
 		_spec.ClearField(conversationmessage.FieldTokenUsage, field.TypeInt64)
+	}
+	if value, ok := cmu.mutation.Model(); ok {
+		_spec.SetField(conversationmessage.FieldModel, field.TypeString, value)
 	}
 	if cmu.mutation.ConversationsCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -385,6 +402,20 @@ func (cmuo *ConversationMessageUpdateOne) ClearTokenUsage() *ConversationMessage
 	return cmuo
 }
 
+// SetModel sets the "model" field.
+func (cmuo *ConversationMessageUpdateOne) SetModel(s string) *ConversationMessageUpdateOne {
+	cmuo.mutation.SetModel(s)
+	return cmuo
+}
+
+// SetNillableModel sets the "model" field if the given value is not nil.
+func (cmuo *ConversationMessageUpdateOne) SetNillableModel(s *string) *ConversationMessageUpdateOne {
+	if s != nil {
+		cmuo.SetModel(*s)
+	}
+	return cmuo
+}
+
 // SetConversationsID sets the "conversations" edge to the Conversation entity by ID.
 func (cmuo *ConversationMessageUpdateOne) SetConversationsID(id int) *ConversationMessageUpdateOne {
 	cmuo.mutation.SetConversationsID(id)
@@ -522,6 +553,9 @@ func (cmuo *ConversationMessageUpdateOne) sqlSave(ctx context.Context) (_node *C
 	}
 	if cmuo.mutation.TokenUsageCleared() {
 		_spec.ClearField(conversationmessage.FieldTokenUsage, field.TypeInt64)
+	}
+	if value, ok := cmuo.mutation.Model(); ok {
+		_spec.SetField(conversationmessage.FieldModel, field.TypeString, value)
 	}
 	if cmuo.mutation.ConversationsCleared() {
 		edge := &sqlgraph.EdgeSpec{

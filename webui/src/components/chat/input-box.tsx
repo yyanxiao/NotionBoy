@@ -1,19 +1,60 @@
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from "@/components/ui/select";
 import { Loader2, Send } from "lucide-react";
 import { useState } from "react";
 import { Button } from "../ui/button";
+import { Label } from "../ui/label";
 import { Textarea } from "../ui/textarea";
 
 type ChatInputBoxProps = {
-	onSendMessage: (message: string) => void;
+	onSendMessage: (message: string, model: string) => void;
 	isLoading: boolean;
 };
+
+interface Model {
+	name: string;
+	value: string;
+}
+
+const models: Model[] = [
+	{
+		name: "GPT-3Dot5Turbo",
+		value: "gpt-3.5-turbo",
+	},
+	{
+		name: "GPT3Dot5Turbo0301",
+		value: "gpt-3.5-turbo-0301",
+	},
+	{
+		name: "GPT4",
+		value: "gpt-4",
+	},
+	{
+		name: "GPT40314",
+		value: "gpt-4-0314",
+	},
+	{
+		name: "GPT432K",
+		value: "gpt-4-32k",
+	},
+	{
+		name: "GPT432K0314",
+		value: "gpt-4-32k-0314",
+	},
+];
 
 export function ChatInputBox({ onSendMessage, isLoading }: ChatInputBoxProps) {
 	const [inputValue, setInputValue] = useState<string>("");
 	const [isSending, setIsSending] = useState(false);
+	const [model, setModel] = useState<string>("gpt-3.5-turbo");
 	const handleMessageSend = () => {
 		setIsSending(true);
-		onSendMessage(inputValue);
+		onSendMessage(inputValue, model);
 		setInputValue("");
 		setIsSending(false);
 	};
@@ -21,10 +62,27 @@ export function ChatInputBox({ onSendMessage, isLoading }: ChatInputBoxProps) {
 	const isEmptyInput = () => inputValue.trim() === "";
 
 	return (
-		<div className="relative m-2">
+		<div className="relative flex flex-col items-center m-2">
+			<div className="flex flex-row items-center space-x-2">
+				<Label>
+					<strong className="text-gray-700">Model:</strong>
+				</Label>
+				<Select value={model} onValueChange={setModel}>
+					<SelectTrigger className="w-[180px]">
+						<SelectValue placeholder="Model" />
+					</SelectTrigger>
+					<SelectContent>
+						{models.map((model) => (
+							<SelectItem key={model.value} value={model.value}>
+								{model.name}
+							</SelectItem>
+						))}
+					</SelectContent>
+				</Select>
+			</div>
 			<Textarea
 				placeholder="Type a message and send with Shift+Enter ..."
-				className="w-full disabled:opacity-50 h-10 md:h-20"
+				className="w-full h-10 disabled:opacity-50 md:h-20"
 				onChange={(e) => setInputValue(e.target.value)}
 				value={inputValue}
 				disabled={isLoading}
@@ -42,7 +100,7 @@ export function ChatInputBox({ onSendMessage, isLoading }: ChatInputBoxProps) {
 			<Button
 				variant="ghost"
 				disabled={isLoading || isEmptyInput()}
-				className="absolute right-0 bottom-0"
+				className="absolute bottom-0 right-0"
 				onClick={handleMessageSend}
 			>
 				{isLoading || isSending ? (

@@ -29,6 +29,8 @@ const (
 	FieldResponse = "response"
 	// FieldTokenUsage holds the string denoting the token_usage field in the database.
 	FieldTokenUsage = "token_usage"
+	// FieldModel holds the string denoting the model field in the database.
+	FieldModel = "model"
 	// EdgeConversations holds the string denoting the conversations edge name in mutations.
 	EdgeConversations = "conversations"
 	// Table holds the table name of the conversationmessage in the database.
@@ -54,6 +56,7 @@ var Columns = []string{
 	FieldRequest,
 	FieldResponse,
 	FieldTokenUsage,
+	FieldModel,
 }
 
 // ForeignKeys holds the SQL foreign-keys that are owned by the "conversation_messages"
@@ -86,4 +89,6 @@ var (
 	UpdateDefaultUpdatedAt func() time.Time
 	// DefaultDeleted holds the default value on creation for the "deleted" field.
 	DefaultDeleted bool
+	// DefaultModel holds the default value on creation for the "model" field.
+	DefaultModel string
 )

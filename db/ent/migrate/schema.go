@@ -72,6 +72,7 @@ var (
 		{Name: "user_id", Type: field.TypeUUID},
 		{Name: "instruction", Type: field.TypeString, Nullable: true, Size: 2147483647},
 		{Name: "title", Type: field.TypeString, Nullable: true},
+		{Name: "token_usage", Type: field.TypeInt64, Nullable: true},
 	}
 	// ConversationsTable holds the schema information for the "conversations" table.
 	ConversationsTable = &schema.Table{
@@ -98,6 +99,7 @@ var (
 		{Name: "request", Type: field.TypeString, Nullable: true, Size: 2147483647},
 		{Name: "response", Type: field.TypeString, Nullable: true, Size: 2147483647},
 		{Name: "token_usage", Type: field.TypeInt64, Nullable: true},
+		{Name: "model", Type: field.TypeString, Default: "gpt-3.5-turbo"},
 		{Name: "conversation_conversation_messages", Type: field.TypeInt, Nullable: true},
 	}
 	// ConversationMessagesTable holds the schema information for the "conversation_messages" table.
@@ -108,7 +110,7 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "conversation_messages_conversations_conversation_messages",
-				Columns:    []*schema.Column{ConversationMessagesColumns[10]},
+				Columns:    []*schema.Column{ConversationMessagesColumns[11]},
 				RefColumns: []*schema.Column{ConversationsColumns[0]},
 				OnDelete:   schema.SetNull,
 			},

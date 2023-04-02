@@ -25,6 +25,8 @@ const (
 	FieldInstruction = "instruction"
 	// FieldTitle holds the string denoting the title field in the database.
 	FieldTitle = "title"
+	// FieldTokenUsage holds the string denoting the token_usage field in the database.
+	FieldTokenUsage = "token_usage"
 	// EdgeConversationMessages holds the string denoting the conversation_messages edge name in mutations.
 	EdgeConversationMessages = "conversation_messages"
 	// Table holds the table name of the conversation in the database.
@@ -48,6 +50,7 @@ var Columns = []string{
 	FieldUserID,
 	FieldInstruction,
 	FieldTitle,
+	FieldTokenUsage,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).

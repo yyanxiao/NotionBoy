@@ -35,7 +35,7 @@ func NewApiClient(apiKey string) *ConversationClient {
 	return newApiClient(apiKey)
 }
 
-func (cli *ConversationClient) ChatWithHistory(ctx context.Context, acc *ent.Account, instruction, conversationId, prompt string) (*ent.ConversationMessage, error) {
+func (cli *ConversationClient) ChatWithHistory(ctx context.Context, acc *ent.Account, instruction, conversationId, prompt, model string) (*ent.ConversationMessage, error) {
 	logger.SugaredLogger.Debugw("Get prompt message for api client", "prompt", prompt, "conversationId", conversationId, "instruction", instruction)
 	history := NewHistory(ctx, acc, conversationId, instruction)
 	err := history.Load()
@@ -46,10 +46,15 @@ func (cli *ConversationClient) ChatWithHistory(ctx context.Context, acc *ent.Acc
 		return nil, errors.New(config.MSG_ERROR_QUOTA_LIMIT)
 	}
 
+	selectModel := model
+	if model == "" {
+		selectModel = DEFAULT_MODEL
+	}
+
 	reqMsg := history.buildRequestMessages(prompt)
 
 	req := gogpt.ChatCompletionRequest{
-		Model:    DEFAULT_MODEL,
+		Model:    selectModel,
 		Messages: reqMsg,
 	}
 
@@ -65,7 +70,7 @@ func (cli *ConversationClient) ChatWithHistory(ctx context.Context, acc *ent.Acc
 	return msg, nil
 }
 
-func (cli *ConversationClient) StreamChatWithHistory(ctx context.Context, acc *ent.Account, instruction, conversationId, prompt string, stream pb.Service_CreateMessageServer) (*ent.ConversationMessage, error) {
+func (cli *ConversationClient) StreamChatWithHistory(ctx context.Context, acc *ent.Account, instruction, conversationId, prompt, model string, stream pb.Service_CreateMessageServer) (*ent.ConversationMessage, error) {
 	logger.SugaredLogger.Debugw("Get prompt message for api client", "prompt", prompt, "conversationId", conversationId, "instruction", instruction)
 	h := NewHistory(ctx, acc, conversationId, instruction)
 	err := h.Load()
@@ -78,8 +83,13 @@ func (cli *ConversationClient) StreamChatWithHistory(ctx context.Context, acc *e
 
 	reqMsg := h.buildRequestMessages(prompt)
 
+	selectModel := model
+	if model == "" {
+		selectModel = DEFAULT_MODEL
+	}
+
 	req := gogpt.ChatCompletionRequest{
-		Model:    DEFAULT_MODEL,
+		Model:    selectModel,
 		Messages: reqMsg,
 		Stream:   true,
 	}
@@ -88,6 +98,7 @@ func (cli *ConversationClient) StreamChatWithHistory(ctx context.Context, acc *e
 		ConversationID: h.ConversationId,
 		UserID:         acc.UUID,
 		Request:        prompt,
+		Model:          selectModel,
 	}
 
 	streamResp, err := cli.CreateChatCompletionStream(ctx, req)
@@ -105,11 +116,11 @@ func (cli *ConversationClient) StreamChatWithHistory(ctx context.Context, acc *e
 			msg := &Message{
 				Request:  prompt,
 				Response: sb.String(),
+				Model:    selectModel,
 			}
-
 			h.append(msg)
 			h.saveToCache()
-			return h.saveMessageToDB(msg, 0)
+			return h.saveMessageToDB(msg)
 		}
 
 		if err != nil {

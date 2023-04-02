@@ -115,6 +115,10 @@ func init() {
 	conversationmessageDescDeleted := conversationmessageMixinFields1[0].Descriptor()
 	// conversationmessage.DefaultDeleted holds the default value on creation for the deleted field.
 	conversationmessage.DefaultDeleted = conversationmessageDescDeleted.Default.(bool)
+	// conversationmessageDescModel is the schema descriptor for model field.
+	conversationmessageDescModel := conversationmessageFields[6].Descriptor()
+	// conversationmessage.DefaultModel holds the default value on creation for the model field.
+	conversationmessage.DefaultModel = conversationmessageDescModel.Default.(string)
 	orderMixin := schema.Order{}.Mixin()
 	orderMixinFields0 := orderMixin[0].Fields()
 	_ = orderMixinFields0

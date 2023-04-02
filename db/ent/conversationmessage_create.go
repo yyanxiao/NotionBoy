@@ -126,6 +126,20 @@ func (cmc *ConversationMessageCreate) SetNillableTokenUsage(i *int64) *Conversat
 	return cmc
 }
 
+// SetModel sets the "model" field.
+func (cmc *ConversationMessageCreate) SetModel(s string) *ConversationMessageCreate {
+	cmc.mutation.SetModel(s)
+	return cmc
+}
+
+// SetNillableModel sets the "model" field if the given value is not nil.
+func (cmc *ConversationMessageCreate) SetNillableModel(s *string) *ConversationMessageCreate {
+	if s != nil {
+		cmc.SetModel(*s)
+	}
+	return cmc
+}
+
 // SetConversationsID sets the "conversations" edge to the Conversation entity by ID.
 func (cmc *ConversationMessageCreate) SetConversationsID(id int) *ConversationMessageCreate {
 	cmc.mutation.SetConversationsID(id)
@@ -192,6 +206,10 @@ func (cmc *ConversationMessageCreate) defaults() {
 		v := conversationmessage.DefaultDeleted
 		cmc.mutation.SetDeleted(v)
 	}
+	if _, ok := cmc.mutation.Model(); !ok {
+		v := conversationmessage.DefaultModel
+		cmc.mutation.SetModel(v)
+	}
 }
 
 // check runs all checks and user-defined validators on the builder.
@@ -207,6 +225,9 @@ func (cmc *ConversationMessageCreate) check() error {
 	}
 	if _, ok := cmc.mutation.ConversationID(); !ok {
 		return &ValidationError{Name: "conversation_id", err: errors.New(`ent: missing required field "ConversationMessage.conversation_id"`)}
+	}
+	if _, ok := cmc.mutation.Model(); !ok {
+		return &ValidationError{Name: "model", err: errors.New(`ent: missing required field "ConversationMessage.model"`)}
 	}
 	return nil
 }
@@ -270,6 +291,10 @@ func (cmc *ConversationMessageCreate) createSpec() (*ConversationMessage, *sqlgr
 	if value, ok := cmc.mutation.TokenUsage(); ok {
 		_spec.SetField(conversationmessage.FieldTokenUsage, field.TypeInt64, value)
 		_node.TokenUsage = value
+	}
+	if value, ok := cmc.mutation.Model(); ok {
+		_spec.SetField(conversationmessage.FieldModel, field.TypeString, value)
+		_node.Model = value
 	}
 	if nodes := cmc.mutation.ConversationsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
@@ -448,6 +473,18 @@ func (u *ConversationMessageUpsert) ClearTokenUsage() *ConversationMessageUpsert
 	return u
 }
 
+// SetModel sets the "model" field.
+func (u *ConversationMessageUpsert) SetModel(v string) *ConversationMessageUpsert {
+	u.Set(conversationmessage.FieldModel, v)
+	return u
+}
+
+// UpdateModel sets the "model" field to the value that was provided on create.
+func (u *ConversationMessageUpsert) UpdateModel() *ConversationMessageUpsert {
+	u.SetExcluded(conversationmessage.FieldModel)
+	return u
+}
+
 // UpdateNewValues updates the mutable fields using the new values that were set on create.
 // Using this option is equivalent to using:
 //
@@ -619,6 +656,20 @@ func (u *ConversationMessageUpsertOne) UpdateTokenUsage() *ConversationMessageUp
 func (u *ConversationMessageUpsertOne) ClearTokenUsage() *ConversationMessageUpsertOne {
 	return u.Update(func(s *ConversationMessageUpsert) {
 		s.ClearTokenUsage()
+	})
+}
+
+// SetModel sets the "model" field.
+func (u *ConversationMessageUpsertOne) SetModel(v string) *ConversationMessageUpsertOne {
+	return u.Update(func(s *ConversationMessageUpsert) {
+		s.SetModel(v)
+	})
+}
+
+// UpdateModel sets the "model" field to the value that was provided on create.
+func (u *ConversationMessageUpsertOne) UpdateModel() *ConversationMessageUpsertOne {
+	return u.Update(func(s *ConversationMessageUpsert) {
+		s.UpdateModel()
 	})
 }
 
@@ -955,6 +1006,20 @@ func (u *ConversationMessageUpsertBulk) UpdateTokenUsage() *ConversationMessageU
 func (u *ConversationMessageUpsertBulk) ClearTokenUsage() *ConversationMessageUpsertBulk {
 	return u.Update(func(s *ConversationMessageUpsert) {
 		s.ClearTokenUsage()
+	})
+}
+
+// SetModel sets the "model" field.
+func (u *ConversationMessageUpsertBulk) SetModel(v string) *ConversationMessageUpsertBulk {
+	return u.Update(func(s *ConversationMessageUpsert) {
+		s.SetModel(v)
+	})
+}
+
+// UpdateModel sets the "model" field to the value that was provided on create.
+func (u *ConversationMessageUpsertBulk) UpdateModel() *ConversationMessageUpsertBulk {
+	return u.Update(func(s *ConversationMessageUpsert) {
+		s.UpdateModel()
 	})
 }
 

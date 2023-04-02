@@ -112,6 +112,7 @@ const (
 	CMD_UI                  = "/WEBUI"
 	CMD_MAGIC_CODE          = "/MAGICCODE"
 	CMD_WHOAMI              = "/WHOAMI"
+	CMD_API_KEY             = "/APIKEY"
 	MAGIC_CODE_CACHE_KEY    = "MAGIC_CODE_CACHE_KEY"
 	QRCODE_CACHE_KEY        = "QRCODE_CACHE_KEY"
 )

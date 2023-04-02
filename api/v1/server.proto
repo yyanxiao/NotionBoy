@@ -14,81 +14,62 @@ import "validate/validate.proto";
 
 option go_package = "notionboy/api/pb/v1:servicev1";
 option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
-  info: { title: "NotionBoy Service API";
-version: "1.0.0";
-}
-;
-external_docs: {
-url:
-  "https://github.com/Vaayne/NotionBoy";
-description:
-  "More about NotionBoy";
-}
-schemes: HTTP;
-schemes: HTTPS;
+  info: {
+    title: "NotionBoy Service API";
+    version: "1.0.0";
+  };
+  external_docs: {
+    url: "https://github.com/Vaayne/NotionBoy";
+    description: "More about NotionBoy";
+  }
+  schemes: HTTP;
+  schemes: HTTPS;
 
-consumes: "application/json";
-produces: "application/json";
+  consumes: "application/json";
+  produces: "application/json";
 
-responses: {
-key:
-  "404";
-value: {
-description:
-  "Returned when the resource does not exist.";
-schema: {
-json_schema: {
-type:
-  STRING
-}
-}
-}
-}
-responses: {
-key:
-  "418";
-value: {
-description:
-  "I'm a teapot.";
-schema: {
-json_schema: {
-type:
-  STRING
-}
-}
-}
-}
-responses: {
-key:
-  "500";
-value: {
-description:
-  "Server error";
-headers: {
-key:
-  "X-Correlation-Id" value: {
-  description:
-    "Unique event identifier for server requests" type: "string"
-    format: "uuid" default: "\"2438ac3c-37eb-4902-adef-ed16b4431030\""
-    pattern: "^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$"
+  responses: {
+    key: "404";
+    value: {
+      description: "Returned when the resource does not exist.";
+      schema: {
+        json_schema: {type: STRING}
+      }
+    }
+  }
+  responses: {
+    key: "418";
+    value: {
+      description: "I'm a teapot.";
+      schema: {
+        json_schema: {type: STRING}
+      }
+    }
+  }
+  responses: {
+    key: "500";
+    value: {
+      description: "Server error";
+      headers: {
+        key: "X-Correlation-Id"
+        value: {
+          description: "Unique event identifier for server requests"
+          type: "string"
+          format: "uuid"
+          default: "\"2438ac3c-37eb-4902-adef-ed16b4431030\""
+          pattern: "^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$"
+        }
+      };
+      schema: {
+        json_schema: {ref: "common.ErrorResponse"}
+      }
+    }
   }
 };
-schema: {
-json_schema: {
-ref:
-  "common.ErrorResponse"
-}
-}
-}
-}
-}
-;
 
 service Service {
   rpc Status(google.protobuf.Empty) returns (CheckStatusResponse) {
-    option (google.api.http) = {
-      get: "/v1/status"
-    };
+    option (google.api.http) = {get: "/v1/status"};
   }
 
   // GenrateToken generates a token for the user. using api key in the header.
@@ -101,9 +82,7 @@ service Service {
 
   // get all Oauth providers
   rpc OAuthProviders(OAuthURLRequest) returns (OAuthURLResponse) {
-    option (google.api.http) = {
-      get: "/v1/auth/providers"
-    };
+    option (google.api.http) = {get: "/v1/auth/providers"};
   }
 
   // AuthCallback callback for oauth, will generate a token for the user
@@ -116,20 +95,15 @@ service Service {
 
   // GenerateApiKey generate a new api key for the user
   rpc GenerateApiKey(google.protobuf.Empty) returns (GenerateApiKeyResponse) {
-    option (google.api.http) = {
-      post: "/v1/auth/apikey"
-    };
+    option (google.api.http) = {post: "/v1/auth/apikey"};
   }
 
   // DeleteApiKey delete the api key for the user
   rpc DeleteApiKey(google.protobuf.Empty) returns (google.protobuf.Empty) {
-    option (google.api.http) = {
-      delete: "/v1/auth/apikey"
-    };
+    option (google.api.http) = {delete: "/v1/auth/apikey"};
   }
 
-  rpc GenerateWechatQRCode(google.protobuf.Empty)
-      returns (GenerateWechatQRCodeResponse) {
+  rpc GenerateWechatQRCode(google.protobuf.Empty) returns (GenerateWechatQRCodeResponse) {
     option (google.api.http) = {
       post: "/v1/auth/wechat/qrcode"
       body: "*"
@@ -152,23 +126,15 @@ service Service {
   }
 
   rpc GetConversation(GetConversationRequest) returns (Conversation) {
-    option (google.api.http) = {
-      get: "/v1/conversations/{id}"
-    };
+    option (google.api.http) = {get: "/v1/conversations/{id}"};
   }
 
-  rpc ListConversations(ListConversationsRequest)
-      returns (ListConversationsResponse) {
-    option (google.api.http) = {
-      get: "/v1/conversations"
-    };
+  rpc ListConversations(ListConversationsRequest) returns (ListConversationsResponse) {
+    option (google.api.http) = {get: "/v1/conversations"};
   }
 
-  rpc DeleteConversation(DeleteConversationRequest)
-      returns (google.protobuf.Empty) {
-    option (google.api.http) = {
-      delete: "/v1/conversations/{id}"
-    };
+  rpc DeleteConversation(DeleteConversationRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {delete: "/v1/conversations/{id}"};
   }
 
   rpc CreateMessage(CreateMessageRequest) returns (stream Message) {
@@ -179,21 +145,15 @@ service Service {
   }
 
   rpc GetMessage(GetMessageRequest) returns (Message) {
-    option (google.api.http) = {
-      get: "/v1/conversations/{conversation_id}/messages/{id}"
-    };
+    option (google.api.http) = {get: "/v1/conversations/{conversation_id}/messages/{id}"};
   }
 
   rpc ListMessages(ListMessagesRequest) returns (ListMessagesResponse) {
-    option (google.api.http) = {
-      get: "/v1/conversations/{conversation_id}/messages"
-    };
+    option (google.api.http) = {get: "/v1/conversations/{conversation_id}/messages"};
   }
 
   rpc DeleteMessage(DeleteMessageRequest) returns (google.protobuf.Empty) {
-    option (google.api.http) = {
-      delete: "/v1/conversations/{conversation_id}/messages/{id}"
-    };
+    option (google.api.http) = {delete: "/v1/conversations/{conversation_id}/messages/{id}"};
   }
 
   // CreateOrder create a new order
@@ -206,23 +166,17 @@ service Service {
 
   // get order
   rpc GetOrder(GetOrderRequest) returns (Order) {
-    option (google.api.http) = {
-      get: "/v1/orders/{id}"
-    };
+    option (google.api.http) = {get: "/v1/orders/{id}"};
   }
 
   // list orders
   rpc ListOrders(ListOrdersRequest) returns (ListOrdersResponse) {
-    option (google.api.http) = {
-      get: "/v1/orders"
-    };
+    option (google.api.http) = {get: "/v1/orders"};
   }
 
   // delete order
   rpc DeleteOrder(DeleteOrderRequest) returns (google.protobuf.Empty) {
-    option (google.api.http) = {
-      delete: "/v1/orders/{id}"
-    };
+    option (google.api.http) = {delete: "/v1/orders/{id}"};
   }
 
   // update order
@@ -250,21 +204,15 @@ service Service {
   }
 
   rpc GetProduct(GetProductRequest) returns (Product) {
-    option (google.api.http) = {
-      get: "/v1/products/{id}"
-    };
+    option (google.api.http) = {get: "/v1/products/{id}"};
   }
 
   rpc ListProducts(ListProductsRequest) returns (ListProductsResponse) {
-    option (google.api.http) = {
-      get: "/v1/products"
-    };
+    option (google.api.http) = {get: "/v1/products"};
   }
 
   rpc DeleteProduct(DeleteProductRequest) returns (google.protobuf.Empty) {
-    option (google.api.http) = {
-      delete: "/v1/products/{id}"
-    };
+    option (google.api.http) = {delete: "/v1/products/{id}"};
   }
 
   rpc UpdateProduct(UpdateProductRequest) returns (Product) {

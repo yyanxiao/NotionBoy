@@ -31,6 +31,8 @@ type Conversation struct {
 	Instruction string `json:"instruction,omitempty"`
 	// Conversation title
 	Title string `json:"title,omitempty"`
+	// Token usage of the conversation
+	TokenUsage int64 `json:"token_usage,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the ConversationQuery when eager-loading is set.
 	Edges ConversationEdges `json:"edges"`
@@ -61,7 +63,7 @@ func (*Conversation) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case conversation.FieldDeleted:
 			values[i] = new(sql.NullBool)
-		case conversation.FieldID:
+		case conversation.FieldID, conversation.FieldTokenUsage:
 			values[i] = new(sql.NullInt64)
 		case conversation.FieldInstruction, conversation.FieldTitle:
 			values[i] = new(sql.NullString)
@@ -132,6 +134,12 @@ func (c *Conversation) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				c.Title = value.String
 			}
+		case conversation.FieldTokenUsage:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field token_usage", values[i])
+			} else if value.Valid {
+				c.TokenUsage = value.Int64
+			}
 		}
 	}
 	return nil
@@ -185,6 +193,9 @@ func (c *Conversation) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("title=")
 	builder.WriteString(c.Title)
+	builder.WriteString(", ")
+	builder.WriteString("token_usage=")
+	builder.WriteString(fmt.Sprintf("%v", c.TokenUsage))
 	builder.WriteByte(')')
 	return builder.String()
 }

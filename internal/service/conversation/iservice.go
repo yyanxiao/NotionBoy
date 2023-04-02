@@ -3,6 +3,7 @@ package conversation
 import (
 	"context"
 	"notionboy/api/pb"
+	"notionboy/api/pb/model"
 	"notionboy/db/ent"
 )
 
@@ -29,10 +30,10 @@ type ConversationService interface {
 	DeleteConversation(ctx context.Context, acc *ent.Account, Id string) error
 
 	// CreateMessage creates a new conversation
-	CreateConversationMessage(ctx context.Context, acc *ent.Account, conversationId, request string) (*ConversationMessageDTO, error)
+	CreateConversationMessage(ctx context.Context, acc *ent.Account, conversationId, request, model string) (*ConversationMessageDTO, error)
 
 	// CreateMessage creates a new conversation
-	CreateStreamConversationMessage(ctx context.Context, acc *ent.Account, stream pb.Service_CreateMessageServer, conversationId, request string) error
+	CreateStreamConversationMessage(ctx context.Context, acc *ent.Account, stream pb.Service_CreateMessageServer, req *model.CreateMessageRequest) error
 
 	// GetMessage gets a conversation by Id
 	GetConversationMessage(ctx context.Context, acc *ent.Account, conversationId, messageId string) (*ConversationMessageDTO, error)
