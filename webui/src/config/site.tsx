@@ -8,6 +8,9 @@ interface SiteConfig {
 		login: string;
 		home: string;
 		authCallback: string;
+		price: string;
+		order: string;
+		profile: string;
 	};
 	authPages: string[];
 }
@@ -30,6 +33,9 @@ export const siteConfig: SiteConfig = {
 		login: buildPath("/login"),
 		home: "/",
 		authCallback: buildPath("/authcallback"),
+		price: buildPath("/price"),
+		order: buildPath("/order"),
+		profile: buildPath("/profile"),
 	},
-	authPages: [buildPath("/chat")],
+	authPages: [buildPath("/chat"), buildPath("/order"), buildPath("/user")],
 };

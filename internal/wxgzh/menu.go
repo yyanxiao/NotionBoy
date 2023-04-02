@@ -2,7 +2,6 @@ package wxgzh
 
 import (
 	"fmt"
-
 	"notionboy/internal/pkg/config"
 
 	"github.com/silenceper/wechat/v2/officialaccount/menu"
@@ -22,6 +21,7 @@ const (
 	BtnHelpFulltext
 	BtnHelpZlib
 	BtnhelpSOS
+	BtnWhoAMI
 )
 
 func buildMenuButton() []*menu.Button {
@@ -36,13 +36,16 @@ func buildCmdMenuButton() *menu.Button {
 	bindButton := menu.NewClickButton("绑定 Notion", BtnBind.String())
 	unbindButton := menu.NewClickButton("解绑 Notion", BtnUnbind.String())
 	magicCodeButton := menu.NewClickButton("MagicCode", BtnMagicCode.String())
-	return menu.NewSubButton("常用命令", []*menu.Button{bindButton, unbindButton, magicCodeButton})
+	whoAMIButton := menu.NewClickButton("个人信息", BtnWhoAMI.String())
+	return menu.NewSubButton("常用命令", []*menu.Button{bindButton, unbindButton, magicCodeButton, whoAMIButton})
 }
 
 func buildServiceMenuButton() *menu.Button {
 	chatGPTButton := menu.NewViewButton("ChatGPT",
 		fmt.Sprintf("%s%s", config.GetConfig().Service.URL, "/web/chat.html"))
-	svcButton := menu.NewSubButton("服务", []*menu.Button{chatGPTButton})
+	vipButton := menu.NewViewButton("升级 VIP",
+		fmt.Sprintf("%s%s", config.GetConfig().Service.URL, "/web/price.html"))
+	svcButton := menu.NewSubButton("服务", []*menu.Button{vipButton, chatGPTButton})
 	return svcButton
 }
 

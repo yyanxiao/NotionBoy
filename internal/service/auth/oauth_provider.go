@@ -2,11 +2,10 @@ package auth
 
 import (
 	"context"
-	"strings"
-
 	"notionboy/db/ent"
 	"notionboy/db/ent/account"
 	"notionboy/internal/pkg/db/dao"
+	"strings"
 
 	"golang.org/x/oauth2"
 )

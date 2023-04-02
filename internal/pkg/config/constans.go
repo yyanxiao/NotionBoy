@@ -56,14 +56,19 @@ const (
 	MSG_PROCESSING      = "正在处理，请稍后去 Notion 查看"
 	MSG_HELP            = `欢迎使用 NotionBoy, 了解 NotionBoy 的使用指南, 请参考: https://mp.weixin.qq.com/s/ib7HrRMIXwZjJyYFOwBQrw
 
-NotionBoy 提供以下命令可供使用:
-- 帮助: 直接输入「帮助」或者「help」 可以获取最新的帮助教程
-- 绑定: 直接输入「绑定」进行绑定 Notion 的操作
-- 解绑: 直接输入「解绑」进行解除 Notion 绑定的操作
-- 全文: 在存储链接的时候，加上「#全文」这个标签, 可以剪辑文章全文到 Notion 中, 例如: 「#全文 https://mp.weixin.qq.com/s/ib7HrRMIXwZjJyYFOwBQrw #NotionBoy」
-- ChatGPT: 回复「/chat 聊天内容」，可以和机器人聊天, 例如: 「/chat 给我讲个笑话吧」
-- Zlib: 回复 「/zlib 书名或者作者」可以获取图书的下载信息，例如「/zlib 如何阅读一本书」
-- SOS: 回复「SOS」获取作者的微信, 我会尽量解答你的问题
+命令大全:
+- /bind 命令可以用于绑定 Notion 账户, 使 NotionBoy 能够访问 Notion 中的内容。
+- /unbind 命令可以用于解绑 Notion 账户, 使 NotionBoy 不再能够访问 Notion 中的内容。
+- /chat 命令可以与 ChatGPT 畅聊, ChatGPT 是一种自然语言生成模型, 能够通过对话方式回答用户的问题, 例如: 「/chat 给我讲个笑话吧」
+- /zlib 命令可以搜索 Z-Library 中的电子书, 加上 #ext(e.g: #pdf) 可以指定搜索的文件类型。例如「/zlib 如何阅读一本书」
+- /magiccode 命令可以获取一个 Magic Code, Magic Code 可以用于网页登录。
+- /whoami 命令查看个人信息。
+- /sos 命令可以获取作者的微信, 我会尽量解答你的问题
+
+基本操作
+- 发送任意文字、图片或者视频到 NotionBoy 时, NotionBoy 会将内容保存到 Notion 中
+- 如果发送到内容中包含 # 开头的内容, 会被自动识别成标签, 并在 Notion 中添加这个标签
+- 如果发送的内容中包含 #全文和一个 URL, 则会自动保存此 URL 的全文内容到 Notion 中, 例如: 「#全文 https://mp.weixin.qq.com/s/ib7HrRMIXwZjJyYFOwBQrw #NotionBoy」
 `
 	MSG_ERROR_ACCOUNT_NOT_FOUND = `查询账户失败:
 - 如未绑定请回复「绑定」进行绑定
@@ -74,7 +79,7 @@ NotionBoy 提供以下命令可供使用:
 「/zlib 书名或者作者」
 `
 	MSG_ERROR_QUOTA_NOT_FOUND = `查询账户失败: 没有找到 Quota 信息, 请联系作者!`
-	MSG_ERROR_QUOTA_LIMIT     = `额度已经用完, 请联系作者增加额度!`
+	MSG_ERROR_QUOTA_LIMIT     = `额度已经用完, 请点击公众号菜单栏服务中的 VIP 进行充值`
 
 	MSG_WELCOME = `#NotionBoy 欢迎🎉使用 Notion Boy!`
 
@@ -93,20 +98,20 @@ Tips: 搜索关键字中包含 #ext 时可以指定文件类型，例如 「/zli
 
 // const for command
 const (
-	CMD_BIND                = "绑定"
-	CMD_UNBIND              = "解绑"
+	CMD_BIND                = "/BIND"
+	CMD_UNBIND              = "/UNBIND"
 	CMD_FULLTEXT            = "全文"
 	CMD_HELP_ZH             = "帮助"
-	CMD_HELP                = "HELP"
-	CMD_SOS                 = "SOS"
-	CMD_CHAT                = "#CHAT"
-	CMD_CHAT_SLASH          = "/CHAT"
+	CMD_HELP                = "/HELP"
+	CMD_SOS                 = "/SOS"
+	CMD_CHAT                = "/CHAT"
 	CMD_CHAT_RESET          = "RESET"
 	CMD_ZLIB                = "/ZLIB"
 	CMD_ZLIB_NEXT           = "ZLIBM"
 	CMD_ZLIB_SAVE_TO_NOTION = "ZLIBS"
 	CMD_UI                  = "/WEBUI"
 	CMD_MAGIC_CODE          = "/MAGICCODE"
+	CMD_WHOAMI              = "/WHOAMI"
 	MAGIC_CODE_CACHE_KEY    = "MAGIC_CODE_CACHE_KEY"
 	QRCODE_CACHE_KEY        = "QRCODE_CACHE_KEY"
 )

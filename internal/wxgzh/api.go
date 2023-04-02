@@ -3,11 +3,12 @@ package wxgzh
 import (
 	"fmt"
 	"net/http"
-	"strings"
-
 	"notionboy/internal/chatgpt"
 	"notionboy/internal/pkg/config"
 	"notionboy/internal/pkg/logger"
+	"strings"
+
+	log "github.com/sirupsen/logrus"
 
 	notion "notionboy/internal/pkg/notion"
 
@@ -44,6 +45,10 @@ func NewOfficialAccount(wc *wechat.Wechat) *OfficialAccount {
 	if err := m.SetMenu(buildMenuButton()); err != nil {
 		logger.SugaredLogger.Errorf("SetMenu error, err=%v", err)
 	}
+
+	// fix log level
+	logLevel, _ := log.ParseLevel(config.GetConfig().Log.Level)
+	log.SetLevel(logLevel)
 
 	return &OfficialAccount{
 		wc:              wc,

@@ -55,12 +55,16 @@ type SqliteConfig struct {
 }
 
 type WechatConfig struct {
-	AppID          string
-	AppSecret      string
-	Token          string
-	EncodingAESKey string
-	AuthorID       string
-	AdminUserID    string
+	AppID                      string
+	AppSecret                  string
+	Token                      string
+	EncodingAESKey             string
+	AuthorID                   string
+	AdminUserID                string
+	MchID                      string
+	MchCertificateSerialNumber string
+	MchAPIv3Key                string
+	MchPrivateKeyPath          string
 }
 
 type R2Config struct {

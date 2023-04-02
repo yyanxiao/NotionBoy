@@ -40,6 +40,8 @@ const (
 	FieldOpenaiAPIKey = "openai_api_key"
 	// FieldAPIKey holds the string denoting the api_key field in the database.
 	FieldAPIKey = "api_key"
+	// FieldIsAdmin holds the string denoting the is_admin field in the database.
+	FieldIsAdmin = "is_admin"
 	// Table holds the table name of the account in the database.
 	Table = "accounts"
 )
@@ -61,6 +63,7 @@ var Columns = []string{
 	FieldIsOpenaiAPIUser,
 	FieldOpenaiAPIKey,
 	FieldAPIKey,
+	FieldIsAdmin,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -86,6 +89,8 @@ var (
 	DefaultIsLatestSchema bool
 	// DefaultIsOpenaiAPIUser holds the default value on creation for the "is_openai_api_user" field.
 	DefaultIsOpenaiAPIUser bool
+	// DefaultIsAdmin holds the default value on creation for the "is_admin" field.
+	DefaultIsAdmin bool
 )
 
 // UserType defines the type for the "user_type" enum field.

@@ -4,12 +4,11 @@ import (
 	"context"
 	"errors"
 	"io"
-	"strings"
-
 	"notionboy/api/pb"
 	"notionboy/db/ent"
 	"notionboy/internal/pkg/config"
 	"notionboy/internal/pkg/logger"
+	"strings"
 
 	gogpt "github.com/sashabaranov/go-openai"
 )
@@ -107,9 +106,6 @@ func (cli *ConversationClient) StreamChatWithHistory(ctx context.Context, acc *e
 				Request:  prompt,
 				Response: sb.String(),
 			}
-
-			h.Quota.DailyUsed += 1
-			h.Quota.MonthlyUsed += 1
 
 			h.append(msg)
 			h.saveToCache()

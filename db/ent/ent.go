@@ -10,6 +10,8 @@ import (
 	"notionboy/db/ent/chathistory"
 	"notionboy/db/ent/conversation"
 	"notionboy/db/ent/conversationmessage"
+	"notionboy/db/ent/order"
+	"notionboy/db/ent/product"
 	"notionboy/db/ent/quota"
 	"notionboy/db/ent/wechatsession"
 
@@ -40,6 +42,8 @@ func columnChecker(table string) func(string) error {
 		chathistory.Table:         chathistory.ValidColumn,
 		conversation.Table:        conversation.ValidColumn,
 		conversationmessage.Table: conversationmessage.ValidColumn,
+		order.Table:               order.ValidColumn,
+		product.Table:             product.ValidColumn,
 		quota.Table:               quota.ValidColumn,
 		wechatsession.Table:       wechatsession.ValidColumn,
 	}

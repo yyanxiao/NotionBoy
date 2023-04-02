@@ -94,8 +94,8 @@ export default function SignIn() {
 	if (isLoggedIn) {
 		router.push("/");
 		return (
-			<div className="flex-grow container mx-auto flex flex-col p-8 items-center">
-				<div className="prose m-4">
+			<div className="container flex flex-col items-center flex-grow p-8 mx-auto">
+				<div className="m-4 prose">
 					<h1>You are already logged in!</h1>
 				</div>
 			</div>
@@ -137,7 +137,7 @@ export default function SignIn() {
 					</DialogHeader>
 					<div className="bg-indigo-300">
 						<img
-							className="object-cover h-full w-full "
+							className="object-cover w-full h-full "
 							src={wechatQRCodeURL}
 						></img>
 					</div>
@@ -174,7 +174,7 @@ export default function SignIn() {
 							}}
 						></DialogDescription>
 					</DialogHeader>
-					<div className="flex w-full max-w-sm items-center space-x-2">
+					<div className="flex items-center w-full max-w-sm space-x-2">
 						<Input
 							type="text"
 							placeholder="Sign In with MagicCode"
@@ -194,11 +194,11 @@ export default function SignIn() {
 	};
 
 	return (
-		<div className="flex-grow container mx-auto flex flex-col p-8 items-center">
-			<div className="prose m-4">
+		<div className="container flex flex-col items-center flex-grow p-8 mx-auto">
+			<div className="m-4 prose">
 				<h1>Please Login</h1>
 			</div>
-			<div className="container mx-auto max-w-sm flex flex-col bg-white space-y-2 items-center">
+			<div className="container flex flex-col items-center max-w-sm mx-auto space-y-2 bg-white">
 				{providers.map((provider) => {
 					if (provider.url === undefined) {
 						return (

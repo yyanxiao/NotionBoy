@@ -211,6 +211,20 @@ func (ac *AccountCreate) SetNillableAPIKey(u *uuid.UUID) *AccountCreate {
 	return ac
 }
 
+// SetIsAdmin sets the "is_admin" field.
+func (ac *AccountCreate) SetIsAdmin(b bool) *AccountCreate {
+	ac.mutation.SetIsAdmin(b)
+	return ac
+}
+
+// SetNillableIsAdmin sets the "is_admin" field if the given value is not nil.
+func (ac *AccountCreate) SetNillableIsAdmin(b *bool) *AccountCreate {
+	if b != nil {
+		ac.SetIsAdmin(*b)
+	}
+	return ac
+}
+
 // Mutation returns the AccountMutation object of the builder.
 func (ac *AccountCreate) Mutation() *AccountMutation {
 	return ac.mutation
@@ -312,6 +326,10 @@ func (ac *AccountCreate) defaults() {
 		v := account.DefaultIsOpenaiAPIUser
 		ac.mutation.SetIsOpenaiAPIUser(v)
 	}
+	if _, ok := ac.mutation.IsAdmin(); !ok {
+		v := account.DefaultIsAdmin
+		ac.mutation.SetIsAdmin(v)
+	}
 }
 
 // check runs all checks and user-defined validators on the builder.
@@ -338,6 +356,9 @@ func (ac *AccountCreate) check() error {
 	}
 	if _, ok := ac.mutation.IsOpenaiAPIUser(); !ok {
 		return &ValidationError{Name: "is_openai_api_user", err: errors.New(`ent: missing required field "Account.is_openai_api_user"`)}
+	}
+	if _, ok := ac.mutation.IsAdmin(); !ok {
+		return &ValidationError{Name: "is_admin", err: errors.New(`ent: missing required field "Account.is_admin"`)}
 	}
 	return nil
 }
@@ -422,6 +443,10 @@ func (ac *AccountCreate) createSpec() (*Account, *sqlgraph.CreateSpec) {
 	if value, ok := ac.mutation.APIKey(); ok {
 		_spec.SetField(account.FieldAPIKey, field.TypeUUID, value)
 		_node.APIKey = value
+	}
+	if value, ok := ac.mutation.IsAdmin(); ok {
+		_spec.SetField(account.FieldIsAdmin, field.TypeBool, value)
+		_node.IsAdmin = value
 	}
 	return _node, _spec
 }
@@ -676,6 +701,18 @@ func (u *AccountUpsert) UpdateAPIKey() *AccountUpsert {
 // ClearAPIKey clears the value of the "api_key" field.
 func (u *AccountUpsert) ClearAPIKey() *AccountUpsert {
 	u.SetNull(account.FieldAPIKey)
+	return u
+}
+
+// SetIsAdmin sets the "is_admin" field.
+func (u *AccountUpsert) SetIsAdmin(v bool) *AccountUpsert {
+	u.Set(account.FieldIsAdmin, v)
+	return u
+}
+
+// UpdateIsAdmin sets the "is_admin" field to the value that was provided on create.
+func (u *AccountUpsert) UpdateIsAdmin() *AccountUpsert {
+	u.SetExcluded(account.FieldIsAdmin)
 	return u
 }
 
@@ -959,6 +996,20 @@ func (u *AccountUpsertOne) UpdateAPIKey() *AccountUpsertOne {
 func (u *AccountUpsertOne) ClearAPIKey() *AccountUpsertOne {
 	return u.Update(func(s *AccountUpsert) {
 		s.ClearAPIKey()
+	})
+}
+
+// SetIsAdmin sets the "is_admin" field.
+func (u *AccountUpsertOne) SetIsAdmin(v bool) *AccountUpsertOne {
+	return u.Update(func(s *AccountUpsert) {
+		s.SetIsAdmin(v)
+	})
+}
+
+// UpdateIsAdmin sets the "is_admin" field to the value that was provided on create.
+func (u *AccountUpsertOne) UpdateIsAdmin() *AccountUpsertOne {
+	return u.Update(func(s *AccountUpsert) {
+		s.UpdateIsAdmin()
 	})
 }
 
@@ -1404,6 +1455,20 @@ func (u *AccountUpsertBulk) UpdateAPIKey() *AccountUpsertBulk {
 func (u *AccountUpsertBulk) ClearAPIKey() *AccountUpsertBulk {
 	return u.Update(func(s *AccountUpsert) {
 		s.ClearAPIKey()
+	})
+}
+
+// SetIsAdmin sets the "is_admin" field.
+func (u *AccountUpsertBulk) SetIsAdmin(v bool) *AccountUpsertBulk {
+	return u.Update(func(s *AccountUpsert) {
+		s.SetIsAdmin(v)
+	})
+}
+
+// UpdateIsAdmin sets the "is_admin" field to the value that was provided on create.
+func (u *AccountUpsertBulk) UpdateIsAdmin() *AccountUpsertBulk {
+	return u.Update(func(s *AccountUpsert) {
+		s.UpdateIsAdmin()
 	})
 }
 

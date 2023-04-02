@@ -4,12 +4,11 @@ import (
 	"context"
 	"notionboy/db/ent"
 	"notionboy/internal/pkg/config"
-	"notionboy/internal/pkg/logger"
 )
 
 func getAccFromContext(ctx context.Context) *ent.Account {
 	acc := ctx.Value(config.ContextKeyUserAccount)
-	logger.SugaredLogger.Debugw("Get account from context", "acc", acc)
+	// logger.SugaredLogger.Debugw("Get account from context", "acc", acc)
 	if acc == nil {
 		return nil
 	}

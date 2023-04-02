@@ -7,6 +7,8 @@ import (
 	"notionboy/db/ent/chathistory"
 	"notionboy/db/ent/conversation"
 	"notionboy/db/ent/conversationmessage"
+	"notionboy/db/ent/order"
+	"notionboy/db/ent/product"
 	"notionboy/db/ent/quota"
 	"notionboy/db/ent/schema"
 	"notionboy/db/ent/wechatsession"
@@ -46,6 +48,10 @@ func init() {
 	accountDescIsOpenaiAPIUser := accountFields[8].Descriptor()
 	// account.DefaultIsOpenaiAPIUser holds the default value on creation for the is_openai_api_user field.
 	account.DefaultIsOpenaiAPIUser = accountDescIsOpenaiAPIUser.Default.(bool)
+	// accountDescIsAdmin is the schema descriptor for is_admin field.
+	accountDescIsAdmin := accountFields[11].Descriptor()
+	// account.DefaultIsAdmin holds the default value on creation for the is_admin field.
+	account.DefaultIsAdmin = accountDescIsAdmin.Default.(bool)
 	chathistoryMixin := schema.ChatHistory{}.Mixin()
 	chathistoryMixinFields0 := chathistoryMixin[0].Fields()
 	_ = chathistoryMixinFields0
@@ -109,6 +115,60 @@ func init() {
 	conversationmessageDescDeleted := conversationmessageMixinFields1[0].Descriptor()
 	// conversationmessage.DefaultDeleted holds the default value on creation for the deleted field.
 	conversationmessage.DefaultDeleted = conversationmessageDescDeleted.Default.(bool)
+	orderMixin := schema.Order{}.Mixin()
+	orderMixinFields0 := orderMixin[0].Fields()
+	_ = orderMixinFields0
+	orderMixinFields1 := orderMixin[1].Fields()
+	_ = orderMixinFields1
+	orderFields := schema.Order{}.Fields()
+	_ = orderFields
+	// orderDescCreatedAt is the schema descriptor for created_at field.
+	orderDescCreatedAt := orderMixinFields0[0].Descriptor()
+	// order.DefaultCreatedAt holds the default value on creation for the created_at field.
+	order.DefaultCreatedAt = orderDescCreatedAt.Default.(func() time.Time)
+	// orderDescUpdatedAt is the schema descriptor for updated_at field.
+	orderDescUpdatedAt := orderMixinFields0[1].Descriptor()
+	// order.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	order.DefaultUpdatedAt = orderDescUpdatedAt.Default.(func() time.Time)
+	// order.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	order.UpdateDefaultUpdatedAt = orderDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// orderDescDeleted is the schema descriptor for deleted field.
+	orderDescDeleted := orderMixinFields1[0].Descriptor()
+	// order.DefaultDeleted holds the default value on creation for the deleted field.
+	order.DefaultDeleted = orderDescDeleted.Default.(bool)
+	productMixin := schema.Product{}.Mixin()
+	productMixinFields0 := productMixin[0].Fields()
+	_ = productMixinFields0
+	productMixinFields1 := productMixin[1].Fields()
+	_ = productMixinFields1
+	productFields := schema.Product{}.Fields()
+	_ = productFields
+	// productDescCreatedAt is the schema descriptor for created_at field.
+	productDescCreatedAt := productMixinFields0[0].Descriptor()
+	// product.DefaultCreatedAt holds the default value on creation for the created_at field.
+	product.DefaultCreatedAt = productDescCreatedAt.Default.(func() time.Time)
+	// productDescUpdatedAt is the schema descriptor for updated_at field.
+	productDescUpdatedAt := productMixinFields0[1].Descriptor()
+	// product.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	product.DefaultUpdatedAt = productDescUpdatedAt.Default.(func() time.Time)
+	// product.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	product.UpdateDefaultUpdatedAt = productDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// productDescDeleted is the schema descriptor for deleted field.
+	productDescDeleted := productMixinFields1[0].Descriptor()
+	// product.DefaultDeleted holds the default value on creation for the deleted field.
+	product.DefaultDeleted = productDescDeleted.Default.(bool)
+	// productDescName is the schema descriptor for name field.
+	productDescName := productFields[1].Descriptor()
+	// product.DefaultName holds the default value on creation for the name field.
+	product.DefaultName = productDescName.Default.(string)
+	// productDescToken is the schema descriptor for token field.
+	productDescToken := productFields[4].Descriptor()
+	// product.DefaultToken holds the default value on creation for the token field.
+	product.DefaultToken = productDescToken.Default.(int64)
+	// productDescStorage is the schema descriptor for storage field.
+	productDescStorage := productFields[5].Descriptor()
+	// product.DefaultStorage holds the default value on creation for the storage field.
+	product.DefaultStorage = productDescStorage.Default.(int64)
 	quotaMixin := schema.Quota{}.Mixin()
 	quotaMixinFields0 := quotaMixin[0].Fields()
 	_ = quotaMixinFields0
@@ -130,6 +190,10 @@ func init() {
 	quotaDescDeleted := quotaMixinFields1[0].Descriptor()
 	// quota.DefaultDeleted holds the default value on creation for the deleted field.
 	quota.DefaultDeleted = quotaDescDeleted.Default.(bool)
+	// quotaDescTokenUsed is the schema descriptor for token_used field.
+	quotaDescTokenUsed := quotaFields[4].Descriptor()
+	// quota.DefaultTokenUsed holds the default value on creation for the token_used field.
+	quota.DefaultTokenUsed = quotaDescTokenUsed.Default.(int64)
 	wechatsessionMixin := schema.WechatSession{}.Mixin()
 	wechatsessionMixinFields0 := wechatsessionMixin[0].Fields()
 	_ = wechatsessionMixinFields0

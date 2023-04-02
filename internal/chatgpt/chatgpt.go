@@ -3,14 +3,13 @@ package chatgpt
 import (
 	"context"
 	"fmt"
-	"sync"
-	"time"
-
 	"notionboy/db/ent"
 	"notionboy/internal/pkg/config"
 	"notionboy/internal/pkg/logger"
 	"notionboy/internal/pkg/utils/cache"
 	"notionboy/internal/service/conversation"
+	"sync"
+	"time"
 )
 
 type Chatter interface {

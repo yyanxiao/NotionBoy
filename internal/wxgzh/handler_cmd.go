@@ -3,14 +3,13 @@ package wxgzh
 import (
 	"context"
 	"fmt"
-	"time"
-
 	"notionboy/db/ent/account"
 	"notionboy/internal/pkg/config"
 	"notionboy/internal/pkg/db/dao"
 	"notionboy/internal/pkg/logger"
 	"notionboy/internal/pkg/utils/cache"
 	"notionboy/internal/service/auth"
+	"time"
 
 	notion "notionboy/internal/pkg/notion"
 
@@ -106,4 +105,12 @@ func scanQrcode(ctx context.Context, msg *message.MixMessage) *message.Reply {
 	logger.SugaredLogger.Debugw("scan qrcode", "qrcode", id, "acc", acc, "msg", msg)
 	cache.DefaultClient().Set(fmt.Sprintf("%s:%s", config.QRCODE_CACHE_KEY, id), acc, time.Duration(5)*time.Minute)
 	return &message.Reply{MsgType: message.MsgTypeText, MsgData: message.NewText("登录成功")}
+}
+
+func whoAMI(ctx context.Context, msg *message.MixMessage) *message.Reply {
+	myInfo, err := auth.WhoAmI(ctx, account.UserTypeWechat, msg.GetOpenID())
+	if err != nil {
+		return &message.Reply{MsgType: message.MsgTypeText, MsgData: message.NewText(err.Error())}
+	}
+	return &message.Reply{MsgType: message.MsgTypeText, MsgData: message.NewText(myInfo.String())}
 }

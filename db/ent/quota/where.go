@@ -108,45 +108,31 @@ func UserID(v int) predicate.Quota {
 	})
 }
 
-// Daily applies equality check predicate on the "daily" field. It's identical to DailyEQ.
-func Daily(v int) predicate.Quota {
+// Plan applies equality check predicate on the "plan" field. It's identical to PlanEQ.
+func Plan(v string) predicate.Quota {
 	return predicate.Quota(func(s *sql.Selector) {
-		s.Where(sql.EQ(s.C(FieldDaily), v))
+		s.Where(sql.EQ(s.C(FieldPlan), v))
 	})
 }
 
-// Monthly applies equality check predicate on the "monthly" field. It's identical to MonthlyEQ.
-func Monthly(v int) predicate.Quota {
+// ResetTime applies equality check predicate on the "reset_time" field. It's identical to ResetTimeEQ.
+func ResetTime(v time.Time) predicate.Quota {
 	return predicate.Quota(func(s *sql.Selector) {
-		s.Where(sql.EQ(s.C(FieldMonthly), v))
+		s.Where(sql.EQ(s.C(FieldResetTime), v))
 	})
 }
 
-// Yearly applies equality check predicate on the "yearly" field. It's identical to YearlyEQ.
-func Yearly(v int) predicate.Quota {
+// Token applies equality check predicate on the "token" field. It's identical to TokenEQ.
+func Token(v int64) predicate.Quota {
 	return predicate.Quota(func(s *sql.Selector) {
-		s.Where(sql.EQ(s.C(FieldYearly), v))
+		s.Where(sql.EQ(s.C(FieldToken), v))
 	})
 }
 
-// DailyUsed applies equality check predicate on the "daily_used" field. It's identical to DailyUsedEQ.
-func DailyUsed(v int) predicate.Quota {
+// TokenUsed applies equality check predicate on the "token_used" field. It's identical to TokenUsedEQ.
+func TokenUsed(v int64) predicate.Quota {
 	return predicate.Quota(func(s *sql.Selector) {
-		s.Where(sql.EQ(s.C(FieldDailyUsed), v))
-	})
-}
-
-// MonthlyUsed applies equality check predicate on the "monthly_used" field. It's identical to MonthlyUsedEQ.
-func MonthlyUsed(v int) predicate.Quota {
-	return predicate.Quota(func(s *sql.Selector) {
-		s.Where(sql.EQ(s.C(FieldMonthlyUsed), v))
-	})
-}
-
-// YearlyUsed applies equality check predicate on the "yearly_used" field. It's identical to YearlyUsedEQ.
-func YearlyUsed(v int) predicate.Quota {
-	return predicate.Quota(func(s *sql.Selector) {
-		s.Where(sql.EQ(s.C(FieldYearlyUsed), v))
+		s.Where(sql.EQ(s.C(FieldTokenUsed), v))
 	})
 }
 
@@ -356,507 +342,294 @@ func UserIDLTE(v int) predicate.Quota {
 	})
 }
 
-// CategoryEQ applies the EQ predicate on the "category" field.
-func CategoryEQ(v Category) predicate.Quota {
+// PlanEQ applies the EQ predicate on the "plan" field.
+func PlanEQ(v string) predicate.Quota {
 	return predicate.Quota(func(s *sql.Selector) {
-		s.Where(sql.EQ(s.C(FieldCategory), v))
+		s.Where(sql.EQ(s.C(FieldPlan), v))
 	})
 }
 
-// CategoryNEQ applies the NEQ predicate on the "category" field.
-func CategoryNEQ(v Category) predicate.Quota {
+// PlanNEQ applies the NEQ predicate on the "plan" field.
+func PlanNEQ(v string) predicate.Quota {
 	return predicate.Quota(func(s *sql.Selector) {
-		s.Where(sql.NEQ(s.C(FieldCategory), v))
+		s.Where(sql.NEQ(s.C(FieldPlan), v))
 	})
 }
 
-// CategoryIn applies the In predicate on the "category" field.
-func CategoryIn(vs ...Category) predicate.Quota {
+// PlanIn applies the In predicate on the "plan" field.
+func PlanIn(vs ...string) predicate.Quota {
 	v := make([]any, len(vs))
 	for i := range v {
 		v[i] = vs[i]
 	}
 	return predicate.Quota(func(s *sql.Selector) {
-		s.Where(sql.In(s.C(FieldCategory), v...))
+		s.Where(sql.In(s.C(FieldPlan), v...))
 	})
 }
 
-// CategoryNotIn applies the NotIn predicate on the "category" field.
-func CategoryNotIn(vs ...Category) predicate.Quota {
+// PlanNotIn applies the NotIn predicate on the "plan" field.
+func PlanNotIn(vs ...string) predicate.Quota {
 	v := make([]any, len(vs))
 	for i := range v {
 		v[i] = vs[i]
 	}
 	return predicate.Quota(func(s *sql.Selector) {
-		s.Where(sql.NotIn(s.C(FieldCategory), v...))
+		s.Where(sql.NotIn(s.C(FieldPlan), v...))
 	})
 }
 
-// DailyEQ applies the EQ predicate on the "daily" field.
-func DailyEQ(v int) predicate.Quota {
+// PlanGT applies the GT predicate on the "plan" field.
+func PlanGT(v string) predicate.Quota {
 	return predicate.Quota(func(s *sql.Selector) {
-		s.Where(sql.EQ(s.C(FieldDaily), v))
+		s.Where(sql.GT(s.C(FieldPlan), v))
 	})
 }
 
-// DailyNEQ applies the NEQ predicate on the "daily" field.
-func DailyNEQ(v int) predicate.Quota {
+// PlanGTE applies the GTE predicate on the "plan" field.
+func PlanGTE(v string) predicate.Quota {
 	return predicate.Quota(func(s *sql.Selector) {
-		s.Where(sql.NEQ(s.C(FieldDaily), v))
+		s.Where(sql.GTE(s.C(FieldPlan), v))
 	})
 }
 
-// DailyIn applies the In predicate on the "daily" field.
-func DailyIn(vs ...int) predicate.Quota {
+// PlanLT applies the LT predicate on the "plan" field.
+func PlanLT(v string) predicate.Quota {
+	return predicate.Quota(func(s *sql.Selector) {
+		s.Where(sql.LT(s.C(FieldPlan), v))
+	})
+}
+
+// PlanLTE applies the LTE predicate on the "plan" field.
+func PlanLTE(v string) predicate.Quota {
+	return predicate.Quota(func(s *sql.Selector) {
+		s.Where(sql.LTE(s.C(FieldPlan), v))
+	})
+}
+
+// PlanContains applies the Contains predicate on the "plan" field.
+func PlanContains(v string) predicate.Quota {
+	return predicate.Quota(func(s *sql.Selector) {
+		s.Where(sql.Contains(s.C(FieldPlan), v))
+	})
+}
+
+// PlanHasPrefix applies the HasPrefix predicate on the "plan" field.
+func PlanHasPrefix(v string) predicate.Quota {
+	return predicate.Quota(func(s *sql.Selector) {
+		s.Where(sql.HasPrefix(s.C(FieldPlan), v))
+	})
+}
+
+// PlanHasSuffix applies the HasSuffix predicate on the "plan" field.
+func PlanHasSuffix(v string) predicate.Quota {
+	return predicate.Quota(func(s *sql.Selector) {
+		s.Where(sql.HasSuffix(s.C(FieldPlan), v))
+	})
+}
+
+// PlanEqualFold applies the EqualFold predicate on the "plan" field.
+func PlanEqualFold(v string) predicate.Quota {
+	return predicate.Quota(func(s *sql.Selector) {
+		s.Where(sql.EqualFold(s.C(FieldPlan), v))
+	})
+}
+
+// PlanContainsFold applies the ContainsFold predicate on the "plan" field.
+func PlanContainsFold(v string) predicate.Quota {
+	return predicate.Quota(func(s *sql.Selector) {
+		s.Where(sql.ContainsFold(s.C(FieldPlan), v))
+	})
+}
+
+// ResetTimeEQ applies the EQ predicate on the "reset_time" field.
+func ResetTimeEQ(v time.Time) predicate.Quota {
+	return predicate.Quota(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldResetTime), v))
+	})
+}
+
+// ResetTimeNEQ applies the NEQ predicate on the "reset_time" field.
+func ResetTimeNEQ(v time.Time) predicate.Quota {
+	return predicate.Quota(func(s *sql.Selector) {
+		s.Where(sql.NEQ(s.C(FieldResetTime), v))
+	})
+}
+
+// ResetTimeIn applies the In predicate on the "reset_time" field.
+func ResetTimeIn(vs ...time.Time) predicate.Quota {
 	v := make([]any, len(vs))
 	for i := range v {
 		v[i] = vs[i]
 	}
 	return predicate.Quota(func(s *sql.Selector) {
-		s.Where(sql.In(s.C(FieldDaily), v...))
+		s.Where(sql.In(s.C(FieldResetTime), v...))
 	})
 }
 
-// DailyNotIn applies the NotIn predicate on the "daily" field.
-func DailyNotIn(vs ...int) predicate.Quota {
+// ResetTimeNotIn applies the NotIn predicate on the "reset_time" field.
+func ResetTimeNotIn(vs ...time.Time) predicate.Quota {
 	v := make([]any, len(vs))
 	for i := range v {
 		v[i] = vs[i]
 	}
 	return predicate.Quota(func(s *sql.Selector) {
-		s.Where(sql.NotIn(s.C(FieldDaily), v...))
+		s.Where(sql.NotIn(s.C(FieldResetTime), v...))
 	})
 }
 
-// DailyGT applies the GT predicate on the "daily" field.
-func DailyGT(v int) predicate.Quota {
+// ResetTimeGT applies the GT predicate on the "reset_time" field.
+func ResetTimeGT(v time.Time) predicate.Quota {
 	return predicate.Quota(func(s *sql.Selector) {
-		s.Where(sql.GT(s.C(FieldDaily), v))
+		s.Where(sql.GT(s.C(FieldResetTime), v))
 	})
 }
 
-// DailyGTE applies the GTE predicate on the "daily" field.
-func DailyGTE(v int) predicate.Quota {
+// ResetTimeGTE applies the GTE predicate on the "reset_time" field.
+func ResetTimeGTE(v time.Time) predicate.Quota {
 	return predicate.Quota(func(s *sql.Selector) {
-		s.Where(sql.GTE(s.C(FieldDaily), v))
+		s.Where(sql.GTE(s.C(FieldResetTime), v))
 	})
 }
 
-// DailyLT applies the LT predicate on the "daily" field.
-func DailyLT(v int) predicate.Quota {
+// ResetTimeLT applies the LT predicate on the "reset_time" field.
+func ResetTimeLT(v time.Time) predicate.Quota {
 	return predicate.Quota(func(s *sql.Selector) {
-		s.Where(sql.LT(s.C(FieldDaily), v))
+		s.Where(sql.LT(s.C(FieldResetTime), v))
 	})
 }
 
-// DailyLTE applies the LTE predicate on the "daily" field.
-func DailyLTE(v int) predicate.Quota {
+// ResetTimeLTE applies the LTE predicate on the "reset_time" field.
+func ResetTimeLTE(v time.Time) predicate.Quota {
 	return predicate.Quota(func(s *sql.Selector) {
-		s.Where(sql.LTE(s.C(FieldDaily), v))
+		s.Where(sql.LTE(s.C(FieldResetTime), v))
 	})
 }
 
-// DailyIsNil applies the IsNil predicate on the "daily" field.
-func DailyIsNil() predicate.Quota {
+// TokenEQ applies the EQ predicate on the "token" field.
+func TokenEQ(v int64) predicate.Quota {
 	return predicate.Quota(func(s *sql.Selector) {
-		s.Where(sql.IsNull(s.C(FieldDaily)))
+		s.Where(sql.EQ(s.C(FieldToken), v))
 	})
 }
 
-// DailyNotNil applies the NotNil predicate on the "daily" field.
-func DailyNotNil() predicate.Quota {
+// TokenNEQ applies the NEQ predicate on the "token" field.
+func TokenNEQ(v int64) predicate.Quota {
 	return predicate.Quota(func(s *sql.Selector) {
-		s.Where(sql.NotNull(s.C(FieldDaily)))
+		s.Where(sql.NEQ(s.C(FieldToken), v))
 	})
 }
 
-// MonthlyEQ applies the EQ predicate on the "monthly" field.
-func MonthlyEQ(v int) predicate.Quota {
-	return predicate.Quota(func(s *sql.Selector) {
-		s.Where(sql.EQ(s.C(FieldMonthly), v))
-	})
-}
-
-// MonthlyNEQ applies the NEQ predicate on the "monthly" field.
-func MonthlyNEQ(v int) predicate.Quota {
-	return predicate.Quota(func(s *sql.Selector) {
-		s.Where(sql.NEQ(s.C(FieldMonthly), v))
-	})
-}
-
-// MonthlyIn applies the In predicate on the "monthly" field.
-func MonthlyIn(vs ...int) predicate.Quota {
+// TokenIn applies the In predicate on the "token" field.
+func TokenIn(vs ...int64) predicate.Quota {
 	v := make([]any, len(vs))
 	for i := range v {
 		v[i] = vs[i]
 	}
 	return predicate.Quota(func(s *sql.Selector) {
-		s.Where(sql.In(s.C(FieldMonthly), v...))
+		s.Where(sql.In(s.C(FieldToken), v...))
 	})
 }
 
-// MonthlyNotIn applies the NotIn predicate on the "monthly" field.
-func MonthlyNotIn(vs ...int) predicate.Quota {
+// TokenNotIn applies the NotIn predicate on the "token" field.
+func TokenNotIn(vs ...int64) predicate.Quota {
 	v := make([]any, len(vs))
 	for i := range v {
 		v[i] = vs[i]
 	}
 	return predicate.Quota(func(s *sql.Selector) {
-		s.Where(sql.NotIn(s.C(FieldMonthly), v...))
+		s.Where(sql.NotIn(s.C(FieldToken), v...))
 	})
 }
 
-// MonthlyGT applies the GT predicate on the "monthly" field.
-func MonthlyGT(v int) predicate.Quota {
+// TokenGT applies the GT predicate on the "token" field.
+func TokenGT(v int64) predicate.Quota {
 	return predicate.Quota(func(s *sql.Selector) {
-		s.Where(sql.GT(s.C(FieldMonthly), v))
+		s.Where(sql.GT(s.C(FieldToken), v))
 	})
 }
 
-// MonthlyGTE applies the GTE predicate on the "monthly" field.
-func MonthlyGTE(v int) predicate.Quota {
+// TokenGTE applies the GTE predicate on the "token" field.
+func TokenGTE(v int64) predicate.Quota {
 	return predicate.Quota(func(s *sql.Selector) {
-		s.Where(sql.GTE(s.C(FieldMonthly), v))
+		s.Where(sql.GTE(s.C(FieldToken), v))
 	})
 }
 
-// MonthlyLT applies the LT predicate on the "monthly" field.
-func MonthlyLT(v int) predicate.Quota {
+// TokenLT applies the LT predicate on the "token" field.
+func TokenLT(v int64) predicate.Quota {
 	return predicate.Quota(func(s *sql.Selector) {
-		s.Where(sql.LT(s.C(FieldMonthly), v))
+		s.Where(sql.LT(s.C(FieldToken), v))
 	})
 }
 
-// MonthlyLTE applies the LTE predicate on the "monthly" field.
-func MonthlyLTE(v int) predicate.Quota {
+// TokenLTE applies the LTE predicate on the "token" field.
+func TokenLTE(v int64) predicate.Quota {
 	return predicate.Quota(func(s *sql.Selector) {
-		s.Where(sql.LTE(s.C(FieldMonthly), v))
+		s.Where(sql.LTE(s.C(FieldToken), v))
 	})
 }
 
-// MonthlyIsNil applies the IsNil predicate on the "monthly" field.
-func MonthlyIsNil() predicate.Quota {
+// TokenUsedEQ applies the EQ predicate on the "token_used" field.
+func TokenUsedEQ(v int64) predicate.Quota {
 	return predicate.Quota(func(s *sql.Selector) {
-		s.Where(sql.IsNull(s.C(FieldMonthly)))
+		s.Where(sql.EQ(s.C(FieldTokenUsed), v))
 	})
 }
 
-// MonthlyNotNil applies the NotNil predicate on the "monthly" field.
-func MonthlyNotNil() predicate.Quota {
+// TokenUsedNEQ applies the NEQ predicate on the "token_used" field.
+func TokenUsedNEQ(v int64) predicate.Quota {
 	return predicate.Quota(func(s *sql.Selector) {
-		s.Where(sql.NotNull(s.C(FieldMonthly)))
+		s.Where(sql.NEQ(s.C(FieldTokenUsed), v))
 	})
 }
 
-// YearlyEQ applies the EQ predicate on the "yearly" field.
-func YearlyEQ(v int) predicate.Quota {
-	return predicate.Quota(func(s *sql.Selector) {
-		s.Where(sql.EQ(s.C(FieldYearly), v))
-	})
-}
-
-// YearlyNEQ applies the NEQ predicate on the "yearly" field.
-func YearlyNEQ(v int) predicate.Quota {
-	return predicate.Quota(func(s *sql.Selector) {
-		s.Where(sql.NEQ(s.C(FieldYearly), v))
-	})
-}
-
-// YearlyIn applies the In predicate on the "yearly" field.
-func YearlyIn(vs ...int) predicate.Quota {
+// TokenUsedIn applies the In predicate on the "token_used" field.
+func TokenUsedIn(vs ...int64) predicate.Quota {
 	v := make([]any, len(vs))
 	for i := range v {
 		v[i] = vs[i]
 	}
 	return predicate.Quota(func(s *sql.Selector) {
-		s.Where(sql.In(s.C(FieldYearly), v...))
+		s.Where(sql.In(s.C(FieldTokenUsed), v...))
 	})
 }
 
-// YearlyNotIn applies the NotIn predicate on the "yearly" field.
-func YearlyNotIn(vs ...int) predicate.Quota {
+// TokenUsedNotIn applies the NotIn predicate on the "token_used" field.
+func TokenUsedNotIn(vs ...int64) predicate.Quota {
 	v := make([]any, len(vs))
 	for i := range v {
 		v[i] = vs[i]
 	}
 	return predicate.Quota(func(s *sql.Selector) {
-		s.Where(sql.NotIn(s.C(FieldYearly), v...))
+		s.Where(sql.NotIn(s.C(FieldTokenUsed), v...))
 	})
 }
 
-// YearlyGT applies the GT predicate on the "yearly" field.
-func YearlyGT(v int) predicate.Quota {
+// TokenUsedGT applies the GT predicate on the "token_used" field.
+func TokenUsedGT(v int64) predicate.Quota {
 	return predicate.Quota(func(s *sql.Selector) {
-		s.Where(sql.GT(s.C(FieldYearly), v))
+		s.Where(sql.GT(s.C(FieldTokenUsed), v))
 	})
 }
 
-// YearlyGTE applies the GTE predicate on the "yearly" field.
-func YearlyGTE(v int) predicate.Quota {
+// TokenUsedGTE applies the GTE predicate on the "token_used" field.
+func TokenUsedGTE(v int64) predicate.Quota {
 	return predicate.Quota(func(s *sql.Selector) {
-		s.Where(sql.GTE(s.C(FieldYearly), v))
+		s.Where(sql.GTE(s.C(FieldTokenUsed), v))
 	})
 }
 
-// YearlyLT applies the LT predicate on the "yearly" field.
-func YearlyLT(v int) predicate.Quota {
+// TokenUsedLT applies the LT predicate on the "token_used" field.
+func TokenUsedLT(v int64) predicate.Quota {
 	return predicate.Quota(func(s *sql.Selector) {
-		s.Where(sql.LT(s.C(FieldYearly), v))
+		s.Where(sql.LT(s.C(FieldTokenUsed), v))
 	})
 }
 
-// YearlyLTE applies the LTE predicate on the "yearly" field.
-func YearlyLTE(v int) predicate.Quota {
+// TokenUsedLTE applies the LTE predicate on the "token_used" field.
+func TokenUsedLTE(v int64) predicate.Quota {
 	return predicate.Quota(func(s *sql.Selector) {
-		s.Where(sql.LTE(s.C(FieldYearly), v))
-	})
-}
-
-// YearlyIsNil applies the IsNil predicate on the "yearly" field.
-func YearlyIsNil() predicate.Quota {
-	return predicate.Quota(func(s *sql.Selector) {
-		s.Where(sql.IsNull(s.C(FieldYearly)))
-	})
-}
-
-// YearlyNotNil applies the NotNil predicate on the "yearly" field.
-func YearlyNotNil() predicate.Quota {
-	return predicate.Quota(func(s *sql.Selector) {
-		s.Where(sql.NotNull(s.C(FieldYearly)))
-	})
-}
-
-// DailyUsedEQ applies the EQ predicate on the "daily_used" field.
-func DailyUsedEQ(v int) predicate.Quota {
-	return predicate.Quota(func(s *sql.Selector) {
-		s.Where(sql.EQ(s.C(FieldDailyUsed), v))
-	})
-}
-
-// DailyUsedNEQ applies the NEQ predicate on the "daily_used" field.
-func DailyUsedNEQ(v int) predicate.Quota {
-	return predicate.Quota(func(s *sql.Selector) {
-		s.Where(sql.NEQ(s.C(FieldDailyUsed), v))
-	})
-}
-
-// DailyUsedIn applies the In predicate on the "daily_used" field.
-func DailyUsedIn(vs ...int) predicate.Quota {
-	v := make([]any, len(vs))
-	for i := range v {
-		v[i] = vs[i]
-	}
-	return predicate.Quota(func(s *sql.Selector) {
-		s.Where(sql.In(s.C(FieldDailyUsed), v...))
-	})
-}
-
-// DailyUsedNotIn applies the NotIn predicate on the "daily_used" field.
-func DailyUsedNotIn(vs ...int) predicate.Quota {
-	v := make([]any, len(vs))
-	for i := range v {
-		v[i] = vs[i]
-	}
-	return predicate.Quota(func(s *sql.Selector) {
-		s.Where(sql.NotIn(s.C(FieldDailyUsed), v...))
-	})
-}
-
-// DailyUsedGT applies the GT predicate on the "daily_used" field.
-func DailyUsedGT(v int) predicate.Quota {
-	return predicate.Quota(func(s *sql.Selector) {
-		s.Where(sql.GT(s.C(FieldDailyUsed), v))
-	})
-}
-
-// DailyUsedGTE applies the GTE predicate on the "daily_used" field.
-func DailyUsedGTE(v int) predicate.Quota {
-	return predicate.Quota(func(s *sql.Selector) {
-		s.Where(sql.GTE(s.C(FieldDailyUsed), v))
-	})
-}
-
-// DailyUsedLT applies the LT predicate on the "daily_used" field.
-func DailyUsedLT(v int) predicate.Quota {
-	return predicate.Quota(func(s *sql.Selector) {
-		s.Where(sql.LT(s.C(FieldDailyUsed), v))
-	})
-}
-
-// DailyUsedLTE applies the LTE predicate on the "daily_used" field.
-func DailyUsedLTE(v int) predicate.Quota {
-	return predicate.Quota(func(s *sql.Selector) {
-		s.Where(sql.LTE(s.C(FieldDailyUsed), v))
-	})
-}
-
-// DailyUsedIsNil applies the IsNil predicate on the "daily_used" field.
-func DailyUsedIsNil() predicate.Quota {
-	return predicate.Quota(func(s *sql.Selector) {
-		s.Where(sql.IsNull(s.C(FieldDailyUsed)))
-	})
-}
-
-// DailyUsedNotNil applies the NotNil predicate on the "daily_used" field.
-func DailyUsedNotNil() predicate.Quota {
-	return predicate.Quota(func(s *sql.Selector) {
-		s.Where(sql.NotNull(s.C(FieldDailyUsed)))
-	})
-}
-
-// MonthlyUsedEQ applies the EQ predicate on the "monthly_used" field.
-func MonthlyUsedEQ(v int) predicate.Quota {
-	return predicate.Quota(func(s *sql.Selector) {
-		s.Where(sql.EQ(s.C(FieldMonthlyUsed), v))
-	})
-}
-
-// MonthlyUsedNEQ applies the NEQ predicate on the "monthly_used" field.
-func MonthlyUsedNEQ(v int) predicate.Quota {
-	return predicate.Quota(func(s *sql.Selector) {
-		s.Where(sql.NEQ(s.C(FieldMonthlyUsed), v))
-	})
-}
-
-// MonthlyUsedIn applies the In predicate on the "monthly_used" field.
-func MonthlyUsedIn(vs ...int) predicate.Quota {
-	v := make([]any, len(vs))
-	for i := range v {
-		v[i] = vs[i]
-	}
-	return predicate.Quota(func(s *sql.Selector) {
-		s.Where(sql.In(s.C(FieldMonthlyUsed), v...))
-	})
-}
-
-// MonthlyUsedNotIn applies the NotIn predicate on the "monthly_used" field.
-func MonthlyUsedNotIn(vs ...int) predicate.Quota {
-	v := make([]any, len(vs))
-	for i := range v {
-		v[i] = vs[i]
-	}
-	return predicate.Quota(func(s *sql.Selector) {
-		s.Where(sql.NotIn(s.C(FieldMonthlyUsed), v...))
-	})
-}
-
-// MonthlyUsedGT applies the GT predicate on the "monthly_used" field.
-func MonthlyUsedGT(v int) predicate.Quota {
-	return predicate.Quota(func(s *sql.Selector) {
-		s.Where(sql.GT(s.C(FieldMonthlyUsed), v))
-	})
-}
-
-// MonthlyUsedGTE applies the GTE predicate on the "monthly_used" field.
-func MonthlyUsedGTE(v int) predicate.Quota {
-	return predicate.Quota(func(s *sql.Selector) {
-		s.Where(sql.GTE(s.C(FieldMonthlyUsed), v))
-	})
-}
-
-// MonthlyUsedLT applies the LT predicate on the "monthly_used" field.
-func MonthlyUsedLT(v int) predicate.Quota {
-	return predicate.Quota(func(s *sql.Selector) {
-		s.Where(sql.LT(s.C(FieldMonthlyUsed), v))
-	})
-}
-
-// MonthlyUsedLTE applies the LTE predicate on the "monthly_used" field.
-func MonthlyUsedLTE(v int) predicate.Quota {
-	return predicate.Quota(func(s *sql.Selector) {
-		s.Where(sql.LTE(s.C(FieldMonthlyUsed), v))
-	})
-}
-
-// MonthlyUsedIsNil applies the IsNil predicate on the "monthly_used" field.
-func MonthlyUsedIsNil() predicate.Quota {
-	return predicate.Quota(func(s *sql.Selector) {
-		s.Where(sql.IsNull(s.C(FieldMonthlyUsed)))
-	})
-}
-
-// MonthlyUsedNotNil applies the NotNil predicate on the "monthly_used" field.
-func MonthlyUsedNotNil() predicate.Quota {
-	return predicate.Quota(func(s *sql.Selector) {
-		s.Where(sql.NotNull(s.C(FieldMonthlyUsed)))
-	})
-}
-
-// YearlyUsedEQ applies the EQ predicate on the "yearly_used" field.
-func YearlyUsedEQ(v int) predicate.Quota {
-	return predicate.Quota(func(s *sql.Selector) {
-		s.Where(sql.EQ(s.C(FieldYearlyUsed), v))
-	})
-}
-
-// YearlyUsedNEQ applies the NEQ predicate on the "yearly_used" field.
-func YearlyUsedNEQ(v int) predicate.Quota {
-	return predicate.Quota(func(s *sql.Selector) {
-		s.Where(sql.NEQ(s.C(FieldYearlyUsed), v))
-	})
-}
-
-// YearlyUsedIn applies the In predicate on the "yearly_used" field.
-func YearlyUsedIn(vs ...int) predicate.Quota {
-	v := make([]any, len(vs))
-	for i := range v {
-		v[i] = vs[i]
-	}
-	return predicate.Quota(func(s *sql.Selector) {
-		s.Where(sql.In(s.C(FieldYearlyUsed), v...))
-	})
-}
-
-// YearlyUsedNotIn applies the NotIn predicate on the "yearly_used" field.
-func YearlyUsedNotIn(vs ...int) predicate.Quota {
-	v := make([]any, len(vs))
-	for i := range v {
-		v[i] = vs[i]
-	}
-	return predicate.Quota(func(s *sql.Selector) {
-		s.Where(sql.NotIn(s.C(FieldYearlyUsed), v...))
-	})
-}
-
-// YearlyUsedGT applies the GT predicate on the "yearly_used" field.
-func YearlyUsedGT(v int) predicate.Quota {
-	return predicate.Quota(func(s *sql.Selector) {
-		s.Where(sql.GT(s.C(FieldYearlyUsed), v))
-	})
-}
-
-// YearlyUsedGTE applies the GTE predicate on the "yearly_used" field.
-func YearlyUsedGTE(v int) predicate.Quota {
-	return predicate.Quota(func(s *sql.Selector) {
-		s.Where(sql.GTE(s.C(FieldYearlyUsed), v))
-	})
-}
-
-// YearlyUsedLT applies the LT predicate on the "yearly_used" field.
-func YearlyUsedLT(v int) predicate.Quota {
-	return predicate.Quota(func(s *sql.Selector) {
-		s.Where(sql.LT(s.C(FieldYearlyUsed), v))
-	})
-}
-
-// YearlyUsedLTE applies the LTE predicate on the "yearly_used" field.
-func YearlyUsedLTE(v int) predicate.Quota {
-	return predicate.Quota(func(s *sql.Selector) {
-		s.Where(sql.LTE(s.C(FieldYearlyUsed), v))
-	})
-}
-
-// YearlyUsedIsNil applies the IsNil predicate on the "yearly_used" field.
-func YearlyUsedIsNil() predicate.Quota {
-	return predicate.Quota(func(s *sql.Selector) {
-		s.Where(sql.IsNull(s.C(FieldYearlyUsed)))
-	})
-}
-
-// YearlyUsedNotNil applies the NotNil predicate on the "yearly_used" field.
-func YearlyUsedNotNil() predicate.Quota {
-	return predicate.Quota(func(s *sql.Selector) {
-		s.Where(sql.NotNull(s.C(FieldYearlyUsed)))
+		s.Where(sql.LTE(s.C(FieldTokenUsed), v))
 	})
 }
 

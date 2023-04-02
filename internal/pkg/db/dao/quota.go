@@ -7,14 +7,20 @@ import (
 	"notionboy/internal/pkg/db"
 	"notionboy/internal/pkg/logger"
 	"strings"
+	"time"
+)
+
+const (
+	defaultPlan       = "free"
+	defaultTotalToken = 10000
 )
 
 // QueryQuota Get Quota by user id and category
-func QueryQuota(ctx context.Context, userID int, category quota.Category) (*ent.Quota, error) {
+func QueryQuota(ctx context.Context, userID int) (*ent.Quota, error) {
 	queryQuota := func() (*ent.Quota, error) {
 		return db.GetClient().Quota.
 			Query().
-			Where(quota.UserIDEQ(userID), quota.CategoryEQ(category)).
+			Where(quota.UserIDEQ(userID)).
 			Only(ctx)
 	}
 	q, err := queryQuota()
@@ -36,85 +42,48 @@ func QueryQuota(ctx context.Context, userID int, category quota.Category) (*ent.
 
 // initQuota init quota with default value
 func initQuota(ctx context.Context, userID int) error {
-	quotas := make([]*ent.QuotaCreate, 0)
-	newQuota := func(category quota.Category, daily, monthly int) *ent.QuotaCreate {
-		q := db.GetClient().Quota.Create().
-			SetUserID(userID).
-			SetCategory(category).
-			SetDaily(daily).
-			SetMonthly(monthly)
-		return q
-	}
-	quotas = append(quotas, newQuota(quota.CategoryChatgpt, 10, 10*30))
-
-	err := db.GetClient().Quota.
-		CreateBulk(quotas...).
-		Exec(ctx)
-	if err != nil {
-		logger.SugaredLogger.Errorw("init quota failed", "err", err)
-	}
-	return err
-}
-
-// SaveQuota Save Quota
-func SaveQuota(ctx context.Context, q *ent.Quota) error {
-	return db.GetClient().Quota.
-		Create().
-		SetUserID(q.UserID).
-		SetDaily(q.Daily).
-		SetMonthly(q.Monthly).
-		SetYearly(q.Yearly).
-		SetDailyUsed(q.DailyUsed).
-		SetMonthlyUsed(q.MonthlyUsed).
-		SetYearlyUsed(q.YearlyUsed).
-		OnConflict().
-		UpdateNewValues().
+	// create a date a month later
+	return db.GetClient().Quota.Create().
+		SetUserID(userID).
+		SetPlan(defaultPlan).
+		SetToken(defaultTotalToken).
+		SetResetTime(nextResetTime()).
 		Exec(ctx)
 }
 
-// IncrDailyQuota increment daily quota
-func IncrDailyQuota(ctx context.Context, userID int, category quota.Category) error {
-	dailyUsed, err := GetDailyUsedQuota(ctx, userID, category)
-	if err != nil {
-		return err
-	}
+// UpdateQuota update quota
+func UpdateQuota(cli *ent.Client, ctx context.Context, userID int, tokens int64, planName string) error {
+	return cli.Quota.
+		Update().
+		SetToken(tokens).
+		SetPlan(planName).
+		SetResetTime(nextResetTime()).
+		Where(quota.UserIDEQ(userID)).
+		Exec(ctx)
+}
+
+// IncrUsedTokenQuota increase used token quota
+func IncrUsedTokenQuota(cli *ent.Client, ctx context.Context, userID int, tokens int64) error {
 	return db.GetClient().Quota.
 		Update().
-		SetDailyUsed(dailyUsed+1).
-		Where(quota.UserIDEQ(userID), quota.CategoryEQ(category)).
+		AddTokenUsed(tokens).
+		Where(quota.UserIDEQ(userID)).
 		Exec(ctx)
 }
 
-// ResetDailyQuota reset daily quota
-func ResetDailyQuota(ctx context.Context, userID int, category quota.Category) error {
+// ResetUserQuota reset user quota when the reset date is yesterday
+func ResetUserQuota(ctx context.Context, resetTime time.Time) error {
 	return db.GetClient().Quota.
 		Update().
-		SetDailyUsed(0).
-		Where(quota.UserIDEQ(userID), quota.CategoryEQ(category)).
+		SetPlan(defaultPlan).
+		SetToken(defaultTotalToken).
+		SetTokenUsed(0).
+		SetResetTime(nextResetTime()).
+		Where(quota.ResetTimeLTE(resetTime)).
 		Exec(ctx)
 }
 
-// ResetDailyQuotaForAll reset daily quota for all users
-func ResetDailyQuotaForAll(ctx context.Context) error {
-	return db.GetClient().Quota.
-		Update().
-		SetDailyUsed(0).
-		Exec(ctx)
-}
-
-// ResetMonthlyQuotaForAll reset monthly quota for all users
-func ResetMonthlyQuotaForAll(ctx context.Context) error {
-	return db.GetClient().Quota.
-		Update().
-		SetMonthlyUsed(0).
-		Exec(ctx)
-}
-
-// GetDailyUsedQuota get daily quota
-func GetDailyUsedQuota(ctx context.Context, userID int, category quota.Category) (int, error) {
-	q, err := QueryQuota(ctx, userID, category)
-	if err != nil {
-		return 0, err
-	}
-	return q.DailyUsed, nil
+func nextResetTime() time.Time {
+	nextDate := time.Now().AddDate(0, 1, 0)
+	return time.Date(nextDate.Year(), nextDate.Month(), nextDate.Day(), 23, 59, 59, 999, time.Local)
 }

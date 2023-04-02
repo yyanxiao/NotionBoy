@@ -243,6 +243,20 @@ func (au *AccountUpdate) ClearAPIKey() *AccountUpdate {
 	return au
 }
 
+// SetIsAdmin sets the "is_admin" field.
+func (au *AccountUpdate) SetIsAdmin(b bool) *AccountUpdate {
+	au.mutation.SetIsAdmin(b)
+	return au
+}
+
+// SetNillableIsAdmin sets the "is_admin" field if the given value is not nil.
+func (au *AccountUpdate) SetNillableIsAdmin(b *bool) *AccountUpdate {
+	if b != nil {
+		au.SetIsAdmin(*b)
+	}
+	return au
+}
+
 // Mutation returns the AccountMutation object of the builder.
 func (au *AccountUpdate) Mutation() *AccountMutation {
 	return au.mutation
@@ -407,6 +421,9 @@ func (au *AccountUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if au.mutation.APIKeyCleared() {
 		_spec.ClearField(account.FieldAPIKey, field.TypeUUID)
+	}
+	if value, ok := au.mutation.IsAdmin(); ok {
+		_spec.SetField(account.FieldIsAdmin, field.TypeBool, value)
 	}
 	if n, err = sqlgraph.UpdateNodes(ctx, au.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
@@ -641,6 +658,20 @@ func (auo *AccountUpdateOne) ClearAPIKey() *AccountUpdateOne {
 	return auo
 }
 
+// SetIsAdmin sets the "is_admin" field.
+func (auo *AccountUpdateOne) SetIsAdmin(b bool) *AccountUpdateOne {
+	auo.mutation.SetIsAdmin(b)
+	return auo
+}
+
+// SetNillableIsAdmin sets the "is_admin" field if the given value is not nil.
+func (auo *AccountUpdateOne) SetNillableIsAdmin(b *bool) *AccountUpdateOne {
+	if b != nil {
+		auo.SetIsAdmin(*b)
+	}
+	return auo
+}
+
 // Mutation returns the AccountMutation object of the builder.
 func (auo *AccountUpdateOne) Mutation() *AccountMutation {
 	return auo.mutation
@@ -835,6 +866,9 @@ func (auo *AccountUpdateOne) sqlSave(ctx context.Context) (_node *Account, err e
 	}
 	if auo.mutation.APIKeyCleared() {
 		_spec.ClearField(account.FieldAPIKey, field.TypeUUID)
+	}
+	if value, ok := auo.mutation.IsAdmin(); ok {
+		_spec.SetField(account.FieldIsAdmin, field.TypeBool, value)
 	}
 	_node = &Account{config: auo.config}
 	_spec.Assign = _node.assignValues

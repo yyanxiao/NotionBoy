@@ -28,6 +28,8 @@ type hooks struct {
 	ChatHistory         []ent.Hook
 	Conversation        []ent.Hook
 	ConversationMessage []ent.Hook
+	Order               []ent.Hook
+	Product             []ent.Hook
 	Quota               []ent.Hook
 	WechatSession       []ent.Hook
 }

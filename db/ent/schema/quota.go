@@ -18,13 +18,10 @@ type Quota struct {
 func (Quota) Fields() []ent.Field {
 	return []ent.Field{
 		field.Int("user_id").Comment("user id"),
-		field.Enum("category").Values("chatgpt"),
-		field.Int("daily").Optional(),
-		field.Int("monthly").Optional(),
-		field.Int("yearly").Optional(),
-		field.Int("daily_used").Optional(),
-		field.Int("monthly_used").Optional(),
-		field.Int("yearly_used").Optional(),
+		field.String("plan").Comment("plan name"),
+		field.Time("reset_time").Comment("Time to reset quota"),
+		field.Int64("token").Comment("total openai token"),
+		field.Int64("token_used").Default(0).Comment("used openai token"),
 	}
 }
 
@@ -41,6 +38,6 @@ func (Quota) Mixin() []ent.Mixin {
 
 func (Quota) Indexes() []ent.Index {
 	return []ent.Index{
-		index.Fields("user_id", "category").Unique(),
+		index.Fields("user_id").Unique(),
 	}
 }

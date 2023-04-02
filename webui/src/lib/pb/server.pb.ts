@@ -9,6 +9,8 @@ import * as GoogleProtobufEmpty from "./google/protobuf/empty.pb"
 import * as GoogleRpcStatus from "./google/rpc/status.pb"
 import * as Servicev1Common from "./model/common.pb"
 import * as Servicev1Conversation from "./model/conversation.pb"
+import * as Servicev1Order from "./model/order.pb"
+import * as Servicev1Product from "./model/product.pb"
 export type CheckStatusResponse = {
   status?: GoogleRpcStatus.Status
 }
@@ -61,5 +63,38 @@ export class Service {
   }
   static DeleteMessage(req: Servicev1Conversation.DeleteMessageRequest, initReq?: fm.InitReq): Promise<GoogleProtobufEmpty.Empty> {
     return fm.fetchReq<Servicev1Conversation.DeleteMessageRequest, GoogleProtobufEmpty.Empty>(`/v1/conversations/${req["conversationId"]}/messages/${req["id"]}`, {...initReq, method: "DELETE"})
+  }
+  static CreateOrder(req: Servicev1Order.CreateOrderRequest, initReq?: fm.InitReq): Promise<Servicev1Order.Order> {
+    return fm.fetchReq<Servicev1Order.CreateOrderRequest, Servicev1Order.Order>(`/v1/orders`, {...initReq, method: "POST", body: JSON.stringify(req, fm.replacer)})
+  }
+  static GetOrder(req: Servicev1Order.GetOrderRequest, initReq?: fm.InitReq): Promise<Servicev1Order.Order> {
+    return fm.fetchReq<Servicev1Order.GetOrderRequest, Servicev1Order.Order>(`/v1/orders/${req["id"]}?${fm.renderURLSearchParams(req, ["id"])}`, {...initReq, method: "GET"})
+  }
+  static ListOrders(req: Servicev1Order.ListOrdersRequest, initReq?: fm.InitReq): Promise<Servicev1Order.ListOrdersResponse> {
+    return fm.fetchReq<Servicev1Order.ListOrdersRequest, Servicev1Order.ListOrdersResponse>(`/v1/orders?${fm.renderURLSearchParams(req, [])}`, {...initReq, method: "GET"})
+  }
+  static DeleteOrder(req: Servicev1Order.DeleteOrderRequest, initReq?: fm.InitReq): Promise<GoogleProtobufEmpty.Empty> {
+    return fm.fetchReq<Servicev1Order.DeleteOrderRequest, GoogleProtobufEmpty.Empty>(`/v1/orders/${req["id"]}`, {...initReq, method: "DELETE"})
+  }
+  static UpdateOrder(req: Servicev1Order.UpdateOrderRequest, initReq?: fm.InitReq): Promise<Servicev1Order.Order> {
+    return fm.fetchReq<Servicev1Order.UpdateOrderRequest, Servicev1Order.Order>(`/v1/orders/${req["id"]}`, {...initReq, method: "PATCH", body: JSON.stringify(req, fm.replacer)})
+  }
+  static PayOrder(req: Servicev1Order.PayOrderRequest, initReq?: fm.InitReq): Promise<Servicev1Order.PayOrderResponse> {
+    return fm.fetchReq<Servicev1Order.PayOrderRequest, Servicev1Order.PayOrderResponse>(`/v1/orders/${req["id"]}/pay`, {...initReq, method: "POST", body: JSON.stringify(req, fm.replacer)})
+  }
+  static CreateProduct(req: Servicev1Product.CreateProductRequest, initReq?: fm.InitReq): Promise<Servicev1Product.Product> {
+    return fm.fetchReq<Servicev1Product.CreateProductRequest, Servicev1Product.Product>(`/internal/v1/products`, {...initReq, method: "POST", body: JSON.stringify(req, fm.replacer)})
+  }
+  static GetProduct(req: Servicev1Product.GetProductRequest, initReq?: fm.InitReq): Promise<Servicev1Product.Product> {
+    return fm.fetchReq<Servicev1Product.GetProductRequest, Servicev1Product.Product>(`/internal/v1/products/${req["id"]}?${fm.renderURLSearchParams(req, ["id"])}`, {...initReq, method: "GET"})
+  }
+  static ListProducts(req: Servicev1Product.ListProductsRequest, initReq?: fm.InitReq): Promise<Servicev1Product.ListProductsResponse> {
+    return fm.fetchReq<Servicev1Product.ListProductsRequest, Servicev1Product.ListProductsResponse>(`/internal/v1/products?${fm.renderURLSearchParams(req, [])}`, {...initReq, method: "GET"})
+  }
+  static DeleteProduct(req: Servicev1Product.DeleteProductRequest, initReq?: fm.InitReq): Promise<GoogleProtobufEmpty.Empty> {
+    return fm.fetchReq<Servicev1Product.DeleteProductRequest, GoogleProtobufEmpty.Empty>(`/internal/v1/products/${req["id"]}`, {...initReq, method: "DELETE"})
+  }
+  static UpdateProduct(req: Servicev1Product.UpdateProductRequest, initReq?: fm.InitReq): Promise<Servicev1Product.Product> {
+    return fm.fetchReq<Servicev1Product.UpdateProductRequest, Servicev1Product.Product>(`/internal/v1/products/${req["id"]}`, {...initReq, method: "PATCH", body: JSON.stringify(req, fm.replacer)})
   }
 }

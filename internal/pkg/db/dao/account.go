@@ -2,13 +2,12 @@ package dao
 
 import (
 	"context"
-	"strings"
-
 	"notionboy/db/ent"
 	"notionboy/db/ent/account"
 	"notionboy/internal/pkg/config"
 	"notionboy/internal/pkg/db"
 	"notionboy/internal/pkg/logger"
+	"strings"
 
 	"github.com/google/uuid"
 )

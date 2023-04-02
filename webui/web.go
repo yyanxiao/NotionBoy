@@ -6,9 +6,8 @@ import (
 	"net/http"
 	"net/http/httputil"
 	"net/url"
-	"os"
-
 	"notionboy/internal/pkg/logger"
+	"os"
 )
 
 var (

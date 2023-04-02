@@ -172,6 +172,13 @@ func APIKey(v uuid.UUID) predicate.Account {
 	})
 }
 
+// IsAdmin applies equality check predicate on the "is_admin" field. It's identical to IsAdminEQ.
+func IsAdmin(v bool) predicate.Account {
+	return predicate.Account(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldIsAdmin), v))
+	})
+}
+
 // CreatedAtEQ applies the EQ predicate on the "created_at" field.
 func CreatedAtEQ(v time.Time) predicate.Account {
 	return predicate.Account(func(s *sql.Selector) {
@@ -1209,6 +1216,20 @@ func APIKeyIsNil() predicate.Account {
 func APIKeyNotNil() predicate.Account {
 	return predicate.Account(func(s *sql.Selector) {
 		s.Where(sql.NotNull(s.C(FieldAPIKey)))
+	})
+}
+
+// IsAdminEQ applies the EQ predicate on the "is_admin" field.
+func IsAdminEQ(v bool) predicate.Account {
+	return predicate.Account(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldIsAdmin), v))
+	})
+}
+
+// IsAdminNEQ applies the NEQ predicate on the "is_admin" field.
+func IsAdminNEQ(v bool) predicate.Account {
+	return predicate.Account(func(s *sql.Selector) {
+		s.Where(sql.NEQ(s.C(FieldIsAdmin), v))
 	})
 }
 

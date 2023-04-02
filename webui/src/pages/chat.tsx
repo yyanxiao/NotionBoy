@@ -159,6 +159,14 @@ export default function Chat() {
 				messageMap
 			);
 			setMessageMap(new Map(messageMap));
+			// check if selected conversation in conversations
+			// if not exists, add it to conversations as it is a new conversation
+			const conversation = conversations.find(
+				(c) => c.id === selectedConversation.id
+			);
+			if (conversation === undefined) {
+				setConversations([selectedConversation, ...conversations]);
+			}
 		})
 			.catch((error) => {
 				toast({
@@ -193,9 +201,9 @@ export default function Chat() {
 					<SideBarComponent />
 				</div>
 				<div className="lg:pl-[19.5rem]">
-					<div className="max-w-6xl mx-auto flex flex-col h-full">
-						<div className="flex flex-col relative min-h-screen">
-							<div className="lg:hidden sticky top-0 left-0 h-10 rounded-sm bg-gray-200 ">
+					<div className="flex flex-col h-full max-w-6xl mx-auto">
+						<div className="relative flex flex-col min-h-screen">
+							<div className="sticky top-0 left-0 h-10 bg-gray-200 rounded-sm lg:hidden ">
 								<MobileChatHeader />
 							</div>
 							<div className="flex-grow">

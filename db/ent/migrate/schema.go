@@ -26,6 +26,7 @@ var (
 		{Name: "is_openai_api_user", Type: field.TypeBool, Default: false},
 		{Name: "openai_api_key", Type: field.TypeString, Nullable: true},
 		{Name: "api_key", Type: field.TypeUUID, Nullable: true},
+		{Name: "is_admin", Type: field.TypeBool, Default: false},
 	}
 	// AccountsTable holds the schema information for the "accounts" table.
 	AccountsTable = &schema.Table{
@@ -96,7 +97,7 @@ var (
 		{Name: "conversation_id", Type: field.TypeUUID},
 		{Name: "request", Type: field.TypeString, Nullable: true, Size: 2147483647},
 		{Name: "response", Type: field.TypeString, Nullable: true, Size: 2147483647},
-		{Name: "token_usage", Type: field.TypeInt, Nullable: true},
+		{Name: "token_usage", Type: field.TypeInt64, Nullable: true},
 		{Name: "conversation_conversation_messages", Type: field.TypeInt, Nullable: true},
 	}
 	// ConversationMessagesTable holds the schema information for the "conversation_messages" table.
@@ -120,6 +121,52 @@ var (
 			},
 		},
 	}
+	// OrdersColumns holds the columns for the "orders" table.
+	OrdersColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "deleted", Type: field.TypeBool, Default: false},
+		{Name: "uuid", Type: field.TypeUUID, Unique: true},
+		{Name: "user_id", Type: field.TypeUUID},
+		{Name: "product_id", Type: field.TypeUUID},
+		{Name: "price", Type: field.TypeFloat64},
+		{Name: "status", Type: field.TypeEnum, Enums: []string{"Unpaid", "Paying", "Paid", "Processing", "Cancelled", "Refunded", "Completed"}, Default: "Unpaid"},
+		{Name: "note", Type: field.TypeString, Nullable: true, Size: 2147483647},
+		{Name: "payment_info", Type: field.TypeString, Nullable: true, Size: 2147483647},
+	}
+	// OrdersTable holds the schema information for the "orders" table.
+	OrdersTable = &schema.Table{
+		Name:       "orders",
+		Columns:    OrdersColumns,
+		PrimaryKey: []*schema.Column{OrdersColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "order_user_id_created_at",
+				Unique:  false,
+				Columns: []*schema.Column{OrdersColumns[5], OrdersColumns[1]},
+			},
+		},
+	}
+	// ProductsColumns holds the columns for the "products" table.
+	ProductsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "deleted", Type: field.TypeBool, Default: false},
+		{Name: "uuid", Type: field.TypeUUID, Unique: true},
+		{Name: "name", Type: field.TypeString, Default: "Free"},
+		{Name: "description", Type: field.TypeString, Size: 2147483647},
+		{Name: "price", Type: field.TypeFloat64},
+		{Name: "token", Type: field.TypeInt64, Default: 10000},
+		{Name: "storage", Type: field.TypeInt64, Default: 100},
+	}
+	// ProductsTable holds the schema information for the "products" table.
+	ProductsTable = &schema.Table{
+		Name:       "products",
+		Columns:    ProductsColumns,
+		PrimaryKey: []*schema.Column{ProductsColumns[0]},
+	}
 	// QuotaColumns holds the columns for the "quota" table.
 	QuotaColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
@@ -127,13 +174,10 @@ var (
 		{Name: "updated_at", Type: field.TypeTime},
 		{Name: "deleted", Type: field.TypeBool, Default: false},
 		{Name: "user_id", Type: field.TypeInt},
-		{Name: "category", Type: field.TypeEnum, Enums: []string{"chatgpt"}},
-		{Name: "daily", Type: field.TypeInt, Nullable: true},
-		{Name: "monthly", Type: field.TypeInt, Nullable: true},
-		{Name: "yearly", Type: field.TypeInt, Nullable: true},
-		{Name: "daily_used", Type: field.TypeInt, Nullable: true},
-		{Name: "monthly_used", Type: field.TypeInt, Nullable: true},
-		{Name: "yearly_used", Type: field.TypeInt, Nullable: true},
+		{Name: "plan", Type: field.TypeString},
+		{Name: "reset_time", Type: field.TypeTime},
+		{Name: "token", Type: field.TypeInt64},
+		{Name: "token_used", Type: field.TypeInt64, Default: 0},
 	}
 	// QuotaTable holds the schema information for the "quota" table.
 	QuotaTable = &schema.Table{
@@ -142,9 +186,9 @@ var (
 		PrimaryKey: []*schema.Column{QuotaColumns[0]},
 		Indexes: []*schema.Index{
 			{
-				Name:    "quota_user_id_category",
+				Name:    "quota_user_id",
 				Unique:  true,
-				Columns: []*schema.Column{QuotaColumns[4], QuotaColumns[5]},
+				Columns: []*schema.Column{QuotaColumns[4]},
 			},
 		},
 	}
@@ -169,6 +213,8 @@ var (
 		ChatHistoriesTable,
 		ConversationsTable,
 		ConversationMessagesTable,
+		OrdersTable,
+		ProductsTable,
 		QuotaTable,
 		WechatSessionTable,
 	}

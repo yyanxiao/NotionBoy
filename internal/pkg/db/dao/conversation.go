@@ -2,7 +2,6 @@ package dao
 
 import (
 	"context"
-
 	"notionboy/db/ent"
 	"notionboy/db/ent/conversation"
 	"notionboy/internal/pkg/db"

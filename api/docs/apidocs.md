@@ -33,6 +33,26 @@
     - [Message](#servicev1-Message)
     - [UpdateConversationRequest](#servicev1-UpdateConversationRequest)
 
+- [model/product.proto](#model_product-proto)
+    - [CreateProductRequest](#servicev1-CreateProductRequest)
+    - [DeleteProductRequest](#servicev1-DeleteProductRequest)
+    - [GetProductRequest](#servicev1-GetProductRequest)
+    - [ListProductsRequest](#servicev1-ListProductsRequest)
+    - [ListProductsResponse](#servicev1-ListProductsResponse)
+    - [Product](#servicev1-Product)
+    - [UpdateProductRequest](#servicev1-UpdateProductRequest)
+
+- [model/order.proto](#model_order-proto)
+    - [CreateOrderRequest](#servicev1-CreateOrderRequest)
+    - [DeleteOrderRequest](#servicev1-DeleteOrderRequest)
+    - [GetOrderRequest](#servicev1-GetOrderRequest)
+    - [ListOrdersRequest](#servicev1-ListOrdersRequest)
+    - [ListOrdersResponse](#servicev1-ListOrdersResponse)
+    - [Order](#servicev1-Order)
+    - [PayOrderRequest](#servicev1-PayOrderRequest)
+    - [PayOrderResponse](#servicev1-PayOrderResponse)
+    - [UpdateOrderRequest](#servicev1-UpdateOrderRequest)
+
 - [server.proto](#server-proto)
     - [CheckStatusResponse](#servicev1-CheckStatusResponse)
 
@@ -473,6 +493,314 @@ NumericEnum is one or zero.
 
 
 
+<a name="model_product-proto"></a>
+<p align="right"><a href="#top">Top</a></p>
+
+## model/product.proto
+
+
+
+<a name="servicev1-CreateProductRequest"></a>
+
+### CreateProductRequest
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| name | [string](#string) |  |  |
+| price | [float](#float) |  |  |
+| token | [int64](#int64) |  |  |
+| storage | [int64](#int64) |  |  |
+| description | [string](#string) |  |  |
+
+
+
+
+
+
+<a name="servicev1-DeleteProductRequest"></a>
+
+### DeleteProductRequest
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| id | [string](#string) |  |  |
+
+
+
+
+
+
+<a name="servicev1-GetProductRequest"></a>
+
+### GetProductRequest
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| id | [string](#string) |  |  |
+
+
+
+
+
+
+<a name="servicev1-ListProductsRequest"></a>
+
+### ListProductsRequest
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| limit | [int32](#int32) |  |  |
+| offset | [int32](#int32) |  |  |
+
+
+
+
+
+
+<a name="servicev1-ListProductsResponse"></a>
+
+### ListProductsResponse
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| products | [Product](#servicev1-Product) | repeated |  |
+
+
+
+
+
+
+<a name="servicev1-Product"></a>
+
+### Product
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| id | [string](#string) |  |  |
+| created_at | [string](#string) |  |  |
+| updated_at | [string](#string) |  |  |
+| deleted | [string](#string) |  |  |
+| uuid | [string](#string) |  |  |
+| name | [string](#string) |  |  |
+| price | [float](#float) |  |  |
+| token | [int64](#int64) |  |  |
+| storage | [int64](#int64) |  |  |
+| description | [string](#string) |  |  |
+
+
+
+
+
+
+<a name="servicev1-UpdateProductRequest"></a>
+
+### UpdateProductRequest
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| id | [string](#string) |  |  |
+| name | [string](#string) |  |  |
+| price | [float](#float) |  |  |
+| token | [int64](#int64) |  |  |
+| storage | [int64](#int64) |  |  |
+| description | [string](#string) |  |  |
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<a name="model_order-proto"></a>
+<p align="right"><a href="#top">Top</a></p>
+
+## model/order.proto
+
+
+
+<a name="servicev1-CreateOrderRequest"></a>
+
+### CreateOrderRequest
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| product_id | [string](#string) |  |  |
+| note | [string](#string) |  |  |
+
+
+
+
+
+
+<a name="servicev1-DeleteOrderRequest"></a>
+
+### DeleteOrderRequest
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| id | [string](#string) |  |  |
+
+
+
+
+
+
+<a name="servicev1-GetOrderRequest"></a>
+
+### GetOrderRequest
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| id | [string](#string) |  |  |
+| is_check_payment | [bool](#bool) |  |  |
+
+
+
+
+
+
+<a name="servicev1-ListOrdersRequest"></a>
+
+### ListOrdersRequest
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| status | [string](#string) |  |  |
+| limit | [int32](#int32) |  |  |
+| offset | [int32](#int32) |  |  |
+
+
+
+
+
+
+<a name="servicev1-ListOrdersResponse"></a>
+
+### ListOrdersResponse
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| orders | [Order](#servicev1-Order) | repeated |  |
+
+
+
+
+
+
+<a name="servicev1-Order"></a>
+
+### Order
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| id | [string](#string) |  |  |
+| created_at | [string](#string) |  |  |
+| updated_at | [string](#string) |  |  |
+| deleted | [string](#string) |  |  |
+| uuid | [string](#string) |  |  |
+| user_id | [string](#string) |  |  |
+| price | [float](#float) |  |  |
+| status | [string](#string) |  |  |
+| note | [string](#string) |  |  |
+| payment_method | [string](#string) |  |  |
+| product | [Product](#servicev1-Product) |  |  |
+
+
+
+
+
+
+<a name="servicev1-PayOrderRequest"></a>
+
+### PayOrderRequest
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| id | [string](#string) |  |  |
+| payment_method | [string](#string) |  |  |
+
+
+
+
+
+
+<a name="servicev1-PayOrderResponse"></a>
+
+### PayOrderResponse
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| status | [string](#string) |  |  |
+| qrcode | [string](#string) |  |  |
+
+
+
+
+
+
+<a name="servicev1-UpdateOrderRequest"></a>
+
+### UpdateOrderRequest
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| id | [string](#string) |  |  |
+| note | [string](#string) |  |  |
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 <a name="server-proto"></a>
 <p align="right"><a href="#top">Top</a></p>
 
@@ -524,6 +852,17 @@ NumericEnum is one or zero.
 | GetMessage | [GetMessageRequest](#servicev1-GetMessageRequest) | [Message](#servicev1-Message) |  |
 | ListMessages | [ListMessagesRequest](#servicev1-ListMessagesRequest) | [ListMessagesResponse](#servicev1-ListMessagesResponse) |  |
 | DeleteMessage | [DeleteMessageRequest](#servicev1-DeleteMessageRequest) | [.google.protobuf.Empty](#google-protobuf-Empty) |  |
+| CreateOrder | [CreateOrderRequest](#servicev1-CreateOrderRequest) | [Order](#servicev1-Order) | CreateOrder create a new order |
+| GetOrder | [GetOrderRequest](#servicev1-GetOrderRequest) | [Order](#servicev1-Order) | get order |
+| ListOrders | [ListOrdersRequest](#servicev1-ListOrdersRequest) | [ListOrdersResponse](#servicev1-ListOrdersResponse) | list orders |
+| DeleteOrder | [DeleteOrderRequest](#servicev1-DeleteOrderRequest) | [.google.protobuf.Empty](#google-protobuf-Empty) | delete order |
+| UpdateOrder | [UpdateOrderRequest](#servicev1-UpdateOrderRequest) | [Order](#servicev1-Order) | update order |
+| PayOrder | [PayOrderRequest](#servicev1-PayOrderRequest) | [PayOrderResponse](#servicev1-PayOrderResponse) | pay order |
+| CreateProduct | [CreateProductRequest](#servicev1-CreateProductRequest) | [Product](#servicev1-Product) | CRUUD for products |
+| GetProduct | [GetProductRequest](#servicev1-GetProductRequest) | [Product](#servicev1-Product) |  |
+| ListProducts | [ListProductsRequest](#servicev1-ListProductsRequest) | [ListProductsResponse](#servicev1-ListProductsResponse) |  |
+| DeleteProduct | [DeleteProductRequest](#servicev1-DeleteProductRequest) | [.google.protobuf.Empty](#google-protobuf-Empty) |  |
+| UpdateProduct | [UpdateProductRequest](#servicev1-UpdateProductRequest) | [Product](#servicev1-Product) |  |
 
 
 

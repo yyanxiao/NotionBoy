@@ -2,10 +2,10 @@ package handler
 
 import (
 	"context"
-
 	"notionboy/api/pb"
-	model "notionboy/api/pb/model"
 	"notionboy/internal/pkg/logger"
+
+	model "notionboy/api/pb/model"
 
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"

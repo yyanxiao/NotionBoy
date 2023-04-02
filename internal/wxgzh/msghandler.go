@@ -2,14 +2,14 @@ package wxgzh
 
 import (
 	"context"
-	"strconv"
-	"strings"
-	"time"
-
+	"fmt"
 	"notionboy/db/ent"
 	"notionboy/internal/pkg/config"
 	"notionboy/internal/pkg/db/dao"
 	"notionboy/internal/pkg/logger"
+	"strconv"
+	"strings"
+	"time"
 
 	notion "notionboy/internal/pkg/notion"
 
@@ -49,6 +49,11 @@ func (ex *OfficialAccount) messageHandler(ctx context.Context, msg *message.MixM
 	mr := make(chan *message.Reply)
 	msgID := strconv.FormatInt(msg.MsgID, 10)
 	defer sg.Forget(msgID)
+
+	isChat := func() bool {
+		return strings.HasPrefix(strings.ToUpper(msg.Content), config.CMD_CHAT)
+	}
+
 	// singleflight.Group Do will process wechat retry logic
 	res, _, _ := sg.Do(msgID, func() (interface{}, error) {
 		cmd := strings.ToUpper(msg.Content)
@@ -57,9 +62,7 @@ func (ex *OfficialAccount) messageHandler(ctx context.Context, msg *message.MixM
 			return bindNotion(ctx, msg), nil
 		case config.CMD_UNBIND:
 			return unBindingNotion(ctx, msg), nil
-		case config.CMD_HELP:
-			return helpInfo(ctx, msg), nil
-		case config.CMD_HELP_ZH:
+		case config.CMD_HELP, config.CMD_HELP_ZH:
 			return helpInfo(ctx, msg), nil
 		case config.CMD_SOS:
 			return sosInfo(ctx, msg), nil
@@ -71,11 +74,12 @@ func (ex *OfficialAccount) messageHandler(ctx context.Context, msg *message.MixM
 			return webui(ctx, msg), nil
 		case config.CMD_MAGIC_CODE:
 			return magicCode(ctx, msg), nil
+		case config.CMD_WHOAMI:
+			return whoAMI(ctx, msg), nil
 		}
 
 		// process chatGPT
-		if strings.HasPrefix(strings.ToUpper(msg.Content), config.CMD_CHAT) ||
-			strings.HasPrefix(strings.ToUpper(msg.Content), config.CMD_CHAT_SLASH) {
+		if isChat() {
 			go ex.processChat(context.TODO(), msg, content, mr)
 		} else if strings.HasPrefix(strings.ToUpper(msg.Content), config.CMD_ZLIB) {
 			go searchZlib(context.TODO(), msg, mr)
@@ -88,6 +92,11 @@ func (ex *OfficialAccount) messageHandler(ctx context.Context, msg *message.MixM
 			return r, nil
 		// wechat timeout set to 13 seconds
 		case <-time.After(13 * time.Second):
+			if isChat() {
+				text := fmt.Sprintf("ChatGPT 不能及时返回，请到 %s%s 查看结果, 网页上包含所有的聊天记录",
+					config.GetConfig().Service.URL, "/web/chat.html")
+				return &message.Reply{MsgType: message.MsgTypeText, MsgData: message.NewText(text)}, nil
+			}
 			return &message.Reply{MsgType: message.MsgTypeText, MsgData: message.NewText(config.MSG_PROCESSING)}, nil
 		}
 	})

@@ -1,10 +1,9 @@
 package conversation
 
 import (
-	"time"
-
 	"notionboy/api/pb/model"
 	"notionboy/db/ent"
+	"time"
 
 	"github.com/google/uuid"
 )
@@ -82,7 +81,7 @@ type ConversationMessageDTO struct {
 	ConversationID string    `json:"conversation_id"`
 	Request        string    `json:"request"`
 	Response       string    `json:"response"`
-	TokenUsage     int       `json:"token_usage"`
+	TokenUsage     int64     `json:"token_usage"`
 }
 
 func (d *ConversationMessageDTO) ToDB() *ent.ConversationMessage {

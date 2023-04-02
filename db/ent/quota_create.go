@@ -70,92 +70,34 @@ func (qc *QuotaCreate) SetUserID(i int) *QuotaCreate {
 	return qc
 }
 
-// SetCategory sets the "category" field.
-func (qc *QuotaCreate) SetCategory(q quota.Category) *QuotaCreate {
-	qc.mutation.SetCategory(q)
+// SetPlan sets the "plan" field.
+func (qc *QuotaCreate) SetPlan(s string) *QuotaCreate {
+	qc.mutation.SetPlan(s)
 	return qc
 }
 
-// SetDaily sets the "daily" field.
-func (qc *QuotaCreate) SetDaily(i int) *QuotaCreate {
-	qc.mutation.SetDaily(i)
+// SetResetTime sets the "reset_time" field.
+func (qc *QuotaCreate) SetResetTime(t time.Time) *QuotaCreate {
+	qc.mutation.SetResetTime(t)
 	return qc
 }
 
-// SetNillableDaily sets the "daily" field if the given value is not nil.
-func (qc *QuotaCreate) SetNillableDaily(i *int) *QuotaCreate {
+// SetToken sets the "token" field.
+func (qc *QuotaCreate) SetToken(i int64) *QuotaCreate {
+	qc.mutation.SetToken(i)
+	return qc
+}
+
+// SetTokenUsed sets the "token_used" field.
+func (qc *QuotaCreate) SetTokenUsed(i int64) *QuotaCreate {
+	qc.mutation.SetTokenUsed(i)
+	return qc
+}
+
+// SetNillableTokenUsed sets the "token_used" field if the given value is not nil.
+func (qc *QuotaCreate) SetNillableTokenUsed(i *int64) *QuotaCreate {
 	if i != nil {
-		qc.SetDaily(*i)
-	}
-	return qc
-}
-
-// SetMonthly sets the "monthly" field.
-func (qc *QuotaCreate) SetMonthly(i int) *QuotaCreate {
-	qc.mutation.SetMonthly(i)
-	return qc
-}
-
-// SetNillableMonthly sets the "monthly" field if the given value is not nil.
-func (qc *QuotaCreate) SetNillableMonthly(i *int) *QuotaCreate {
-	if i != nil {
-		qc.SetMonthly(*i)
-	}
-	return qc
-}
-
-// SetYearly sets the "yearly" field.
-func (qc *QuotaCreate) SetYearly(i int) *QuotaCreate {
-	qc.mutation.SetYearly(i)
-	return qc
-}
-
-// SetNillableYearly sets the "yearly" field if the given value is not nil.
-func (qc *QuotaCreate) SetNillableYearly(i *int) *QuotaCreate {
-	if i != nil {
-		qc.SetYearly(*i)
-	}
-	return qc
-}
-
-// SetDailyUsed sets the "daily_used" field.
-func (qc *QuotaCreate) SetDailyUsed(i int) *QuotaCreate {
-	qc.mutation.SetDailyUsed(i)
-	return qc
-}
-
-// SetNillableDailyUsed sets the "daily_used" field if the given value is not nil.
-func (qc *QuotaCreate) SetNillableDailyUsed(i *int) *QuotaCreate {
-	if i != nil {
-		qc.SetDailyUsed(*i)
-	}
-	return qc
-}
-
-// SetMonthlyUsed sets the "monthly_used" field.
-func (qc *QuotaCreate) SetMonthlyUsed(i int) *QuotaCreate {
-	qc.mutation.SetMonthlyUsed(i)
-	return qc
-}
-
-// SetNillableMonthlyUsed sets the "monthly_used" field if the given value is not nil.
-func (qc *QuotaCreate) SetNillableMonthlyUsed(i *int) *QuotaCreate {
-	if i != nil {
-		qc.SetMonthlyUsed(*i)
-	}
-	return qc
-}
-
-// SetYearlyUsed sets the "yearly_used" field.
-func (qc *QuotaCreate) SetYearlyUsed(i int) *QuotaCreate {
-	qc.mutation.SetYearlyUsed(i)
-	return qc
-}
-
-// SetNillableYearlyUsed sets the "yearly_used" field if the given value is not nil.
-func (qc *QuotaCreate) SetNillableYearlyUsed(i *int) *QuotaCreate {
-	if i != nil {
-		qc.SetYearlyUsed(*i)
+		qc.SetTokenUsed(*i)
 	}
 	return qc
 }
@@ -249,6 +191,10 @@ func (qc *QuotaCreate) defaults() {
 		v := quota.DefaultDeleted
 		qc.mutation.SetDeleted(v)
 	}
+	if _, ok := qc.mutation.TokenUsed(); !ok {
+		v := quota.DefaultTokenUsed
+		qc.mutation.SetTokenUsed(v)
+	}
 }
 
 // check runs all checks and user-defined validators on the builder.
@@ -265,13 +211,17 @@ func (qc *QuotaCreate) check() error {
 	if _, ok := qc.mutation.UserID(); !ok {
 		return &ValidationError{Name: "user_id", err: errors.New(`ent: missing required field "Quota.user_id"`)}
 	}
-	if _, ok := qc.mutation.Category(); !ok {
-		return &ValidationError{Name: "category", err: errors.New(`ent: missing required field "Quota.category"`)}
+	if _, ok := qc.mutation.Plan(); !ok {
+		return &ValidationError{Name: "plan", err: errors.New(`ent: missing required field "Quota.plan"`)}
 	}
-	if v, ok := qc.mutation.Category(); ok {
-		if err := quota.CategoryValidator(v); err != nil {
-			return &ValidationError{Name: "category", err: fmt.Errorf(`ent: validator failed for field "Quota.category": %w`, err)}
-		}
+	if _, ok := qc.mutation.ResetTime(); !ok {
+		return &ValidationError{Name: "reset_time", err: errors.New(`ent: missing required field "Quota.reset_time"`)}
+	}
+	if _, ok := qc.mutation.Token(); !ok {
+		return &ValidationError{Name: "token", err: errors.New(`ent: missing required field "Quota.token"`)}
+	}
+	if _, ok := qc.mutation.TokenUsed(); !ok {
+		return &ValidationError{Name: "token_used", err: errors.New(`ent: missing required field "Quota.token_used"`)}
 	}
 	return nil
 }
@@ -317,33 +267,21 @@ func (qc *QuotaCreate) createSpec() (*Quota, *sqlgraph.CreateSpec) {
 		_spec.SetField(quota.FieldUserID, field.TypeInt, value)
 		_node.UserID = value
 	}
-	if value, ok := qc.mutation.Category(); ok {
-		_spec.SetField(quota.FieldCategory, field.TypeEnum, value)
-		_node.Category = value
+	if value, ok := qc.mutation.Plan(); ok {
+		_spec.SetField(quota.FieldPlan, field.TypeString, value)
+		_node.Plan = value
 	}
-	if value, ok := qc.mutation.Daily(); ok {
-		_spec.SetField(quota.FieldDaily, field.TypeInt, value)
-		_node.Daily = value
+	if value, ok := qc.mutation.ResetTime(); ok {
+		_spec.SetField(quota.FieldResetTime, field.TypeTime, value)
+		_node.ResetTime = value
 	}
-	if value, ok := qc.mutation.Monthly(); ok {
-		_spec.SetField(quota.FieldMonthly, field.TypeInt, value)
-		_node.Monthly = value
+	if value, ok := qc.mutation.Token(); ok {
+		_spec.SetField(quota.FieldToken, field.TypeInt64, value)
+		_node.Token = value
 	}
-	if value, ok := qc.mutation.Yearly(); ok {
-		_spec.SetField(quota.FieldYearly, field.TypeInt, value)
-		_node.Yearly = value
-	}
-	if value, ok := qc.mutation.DailyUsed(); ok {
-		_spec.SetField(quota.FieldDailyUsed, field.TypeInt, value)
-		_node.DailyUsed = value
-	}
-	if value, ok := qc.mutation.MonthlyUsed(); ok {
-		_spec.SetField(quota.FieldMonthlyUsed, field.TypeInt, value)
-		_node.MonthlyUsed = value
-	}
-	if value, ok := qc.mutation.YearlyUsed(); ok {
-		_spec.SetField(quota.FieldYearlyUsed, field.TypeInt, value)
-		_node.YearlyUsed = value
+	if value, ok := qc.mutation.TokenUsed(); ok {
+		_spec.SetField(quota.FieldTokenUsed, field.TypeInt64, value)
+		_node.TokenUsed = value
 	}
 	return _node, _spec
 }
@@ -439,159 +377,63 @@ func (u *QuotaUpsert) AddUserID(v int) *QuotaUpsert {
 	return u
 }
 
-// SetCategory sets the "category" field.
-func (u *QuotaUpsert) SetCategory(v quota.Category) *QuotaUpsert {
-	u.Set(quota.FieldCategory, v)
+// SetPlan sets the "plan" field.
+func (u *QuotaUpsert) SetPlan(v string) *QuotaUpsert {
+	u.Set(quota.FieldPlan, v)
 	return u
 }
 
-// UpdateCategory sets the "category" field to the value that was provided on create.
-func (u *QuotaUpsert) UpdateCategory() *QuotaUpsert {
-	u.SetExcluded(quota.FieldCategory)
+// UpdatePlan sets the "plan" field to the value that was provided on create.
+func (u *QuotaUpsert) UpdatePlan() *QuotaUpsert {
+	u.SetExcluded(quota.FieldPlan)
 	return u
 }
 
-// SetDaily sets the "daily" field.
-func (u *QuotaUpsert) SetDaily(v int) *QuotaUpsert {
-	u.Set(quota.FieldDaily, v)
+// SetResetTime sets the "reset_time" field.
+func (u *QuotaUpsert) SetResetTime(v time.Time) *QuotaUpsert {
+	u.Set(quota.FieldResetTime, v)
 	return u
 }
 
-// UpdateDaily sets the "daily" field to the value that was provided on create.
-func (u *QuotaUpsert) UpdateDaily() *QuotaUpsert {
-	u.SetExcluded(quota.FieldDaily)
+// UpdateResetTime sets the "reset_time" field to the value that was provided on create.
+func (u *QuotaUpsert) UpdateResetTime() *QuotaUpsert {
+	u.SetExcluded(quota.FieldResetTime)
 	return u
 }
 
-// AddDaily adds v to the "daily" field.
-func (u *QuotaUpsert) AddDaily(v int) *QuotaUpsert {
-	u.Add(quota.FieldDaily, v)
+// SetToken sets the "token" field.
+func (u *QuotaUpsert) SetToken(v int64) *QuotaUpsert {
+	u.Set(quota.FieldToken, v)
 	return u
 }
 
-// ClearDaily clears the value of the "daily" field.
-func (u *QuotaUpsert) ClearDaily() *QuotaUpsert {
-	u.SetNull(quota.FieldDaily)
+// UpdateToken sets the "token" field to the value that was provided on create.
+func (u *QuotaUpsert) UpdateToken() *QuotaUpsert {
+	u.SetExcluded(quota.FieldToken)
 	return u
 }
 
-// SetMonthly sets the "monthly" field.
-func (u *QuotaUpsert) SetMonthly(v int) *QuotaUpsert {
-	u.Set(quota.FieldMonthly, v)
+// AddToken adds v to the "token" field.
+func (u *QuotaUpsert) AddToken(v int64) *QuotaUpsert {
+	u.Add(quota.FieldToken, v)
 	return u
 }
 
-// UpdateMonthly sets the "monthly" field to the value that was provided on create.
-func (u *QuotaUpsert) UpdateMonthly() *QuotaUpsert {
-	u.SetExcluded(quota.FieldMonthly)
+// SetTokenUsed sets the "token_used" field.
+func (u *QuotaUpsert) SetTokenUsed(v int64) *QuotaUpsert {
+	u.Set(quota.FieldTokenUsed, v)
 	return u
 }
 
-// AddMonthly adds v to the "monthly" field.
-func (u *QuotaUpsert) AddMonthly(v int) *QuotaUpsert {
-	u.Add(quota.FieldMonthly, v)
+// UpdateTokenUsed sets the "token_used" field to the value that was provided on create.
+func (u *QuotaUpsert) UpdateTokenUsed() *QuotaUpsert {
+	u.SetExcluded(quota.FieldTokenUsed)
 	return u
 }
 
-// ClearMonthly clears the value of the "monthly" field.
-func (u *QuotaUpsert) ClearMonthly() *QuotaUpsert {
-	u.SetNull(quota.FieldMonthly)
-	return u
-}
-
-// SetYearly sets the "yearly" field.
-func (u *QuotaUpsert) SetYearly(v int) *QuotaUpsert {
-	u.Set(quota.FieldYearly, v)
-	return u
-}
-
-// UpdateYearly sets the "yearly" field to the value that was provided on create.
-func (u *QuotaUpsert) UpdateYearly() *QuotaUpsert {
-	u.SetExcluded(quota.FieldYearly)
-	return u
-}
-
-// AddYearly adds v to the "yearly" field.
-func (u *QuotaUpsert) AddYearly(v int) *QuotaUpsert {
-	u.Add(quota.FieldYearly, v)
-	return u
-}
-
-// ClearYearly clears the value of the "yearly" field.
-func (u *QuotaUpsert) ClearYearly() *QuotaUpsert {
-	u.SetNull(quota.FieldYearly)
-	return u
-}
-
-// SetDailyUsed sets the "daily_used" field.
-func (u *QuotaUpsert) SetDailyUsed(v int) *QuotaUpsert {
-	u.Set(quota.FieldDailyUsed, v)
-	return u
-}
-
-// UpdateDailyUsed sets the "daily_used" field to the value that was provided on create.
-func (u *QuotaUpsert) UpdateDailyUsed() *QuotaUpsert {
-	u.SetExcluded(quota.FieldDailyUsed)
-	return u
-}
-
-// AddDailyUsed adds v to the "daily_used" field.
-func (u *QuotaUpsert) AddDailyUsed(v int) *QuotaUpsert {
-	u.Add(quota.FieldDailyUsed, v)
-	return u
-}
-
-// ClearDailyUsed clears the value of the "daily_used" field.
-func (u *QuotaUpsert) ClearDailyUsed() *QuotaUpsert {
-	u.SetNull(quota.FieldDailyUsed)
-	return u
-}
-
-// SetMonthlyUsed sets the "monthly_used" field.
-func (u *QuotaUpsert) SetMonthlyUsed(v int) *QuotaUpsert {
-	u.Set(quota.FieldMonthlyUsed, v)
-	return u
-}
-
-// UpdateMonthlyUsed sets the "monthly_used" field to the value that was provided on create.
-func (u *QuotaUpsert) UpdateMonthlyUsed() *QuotaUpsert {
-	u.SetExcluded(quota.FieldMonthlyUsed)
-	return u
-}
-
-// AddMonthlyUsed adds v to the "monthly_used" field.
-func (u *QuotaUpsert) AddMonthlyUsed(v int) *QuotaUpsert {
-	u.Add(quota.FieldMonthlyUsed, v)
-	return u
-}
-
-// ClearMonthlyUsed clears the value of the "monthly_used" field.
-func (u *QuotaUpsert) ClearMonthlyUsed() *QuotaUpsert {
-	u.SetNull(quota.FieldMonthlyUsed)
-	return u
-}
-
-// SetYearlyUsed sets the "yearly_used" field.
-func (u *QuotaUpsert) SetYearlyUsed(v int) *QuotaUpsert {
-	u.Set(quota.FieldYearlyUsed, v)
-	return u
-}
-
-// UpdateYearlyUsed sets the "yearly_used" field to the value that was provided on create.
-func (u *QuotaUpsert) UpdateYearlyUsed() *QuotaUpsert {
-	u.SetExcluded(quota.FieldYearlyUsed)
-	return u
-}
-
-// AddYearlyUsed adds v to the "yearly_used" field.
-func (u *QuotaUpsert) AddYearlyUsed(v int) *QuotaUpsert {
-	u.Add(quota.FieldYearlyUsed, v)
-	return u
-}
-
-// ClearYearlyUsed clears the value of the "yearly_used" field.
-func (u *QuotaUpsert) ClearYearlyUsed() *QuotaUpsert {
-	u.SetNull(quota.FieldYearlyUsed)
+// AddTokenUsed adds v to the "token_used" field.
+func (u *QuotaUpsert) AddTokenUsed(v int64) *QuotaUpsert {
+	u.Add(quota.FieldTokenUsed, v)
 	return u
 }
 
@@ -689,185 +531,73 @@ func (u *QuotaUpsertOne) UpdateUserID() *QuotaUpsertOne {
 	})
 }
 
-// SetCategory sets the "category" field.
-func (u *QuotaUpsertOne) SetCategory(v quota.Category) *QuotaUpsertOne {
+// SetPlan sets the "plan" field.
+func (u *QuotaUpsertOne) SetPlan(v string) *QuotaUpsertOne {
 	return u.Update(func(s *QuotaUpsert) {
-		s.SetCategory(v)
+		s.SetPlan(v)
 	})
 }
 
-// UpdateCategory sets the "category" field to the value that was provided on create.
-func (u *QuotaUpsertOne) UpdateCategory() *QuotaUpsertOne {
+// UpdatePlan sets the "plan" field to the value that was provided on create.
+func (u *QuotaUpsertOne) UpdatePlan() *QuotaUpsertOne {
 	return u.Update(func(s *QuotaUpsert) {
-		s.UpdateCategory()
+		s.UpdatePlan()
 	})
 }
 
-// SetDaily sets the "daily" field.
-func (u *QuotaUpsertOne) SetDaily(v int) *QuotaUpsertOne {
+// SetResetTime sets the "reset_time" field.
+func (u *QuotaUpsertOne) SetResetTime(v time.Time) *QuotaUpsertOne {
 	return u.Update(func(s *QuotaUpsert) {
-		s.SetDaily(v)
+		s.SetResetTime(v)
 	})
 }
 
-// AddDaily adds v to the "daily" field.
-func (u *QuotaUpsertOne) AddDaily(v int) *QuotaUpsertOne {
+// UpdateResetTime sets the "reset_time" field to the value that was provided on create.
+func (u *QuotaUpsertOne) UpdateResetTime() *QuotaUpsertOne {
 	return u.Update(func(s *QuotaUpsert) {
-		s.AddDaily(v)
+		s.UpdateResetTime()
 	})
 }
 
-// UpdateDaily sets the "daily" field to the value that was provided on create.
-func (u *QuotaUpsertOne) UpdateDaily() *QuotaUpsertOne {
+// SetToken sets the "token" field.
+func (u *QuotaUpsertOne) SetToken(v int64) *QuotaUpsertOne {
 	return u.Update(func(s *QuotaUpsert) {
-		s.UpdateDaily()
+		s.SetToken(v)
 	})
 }
 
-// ClearDaily clears the value of the "daily" field.
-func (u *QuotaUpsertOne) ClearDaily() *QuotaUpsertOne {
+// AddToken adds v to the "token" field.
+func (u *QuotaUpsertOne) AddToken(v int64) *QuotaUpsertOne {
 	return u.Update(func(s *QuotaUpsert) {
-		s.ClearDaily()
+		s.AddToken(v)
 	})
 }
 
-// SetMonthly sets the "monthly" field.
-func (u *QuotaUpsertOne) SetMonthly(v int) *QuotaUpsertOne {
+// UpdateToken sets the "token" field to the value that was provided on create.
+func (u *QuotaUpsertOne) UpdateToken() *QuotaUpsertOne {
 	return u.Update(func(s *QuotaUpsert) {
-		s.SetMonthly(v)
+		s.UpdateToken()
 	})
 }
 
-// AddMonthly adds v to the "monthly" field.
-func (u *QuotaUpsertOne) AddMonthly(v int) *QuotaUpsertOne {
+// SetTokenUsed sets the "token_used" field.
+func (u *QuotaUpsertOne) SetTokenUsed(v int64) *QuotaUpsertOne {
 	return u.Update(func(s *QuotaUpsert) {
-		s.AddMonthly(v)
+		s.SetTokenUsed(v)
 	})
 }
 
-// UpdateMonthly sets the "monthly" field to the value that was provided on create.
-func (u *QuotaUpsertOne) UpdateMonthly() *QuotaUpsertOne {
+// AddTokenUsed adds v to the "token_used" field.
+func (u *QuotaUpsertOne) AddTokenUsed(v int64) *QuotaUpsertOne {
 	return u.Update(func(s *QuotaUpsert) {
-		s.UpdateMonthly()
+		s.AddTokenUsed(v)
 	})
 }
 
-// ClearMonthly clears the value of the "monthly" field.
-func (u *QuotaUpsertOne) ClearMonthly() *QuotaUpsertOne {
+// UpdateTokenUsed sets the "token_used" field to the value that was provided on create.
+func (u *QuotaUpsertOne) UpdateTokenUsed() *QuotaUpsertOne {
 	return u.Update(func(s *QuotaUpsert) {
-		s.ClearMonthly()
-	})
-}
-
-// SetYearly sets the "yearly" field.
-func (u *QuotaUpsertOne) SetYearly(v int) *QuotaUpsertOne {
-	return u.Update(func(s *QuotaUpsert) {
-		s.SetYearly(v)
-	})
-}
-
-// AddYearly adds v to the "yearly" field.
-func (u *QuotaUpsertOne) AddYearly(v int) *QuotaUpsertOne {
-	return u.Update(func(s *QuotaUpsert) {
-		s.AddYearly(v)
-	})
-}
-
-// UpdateYearly sets the "yearly" field to the value that was provided on create.
-func (u *QuotaUpsertOne) UpdateYearly() *QuotaUpsertOne {
-	return u.Update(func(s *QuotaUpsert) {
-		s.UpdateYearly()
-	})
-}
-
-// ClearYearly clears the value of the "yearly" field.
-func (u *QuotaUpsertOne) ClearYearly() *QuotaUpsertOne {
-	return u.Update(func(s *QuotaUpsert) {
-		s.ClearYearly()
-	})
-}
-
-// SetDailyUsed sets the "daily_used" field.
-func (u *QuotaUpsertOne) SetDailyUsed(v int) *QuotaUpsertOne {
-	return u.Update(func(s *QuotaUpsert) {
-		s.SetDailyUsed(v)
-	})
-}
-
-// AddDailyUsed adds v to the "daily_used" field.
-func (u *QuotaUpsertOne) AddDailyUsed(v int) *QuotaUpsertOne {
-	return u.Update(func(s *QuotaUpsert) {
-		s.AddDailyUsed(v)
-	})
-}
-
-// UpdateDailyUsed sets the "daily_used" field to the value that was provided on create.
-func (u *QuotaUpsertOne) UpdateDailyUsed() *QuotaUpsertOne {
-	return u.Update(func(s *QuotaUpsert) {
-		s.UpdateDailyUsed()
-	})
-}
-
-// ClearDailyUsed clears the value of the "daily_used" field.
-func (u *QuotaUpsertOne) ClearDailyUsed() *QuotaUpsertOne {
-	return u.Update(func(s *QuotaUpsert) {
-		s.ClearDailyUsed()
-	})
-}
-
-// SetMonthlyUsed sets the "monthly_used" field.
-func (u *QuotaUpsertOne) SetMonthlyUsed(v int) *QuotaUpsertOne {
-	return u.Update(func(s *QuotaUpsert) {
-		s.SetMonthlyUsed(v)
-	})
-}
-
-// AddMonthlyUsed adds v to the "monthly_used" field.
-func (u *QuotaUpsertOne) AddMonthlyUsed(v int) *QuotaUpsertOne {
-	return u.Update(func(s *QuotaUpsert) {
-		s.AddMonthlyUsed(v)
-	})
-}
-
-// UpdateMonthlyUsed sets the "monthly_used" field to the value that was provided on create.
-func (u *QuotaUpsertOne) UpdateMonthlyUsed() *QuotaUpsertOne {
-	return u.Update(func(s *QuotaUpsert) {
-		s.UpdateMonthlyUsed()
-	})
-}
-
-// ClearMonthlyUsed clears the value of the "monthly_used" field.
-func (u *QuotaUpsertOne) ClearMonthlyUsed() *QuotaUpsertOne {
-	return u.Update(func(s *QuotaUpsert) {
-		s.ClearMonthlyUsed()
-	})
-}
-
-// SetYearlyUsed sets the "yearly_used" field.
-func (u *QuotaUpsertOne) SetYearlyUsed(v int) *QuotaUpsertOne {
-	return u.Update(func(s *QuotaUpsert) {
-		s.SetYearlyUsed(v)
-	})
-}
-
-// AddYearlyUsed adds v to the "yearly_used" field.
-func (u *QuotaUpsertOne) AddYearlyUsed(v int) *QuotaUpsertOne {
-	return u.Update(func(s *QuotaUpsert) {
-		s.AddYearlyUsed(v)
-	})
-}
-
-// UpdateYearlyUsed sets the "yearly_used" field to the value that was provided on create.
-func (u *QuotaUpsertOne) UpdateYearlyUsed() *QuotaUpsertOne {
-	return u.Update(func(s *QuotaUpsert) {
-		s.UpdateYearlyUsed()
-	})
-}
-
-// ClearYearlyUsed clears the value of the "yearly_used" field.
-func (u *QuotaUpsertOne) ClearYearlyUsed() *QuotaUpsertOne {
-	return u.Update(func(s *QuotaUpsert) {
-		s.ClearYearlyUsed()
+		s.UpdateTokenUsed()
 	})
 }
 
@@ -1127,185 +857,73 @@ func (u *QuotaUpsertBulk) UpdateUserID() *QuotaUpsertBulk {
 	})
 }
 
-// SetCategory sets the "category" field.
-func (u *QuotaUpsertBulk) SetCategory(v quota.Category) *QuotaUpsertBulk {
+// SetPlan sets the "plan" field.
+func (u *QuotaUpsertBulk) SetPlan(v string) *QuotaUpsertBulk {
 	return u.Update(func(s *QuotaUpsert) {
-		s.SetCategory(v)
+		s.SetPlan(v)
 	})
 }
 
-// UpdateCategory sets the "category" field to the value that was provided on create.
-func (u *QuotaUpsertBulk) UpdateCategory() *QuotaUpsertBulk {
+// UpdatePlan sets the "plan" field to the value that was provided on create.
+func (u *QuotaUpsertBulk) UpdatePlan() *QuotaUpsertBulk {
 	return u.Update(func(s *QuotaUpsert) {
-		s.UpdateCategory()
+		s.UpdatePlan()
 	})
 }
 
-// SetDaily sets the "daily" field.
-func (u *QuotaUpsertBulk) SetDaily(v int) *QuotaUpsertBulk {
+// SetResetTime sets the "reset_time" field.
+func (u *QuotaUpsertBulk) SetResetTime(v time.Time) *QuotaUpsertBulk {
 	return u.Update(func(s *QuotaUpsert) {
-		s.SetDaily(v)
+		s.SetResetTime(v)
 	})
 }
 
-// AddDaily adds v to the "daily" field.
-func (u *QuotaUpsertBulk) AddDaily(v int) *QuotaUpsertBulk {
+// UpdateResetTime sets the "reset_time" field to the value that was provided on create.
+func (u *QuotaUpsertBulk) UpdateResetTime() *QuotaUpsertBulk {
 	return u.Update(func(s *QuotaUpsert) {
-		s.AddDaily(v)
+		s.UpdateResetTime()
 	})
 }
 
-// UpdateDaily sets the "daily" field to the value that was provided on create.
-func (u *QuotaUpsertBulk) UpdateDaily() *QuotaUpsertBulk {
+// SetToken sets the "token" field.
+func (u *QuotaUpsertBulk) SetToken(v int64) *QuotaUpsertBulk {
 	return u.Update(func(s *QuotaUpsert) {
-		s.UpdateDaily()
+		s.SetToken(v)
 	})
 }
 
-// ClearDaily clears the value of the "daily" field.
-func (u *QuotaUpsertBulk) ClearDaily() *QuotaUpsertBulk {
+// AddToken adds v to the "token" field.
+func (u *QuotaUpsertBulk) AddToken(v int64) *QuotaUpsertBulk {
 	return u.Update(func(s *QuotaUpsert) {
-		s.ClearDaily()
+		s.AddToken(v)
 	})
 }
 
-// SetMonthly sets the "monthly" field.
-func (u *QuotaUpsertBulk) SetMonthly(v int) *QuotaUpsertBulk {
+// UpdateToken sets the "token" field to the value that was provided on create.
+func (u *QuotaUpsertBulk) UpdateToken() *QuotaUpsertBulk {
 	return u.Update(func(s *QuotaUpsert) {
-		s.SetMonthly(v)
+		s.UpdateToken()
 	})
 }
 
-// AddMonthly adds v to the "monthly" field.
-func (u *QuotaUpsertBulk) AddMonthly(v int) *QuotaUpsertBulk {
+// SetTokenUsed sets the "token_used" field.
+func (u *QuotaUpsertBulk) SetTokenUsed(v int64) *QuotaUpsertBulk {
 	return u.Update(func(s *QuotaUpsert) {
-		s.AddMonthly(v)
+		s.SetTokenUsed(v)
 	})
 }
 
-// UpdateMonthly sets the "monthly" field to the value that was provided on create.
-func (u *QuotaUpsertBulk) UpdateMonthly() *QuotaUpsertBulk {
+// AddTokenUsed adds v to the "token_used" field.
+func (u *QuotaUpsertBulk) AddTokenUsed(v int64) *QuotaUpsertBulk {
 	return u.Update(func(s *QuotaUpsert) {
-		s.UpdateMonthly()
+		s.AddTokenUsed(v)
 	})
 }
 
-// ClearMonthly clears the value of the "monthly" field.
-func (u *QuotaUpsertBulk) ClearMonthly() *QuotaUpsertBulk {
+// UpdateTokenUsed sets the "token_used" field to the value that was provided on create.
+func (u *QuotaUpsertBulk) UpdateTokenUsed() *QuotaUpsertBulk {
 	return u.Update(func(s *QuotaUpsert) {
-		s.ClearMonthly()
-	})
-}
-
-// SetYearly sets the "yearly" field.
-func (u *QuotaUpsertBulk) SetYearly(v int) *QuotaUpsertBulk {
-	return u.Update(func(s *QuotaUpsert) {
-		s.SetYearly(v)
-	})
-}
-
-// AddYearly adds v to the "yearly" field.
-func (u *QuotaUpsertBulk) AddYearly(v int) *QuotaUpsertBulk {
-	return u.Update(func(s *QuotaUpsert) {
-		s.AddYearly(v)
-	})
-}
-
-// UpdateYearly sets the "yearly" field to the value that was provided on create.
-func (u *QuotaUpsertBulk) UpdateYearly() *QuotaUpsertBulk {
-	return u.Update(func(s *QuotaUpsert) {
-		s.UpdateYearly()
-	})
-}
-
-// ClearYearly clears the value of the "yearly" field.
-func (u *QuotaUpsertBulk) ClearYearly() *QuotaUpsertBulk {
-	return u.Update(func(s *QuotaUpsert) {
-		s.ClearYearly()
-	})
-}
-
-// SetDailyUsed sets the "daily_used" field.
-func (u *QuotaUpsertBulk) SetDailyUsed(v int) *QuotaUpsertBulk {
-	return u.Update(func(s *QuotaUpsert) {
-		s.SetDailyUsed(v)
-	})
-}
-
-// AddDailyUsed adds v to the "daily_used" field.
-func (u *QuotaUpsertBulk) AddDailyUsed(v int) *QuotaUpsertBulk {
-	return u.Update(func(s *QuotaUpsert) {
-		s.AddDailyUsed(v)
-	})
-}
-
-// UpdateDailyUsed sets the "daily_used" field to the value that was provided on create.
-func (u *QuotaUpsertBulk) UpdateDailyUsed() *QuotaUpsertBulk {
-	return u.Update(func(s *QuotaUpsert) {
-		s.UpdateDailyUsed()
-	})
-}
-
-// ClearDailyUsed clears the value of the "daily_used" field.
-func (u *QuotaUpsertBulk) ClearDailyUsed() *QuotaUpsertBulk {
-	return u.Update(func(s *QuotaUpsert) {
-		s.ClearDailyUsed()
-	})
-}
-
-// SetMonthlyUsed sets the "monthly_used" field.
-func (u *QuotaUpsertBulk) SetMonthlyUsed(v int) *QuotaUpsertBulk {
-	return u.Update(func(s *QuotaUpsert) {
-		s.SetMonthlyUsed(v)
-	})
-}
-
-// AddMonthlyUsed adds v to the "monthly_used" field.
-func (u *QuotaUpsertBulk) AddMonthlyUsed(v int) *QuotaUpsertBulk {
-	return u.Update(func(s *QuotaUpsert) {
-		s.AddMonthlyUsed(v)
-	})
-}
-
-// UpdateMonthlyUsed sets the "monthly_used" field to the value that was provided on create.
-func (u *QuotaUpsertBulk) UpdateMonthlyUsed() *QuotaUpsertBulk {
-	return u.Update(func(s *QuotaUpsert) {
-		s.UpdateMonthlyUsed()
-	})
-}
-
-// ClearMonthlyUsed clears the value of the "monthly_used" field.
-func (u *QuotaUpsertBulk) ClearMonthlyUsed() *QuotaUpsertBulk {
-	return u.Update(func(s *QuotaUpsert) {
-		s.ClearMonthlyUsed()
-	})
-}
-
-// SetYearlyUsed sets the "yearly_used" field.
-func (u *QuotaUpsertBulk) SetYearlyUsed(v int) *QuotaUpsertBulk {
-	return u.Update(func(s *QuotaUpsert) {
-		s.SetYearlyUsed(v)
-	})
-}
-
-// AddYearlyUsed adds v to the "yearly_used" field.
-func (u *QuotaUpsertBulk) AddYearlyUsed(v int) *QuotaUpsertBulk {
-	return u.Update(func(s *QuotaUpsert) {
-		s.AddYearlyUsed(v)
-	})
-}
-
-// UpdateYearlyUsed sets the "yearly_used" field to the value that was provided on create.
-func (u *QuotaUpsertBulk) UpdateYearlyUsed() *QuotaUpsertBulk {
-	return u.Update(func(s *QuotaUpsert) {
-		s.UpdateYearlyUsed()
-	})
-}
-
-// ClearYearlyUsed clears the value of the "yearly_used" field.
-func (u *QuotaUpsertBulk) ClearYearlyUsed() *QuotaUpsertBulk {
-	return u.Update(func(s *QuotaUpsert) {
-		s.ClearYearlyUsed()
+		s.UpdateTokenUsed()
 	})
 }
 

@@ -24,7 +24,7 @@ func (ConversationMessage) Fields() []ent.Field {
 		field.UUID("conversation_id", uuid.UUID{}).Comment("Conversation ID for the conversation"),
 		field.Text("request").Optional().Comment("Request of the message"),
 		field.Text("response").Optional().Comment("Response of the message"),
-		field.Int("token_usage").Optional().Comment("Token usage of the message in the conversation"),
+		field.Int64("token_usage").Optional().Comment("Token usage of the message in the conversation"),
 	}
 }
 

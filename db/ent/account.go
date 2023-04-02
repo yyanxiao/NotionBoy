@@ -45,6 +45,8 @@ type Account struct {
 	OpenaiAPIKey string `json:"-"`
 	// API Key
 	APIKey uuid.UUID `json:"api_key,omitempty"`
+	// Is admin user
+	IsAdmin bool `json:"is_admin,omitempty"`
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -52,7 +54,7 @@ func (*Account) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case account.FieldDeleted, account.FieldIsLatestSchema, account.FieldIsOpenaiAPIUser:
+		case account.FieldDeleted, account.FieldIsLatestSchema, account.FieldIsOpenaiAPIUser, account.FieldIsAdmin:
 			values[i] = new(sql.NullBool)
 		case account.FieldID:
 			values[i] = new(sql.NullInt64)
@@ -167,6 +169,12 @@ func (a *Account) assignValues(columns []string, values []any) error {
 			} else if value != nil {
 				a.APIKey = *value
 			}
+		case account.FieldIsAdmin:
+			if value, ok := values[i].(*sql.NullBool); !ok {
+				return fmt.Errorf("unexpected type %T for field is_admin", values[i])
+			} else if value.Valid {
+				a.IsAdmin = value.Bool
+			}
 		}
 	}
 	return nil
@@ -234,6 +242,9 @@ func (a *Account) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("api_key=")
 	builder.WriteString(fmt.Sprintf("%v", a.APIKey))
+	builder.WriteString(", ")
+	builder.WriteString("is_admin=")
+	builder.WriteString(fmt.Sprintf("%v", a.IsAdmin))
 	builder.WriteByte(')')
 	return builder.String()
 }

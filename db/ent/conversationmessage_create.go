@@ -113,13 +113,13 @@ func (cmc *ConversationMessageCreate) SetNillableResponse(s *string) *Conversati
 }
 
 // SetTokenUsage sets the "token_usage" field.
-func (cmc *ConversationMessageCreate) SetTokenUsage(i int) *ConversationMessageCreate {
+func (cmc *ConversationMessageCreate) SetTokenUsage(i int64) *ConversationMessageCreate {
 	cmc.mutation.SetTokenUsage(i)
 	return cmc
 }
 
 // SetNillableTokenUsage sets the "token_usage" field if the given value is not nil.
-func (cmc *ConversationMessageCreate) SetNillableTokenUsage(i *int) *ConversationMessageCreate {
+func (cmc *ConversationMessageCreate) SetNillableTokenUsage(i *int64) *ConversationMessageCreate {
 	if i != nil {
 		cmc.SetTokenUsage(*i)
 	}
@@ -317,7 +317,7 @@ func (cmc *ConversationMessageCreate) createSpec() (*ConversationMessage, *sqlgr
 		_node.Response = value
 	}
 	if value, ok := cmc.mutation.TokenUsage(); ok {
-		_spec.SetField(conversationmessage.FieldTokenUsage, field.TypeInt, value)
+		_spec.SetField(conversationmessage.FieldTokenUsage, field.TypeInt64, value)
 		_node.TokenUsage = value
 	}
 	if nodes := cmc.mutation.ConversationsIDs(); len(nodes) > 0 {
@@ -477,7 +477,7 @@ func (u *ConversationMessageUpsert) ClearResponse() *ConversationMessageUpsert {
 }
 
 // SetTokenUsage sets the "token_usage" field.
-func (u *ConversationMessageUpsert) SetTokenUsage(v int) *ConversationMessageUpsert {
+func (u *ConversationMessageUpsert) SetTokenUsage(v int64) *ConversationMessageUpsert {
 	u.Set(conversationmessage.FieldTokenUsage, v)
 	return u
 }
@@ -489,7 +489,7 @@ func (u *ConversationMessageUpsert) UpdateTokenUsage() *ConversationMessageUpser
 }
 
 // AddTokenUsage adds v to the "token_usage" field.
-func (u *ConversationMessageUpsert) AddTokenUsage(v int) *ConversationMessageUpsert {
+func (u *ConversationMessageUpsert) AddTokenUsage(v int64) *ConversationMessageUpsert {
 	u.Add(conversationmessage.FieldTokenUsage, v)
 	return u
 }
@@ -647,14 +647,14 @@ func (u *ConversationMessageUpsertOne) ClearResponse() *ConversationMessageUpser
 }
 
 // SetTokenUsage sets the "token_usage" field.
-func (u *ConversationMessageUpsertOne) SetTokenUsage(v int) *ConversationMessageUpsertOne {
+func (u *ConversationMessageUpsertOne) SetTokenUsage(v int64) *ConversationMessageUpsertOne {
 	return u.Update(func(s *ConversationMessageUpsert) {
 		s.SetTokenUsage(v)
 	})
 }
 
 // AddTokenUsage adds v to the "token_usage" field.
-func (u *ConversationMessageUpsertOne) AddTokenUsage(v int) *ConversationMessageUpsertOne {
+func (u *ConversationMessageUpsertOne) AddTokenUsage(v int64) *ConversationMessageUpsertOne {
 	return u.Update(func(s *ConversationMessageUpsert) {
 		s.AddTokenUsage(v)
 	})
@@ -983,14 +983,14 @@ func (u *ConversationMessageUpsertBulk) ClearResponse() *ConversationMessageUpse
 }
 
 // SetTokenUsage sets the "token_usage" field.
-func (u *ConversationMessageUpsertBulk) SetTokenUsage(v int) *ConversationMessageUpsertBulk {
+func (u *ConversationMessageUpsertBulk) SetTokenUsage(v int64) *ConversationMessageUpsertBulk {
 	return u.Update(func(s *ConversationMessageUpsert) {
 		s.SetTokenUsage(v)
 	})
 }
 
 // AddTokenUsage adds v to the "token_usage" field.
-func (u *ConversationMessageUpsertBulk) AddTokenUsage(v int) *ConversationMessageUpsertBulk {
+func (u *ConversationMessageUpsertBulk) AddTokenUsage(v int64) *ConversationMessageUpsertBulk {
 	return u.Update(func(s *ConversationMessageUpsert) {
 		s.AddTokenUsage(v)
 	})

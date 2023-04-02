@@ -2,10 +2,9 @@ package jwt
 
 import (
 	"fmt"
-	"time"
-
 	"notionboy/internal/pkg/config"
 	"notionboy/internal/pkg/logger"
+	"time"
 
 	"github.com/golang-jwt/jwt/v5"
 )
@@ -57,7 +56,7 @@ func ValidateToken(tokenString string) (string, error) {
 		return "", fmt.Errorf("invalid token")
 	}
 
-	logger.SugaredLogger.Debugw("check token", "token", token)
+	// logger.SugaredLogger.Debugw("check token", "token", token)
 
 	// Get the custom claims from the token.
 	claims, ok := token.Claims.(jwt.MapClaims)

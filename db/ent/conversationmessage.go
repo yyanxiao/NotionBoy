@@ -35,7 +35,7 @@ type ConversationMessage struct {
 	// Response of the message
 	Response string `json:"response,omitempty"`
 	// Token usage of the message in the conversation
-	TokenUsage int `json:"token_usage,omitempty"`
+	TokenUsage int64 `json:"token_usage,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the ConversationMessageQuery when eager-loading is set.
 	Edges                              ConversationMessageEdges `json:"edges"`
@@ -154,7 +154,7 @@ func (cm *ConversationMessage) assignValues(columns []string, values []any) erro
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field token_usage", values[i])
 			} else if value.Valid {
-				cm.TokenUsage = int(value.Int64)
+				cm.TokenUsage = value.Int64
 			}
 		case conversationmessage.ForeignKeys[0]:
 			if value, ok := values[i].(*sql.NullInt64); !ok {

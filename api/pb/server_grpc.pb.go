@@ -37,6 +37,17 @@ const (
 	Service_GetMessage_FullMethodName           = "/servicev1.Service/GetMessage"
 	Service_ListMessages_FullMethodName         = "/servicev1.Service/ListMessages"
 	Service_DeleteMessage_FullMethodName        = "/servicev1.Service/DeleteMessage"
+	Service_CreateOrder_FullMethodName          = "/servicev1.Service/CreateOrder"
+	Service_GetOrder_FullMethodName             = "/servicev1.Service/GetOrder"
+	Service_ListOrders_FullMethodName           = "/servicev1.Service/ListOrders"
+	Service_DeleteOrder_FullMethodName          = "/servicev1.Service/DeleteOrder"
+	Service_UpdateOrder_FullMethodName          = "/servicev1.Service/UpdateOrder"
+	Service_PayOrder_FullMethodName             = "/servicev1.Service/PayOrder"
+	Service_CreateProduct_FullMethodName        = "/servicev1.Service/CreateProduct"
+	Service_GetProduct_FullMethodName           = "/servicev1.Service/GetProduct"
+	Service_ListProducts_FullMethodName         = "/servicev1.Service/ListProducts"
+	Service_DeleteProduct_FullMethodName        = "/servicev1.Service/DeleteProduct"
+	Service_UpdateProduct_FullMethodName        = "/servicev1.Service/UpdateProduct"
 )
 
 // ServiceClient is the client API for Service service.
@@ -65,6 +76,24 @@ type ServiceClient interface {
 	GetMessage(ctx context.Context, in *model.GetMessageRequest, opts ...grpc.CallOption) (*model.Message, error)
 	ListMessages(ctx context.Context, in *model.ListMessagesRequest, opts ...grpc.CallOption) (*model.ListMessagesResponse, error)
 	DeleteMessage(ctx context.Context, in *model.DeleteMessageRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	// CreateOrder create a new order
+	CreateOrder(ctx context.Context, in *model.CreateOrderRequest, opts ...grpc.CallOption) (*model.Order, error)
+	// get order
+	GetOrder(ctx context.Context, in *model.GetOrderRequest, opts ...grpc.CallOption) (*model.Order, error)
+	// list orders
+	ListOrders(ctx context.Context, in *model.ListOrdersRequest, opts ...grpc.CallOption) (*model.ListOrdersResponse, error)
+	// delete order
+	DeleteOrder(ctx context.Context, in *model.DeleteOrderRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	// update order
+	UpdateOrder(ctx context.Context, in *model.UpdateOrderRequest, opts ...grpc.CallOption) (*model.Order, error)
+	// pay order
+	PayOrder(ctx context.Context, in *model.PayOrderRequest, opts ...grpc.CallOption) (*model.PayOrderResponse, error)
+	// CRUUD for products
+	CreateProduct(ctx context.Context, in *model.CreateProductRequest, opts ...grpc.CallOption) (*model.Product, error)
+	GetProduct(ctx context.Context, in *model.GetProductRequest, opts ...grpc.CallOption) (*model.Product, error)
+	ListProducts(ctx context.Context, in *model.ListProductsRequest, opts ...grpc.CallOption) (*model.ListProductsResponse, error)
+	DeleteProduct(ctx context.Context, in *model.DeleteProductRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	UpdateProduct(ctx context.Context, in *model.UpdateProductRequest, opts ...grpc.CallOption) (*model.Product, error)
 }
 
 type serviceClient struct {
@@ -242,6 +271,105 @@ func (c *serviceClient) DeleteMessage(ctx context.Context, in *model.DeleteMessa
 	return out, nil
 }
 
+func (c *serviceClient) CreateOrder(ctx context.Context, in *model.CreateOrderRequest, opts ...grpc.CallOption) (*model.Order, error) {
+	out := new(model.Order)
+	err := c.cc.Invoke(ctx, Service_CreateOrder_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *serviceClient) GetOrder(ctx context.Context, in *model.GetOrderRequest, opts ...grpc.CallOption) (*model.Order, error) {
+	out := new(model.Order)
+	err := c.cc.Invoke(ctx, Service_GetOrder_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *serviceClient) ListOrders(ctx context.Context, in *model.ListOrdersRequest, opts ...grpc.CallOption) (*model.ListOrdersResponse, error) {
+	out := new(model.ListOrdersResponse)
+	err := c.cc.Invoke(ctx, Service_ListOrders_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *serviceClient) DeleteOrder(ctx context.Context, in *model.DeleteOrderRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, Service_DeleteOrder_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *serviceClient) UpdateOrder(ctx context.Context, in *model.UpdateOrderRequest, opts ...grpc.CallOption) (*model.Order, error) {
+	out := new(model.Order)
+	err := c.cc.Invoke(ctx, Service_UpdateOrder_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *serviceClient) PayOrder(ctx context.Context, in *model.PayOrderRequest, opts ...grpc.CallOption) (*model.PayOrderResponse, error) {
+	out := new(model.PayOrderResponse)
+	err := c.cc.Invoke(ctx, Service_PayOrder_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *serviceClient) CreateProduct(ctx context.Context, in *model.CreateProductRequest, opts ...grpc.CallOption) (*model.Product, error) {
+	out := new(model.Product)
+	err := c.cc.Invoke(ctx, Service_CreateProduct_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *serviceClient) GetProduct(ctx context.Context, in *model.GetProductRequest, opts ...grpc.CallOption) (*model.Product, error) {
+	out := new(model.Product)
+	err := c.cc.Invoke(ctx, Service_GetProduct_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *serviceClient) ListProducts(ctx context.Context, in *model.ListProductsRequest, opts ...grpc.CallOption) (*model.ListProductsResponse, error) {
+	out := new(model.ListProductsResponse)
+	err := c.cc.Invoke(ctx, Service_ListProducts_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *serviceClient) DeleteProduct(ctx context.Context, in *model.DeleteProductRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, Service_DeleteProduct_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *serviceClient) UpdateProduct(ctx context.Context, in *model.UpdateProductRequest, opts ...grpc.CallOption) (*model.Product, error) {
+	out := new(model.Product)
+	err := c.cc.Invoke(ctx, Service_UpdateProduct_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ServiceServer is the server API for Service service.
 // All implementations must embed UnimplementedServiceServer
 // for forward compatibility
@@ -268,6 +396,24 @@ type ServiceServer interface {
 	GetMessage(context.Context, *model.GetMessageRequest) (*model.Message, error)
 	ListMessages(context.Context, *model.ListMessagesRequest) (*model.ListMessagesResponse, error)
 	DeleteMessage(context.Context, *model.DeleteMessageRequest) (*emptypb.Empty, error)
+	// CreateOrder create a new order
+	CreateOrder(context.Context, *model.CreateOrderRequest) (*model.Order, error)
+	// get order
+	GetOrder(context.Context, *model.GetOrderRequest) (*model.Order, error)
+	// list orders
+	ListOrders(context.Context, *model.ListOrdersRequest) (*model.ListOrdersResponse, error)
+	// delete order
+	DeleteOrder(context.Context, *model.DeleteOrderRequest) (*emptypb.Empty, error)
+	// update order
+	UpdateOrder(context.Context, *model.UpdateOrderRequest) (*model.Order, error)
+	// pay order
+	PayOrder(context.Context, *model.PayOrderRequest) (*model.PayOrderResponse, error)
+	// CRUUD for products
+	CreateProduct(context.Context, *model.CreateProductRequest) (*model.Product, error)
+	GetProduct(context.Context, *model.GetProductRequest) (*model.Product, error)
+	ListProducts(context.Context, *model.ListProductsRequest) (*model.ListProductsResponse, error)
+	DeleteProduct(context.Context, *model.DeleteProductRequest) (*emptypb.Empty, error)
+	UpdateProduct(context.Context, *model.UpdateProductRequest) (*model.Product, error)
 	mustEmbedUnimplementedServiceServer()
 }
 
@@ -322,6 +468,39 @@ func (UnimplementedServiceServer) ListMessages(context.Context, *model.ListMessa
 }
 func (UnimplementedServiceServer) DeleteMessage(context.Context, *model.DeleteMessageRequest) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteMessage not implemented")
+}
+func (UnimplementedServiceServer) CreateOrder(context.Context, *model.CreateOrderRequest) (*model.Order, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateOrder not implemented")
+}
+func (UnimplementedServiceServer) GetOrder(context.Context, *model.GetOrderRequest) (*model.Order, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetOrder not implemented")
+}
+func (UnimplementedServiceServer) ListOrders(context.Context, *model.ListOrdersRequest) (*model.ListOrdersResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListOrders not implemented")
+}
+func (UnimplementedServiceServer) DeleteOrder(context.Context, *model.DeleteOrderRequest) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteOrder not implemented")
+}
+func (UnimplementedServiceServer) UpdateOrder(context.Context, *model.UpdateOrderRequest) (*model.Order, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateOrder not implemented")
+}
+func (UnimplementedServiceServer) PayOrder(context.Context, *model.PayOrderRequest) (*model.PayOrderResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method PayOrder not implemented")
+}
+func (UnimplementedServiceServer) CreateProduct(context.Context, *model.CreateProductRequest) (*model.Product, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateProduct not implemented")
+}
+func (UnimplementedServiceServer) GetProduct(context.Context, *model.GetProductRequest) (*model.Product, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetProduct not implemented")
+}
+func (UnimplementedServiceServer) ListProducts(context.Context, *model.ListProductsRequest) (*model.ListProductsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListProducts not implemented")
+}
+func (UnimplementedServiceServer) DeleteProduct(context.Context, *model.DeleteProductRequest) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteProduct not implemented")
+}
+func (UnimplementedServiceServer) UpdateProduct(context.Context, *model.UpdateProductRequest) (*model.Product, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateProduct not implemented")
 }
 func (UnimplementedServiceServer) mustEmbedUnimplementedServiceServer() {}
 
@@ -627,6 +806,204 @@ func _Service_DeleteMessage_Handler(srv interface{}, ctx context.Context, dec fu
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Service_CreateOrder_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(model.CreateOrderRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ServiceServer).CreateOrder(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Service_CreateOrder_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ServiceServer).CreateOrder(ctx, req.(*model.CreateOrderRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Service_GetOrder_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(model.GetOrderRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ServiceServer).GetOrder(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Service_GetOrder_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ServiceServer).GetOrder(ctx, req.(*model.GetOrderRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Service_ListOrders_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(model.ListOrdersRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ServiceServer).ListOrders(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Service_ListOrders_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ServiceServer).ListOrders(ctx, req.(*model.ListOrdersRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Service_DeleteOrder_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(model.DeleteOrderRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ServiceServer).DeleteOrder(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Service_DeleteOrder_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ServiceServer).DeleteOrder(ctx, req.(*model.DeleteOrderRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Service_UpdateOrder_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(model.UpdateOrderRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ServiceServer).UpdateOrder(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Service_UpdateOrder_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ServiceServer).UpdateOrder(ctx, req.(*model.UpdateOrderRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Service_PayOrder_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(model.PayOrderRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ServiceServer).PayOrder(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Service_PayOrder_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ServiceServer).PayOrder(ctx, req.(*model.PayOrderRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Service_CreateProduct_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(model.CreateProductRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ServiceServer).CreateProduct(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Service_CreateProduct_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ServiceServer).CreateProduct(ctx, req.(*model.CreateProductRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Service_GetProduct_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(model.GetProductRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ServiceServer).GetProduct(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Service_GetProduct_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ServiceServer).GetProduct(ctx, req.(*model.GetProductRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Service_ListProducts_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(model.ListProductsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ServiceServer).ListProducts(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Service_ListProducts_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ServiceServer).ListProducts(ctx, req.(*model.ListProductsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Service_DeleteProduct_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(model.DeleteProductRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ServiceServer).DeleteProduct(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Service_DeleteProduct_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ServiceServer).DeleteProduct(ctx, req.(*model.DeleteProductRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Service_UpdateProduct_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(model.UpdateProductRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ServiceServer).UpdateProduct(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Service_UpdateProduct_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ServiceServer).UpdateProduct(ctx, req.(*model.UpdateProductRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Service_ServiceDesc is the grpc.ServiceDesc for Service service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -693,6 +1070,50 @@ var Service_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "DeleteMessage",
 			Handler:    _Service_DeleteMessage_Handler,
+		},
+		{
+			MethodName: "CreateOrder",
+			Handler:    _Service_CreateOrder_Handler,
+		},
+		{
+			MethodName: "GetOrder",
+			Handler:    _Service_GetOrder_Handler,
+		},
+		{
+			MethodName: "ListOrders",
+			Handler:    _Service_ListOrders_Handler,
+		},
+		{
+			MethodName: "DeleteOrder",
+			Handler:    _Service_DeleteOrder_Handler,
+		},
+		{
+			MethodName: "UpdateOrder",
+			Handler:    _Service_UpdateOrder_Handler,
+		},
+		{
+			MethodName: "PayOrder",
+			Handler:    _Service_PayOrder_Handler,
+		},
+		{
+			MethodName: "CreateProduct",
+			Handler:    _Service_CreateProduct_Handler,
+		},
+		{
+			MethodName: "GetProduct",
+			Handler:    _Service_GetProduct_Handler,
+		},
+		{
+			MethodName: "ListProducts",
+			Handler:    _Service_ListProducts_Handler,
+		},
+		{
+			MethodName: "DeleteProduct",
+			Handler:    _Service_DeleteProduct_Handler,
+		},
+		{
+			MethodName: "UpdateProduct",
+			Handler:    _Service_UpdateProduct_Handler,
 		},
 	},
 	Streams: []grpc.StreamDesc{

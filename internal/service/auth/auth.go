@@ -3,14 +3,13 @@ package auth
 import (
 	"context"
 	"fmt"
-	"strings"
-	"time"
-
 	"notionboy/db/ent"
 	"notionboy/internal/pkg/config"
 	"notionboy/internal/pkg/db/dao"
 	"notionboy/internal/pkg/jwt"
 	"notionboy/internal/pkg/utils/cache"
+	"strings"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/silenceper/wechat/v2/officialaccount/basic"

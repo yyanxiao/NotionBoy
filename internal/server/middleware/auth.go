@@ -2,12 +2,11 @@ package middleware
 
 import (
 	"context"
-	"strings"
-
 	"notionboy/internal/pkg/config"
 	"notionboy/internal/pkg/jwt"
 	"notionboy/internal/pkg/logger"
 	"notionboy/internal/service/auth"
+	"strings"
 
 	"github.com/google/uuid"
 	grpc_auth "github.com/grpc-ecosystem/go-grpc-middleware/auth"
@@ -21,6 +20,7 @@ var skipAuthPaths = []string{
 	"/v1/auth/callback",
 	"/v1/auth/providers",
 	"/v1/auth/wechat/qrcode",
+	"/v1/products",
 }
 
 // NewAuthFunc returns a new AuthFunc
@@ -42,14 +42,18 @@ func NewAuthFunc() grpc_auth.AuthFunc {
 		// validate using api key
 		apiKey := md.Get(config.AUTH_HEADER_X_API_KEY)
 		if apiKey != "" {
-			logger.SugaredLogger.Debugw("auth by api key", "apiKey", apiKey)
+			// logger.SugaredLogger.Debugw("auth by api key", "apiKey", apiKey)
 			acc, err := auth.NewAuthServer().GetAccountByApiKey(c, apiKey)
 			logger.SugaredLogger.Debugw("auth by api key", "apiKey", apiKey, "account", acc, "err", err)
 			if err != nil {
 				return nil, err
 			}
+			if acc == nil {
+				return nil, status.Errorf(codes.Unauthenticated, "Invalid User")
+			}
 			// if account is exist, set account id to context
 			newCtx := context.WithValue(c, config.ContextKeyUserId, acc.UUID)
+			newCtx = context.WithValue(newCtx, config.ContextKeyUserAccount, acc)
 			return newCtx, nil
 		}
 
@@ -92,7 +96,7 @@ func validateByToken(ctx context.Context, cookieToken, bearerToken string) (cont
 	if token == "" {
 		return nil, status.Errorf(codes.Unauthenticated, "Invalid Token")
 	}
-	logger.SugaredLogger.Debugw("auth by token", "token", token)
+	// logger.SugaredLogger.Debugw("auth by token", "token", token)
 
 	userId, err := jwt.ValidateToken(token)
 	if err != nil {
@@ -113,7 +117,7 @@ func validateByToken(ctx context.Context, cookieToken, bearerToken string) (cont
 
 	newCtx := context.WithValue(ctx, config.ContextKeyUserId, userId)
 	newCtx = context.WithValue(newCtx, config.ContextKeyUserAccount, acc)
-	logger.SugaredLogger.Debugw("auth success", "userId", userId)
+	// logger.SugaredLogger.Debugw("auth success", "userId", userId)
 	return newCtx, nil
 }
 

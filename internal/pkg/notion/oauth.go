@@ -3,13 +3,12 @@ package notion
 import (
 	"context"
 	"fmt"
-	"strings"
-
 	"notionboy/db/ent"
 	"notionboy/db/ent/account"
 	"notionboy/internal/pkg/config"
 	"notionboy/internal/pkg/db/dao"
 	"notionboy/internal/pkg/logger"
+	"strings"
 
 	"github.com/jomei/notionapi"
 	"github.com/mitchellh/mapstructure"

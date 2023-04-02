@@ -61,171 +61,49 @@ func (qu *QuotaUpdate) AddUserID(i int) *QuotaUpdate {
 	return qu
 }
 
-// SetCategory sets the "category" field.
-func (qu *QuotaUpdate) SetCategory(q quota.Category) *QuotaUpdate {
-	qu.mutation.SetCategory(q)
+// SetPlan sets the "plan" field.
+func (qu *QuotaUpdate) SetPlan(s string) *QuotaUpdate {
+	qu.mutation.SetPlan(s)
 	return qu
 }
 
-// SetDaily sets the "daily" field.
-func (qu *QuotaUpdate) SetDaily(i int) *QuotaUpdate {
-	qu.mutation.ResetDaily()
-	qu.mutation.SetDaily(i)
+// SetResetTime sets the "reset_time" field.
+func (qu *QuotaUpdate) SetResetTime(t time.Time) *QuotaUpdate {
+	qu.mutation.SetResetTime(t)
 	return qu
 }
 
-// SetNillableDaily sets the "daily" field if the given value is not nil.
-func (qu *QuotaUpdate) SetNillableDaily(i *int) *QuotaUpdate {
+// SetToken sets the "token" field.
+func (qu *QuotaUpdate) SetToken(i int64) *QuotaUpdate {
+	qu.mutation.ResetToken()
+	qu.mutation.SetToken(i)
+	return qu
+}
+
+// AddToken adds i to the "token" field.
+func (qu *QuotaUpdate) AddToken(i int64) *QuotaUpdate {
+	qu.mutation.AddToken(i)
+	return qu
+}
+
+// SetTokenUsed sets the "token_used" field.
+func (qu *QuotaUpdate) SetTokenUsed(i int64) *QuotaUpdate {
+	qu.mutation.ResetTokenUsed()
+	qu.mutation.SetTokenUsed(i)
+	return qu
+}
+
+// SetNillableTokenUsed sets the "token_used" field if the given value is not nil.
+func (qu *QuotaUpdate) SetNillableTokenUsed(i *int64) *QuotaUpdate {
 	if i != nil {
-		qu.SetDaily(*i)
+		qu.SetTokenUsed(*i)
 	}
 	return qu
 }
 
-// AddDaily adds i to the "daily" field.
-func (qu *QuotaUpdate) AddDaily(i int) *QuotaUpdate {
-	qu.mutation.AddDaily(i)
-	return qu
-}
-
-// ClearDaily clears the value of the "daily" field.
-func (qu *QuotaUpdate) ClearDaily() *QuotaUpdate {
-	qu.mutation.ClearDaily()
-	return qu
-}
-
-// SetMonthly sets the "monthly" field.
-func (qu *QuotaUpdate) SetMonthly(i int) *QuotaUpdate {
-	qu.mutation.ResetMonthly()
-	qu.mutation.SetMonthly(i)
-	return qu
-}
-
-// SetNillableMonthly sets the "monthly" field if the given value is not nil.
-func (qu *QuotaUpdate) SetNillableMonthly(i *int) *QuotaUpdate {
-	if i != nil {
-		qu.SetMonthly(*i)
-	}
-	return qu
-}
-
-// AddMonthly adds i to the "monthly" field.
-func (qu *QuotaUpdate) AddMonthly(i int) *QuotaUpdate {
-	qu.mutation.AddMonthly(i)
-	return qu
-}
-
-// ClearMonthly clears the value of the "monthly" field.
-func (qu *QuotaUpdate) ClearMonthly() *QuotaUpdate {
-	qu.mutation.ClearMonthly()
-	return qu
-}
-
-// SetYearly sets the "yearly" field.
-func (qu *QuotaUpdate) SetYearly(i int) *QuotaUpdate {
-	qu.mutation.ResetYearly()
-	qu.mutation.SetYearly(i)
-	return qu
-}
-
-// SetNillableYearly sets the "yearly" field if the given value is not nil.
-func (qu *QuotaUpdate) SetNillableYearly(i *int) *QuotaUpdate {
-	if i != nil {
-		qu.SetYearly(*i)
-	}
-	return qu
-}
-
-// AddYearly adds i to the "yearly" field.
-func (qu *QuotaUpdate) AddYearly(i int) *QuotaUpdate {
-	qu.mutation.AddYearly(i)
-	return qu
-}
-
-// ClearYearly clears the value of the "yearly" field.
-func (qu *QuotaUpdate) ClearYearly() *QuotaUpdate {
-	qu.mutation.ClearYearly()
-	return qu
-}
-
-// SetDailyUsed sets the "daily_used" field.
-func (qu *QuotaUpdate) SetDailyUsed(i int) *QuotaUpdate {
-	qu.mutation.ResetDailyUsed()
-	qu.mutation.SetDailyUsed(i)
-	return qu
-}
-
-// SetNillableDailyUsed sets the "daily_used" field if the given value is not nil.
-func (qu *QuotaUpdate) SetNillableDailyUsed(i *int) *QuotaUpdate {
-	if i != nil {
-		qu.SetDailyUsed(*i)
-	}
-	return qu
-}
-
-// AddDailyUsed adds i to the "daily_used" field.
-func (qu *QuotaUpdate) AddDailyUsed(i int) *QuotaUpdate {
-	qu.mutation.AddDailyUsed(i)
-	return qu
-}
-
-// ClearDailyUsed clears the value of the "daily_used" field.
-func (qu *QuotaUpdate) ClearDailyUsed() *QuotaUpdate {
-	qu.mutation.ClearDailyUsed()
-	return qu
-}
-
-// SetMonthlyUsed sets the "monthly_used" field.
-func (qu *QuotaUpdate) SetMonthlyUsed(i int) *QuotaUpdate {
-	qu.mutation.ResetMonthlyUsed()
-	qu.mutation.SetMonthlyUsed(i)
-	return qu
-}
-
-// SetNillableMonthlyUsed sets the "monthly_used" field if the given value is not nil.
-func (qu *QuotaUpdate) SetNillableMonthlyUsed(i *int) *QuotaUpdate {
-	if i != nil {
-		qu.SetMonthlyUsed(*i)
-	}
-	return qu
-}
-
-// AddMonthlyUsed adds i to the "monthly_used" field.
-func (qu *QuotaUpdate) AddMonthlyUsed(i int) *QuotaUpdate {
-	qu.mutation.AddMonthlyUsed(i)
-	return qu
-}
-
-// ClearMonthlyUsed clears the value of the "monthly_used" field.
-func (qu *QuotaUpdate) ClearMonthlyUsed() *QuotaUpdate {
-	qu.mutation.ClearMonthlyUsed()
-	return qu
-}
-
-// SetYearlyUsed sets the "yearly_used" field.
-func (qu *QuotaUpdate) SetYearlyUsed(i int) *QuotaUpdate {
-	qu.mutation.ResetYearlyUsed()
-	qu.mutation.SetYearlyUsed(i)
-	return qu
-}
-
-// SetNillableYearlyUsed sets the "yearly_used" field if the given value is not nil.
-func (qu *QuotaUpdate) SetNillableYearlyUsed(i *int) *QuotaUpdate {
-	if i != nil {
-		qu.SetYearlyUsed(*i)
-	}
-	return qu
-}
-
-// AddYearlyUsed adds i to the "yearly_used" field.
-func (qu *QuotaUpdate) AddYearlyUsed(i int) *QuotaUpdate {
-	qu.mutation.AddYearlyUsed(i)
-	return qu
-}
-
-// ClearYearlyUsed clears the value of the "yearly_used" field.
-func (qu *QuotaUpdate) ClearYearlyUsed() *QuotaUpdate {
-	qu.mutation.ClearYearlyUsed()
+// AddTokenUsed adds i to the "token_used" field.
+func (qu *QuotaUpdate) AddTokenUsed(i int64) *QuotaUpdate {
+	qu.mutation.AddTokenUsed(i)
 	return qu
 }
 
@@ -242,18 +120,12 @@ func (qu *QuotaUpdate) Save(ctx context.Context) (int, error) {
 	)
 	qu.defaults()
 	if len(qu.hooks) == 0 {
-		if err = qu.check(); err != nil {
-			return 0, err
-		}
 		affected, err = qu.sqlSave(ctx)
 	} else {
 		var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
 			mutation, ok := m.(*QuotaMutation)
 			if !ok {
 				return nil, fmt.Errorf("unexpected mutation type %T", m)
-			}
-			if err = qu.check(); err != nil {
-				return 0, err
 			}
 			qu.mutation = mutation
 			affected, err = qu.sqlSave(ctx)
@@ -303,16 +175,6 @@ func (qu *QuotaUpdate) defaults() {
 	}
 }
 
-// check runs all checks and user-defined validators on the builder.
-func (qu *QuotaUpdate) check() error {
-	if v, ok := qu.mutation.Category(); ok {
-		if err := quota.CategoryValidator(v); err != nil {
-			return &ValidationError{Name: "category", err: fmt.Errorf(`ent: validator failed for field "Quota.category": %w`, err)}
-		}
-	}
-	return nil
-}
-
 func (qu *QuotaUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	_spec := &sqlgraph.UpdateSpec{
 		Node: &sqlgraph.NodeSpec{
@@ -343,62 +205,23 @@ func (qu *QuotaUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := qu.mutation.AddedUserID(); ok {
 		_spec.AddField(quota.FieldUserID, field.TypeInt, value)
 	}
-	if value, ok := qu.mutation.Category(); ok {
-		_spec.SetField(quota.FieldCategory, field.TypeEnum, value)
+	if value, ok := qu.mutation.Plan(); ok {
+		_spec.SetField(quota.FieldPlan, field.TypeString, value)
 	}
-	if value, ok := qu.mutation.Daily(); ok {
-		_spec.SetField(quota.FieldDaily, field.TypeInt, value)
+	if value, ok := qu.mutation.ResetTime(); ok {
+		_spec.SetField(quota.FieldResetTime, field.TypeTime, value)
 	}
-	if value, ok := qu.mutation.AddedDaily(); ok {
-		_spec.AddField(quota.FieldDaily, field.TypeInt, value)
+	if value, ok := qu.mutation.Token(); ok {
+		_spec.SetField(quota.FieldToken, field.TypeInt64, value)
 	}
-	if qu.mutation.DailyCleared() {
-		_spec.ClearField(quota.FieldDaily, field.TypeInt)
+	if value, ok := qu.mutation.AddedToken(); ok {
+		_spec.AddField(quota.FieldToken, field.TypeInt64, value)
 	}
-	if value, ok := qu.mutation.Monthly(); ok {
-		_spec.SetField(quota.FieldMonthly, field.TypeInt, value)
+	if value, ok := qu.mutation.TokenUsed(); ok {
+		_spec.SetField(quota.FieldTokenUsed, field.TypeInt64, value)
 	}
-	if value, ok := qu.mutation.AddedMonthly(); ok {
-		_spec.AddField(quota.FieldMonthly, field.TypeInt, value)
-	}
-	if qu.mutation.MonthlyCleared() {
-		_spec.ClearField(quota.FieldMonthly, field.TypeInt)
-	}
-	if value, ok := qu.mutation.Yearly(); ok {
-		_spec.SetField(quota.FieldYearly, field.TypeInt, value)
-	}
-	if value, ok := qu.mutation.AddedYearly(); ok {
-		_spec.AddField(quota.FieldYearly, field.TypeInt, value)
-	}
-	if qu.mutation.YearlyCleared() {
-		_spec.ClearField(quota.FieldYearly, field.TypeInt)
-	}
-	if value, ok := qu.mutation.DailyUsed(); ok {
-		_spec.SetField(quota.FieldDailyUsed, field.TypeInt, value)
-	}
-	if value, ok := qu.mutation.AddedDailyUsed(); ok {
-		_spec.AddField(quota.FieldDailyUsed, field.TypeInt, value)
-	}
-	if qu.mutation.DailyUsedCleared() {
-		_spec.ClearField(quota.FieldDailyUsed, field.TypeInt)
-	}
-	if value, ok := qu.mutation.MonthlyUsed(); ok {
-		_spec.SetField(quota.FieldMonthlyUsed, field.TypeInt, value)
-	}
-	if value, ok := qu.mutation.AddedMonthlyUsed(); ok {
-		_spec.AddField(quota.FieldMonthlyUsed, field.TypeInt, value)
-	}
-	if qu.mutation.MonthlyUsedCleared() {
-		_spec.ClearField(quota.FieldMonthlyUsed, field.TypeInt)
-	}
-	if value, ok := qu.mutation.YearlyUsed(); ok {
-		_spec.SetField(quota.FieldYearlyUsed, field.TypeInt, value)
-	}
-	if value, ok := qu.mutation.AddedYearlyUsed(); ok {
-		_spec.AddField(quota.FieldYearlyUsed, field.TypeInt, value)
-	}
-	if qu.mutation.YearlyUsedCleared() {
-		_spec.ClearField(quota.FieldYearlyUsed, field.TypeInt)
+	if value, ok := qu.mutation.AddedTokenUsed(); ok {
+		_spec.AddField(quota.FieldTokenUsed, field.TypeInt64, value)
 	}
 	if n, err = sqlgraph.UpdateNodes(ctx, qu.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
@@ -452,171 +275,49 @@ func (quo *QuotaUpdateOne) AddUserID(i int) *QuotaUpdateOne {
 	return quo
 }
 
-// SetCategory sets the "category" field.
-func (quo *QuotaUpdateOne) SetCategory(q quota.Category) *QuotaUpdateOne {
-	quo.mutation.SetCategory(q)
+// SetPlan sets the "plan" field.
+func (quo *QuotaUpdateOne) SetPlan(s string) *QuotaUpdateOne {
+	quo.mutation.SetPlan(s)
 	return quo
 }
 
-// SetDaily sets the "daily" field.
-func (quo *QuotaUpdateOne) SetDaily(i int) *QuotaUpdateOne {
-	quo.mutation.ResetDaily()
-	quo.mutation.SetDaily(i)
+// SetResetTime sets the "reset_time" field.
+func (quo *QuotaUpdateOne) SetResetTime(t time.Time) *QuotaUpdateOne {
+	quo.mutation.SetResetTime(t)
 	return quo
 }
 
-// SetNillableDaily sets the "daily" field if the given value is not nil.
-func (quo *QuotaUpdateOne) SetNillableDaily(i *int) *QuotaUpdateOne {
+// SetToken sets the "token" field.
+func (quo *QuotaUpdateOne) SetToken(i int64) *QuotaUpdateOne {
+	quo.mutation.ResetToken()
+	quo.mutation.SetToken(i)
+	return quo
+}
+
+// AddToken adds i to the "token" field.
+func (quo *QuotaUpdateOne) AddToken(i int64) *QuotaUpdateOne {
+	quo.mutation.AddToken(i)
+	return quo
+}
+
+// SetTokenUsed sets the "token_used" field.
+func (quo *QuotaUpdateOne) SetTokenUsed(i int64) *QuotaUpdateOne {
+	quo.mutation.ResetTokenUsed()
+	quo.mutation.SetTokenUsed(i)
+	return quo
+}
+
+// SetNillableTokenUsed sets the "token_used" field if the given value is not nil.
+func (quo *QuotaUpdateOne) SetNillableTokenUsed(i *int64) *QuotaUpdateOne {
 	if i != nil {
-		quo.SetDaily(*i)
+		quo.SetTokenUsed(*i)
 	}
 	return quo
 }
 
-// AddDaily adds i to the "daily" field.
-func (quo *QuotaUpdateOne) AddDaily(i int) *QuotaUpdateOne {
-	quo.mutation.AddDaily(i)
-	return quo
-}
-
-// ClearDaily clears the value of the "daily" field.
-func (quo *QuotaUpdateOne) ClearDaily() *QuotaUpdateOne {
-	quo.mutation.ClearDaily()
-	return quo
-}
-
-// SetMonthly sets the "monthly" field.
-func (quo *QuotaUpdateOne) SetMonthly(i int) *QuotaUpdateOne {
-	quo.mutation.ResetMonthly()
-	quo.mutation.SetMonthly(i)
-	return quo
-}
-
-// SetNillableMonthly sets the "monthly" field if the given value is not nil.
-func (quo *QuotaUpdateOne) SetNillableMonthly(i *int) *QuotaUpdateOne {
-	if i != nil {
-		quo.SetMonthly(*i)
-	}
-	return quo
-}
-
-// AddMonthly adds i to the "monthly" field.
-func (quo *QuotaUpdateOne) AddMonthly(i int) *QuotaUpdateOne {
-	quo.mutation.AddMonthly(i)
-	return quo
-}
-
-// ClearMonthly clears the value of the "monthly" field.
-func (quo *QuotaUpdateOne) ClearMonthly() *QuotaUpdateOne {
-	quo.mutation.ClearMonthly()
-	return quo
-}
-
-// SetYearly sets the "yearly" field.
-func (quo *QuotaUpdateOne) SetYearly(i int) *QuotaUpdateOne {
-	quo.mutation.ResetYearly()
-	quo.mutation.SetYearly(i)
-	return quo
-}
-
-// SetNillableYearly sets the "yearly" field if the given value is not nil.
-func (quo *QuotaUpdateOne) SetNillableYearly(i *int) *QuotaUpdateOne {
-	if i != nil {
-		quo.SetYearly(*i)
-	}
-	return quo
-}
-
-// AddYearly adds i to the "yearly" field.
-func (quo *QuotaUpdateOne) AddYearly(i int) *QuotaUpdateOne {
-	quo.mutation.AddYearly(i)
-	return quo
-}
-
-// ClearYearly clears the value of the "yearly" field.
-func (quo *QuotaUpdateOne) ClearYearly() *QuotaUpdateOne {
-	quo.mutation.ClearYearly()
-	return quo
-}
-
-// SetDailyUsed sets the "daily_used" field.
-func (quo *QuotaUpdateOne) SetDailyUsed(i int) *QuotaUpdateOne {
-	quo.mutation.ResetDailyUsed()
-	quo.mutation.SetDailyUsed(i)
-	return quo
-}
-
-// SetNillableDailyUsed sets the "daily_used" field if the given value is not nil.
-func (quo *QuotaUpdateOne) SetNillableDailyUsed(i *int) *QuotaUpdateOne {
-	if i != nil {
-		quo.SetDailyUsed(*i)
-	}
-	return quo
-}
-
-// AddDailyUsed adds i to the "daily_used" field.
-func (quo *QuotaUpdateOne) AddDailyUsed(i int) *QuotaUpdateOne {
-	quo.mutation.AddDailyUsed(i)
-	return quo
-}
-
-// ClearDailyUsed clears the value of the "daily_used" field.
-func (quo *QuotaUpdateOne) ClearDailyUsed() *QuotaUpdateOne {
-	quo.mutation.ClearDailyUsed()
-	return quo
-}
-
-// SetMonthlyUsed sets the "monthly_used" field.
-func (quo *QuotaUpdateOne) SetMonthlyUsed(i int) *QuotaUpdateOne {
-	quo.mutation.ResetMonthlyUsed()
-	quo.mutation.SetMonthlyUsed(i)
-	return quo
-}
-
-// SetNillableMonthlyUsed sets the "monthly_used" field if the given value is not nil.
-func (quo *QuotaUpdateOne) SetNillableMonthlyUsed(i *int) *QuotaUpdateOne {
-	if i != nil {
-		quo.SetMonthlyUsed(*i)
-	}
-	return quo
-}
-
-// AddMonthlyUsed adds i to the "monthly_used" field.
-func (quo *QuotaUpdateOne) AddMonthlyUsed(i int) *QuotaUpdateOne {
-	quo.mutation.AddMonthlyUsed(i)
-	return quo
-}
-
-// ClearMonthlyUsed clears the value of the "monthly_used" field.
-func (quo *QuotaUpdateOne) ClearMonthlyUsed() *QuotaUpdateOne {
-	quo.mutation.ClearMonthlyUsed()
-	return quo
-}
-
-// SetYearlyUsed sets the "yearly_used" field.
-func (quo *QuotaUpdateOne) SetYearlyUsed(i int) *QuotaUpdateOne {
-	quo.mutation.ResetYearlyUsed()
-	quo.mutation.SetYearlyUsed(i)
-	return quo
-}
-
-// SetNillableYearlyUsed sets the "yearly_used" field if the given value is not nil.
-func (quo *QuotaUpdateOne) SetNillableYearlyUsed(i *int) *QuotaUpdateOne {
-	if i != nil {
-		quo.SetYearlyUsed(*i)
-	}
-	return quo
-}
-
-// AddYearlyUsed adds i to the "yearly_used" field.
-func (quo *QuotaUpdateOne) AddYearlyUsed(i int) *QuotaUpdateOne {
-	quo.mutation.AddYearlyUsed(i)
-	return quo
-}
-
-// ClearYearlyUsed clears the value of the "yearly_used" field.
-func (quo *QuotaUpdateOne) ClearYearlyUsed() *QuotaUpdateOne {
-	quo.mutation.ClearYearlyUsed()
+// AddTokenUsed adds i to the "token_used" field.
+func (quo *QuotaUpdateOne) AddTokenUsed(i int64) *QuotaUpdateOne {
+	quo.mutation.AddTokenUsed(i)
 	return quo
 }
 
@@ -640,18 +341,12 @@ func (quo *QuotaUpdateOne) Save(ctx context.Context) (*Quota, error) {
 	)
 	quo.defaults()
 	if len(quo.hooks) == 0 {
-		if err = quo.check(); err != nil {
-			return nil, err
-		}
 		node, err = quo.sqlSave(ctx)
 	} else {
 		var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
 			mutation, ok := m.(*QuotaMutation)
 			if !ok {
 				return nil, fmt.Errorf("unexpected mutation type %T", m)
-			}
-			if err = quo.check(); err != nil {
-				return nil, err
 			}
 			quo.mutation = mutation
 			node, err = quo.sqlSave(ctx)
@@ -707,16 +402,6 @@ func (quo *QuotaUpdateOne) defaults() {
 	}
 }
 
-// check runs all checks and user-defined validators on the builder.
-func (quo *QuotaUpdateOne) check() error {
-	if v, ok := quo.mutation.Category(); ok {
-		if err := quota.CategoryValidator(v); err != nil {
-			return &ValidationError{Name: "category", err: fmt.Errorf(`ent: validator failed for field "Quota.category": %w`, err)}
-		}
-	}
-	return nil
-}
-
 func (quo *QuotaUpdateOne) sqlSave(ctx context.Context) (_node *Quota, err error) {
 	_spec := &sqlgraph.UpdateSpec{
 		Node: &sqlgraph.NodeSpec{
@@ -764,62 +449,23 @@ func (quo *QuotaUpdateOne) sqlSave(ctx context.Context) (_node *Quota, err error
 	if value, ok := quo.mutation.AddedUserID(); ok {
 		_spec.AddField(quota.FieldUserID, field.TypeInt, value)
 	}
-	if value, ok := quo.mutation.Category(); ok {
-		_spec.SetField(quota.FieldCategory, field.TypeEnum, value)
+	if value, ok := quo.mutation.Plan(); ok {
+		_spec.SetField(quota.FieldPlan, field.TypeString, value)
 	}
-	if value, ok := quo.mutation.Daily(); ok {
-		_spec.SetField(quota.FieldDaily, field.TypeInt, value)
+	if value, ok := quo.mutation.ResetTime(); ok {
+		_spec.SetField(quota.FieldResetTime, field.TypeTime, value)
 	}
-	if value, ok := quo.mutation.AddedDaily(); ok {
-		_spec.AddField(quota.FieldDaily, field.TypeInt, value)
+	if value, ok := quo.mutation.Token(); ok {
+		_spec.SetField(quota.FieldToken, field.TypeInt64, value)
 	}
-	if quo.mutation.DailyCleared() {
-		_spec.ClearField(quota.FieldDaily, field.TypeInt)
+	if value, ok := quo.mutation.AddedToken(); ok {
+		_spec.AddField(quota.FieldToken, field.TypeInt64, value)
 	}
-	if value, ok := quo.mutation.Monthly(); ok {
-		_spec.SetField(quota.FieldMonthly, field.TypeInt, value)
+	if value, ok := quo.mutation.TokenUsed(); ok {
+		_spec.SetField(quota.FieldTokenUsed, field.TypeInt64, value)
 	}
-	if value, ok := quo.mutation.AddedMonthly(); ok {
-		_spec.AddField(quota.FieldMonthly, field.TypeInt, value)
-	}
-	if quo.mutation.MonthlyCleared() {
-		_spec.ClearField(quota.FieldMonthly, field.TypeInt)
-	}
-	if value, ok := quo.mutation.Yearly(); ok {
-		_spec.SetField(quota.FieldYearly, field.TypeInt, value)
-	}
-	if value, ok := quo.mutation.AddedYearly(); ok {
-		_spec.AddField(quota.FieldYearly, field.TypeInt, value)
-	}
-	if quo.mutation.YearlyCleared() {
-		_spec.ClearField(quota.FieldYearly, field.TypeInt)
-	}
-	if value, ok := quo.mutation.DailyUsed(); ok {
-		_spec.SetField(quota.FieldDailyUsed, field.TypeInt, value)
-	}
-	if value, ok := quo.mutation.AddedDailyUsed(); ok {
-		_spec.AddField(quota.FieldDailyUsed, field.TypeInt, value)
-	}
-	if quo.mutation.DailyUsedCleared() {
-		_spec.ClearField(quota.FieldDailyUsed, field.TypeInt)
-	}
-	if value, ok := quo.mutation.MonthlyUsed(); ok {
-		_spec.SetField(quota.FieldMonthlyUsed, field.TypeInt, value)
-	}
-	if value, ok := quo.mutation.AddedMonthlyUsed(); ok {
-		_spec.AddField(quota.FieldMonthlyUsed, field.TypeInt, value)
-	}
-	if quo.mutation.MonthlyUsedCleared() {
-		_spec.ClearField(quota.FieldMonthlyUsed, field.TypeInt)
-	}
-	if value, ok := quo.mutation.YearlyUsed(); ok {
-		_spec.SetField(quota.FieldYearlyUsed, field.TypeInt, value)
-	}
-	if value, ok := quo.mutation.AddedYearlyUsed(); ok {
-		_spec.AddField(quota.FieldYearlyUsed, field.TypeInt, value)
-	}
-	if quo.mutation.YearlyUsedCleared() {
-		_spec.ClearField(quota.FieldYearlyUsed, field.TypeInt)
+	if value, ok := quo.mutation.AddedTokenUsed(); ok {
+		_spec.AddField(quota.FieldTokenUsed, field.TypeInt64, value)
 	}
 	_node = &Quota{config: quo.config}
 	_spec.Assign = _node.assignValues

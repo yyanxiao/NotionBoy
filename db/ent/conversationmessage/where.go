@@ -139,7 +139,7 @@ func Response(v string) predicate.ConversationMessage {
 }
 
 // TokenUsage applies equality check predicate on the "token_usage" field. It's identical to TokenUsageEQ.
-func TokenUsage(v int) predicate.ConversationMessage {
+func TokenUsage(v int64) predicate.ConversationMessage {
 	return predicate.ConversationMessage(func(s *sql.Selector) {
 		s.Where(sql.EQ(s.C(FieldTokenUsage), v))
 	})
@@ -706,21 +706,21 @@ func ResponseContainsFold(v string) predicate.ConversationMessage {
 }
 
 // TokenUsageEQ applies the EQ predicate on the "token_usage" field.
-func TokenUsageEQ(v int) predicate.ConversationMessage {
+func TokenUsageEQ(v int64) predicate.ConversationMessage {
 	return predicate.ConversationMessage(func(s *sql.Selector) {
 		s.Where(sql.EQ(s.C(FieldTokenUsage), v))
 	})
 }
 
 // TokenUsageNEQ applies the NEQ predicate on the "token_usage" field.
-func TokenUsageNEQ(v int) predicate.ConversationMessage {
+func TokenUsageNEQ(v int64) predicate.ConversationMessage {
 	return predicate.ConversationMessage(func(s *sql.Selector) {
 		s.Where(sql.NEQ(s.C(FieldTokenUsage), v))
 	})
 }
 
 // TokenUsageIn applies the In predicate on the "token_usage" field.
-func TokenUsageIn(vs ...int) predicate.ConversationMessage {
+func TokenUsageIn(vs ...int64) predicate.ConversationMessage {
 	v := make([]any, len(vs))
 	for i := range v {
 		v[i] = vs[i]
@@ -731,7 +731,7 @@ func TokenUsageIn(vs ...int) predicate.ConversationMessage {
 }
 
 // TokenUsageNotIn applies the NotIn predicate on the "token_usage" field.
-func TokenUsageNotIn(vs ...int) predicate.ConversationMessage {
+func TokenUsageNotIn(vs ...int64) predicate.ConversationMessage {
 	v := make([]any, len(vs))
 	for i := range v {
 		v[i] = vs[i]
@@ -742,28 +742,28 @@ func TokenUsageNotIn(vs ...int) predicate.ConversationMessage {
 }
 
 // TokenUsageGT applies the GT predicate on the "token_usage" field.
-func TokenUsageGT(v int) predicate.ConversationMessage {
+func TokenUsageGT(v int64) predicate.ConversationMessage {
 	return predicate.ConversationMessage(func(s *sql.Selector) {
 		s.Where(sql.GT(s.C(FieldTokenUsage), v))
 	})
 }
 
 // TokenUsageGTE applies the GTE predicate on the "token_usage" field.
-func TokenUsageGTE(v int) predicate.ConversationMessage {
+func TokenUsageGTE(v int64) predicate.ConversationMessage {
 	return predicate.ConversationMessage(func(s *sql.Selector) {
 		s.Where(sql.GTE(s.C(FieldTokenUsage), v))
 	})
 }
 
 // TokenUsageLT applies the LT predicate on the "token_usage" field.
-func TokenUsageLT(v int) predicate.ConversationMessage {
+func TokenUsageLT(v int64) predicate.ConversationMessage {
 	return predicate.ConversationMessage(func(s *sql.Selector) {
 		s.Where(sql.LT(s.C(FieldTokenUsage), v))
 	})
 }
 
 // TokenUsageLTE applies the LTE predicate on the "token_usage" field.
-func TokenUsageLTE(v int) predicate.ConversationMessage {
+func TokenUsageLTE(v int64) predicate.ConversationMessage {
 	return predicate.ConversationMessage(func(s *sql.Selector) {
 		s.Where(sql.LTE(s.C(FieldTokenUsage), v))
 	})

@@ -2,7 +2,6 @@ package wxgzh
 
 import (
 	"context"
-
 	"notionboy/internal/pkg/logger"
 
 	"github.com/silenceper/wechat/v2/officialaccount/message"
@@ -27,7 +26,7 @@ const (
 
 func handleMenuClick(c context.Context, msg *message.MixMessage) *message.Reply {
 	key := msg.EventKey
-	logger.SugaredLogger.Infow("handleMenuClick", "key", key)
+	logger.SugaredLogger.Debugw("handleMenuClick", "key", key)
 
 	switch key {
 	case BtnBind.String():
@@ -38,6 +37,8 @@ func handleMenuClick(c context.Context, msg *message.MixMessage) *message.Reply 
 		return magicCode(c, msg)
 	case BtnhelpSOS.String():
 		return sosInfo(c, msg)
+	case BtnWhoAMI.String():
+		return whoAMI(c, msg)
 	case BtnHelpNote.String():
 		return &message.Reply{MsgType: message.MsgTypeText, MsgData: message.NewText(helpNote)}
 	case BtnHelpFulltext.String():

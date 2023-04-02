@@ -20,6 +20,10 @@ type Tx struct {
 	Conversation *ConversationClient
 	// ConversationMessage is the client for interacting with the ConversationMessage builders.
 	ConversationMessage *ConversationMessageClient
+	// Order is the client for interacting with the Order builders.
+	Order *OrderClient
+	// Product is the client for interacting with the Product builders.
+	Product *ProductClient
 	// Quota is the client for interacting with the Quota builders.
 	Quota *QuotaClient
 	// WechatSession is the client for interacting with the WechatSession builders.
@@ -159,6 +163,8 @@ func (tx *Tx) init() {
 	tx.ChatHistory = NewChatHistoryClient(tx.config)
 	tx.Conversation = NewConversationClient(tx.config)
 	tx.ConversationMessage = NewConversationMessageClient(tx.config)
+	tx.Order = NewOrderClient(tx.config)
+	tx.Product = NewProductClient(tx.config)
 	tx.Quota = NewQuotaClient(tx.config)
 	tx.WechatSession = NewWechatSessionClient(tx.config)
 }

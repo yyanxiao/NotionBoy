@@ -2,13 +2,12 @@ package notion
 
 import (
 	"context"
-	"regexp"
-	"strings"
-	"time"
-
 	"notionboy/db/ent"
 	"notionboy/internal/pkg/config"
 	"notionboy/internal/pkg/logger"
+	"regexp"
+	"strings"
+	"time"
 
 	"github.com/jomei/notionapi"
 

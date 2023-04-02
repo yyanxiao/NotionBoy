@@ -3,9 +3,6 @@ package handler
 import (
 	"context"
 	"fmt"
-	"strconv"
-	"time"
-
 	"notionboy/db/ent/account"
 	"notionboy/internal/pkg/config"
 	"notionboy/internal/pkg/db/dao"
@@ -13,28 +10,14 @@ import (
 	"notionboy/internal/pkg/notion"
 	"notionboy/internal/pkg/utils/cache"
 	"notionboy/internal/service/auth"
+	"strconv"
+	"time"
 
 	"github.com/google/uuid"
 	tele "gopkg.in/telebot.v3"
 )
 
 var cacheClient = cache.DefaultClient()
-
-const HELP_MSG = `
-这些命令和基本操作描述的是通过 NotionBoy 将内容保存到 Notion 中的功能。
-- /start or /help 命令获取 NotionBoy 的基础功能介绍, 可以帮助用户了解 NotionBoy 的功能
-- /bind 命令可以用于绑定 Notion 账户, 使 NotionBoy 能够访问 Notion 中的内容。
-- /unbind 命令可以用于解绑 Notion 账户, 使 NotionBoy 不再能够访问 Notion 中的内容。
-- /chat 命令可以与 ChatGPT 畅聊, ChatGPT 是一种自然语言生成模型, 能够通过对话方式回答用户的问题。
-- /zlib 命令可以搜索 Z-Library 中的电子书, 加上 #ext(e.g: #pdf) 可以指定搜索的文件类型。
-- /magiccode 命令可以获取一个 Magic Code, Magic Code 可以用于网页登录。
-
-
-基本操作
-- 发送任意文字、图片或者视频到 NotionBoy 时, NotionBoy 会将内容保存到 Notion 中
-- 如果发送到内容中包含 # 开头的内容, 会被自动识别成标签, 并在 Notion 中添加这个标签
-- 如果发送的内容中包含 #全文和一个 URL, 则会自动保存此 URL 的全文内容到 Notion 中
-`
 
 func OnStart(c tele.Context) error {
 	sender := c.Sender()
@@ -44,7 +27,7 @@ func OnStart(c tele.Context) error {
 	if err := dao.SaveBasicAccount(context.Background(), account.UserTypeTelegram, strconv.FormatInt(sender.ID, 10)); err != nil {
 		logger.SugaredLogger.Errorw("SaveBasicAccount failed", "err", err)
 	}
-	return c.Send(HELP_MSG)
+	return c.Send(config.MSG_HELP)
 }
 
 func OnBind(c tele.Context) error {
@@ -111,4 +94,22 @@ func OnMagicCode(c tele.Context) error {
 	cacheClient.Set(fmt.Sprintf("%s:%s", config.MAGIC_CODE_CACHE_KEY, code), acc, time.Duration(5)*time.Minute)
 
 	return c.Reply(code)
+}
+
+func OnWhoAmI(c tele.Context) error {
+	sender := c.Sender()
+	if sender == nil {
+		return fmt.Errorf("User do not exist")
+	}
+	ctx := context.Background()
+
+	myInfo, err := auth.WhoAmI(ctx, account.UserTypeTelegram, strconv.FormatInt(sender.ID, 10))
+	if err != nil {
+		return c.Reply("查询用户信息失败: " + err.Error())
+	}
+	return c.Reply(myInfo.String())
+}
+
+func OnSOS(c tele.Context) error {
+	return c.Reply(fmt.Sprintf("欢迎添加作者微信，请搜索🔍:  %s", config.GetConfig().Wechat.AuthorID))
 }

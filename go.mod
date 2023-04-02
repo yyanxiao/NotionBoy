@@ -18,8 +18,10 @@ require (
 	github.com/patrickmn/go-cache v2.1.0+incompatible
 	github.com/sashabaranov/go-openai v1.5.0
 	github.com/silenceper/wechat/v2 v2.1.4
+	github.com/sirupsen/logrus v1.9.0
 	github.com/spf13/viper v1.14.0
 	github.com/stretchr/testify v1.8.1
+	github.com/wechatpay-apiv3/wechatpay-go v0.2.16
 	golang.org/x/oauth2 v0.3.0
 	golang.org/x/text v0.5.0
 	google.golang.org/genproto v0.0.0-20221207170731-23e4bf6bdc37
@@ -35,7 +37,6 @@ require (
 	github.com/pelletier/go-toml/v2 v2.0.6 // indirect
 	github.com/robfig/cron/v3 v3.0.1 // indirect
 	github.com/rogpeppe/go-internal v1.8.0 // indirect
-	github.com/sirupsen/logrus v1.9.0 // indirect
 	github.com/tidwall/gjson v1.14.4 // indirect
 	github.com/tidwall/match v1.1.1 // indirect
 	github.com/tidwall/pretty v1.2.1 // indirect

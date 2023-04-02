@@ -28,6 +28,7 @@ func (Account) Fields() []ent.Field {
 		field.Bool("is_openai_api_user").Default(false).Comment("Dose this user can use openai API instead of reverse session"),
 		field.String("openai_api_key").Optional().Sensitive().Comment("OpenAI API Key"),
 		field.UUID("api_key", uuid.UUID{}).Optional().Comment("API Key"),
+		field.Bool("is_admin").Default(false).Comment("Is admin user"),
 	}
 }
 

@@ -24,20 +24,14 @@ type Quota struct {
 	Deleted bool `json:"deleted,omitempty"`
 	// user id
 	UserID int `json:"user_id,omitempty"`
-	// Category holds the value of the "category" field.
-	Category quota.Category `json:"category,omitempty"`
-	// Daily holds the value of the "daily" field.
-	Daily int `json:"daily,omitempty"`
-	// Monthly holds the value of the "monthly" field.
-	Monthly int `json:"monthly,omitempty"`
-	// Yearly holds the value of the "yearly" field.
-	Yearly int `json:"yearly,omitempty"`
-	// DailyUsed holds the value of the "daily_used" field.
-	DailyUsed int `json:"daily_used,omitempty"`
-	// MonthlyUsed holds the value of the "monthly_used" field.
-	MonthlyUsed int `json:"monthly_used,omitempty"`
-	// YearlyUsed holds the value of the "yearly_used" field.
-	YearlyUsed int `json:"yearly_used,omitempty"`
+	// plan name
+	Plan string `json:"plan,omitempty"`
+	// Time to reset quota
+	ResetTime time.Time `json:"reset_time,omitempty"`
+	// total openai token
+	Token int64 `json:"token,omitempty"`
+	// used openai token
+	TokenUsed int64 `json:"token_used,omitempty"`
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -47,11 +41,11 @@ func (*Quota) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case quota.FieldDeleted:
 			values[i] = new(sql.NullBool)
-		case quota.FieldID, quota.FieldUserID, quota.FieldDaily, quota.FieldMonthly, quota.FieldYearly, quota.FieldDailyUsed, quota.FieldMonthlyUsed, quota.FieldYearlyUsed:
+		case quota.FieldID, quota.FieldUserID, quota.FieldToken, quota.FieldTokenUsed:
 			values[i] = new(sql.NullInt64)
-		case quota.FieldCategory:
+		case quota.FieldPlan:
 			values[i] = new(sql.NullString)
-		case quota.FieldCreatedAt, quota.FieldUpdatedAt:
+		case quota.FieldCreatedAt, quota.FieldUpdatedAt, quota.FieldResetTime:
 			values[i] = new(sql.NullTime)
 		default:
 			return nil, fmt.Errorf("unexpected column %q for type Quota", columns[i])
@@ -98,47 +92,29 @@ func (q *Quota) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				q.UserID = int(value.Int64)
 			}
-		case quota.FieldCategory:
+		case quota.FieldPlan:
 			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field category", values[i])
+				return fmt.Errorf("unexpected type %T for field plan", values[i])
 			} else if value.Valid {
-				q.Category = quota.Category(value.String)
+				q.Plan = value.String
 			}
-		case quota.FieldDaily:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
-				return fmt.Errorf("unexpected type %T for field daily", values[i])
+		case quota.FieldResetTime:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field reset_time", values[i])
 			} else if value.Valid {
-				q.Daily = int(value.Int64)
+				q.ResetTime = value.Time
 			}
-		case quota.FieldMonthly:
+		case quota.FieldToken:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
-				return fmt.Errorf("unexpected type %T for field monthly", values[i])
+				return fmt.Errorf("unexpected type %T for field token", values[i])
 			} else if value.Valid {
-				q.Monthly = int(value.Int64)
+				q.Token = value.Int64
 			}
-		case quota.FieldYearly:
+		case quota.FieldTokenUsed:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
-				return fmt.Errorf("unexpected type %T for field yearly", values[i])
+				return fmt.Errorf("unexpected type %T for field token_used", values[i])
 			} else if value.Valid {
-				q.Yearly = int(value.Int64)
-			}
-		case quota.FieldDailyUsed:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
-				return fmt.Errorf("unexpected type %T for field daily_used", values[i])
-			} else if value.Valid {
-				q.DailyUsed = int(value.Int64)
-			}
-		case quota.FieldMonthlyUsed:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
-				return fmt.Errorf("unexpected type %T for field monthly_used", values[i])
-			} else if value.Valid {
-				q.MonthlyUsed = int(value.Int64)
-			}
-		case quota.FieldYearlyUsed:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
-				return fmt.Errorf("unexpected type %T for field yearly_used", values[i])
-			} else if value.Valid {
-				q.YearlyUsed = int(value.Int64)
+				q.TokenUsed = value.Int64
 			}
 		}
 	}
@@ -180,26 +156,17 @@ func (q *Quota) String() string {
 	builder.WriteString("user_id=")
 	builder.WriteString(fmt.Sprintf("%v", q.UserID))
 	builder.WriteString(", ")
-	builder.WriteString("category=")
-	builder.WriteString(fmt.Sprintf("%v", q.Category))
+	builder.WriteString("plan=")
+	builder.WriteString(q.Plan)
 	builder.WriteString(", ")
-	builder.WriteString("daily=")
-	builder.WriteString(fmt.Sprintf("%v", q.Daily))
+	builder.WriteString("reset_time=")
+	builder.WriteString(q.ResetTime.Format(time.ANSIC))
 	builder.WriteString(", ")
-	builder.WriteString("monthly=")
-	builder.WriteString(fmt.Sprintf("%v", q.Monthly))
+	builder.WriteString("token=")
+	builder.WriteString(fmt.Sprintf("%v", q.Token))
 	builder.WriteString(", ")
-	builder.WriteString("yearly=")
-	builder.WriteString(fmt.Sprintf("%v", q.Yearly))
-	builder.WriteString(", ")
-	builder.WriteString("daily_used=")
-	builder.WriteString(fmt.Sprintf("%v", q.DailyUsed))
-	builder.WriteString(", ")
-	builder.WriteString("monthly_used=")
-	builder.WriteString(fmt.Sprintf("%v", q.MonthlyUsed))
-	builder.WriteString(", ")
-	builder.WriteString("yearly_used=")
-	builder.WriteString(fmt.Sprintf("%v", q.YearlyUsed))
+	builder.WriteString("token_used=")
+	builder.WriteString(fmt.Sprintf("%v", q.TokenUsed))
 	builder.WriteByte(')')
 	return builder.String()
 }

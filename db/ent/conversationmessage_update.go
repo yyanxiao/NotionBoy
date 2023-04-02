@@ -103,14 +103,14 @@ func (cmu *ConversationMessageUpdate) ClearResponse() *ConversationMessageUpdate
 }
 
 // SetTokenUsage sets the "token_usage" field.
-func (cmu *ConversationMessageUpdate) SetTokenUsage(i int) *ConversationMessageUpdate {
+func (cmu *ConversationMessageUpdate) SetTokenUsage(i int64) *ConversationMessageUpdate {
 	cmu.mutation.ResetTokenUsage()
 	cmu.mutation.SetTokenUsage(i)
 	return cmu
 }
 
 // SetNillableTokenUsage sets the "token_usage" field if the given value is not nil.
-func (cmu *ConversationMessageUpdate) SetNillableTokenUsage(i *int) *ConversationMessageUpdate {
+func (cmu *ConversationMessageUpdate) SetNillableTokenUsage(i *int64) *ConversationMessageUpdate {
 	if i != nil {
 		cmu.SetTokenUsage(*i)
 	}
@@ -118,7 +118,7 @@ func (cmu *ConversationMessageUpdate) SetNillableTokenUsage(i *int) *Conversatio
 }
 
 // AddTokenUsage adds i to the "token_usage" field.
-func (cmu *ConversationMessageUpdate) AddTokenUsage(i int) *ConversationMessageUpdate {
+func (cmu *ConversationMessageUpdate) AddTokenUsage(i int64) *ConversationMessageUpdate {
 	cmu.mutation.AddTokenUsage(i)
 	return cmu
 }
@@ -265,13 +265,13 @@ func (cmu *ConversationMessageUpdate) sqlSave(ctx context.Context) (n int, err e
 		_spec.ClearField(conversationmessage.FieldResponse, field.TypeString)
 	}
 	if value, ok := cmu.mutation.TokenUsage(); ok {
-		_spec.SetField(conversationmessage.FieldTokenUsage, field.TypeInt, value)
+		_spec.SetField(conversationmessage.FieldTokenUsage, field.TypeInt64, value)
 	}
 	if value, ok := cmu.mutation.AddedTokenUsage(); ok {
-		_spec.AddField(conversationmessage.FieldTokenUsage, field.TypeInt, value)
+		_spec.AddField(conversationmessage.FieldTokenUsage, field.TypeInt64, value)
 	}
 	if cmu.mutation.TokenUsageCleared() {
-		_spec.ClearField(conversationmessage.FieldTokenUsage, field.TypeInt)
+		_spec.ClearField(conversationmessage.FieldTokenUsage, field.TypeInt64)
 	}
 	if cmu.mutation.ConversationsCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -400,14 +400,14 @@ func (cmuo *ConversationMessageUpdateOne) ClearResponse() *ConversationMessageUp
 }
 
 // SetTokenUsage sets the "token_usage" field.
-func (cmuo *ConversationMessageUpdateOne) SetTokenUsage(i int) *ConversationMessageUpdateOne {
+func (cmuo *ConversationMessageUpdateOne) SetTokenUsage(i int64) *ConversationMessageUpdateOne {
 	cmuo.mutation.ResetTokenUsage()
 	cmuo.mutation.SetTokenUsage(i)
 	return cmuo
 }
 
 // SetNillableTokenUsage sets the "token_usage" field if the given value is not nil.
-func (cmuo *ConversationMessageUpdateOne) SetNillableTokenUsage(i *int) *ConversationMessageUpdateOne {
+func (cmuo *ConversationMessageUpdateOne) SetNillableTokenUsage(i *int64) *ConversationMessageUpdateOne {
 	if i != nil {
 		cmuo.SetTokenUsage(*i)
 	}
@@ -415,7 +415,7 @@ func (cmuo *ConversationMessageUpdateOne) SetNillableTokenUsage(i *int) *Convers
 }
 
 // AddTokenUsage adds i to the "token_usage" field.
-func (cmuo *ConversationMessageUpdateOne) AddTokenUsage(i int) *ConversationMessageUpdateOne {
+func (cmuo *ConversationMessageUpdateOne) AddTokenUsage(i int64) *ConversationMessageUpdateOne {
 	cmuo.mutation.AddTokenUsage(i)
 	return cmuo
 }
@@ -592,13 +592,13 @@ func (cmuo *ConversationMessageUpdateOne) sqlSave(ctx context.Context) (_node *C
 		_spec.ClearField(conversationmessage.FieldResponse, field.TypeString)
 	}
 	if value, ok := cmuo.mutation.TokenUsage(); ok {
-		_spec.SetField(conversationmessage.FieldTokenUsage, field.TypeInt, value)
+		_spec.SetField(conversationmessage.FieldTokenUsage, field.TypeInt64, value)
 	}
 	if value, ok := cmuo.mutation.AddedTokenUsage(); ok {
-		_spec.AddField(conversationmessage.FieldTokenUsage, field.TypeInt, value)
+		_spec.AddField(conversationmessage.FieldTokenUsage, field.TypeInt64, value)
 	}
 	if cmuo.mutation.TokenUsageCleared() {
-		_spec.ClearField(conversationmessage.FieldTokenUsage, field.TypeInt)
+		_spec.ClearField(conversationmessage.FieldTokenUsage, field.TypeInt64)
 	}
 	if cmuo.mutation.ConversationsCleared() {
 		edge := &sqlgraph.EdgeSpec{

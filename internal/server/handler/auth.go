@@ -2,10 +2,9 @@ package handler
 
 import (
 	"context"
-	"time"
-
 	"notionboy/internal/pkg/config"
 	"notionboy/internal/pkg/logger"
+	"time"
 
 	model "notionboy/api/pb/model"
 

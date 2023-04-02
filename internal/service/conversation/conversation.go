@@ -3,13 +3,12 @@ package conversation
 import (
 	"context"
 	"fmt"
-	"time"
-
 	"notionboy/db/ent"
-	"notionboy/db/ent/quota"
+	"notionboy/internal/pkg/db"
 	"notionboy/internal/pkg/db/dao"
 	"notionboy/internal/pkg/logger"
 	"notionboy/internal/pkg/utils/cache"
+	"time"
 
 	"github.com/google/uuid"
 	gogpt "github.com/sashabaranov/go-openai"
@@ -105,10 +104,6 @@ func (h *History) Save(req *gogpt.ChatCompletionMessage, resp *gogpt.ChatComplet
 		Response: getResponse(resp),
 	}
 
-	// incr quota
-	h.Quota.DailyUsed += 1
-	h.Quota.MonthlyUsed += 1
-
 	h.append(msg)
 	h.saveToCache()
 	return h.saveMessageToDB(msg, resp.Usage.TotalTokens)
@@ -144,9 +139,9 @@ func (h *History) getMessagesFromDB() error {
 }
 
 func (h *History) getQuotaFromDB() error {
-	qt, err := loadQuota(h.Ctx, h.Account)
+	qt, err := dao.QueryQuota(h.Ctx, h.Account.ID)
 	if err != nil {
-		logger.SugaredLogger.Errorw("loadQuota", "err", err)
+		logger.SugaredLogger.Errorw("QueryQuota", "err", err)
 		return err
 	}
 	h.Quota = qt
@@ -156,21 +151,45 @@ func (h *History) getQuotaFromDB() error {
 }
 
 func (h *History) saveMessageToDB(message *Message, tokenUsage int) (*ent.ConversationMessage, error) {
-	conversationMessage := &ent.ConversationMessage{
+	msg := &ent.ConversationMessage{
 		UUID:           uuid.New(),
 		ConversationID: h.ConversationId,
 		UserID:         h.Account.UUID,
 		Request:        message.Request,
 		Response:       message.Response,
-		TokenUsage:     tokenUsage,
+		TokenUsage:     int64(tokenUsage),
 	}
-	// save quota
-	err := dao.IncrDailyQuota(h.Ctx, h.Account.ID, quota.CategoryChatgpt)
+	tx, err := db.GetClient().Tx(h.Ctx)
 	if err != nil {
-		logger.SugaredLogger.Errorw("incrDailyQuota", "err", err)
+		logger.SugaredLogger.Errorw("SaveConversationMessage", "err", err)
 		return nil, err
 	}
-	return dao.SaveConversationMessage(h.Ctx, conversationMessage)
+	// save quota
+	err = dao.IncrUsedTokenQuota(tx.Client(), h.Ctx, h.Account.ID, int64(tokenUsage))
+
+	if err != nil {
+		logger.SugaredLogger.Errorw("IncrUsedTokenQuota", "err", err)
+		if e := tx.Rollback(); e != nil {
+			return nil, e
+		}
+		return nil, err
+	}
+	if err := tx.ConversationMessage.Create().
+		SetUserID(msg.UserID).
+		SetConversationID(msg.ConversationID).
+		SetRequest(msg.Request).
+		SetResponse(msg.Response).
+		SetTokenUsage(msg.TokenUsage).
+		SetUUID(uuid.New()).Exec(h.Ctx); err != nil {
+		if err != nil {
+			logger.SugaredLogger.Errorw("SaveConversationMessage", "err", err)
+			if e := tx.Rollback(); e != nil {
+				return nil, e
+			}
+			return nil, err
+		}
+	}
+	return msg, tx.Commit()
 }
 
 func (h *History) append(message *Message) {

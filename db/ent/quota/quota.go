@@ -3,7 +3,6 @@
 package quota
 
 import (
-	"fmt"
 	"time"
 )
 
@@ -20,20 +19,14 @@ const (
 	FieldDeleted = "deleted"
 	// FieldUserID holds the string denoting the user_id field in the database.
 	FieldUserID = "user_id"
-	// FieldCategory holds the string denoting the category field in the database.
-	FieldCategory = "category"
-	// FieldDaily holds the string denoting the daily field in the database.
-	FieldDaily = "daily"
-	// FieldMonthly holds the string denoting the monthly field in the database.
-	FieldMonthly = "monthly"
-	// FieldYearly holds the string denoting the yearly field in the database.
-	FieldYearly = "yearly"
-	// FieldDailyUsed holds the string denoting the daily_used field in the database.
-	FieldDailyUsed = "daily_used"
-	// FieldMonthlyUsed holds the string denoting the monthly_used field in the database.
-	FieldMonthlyUsed = "monthly_used"
-	// FieldYearlyUsed holds the string denoting the yearly_used field in the database.
-	FieldYearlyUsed = "yearly_used"
+	// FieldPlan holds the string denoting the plan field in the database.
+	FieldPlan = "plan"
+	// FieldResetTime holds the string denoting the reset_time field in the database.
+	FieldResetTime = "reset_time"
+	// FieldToken holds the string denoting the token field in the database.
+	FieldToken = "token"
+	// FieldTokenUsed holds the string denoting the token_used field in the database.
+	FieldTokenUsed = "token_used"
 	// Table holds the table name of the quota in the database.
 	Table = "quota"
 )
@@ -45,13 +38,10 @@ var Columns = []string{
 	FieldUpdatedAt,
 	FieldDeleted,
 	FieldUserID,
-	FieldCategory,
-	FieldDaily,
-	FieldMonthly,
-	FieldYearly,
-	FieldDailyUsed,
-	FieldMonthlyUsed,
-	FieldYearlyUsed,
+	FieldPlan,
+	FieldResetTime,
+	FieldToken,
+	FieldTokenUsed,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -73,26 +63,6 @@ var (
 	UpdateDefaultUpdatedAt func() time.Time
 	// DefaultDeleted holds the default value on creation for the "deleted" field.
 	DefaultDeleted bool
+	// DefaultTokenUsed holds the default value on creation for the "token_used" field.
+	DefaultTokenUsed int64
 )
-
-// Category defines the type for the "category" enum field.
-type Category string
-
-// Category values.
-const (
-	CategoryChatgpt Category = "chatgpt"
-)
-
-func (c Category) String() string {
-	return string(c)
-}
-
-// CategoryValidator is a validator for the "category" field enum values. It is called by the builders before save.
-func CategoryValidator(c Category) error {
-	switch c {
-	case CategoryChatgpt:
-		return nil
-	default:
-		return fmt.Errorf("quota: invalid enum value for category field: %q", c)
-	}
-}

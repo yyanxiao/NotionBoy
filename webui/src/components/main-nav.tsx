@@ -12,31 +12,24 @@ import {
 } from "@/components/ui/navigation-menu";
 
 export function MainNav() {
+	const link = (url: string, name: string) => {
+		return (
+			<Link href={url} legacyBehavior passHref>
+				<NavigationMenuLink className={navigationMenuTriggerStyle()}>
+					<span className="font-bold">{name}</span>
+				</NavigationMenuLink>
+			</Link>
+		);
+	};
+
 	return (
 		<div className="flex">
 			<NavigationMenu>
 				<NavigationMenuList>
 					<NavigationMenuItem>
-						<Link href="/" legacyBehavior passHref>
-							<NavigationMenuLink
-								className={navigationMenuTriggerStyle()}
-							>
-								<span className="font-bold">
-									{siteConfig.name}
-								</span>
-							</NavigationMenuLink>
-						</Link>
-						<Link
-							href={siteConfig.links.chatgpt}
-							legacyBehavior
-							passHref
-						>
-							<NavigationMenuLink
-								className={navigationMenuTriggerStyle()}
-							>
-								<span className="font-bold">Chat</span>
-							</NavigationMenuLink>
-						</Link>
+						{link(siteConfig.links.home, siteConfig.name)}
+						{link(siteConfig.links.chatgpt, "Chat")}
+						{link(siteConfig.links.price, "Pricing")}
 					</NavigationMenuItem>
 				</NavigationMenuList>
 			</NavigationMenu>

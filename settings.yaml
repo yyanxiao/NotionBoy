@@ -12,6 +12,11 @@ wechat:
     # 作者的微信二维码在素材库中的 ID，用于 SOS 返回作者个人的微信
     authorID:
     adminUserID:
+    # 微信支付相关配置
+    mchID:
+    mchCertificateSerialNumber:
+    mchAPIv3Key:
+    mchPrivateKeyPath:
 
 database:
     driver: sqlite
