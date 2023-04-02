@@ -103,7 +103,7 @@ func (ws *WechatSession) assignValues(columns []string, values []any) error {
 // Note that you need to call WechatSession.Unwrap() before calling this method if this WechatSession
 // was returned from a transaction, and the transaction was committed or rolled back.
 func (ws *WechatSession) Update() *WechatSessionUpdateOne {
-	return (&WechatSessionClient{config: ws.config}).UpdateOne(ws)
+	return NewWechatSessionClient(ws.config).UpdateOne(ws)
 }
 
 // Unwrap unwraps the WechatSession entity that was returned from a transaction after it was closed,
@@ -142,9 +142,3 @@ func (ws *WechatSession) String() string {
 
 // WechatSessions is a parsable slice of WechatSession.
 type WechatSessions []*WechatSession
-
-func (ws WechatSessions) config(cfg config) {
-	for _i := range ws {
-		ws[_i].config = cfg
-	}
-}

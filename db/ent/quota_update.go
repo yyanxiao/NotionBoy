@@ -114,35 +114,8 @@ func (qu *QuotaUpdate) Mutation() *QuotaMutation {
 
 // Save executes the query and returns the number of nodes affected by the update operation.
 func (qu *QuotaUpdate) Save(ctx context.Context) (int, error) {
-	var (
-		err      error
-		affected int
-	)
 	qu.defaults()
-	if len(qu.hooks) == 0 {
-		affected, err = qu.sqlSave(ctx)
-	} else {
-		var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
-			mutation, ok := m.(*QuotaMutation)
-			if !ok {
-				return nil, fmt.Errorf("unexpected mutation type %T", m)
-			}
-			qu.mutation = mutation
-			affected, err = qu.sqlSave(ctx)
-			mutation.done = true
-			return affected, err
-		})
-		for i := len(qu.hooks) - 1; i >= 0; i-- {
-			if qu.hooks[i] == nil {
-				return 0, fmt.Errorf("ent: uninitialized hook (forgotten import ent/runtime?)")
-			}
-			mut = qu.hooks[i](mut)
-		}
-		if _, err := mut.Mutate(ctx, qu.mutation); err != nil {
-			return 0, err
-		}
-	}
-	return affected, err
+	return withHooks[int, QuotaMutation](ctx, qu.sqlSave, qu.mutation, qu.hooks)
 }
 
 // SaveX is like Save, but panics if an error occurs.
@@ -176,16 +149,7 @@ func (qu *QuotaUpdate) defaults() {
 }
 
 func (qu *QuotaUpdate) sqlSave(ctx context.Context) (n int, err error) {
-	_spec := &sqlgraph.UpdateSpec{
-		Node: &sqlgraph.NodeSpec{
-			Table:   quota.Table,
-			Columns: quota.Columns,
-			ID: &sqlgraph.FieldSpec{
-				Type:   field.TypeInt,
-				Column: quota.FieldID,
-			},
-		},
-	}
+	_spec := sqlgraph.NewUpdateSpec(quota.Table, quota.Columns, sqlgraph.NewFieldSpec(quota.FieldID, field.TypeInt))
 	if ps := qu.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
@@ -231,6 +195,7 @@ func (qu *QuotaUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		return 0, err
 	}
+	qu.mutation.done = true
 	return n, nil
 }
 
@@ -326,6 +291,12 @@ func (quo *QuotaUpdateOne) Mutation() *QuotaMutation {
 	return quo.mutation
 }
 
+// Where appends a list predicates to the QuotaUpdate builder.
+func (quo *QuotaUpdateOne) Where(ps ...predicate.Quota) *QuotaUpdateOne {
+	quo.mutation.Where(ps...)
+	return quo
+}
+
 // Select allows selecting one or more fields (columns) of the returned entity.
 // The default is selecting all fields defined in the entity schema.
 func (quo *QuotaUpdateOne) Select(field string, fields ...string) *QuotaUpdateOne {
@@ -335,41 +306,8 @@ func (quo *QuotaUpdateOne) Select(field string, fields ...string) *QuotaUpdateOn
 
 // Save executes the query and returns the updated Quota entity.
 func (quo *QuotaUpdateOne) Save(ctx context.Context) (*Quota, error) {
-	var (
-		err  error
-		node *Quota
-	)
 	quo.defaults()
-	if len(quo.hooks) == 0 {
-		node, err = quo.sqlSave(ctx)
-	} else {
-		var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
-			mutation, ok := m.(*QuotaMutation)
-			if !ok {
-				return nil, fmt.Errorf("unexpected mutation type %T", m)
-			}
-			quo.mutation = mutation
-			node, err = quo.sqlSave(ctx)
-			mutation.done = true
-			return node, err
-		})
-		for i := len(quo.hooks) - 1; i >= 0; i-- {
-			if quo.hooks[i] == nil {
-				return nil, fmt.Errorf("ent: uninitialized hook (forgotten import ent/runtime?)")
-			}
-			mut = quo.hooks[i](mut)
-		}
-		v, err := mut.Mutate(ctx, quo.mutation)
-		if err != nil {
-			return nil, err
-		}
-		nv, ok := v.(*Quota)
-		if !ok {
-			return nil, fmt.Errorf("unexpected node type %T returned from QuotaMutation", v)
-		}
-		node = nv
-	}
-	return node, err
+	return withHooks[*Quota, QuotaMutation](ctx, quo.sqlSave, quo.mutation, quo.hooks)
 }
 
 // SaveX is like Save, but panics if an error occurs.
@@ -403,16 +341,7 @@ func (quo *QuotaUpdateOne) defaults() {
 }
 
 func (quo *QuotaUpdateOne) sqlSave(ctx context.Context) (_node *Quota, err error) {
-	_spec := &sqlgraph.UpdateSpec{
-		Node: &sqlgraph.NodeSpec{
-			Table:   quota.Table,
-			Columns: quota.Columns,
-			ID: &sqlgraph.FieldSpec{
-				Type:   field.TypeInt,
-				Column: quota.FieldID,
-			},
-		},
-	}
+	_spec := sqlgraph.NewUpdateSpec(quota.Table, quota.Columns, sqlgraph.NewFieldSpec(quota.FieldID, field.TypeInt))
 	id, ok := quo.mutation.ID()
 	if !ok {
 		return nil, &ValidationError{Name: "id", err: errors.New(`ent: missing "Quota.id" for update`)}
@@ -478,5 +407,6 @@ func (quo *QuotaUpdateOne) sqlSave(ctx context.Context) (_node *Quota, err error
 		}
 		return nil, err
 	}
+	quo.mutation.done = true
 	return _node, nil
 }

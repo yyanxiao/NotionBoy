@@ -4,7 +4,6 @@ package ent
 
 import (
 	"context"
-	"fmt"
 	"notionboy/db/ent/chathistory"
 	"notionboy/db/ent/predicate"
 
@@ -28,34 +27,7 @@ func (chd *ChatHistoryDelete) Where(ps ...predicate.ChatHistory) *ChatHistoryDel
 
 // Exec executes the deletion query and returns how many vertices were deleted.
 func (chd *ChatHistoryDelete) Exec(ctx context.Context) (int, error) {
-	var (
-		err      error
-		affected int
-	)
-	if len(chd.hooks) == 0 {
-		affected, err = chd.sqlExec(ctx)
-	} else {
-		var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
-			mutation, ok := m.(*ChatHistoryMutation)
-			if !ok {
-				return nil, fmt.Errorf("unexpected mutation type %T", m)
-			}
-			chd.mutation = mutation
-			affected, err = chd.sqlExec(ctx)
-			mutation.done = true
-			return affected, err
-		})
-		for i := len(chd.hooks) - 1; i >= 0; i-- {
-			if chd.hooks[i] == nil {
-				return 0, fmt.Errorf("ent: uninitialized hook (forgotten import ent/runtime?)")
-			}
-			mut = chd.hooks[i](mut)
-		}
-		if _, err := mut.Mutate(ctx, chd.mutation); err != nil {
-			return 0, err
-		}
-	}
-	return affected, err
+	return withHooks[int, ChatHistoryMutation](ctx, chd.sqlExec, chd.mutation, chd.hooks)
 }
 
 // ExecX is like Exec, but panics if an error occurs.
@@ -68,15 +40,7 @@ func (chd *ChatHistoryDelete) ExecX(ctx context.Context) int {
 }
 
 func (chd *ChatHistoryDelete) sqlExec(ctx context.Context) (int, error) {
-	_spec := &sqlgraph.DeleteSpec{
-		Node: &sqlgraph.NodeSpec{
-			Table: chathistory.Table,
-			ID: &sqlgraph.FieldSpec{
-				Type:   field.TypeInt,
-				Column: chathistory.FieldID,
-			},
-		},
-	}
+	_spec := sqlgraph.NewDeleteSpec(chathistory.Table, sqlgraph.NewFieldSpec(chathistory.FieldID, field.TypeInt))
 	if ps := chd.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
@@ -88,12 +52,19 @@ func (chd *ChatHistoryDelete) sqlExec(ctx context.Context) (int, error) {
 	if err != nil && sqlgraph.IsConstraintError(err) {
 		err = &ConstraintError{msg: err.Error(), wrap: err}
 	}
+	chd.mutation.done = true
 	return affected, err
 }
 
 // ChatHistoryDeleteOne is the builder for deleting a single ChatHistory entity.
 type ChatHistoryDeleteOne struct {
 	chd *ChatHistoryDelete
+}
+
+// Where appends a list predicates to the ChatHistoryDelete builder.
+func (chdo *ChatHistoryDeleteOne) Where(ps ...predicate.ChatHistory) *ChatHistoryDeleteOne {
+	chdo.chd.mutation.Where(ps...)
+	return chdo
 }
 
 // Exec executes the deletion query.
@@ -111,5 +82,7 @@ func (chdo *ChatHistoryDeleteOne) Exec(ctx context.Context) error {
 
 // ExecX is like Exec, but panics if an error occurs.
 func (chdo *ChatHistoryDeleteOne) ExecX(ctx context.Context) {
-	chdo.chd.ExecX(ctx)
+	if err := chdo.Exec(ctx); err != nil {
+		panic(err)
+	}
 }

@@ -4,7 +4,6 @@ package ent
 
 import (
 	"context"
-	"fmt"
 	"notionboy/db/ent/predicate"
 	"notionboy/db/ent/wechatsession"
 
@@ -28,34 +27,7 @@ func (wsd *WechatSessionDelete) Where(ps ...predicate.WechatSession) *WechatSess
 
 // Exec executes the deletion query and returns how many vertices were deleted.
 func (wsd *WechatSessionDelete) Exec(ctx context.Context) (int, error) {
-	var (
-		err      error
-		affected int
-	)
-	if len(wsd.hooks) == 0 {
-		affected, err = wsd.sqlExec(ctx)
-	} else {
-		var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
-			mutation, ok := m.(*WechatSessionMutation)
-			if !ok {
-				return nil, fmt.Errorf("unexpected mutation type %T", m)
-			}
-			wsd.mutation = mutation
-			affected, err = wsd.sqlExec(ctx)
-			mutation.done = true
-			return affected, err
-		})
-		for i := len(wsd.hooks) - 1; i >= 0; i-- {
-			if wsd.hooks[i] == nil {
-				return 0, fmt.Errorf("ent: uninitialized hook (forgotten import ent/runtime?)")
-			}
-			mut = wsd.hooks[i](mut)
-		}
-		if _, err := mut.Mutate(ctx, wsd.mutation); err != nil {
-			return 0, err
-		}
-	}
-	return affected, err
+	return withHooks[int, WechatSessionMutation](ctx, wsd.sqlExec, wsd.mutation, wsd.hooks)
 }
 
 // ExecX is like Exec, but panics if an error occurs.
@@ -68,15 +40,7 @@ func (wsd *WechatSessionDelete) ExecX(ctx context.Context) int {
 }
 
 func (wsd *WechatSessionDelete) sqlExec(ctx context.Context) (int, error) {
-	_spec := &sqlgraph.DeleteSpec{
-		Node: &sqlgraph.NodeSpec{
-			Table: wechatsession.Table,
-			ID: &sqlgraph.FieldSpec{
-				Type:   field.TypeInt,
-				Column: wechatsession.FieldID,
-			},
-		},
-	}
+	_spec := sqlgraph.NewDeleteSpec(wechatsession.Table, sqlgraph.NewFieldSpec(wechatsession.FieldID, field.TypeInt))
 	if ps := wsd.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
@@ -88,12 +52,19 @@ func (wsd *WechatSessionDelete) sqlExec(ctx context.Context) (int, error) {
 	if err != nil && sqlgraph.IsConstraintError(err) {
 		err = &ConstraintError{msg: err.Error(), wrap: err}
 	}
+	wsd.mutation.done = true
 	return affected, err
 }
 
 // WechatSessionDeleteOne is the builder for deleting a single WechatSession entity.
 type WechatSessionDeleteOne struct {
 	wsd *WechatSessionDelete
+}
+
+// Where appends a list predicates to the WechatSessionDelete builder.
+func (wsdo *WechatSessionDeleteOne) Where(ps ...predicate.WechatSession) *WechatSessionDeleteOne {
+	wsdo.wsd.mutation.Where(ps...)
+	return wsdo
 }
 
 // Exec executes the deletion query.
@@ -111,5 +82,7 @@ func (wsdo *WechatSessionDeleteOne) Exec(ctx context.Context) error {
 
 // ExecX is like Exec, but panics if an error occurs.
 func (wsdo *WechatSessionDeleteOne) ExecX(ctx context.Context) {
-	wsdo.wsd.ExecX(ctx)
+	if err := wsdo.Exec(ctx); err != nil {
+		panic(err)
+	}
 }

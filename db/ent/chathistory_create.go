@@ -160,50 +160,8 @@ func (chc *ChatHistoryCreate) Mutation() *ChatHistoryMutation {
 
 // Save creates the ChatHistory in the database.
 func (chc *ChatHistoryCreate) Save(ctx context.Context) (*ChatHistory, error) {
-	var (
-		err  error
-		node *ChatHistory
-	)
 	chc.defaults()
-	if len(chc.hooks) == 0 {
-		if err = chc.check(); err != nil {
-			return nil, err
-		}
-		node, err = chc.sqlSave(ctx)
-	} else {
-		var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
-			mutation, ok := m.(*ChatHistoryMutation)
-			if !ok {
-				return nil, fmt.Errorf("unexpected mutation type %T", m)
-			}
-			if err = chc.check(); err != nil {
-				return nil, err
-			}
-			chc.mutation = mutation
-			if node, err = chc.sqlSave(ctx); err != nil {
-				return nil, err
-			}
-			mutation.id = &node.ID
-			mutation.done = true
-			return node, err
-		})
-		for i := len(chc.hooks) - 1; i >= 0; i-- {
-			if chc.hooks[i] == nil {
-				return nil, fmt.Errorf("ent: uninitialized hook (forgotten import ent/runtime?)")
-			}
-			mut = chc.hooks[i](mut)
-		}
-		v, err := mut.Mutate(ctx, chc.mutation)
-		if err != nil {
-			return nil, err
-		}
-		nv, ok := v.(*ChatHistory)
-		if !ok {
-			return nil, fmt.Errorf("unexpected node type %T returned from ChatHistoryMutation", v)
-		}
-		node = nv
-	}
-	return node, err
+	return withHooks[*ChatHistory, ChatHistoryMutation](ctx, chc.sqlSave, chc.mutation, chc.hooks)
 }
 
 // SaveX calls Save and panics if Save returns an error.
@@ -246,12 +204,6 @@ func (chc *ChatHistoryCreate) defaults() {
 
 // check runs all checks and user-defined validators on the builder.
 func (chc *ChatHistoryCreate) check() error {
-	if _, ok := chc.mutation.CreatedAt(); !ok {
-		return &ValidationError{Name: "created_at", err: errors.New(`ent: missing required field "ChatHistory.created_at"`)}
-	}
-	if _, ok := chc.mutation.UpdatedAt(); !ok {
-		return &ValidationError{Name: "updated_at", err: errors.New(`ent: missing required field "ChatHistory.updated_at"`)}
-	}
 	if _, ok := chc.mutation.Deleted(); !ok {
 		return &ValidationError{Name: "deleted", err: errors.New(`ent: missing required field "ChatHistory.deleted"`)}
 	}
@@ -268,6 +220,9 @@ func (chc *ChatHistoryCreate) check() error {
 }
 
 func (chc *ChatHistoryCreate) sqlSave(ctx context.Context) (*ChatHistory, error) {
+	if err := chc.check(); err != nil {
+		return nil, err
+	}
 	_node, _spec := chc.createSpec()
 	if err := sqlgraph.CreateNode(ctx, chc.driver, _spec); err != nil {
 		if sqlgraph.IsConstraintError(err) {
@@ -277,19 +232,15 @@ func (chc *ChatHistoryCreate) sqlSave(ctx context.Context) (*ChatHistory, error)
 	}
 	id := _spec.ID.Value.(int64)
 	_node.ID = int(id)
+	chc.mutation.id = &_node.ID
+	chc.mutation.done = true
 	return _node, nil
 }
 
 func (chc *ChatHistoryCreate) createSpec() (*ChatHistory, *sqlgraph.CreateSpec) {
 	var (
 		_node = &ChatHistory{config: chc.config}
-		_spec = &sqlgraph.CreateSpec{
-			Table: chathistory.Table,
-			ID: &sqlgraph.FieldSpec{
-				Type:   field.TypeInt,
-				Column: chathistory.FieldID,
-			},
-		}
+		_spec = sqlgraph.NewCreateSpec(chathistory.Table, sqlgraph.NewFieldSpec(chathistory.FieldID, field.TypeInt))
 	)
 	_spec.OnConflict = chc.conflict
 	if value, ok := chc.mutation.CreatedAt(); ok {

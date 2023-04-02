@@ -12,8 +12,8 @@ var (
 	// AccountsColumns holds the columns for the "accounts" table.
 	AccountsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
-		{Name: "created_at", Type: field.TypeTime},
-		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "created_at", Type: field.TypeTime, Default: schema.Expr("CURRENT_TIMESTAMP")},
+		{Name: "updated_at", Type: field.TypeTime, Default: schema.Expr("CURRENT_TIMESTAMP")},
 		{Name: "deleted", Type: field.TypeBool, Default: false},
 		{Name: "uuid", Type: field.TypeUUID, Unique: true, Nullable: true},
 		{Name: "user_id", Type: field.TypeString},
@@ -44,8 +44,8 @@ var (
 	// ChatHistoriesColumns holds the columns for the "chat_histories" table.
 	ChatHistoriesColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
-		{Name: "created_at", Type: field.TypeTime},
-		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "created_at", Type: field.TypeTime, Default: schema.Expr("CURRENT_TIMESTAMP")},
+		{Name: "updated_at", Type: field.TypeTime, Default: schema.Expr("CURRENT_TIMESTAMP")},
 		{Name: "deleted", Type: field.TypeBool, Default: false},
 		{Name: "user_id", Type: field.TypeInt},
 		{Name: "conversation_idx", Type: field.TypeInt},
@@ -65,8 +65,8 @@ var (
 	// ConversationsColumns holds the columns for the "conversations" table.
 	ConversationsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
-		{Name: "created_at", Type: field.TypeTime},
-		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "created_at", Type: field.TypeTime, Default: schema.Expr("CURRENT_TIMESTAMP")},
+		{Name: "updated_at", Type: field.TypeTime, Default: schema.Expr("CURRENT_TIMESTAMP")},
 		{Name: "deleted", Type: field.TypeBool, Default: false},
 		{Name: "uuid", Type: field.TypeUUID, Unique: true},
 		{Name: "user_id", Type: field.TypeUUID},
@@ -89,8 +89,8 @@ var (
 	// ConversationMessagesColumns holds the columns for the "conversation_messages" table.
 	ConversationMessagesColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
-		{Name: "created_at", Type: field.TypeTime},
-		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "created_at", Type: field.TypeTime, Default: schema.Expr("CURRENT_TIMESTAMP")},
+		{Name: "updated_at", Type: field.TypeTime, Default: schema.Expr("CURRENT_TIMESTAMP")},
 		{Name: "deleted", Type: field.TypeBool, Default: false},
 		{Name: "uuid", Type: field.TypeUUID, Unique: true},
 		{Name: "user_id", Type: field.TypeUUID},
@@ -124,8 +124,8 @@ var (
 	// OrdersColumns holds the columns for the "orders" table.
 	OrdersColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
-		{Name: "created_at", Type: field.TypeTime},
-		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "created_at", Type: field.TypeTime, Default: schema.Expr("CURRENT_TIMESTAMP")},
+		{Name: "updated_at", Type: field.TypeTime, Default: schema.Expr("CURRENT_TIMESTAMP")},
 		{Name: "deleted", Type: field.TypeBool, Default: false},
 		{Name: "uuid", Type: field.TypeUUID, Unique: true},
 		{Name: "user_id", Type: field.TypeUUID},
@@ -151,8 +151,8 @@ var (
 	// ProductsColumns holds the columns for the "products" table.
 	ProductsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
-		{Name: "created_at", Type: field.TypeTime},
-		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "created_at", Type: field.TypeTime, Default: schema.Expr("CURRENT_TIMESTAMP")},
+		{Name: "updated_at", Type: field.TypeTime, Default: schema.Expr("CURRENT_TIMESTAMP")},
 		{Name: "deleted", Type: field.TypeBool, Default: false},
 		{Name: "uuid", Type: field.TypeUUID, Unique: true},
 		{Name: "name", Type: field.TypeString, Default: "Free"},
@@ -170,8 +170,8 @@ var (
 	// QuotaColumns holds the columns for the "quota" table.
 	QuotaColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
-		{Name: "created_at", Type: field.TypeTime},
-		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "created_at", Type: field.TypeTime, Default: schema.Expr("CURRENT_TIMESTAMP")},
+		{Name: "updated_at", Type: field.TypeTime, Default: schema.Expr("CURRENT_TIMESTAMP")},
 		{Name: "deleted", Type: field.TypeBool, Default: false},
 		{Name: "user_id", Type: field.TypeInt},
 		{Name: "plan", Type: field.TypeString},
@@ -195,8 +195,8 @@ var (
 	// WechatSessionColumns holds the columns for the "wechat_session" table.
 	WechatSessionColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
-		{Name: "created_at", Type: field.TypeTime},
-		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "created_at", Type: field.TypeTime, Default: schema.Expr("CURRENT_TIMESTAMP")},
+		{Name: "updated_at", Type: field.TypeTime, Default: schema.Expr("CURRENT_TIMESTAMP")},
 		{Name: "deleted", Type: field.TypeBool, Default: false},
 		{Name: "session", Type: field.TypeBytes},
 		{Name: "dummy_user_id", Type: field.TypeString, Unique: true},

@@ -12,796 +12,512 @@ import (
 
 // ID filters vertices based on their ID field.
 func ID(id int) predicate.Order {
-	return predicate.Order(func(s *sql.Selector) {
-		s.Where(sql.EQ(s.C(FieldID), id))
-	})
+	return predicate.Order(sql.FieldEQ(FieldID, id))
 }
 
 // IDEQ applies the EQ predicate on the ID field.
 func IDEQ(id int) predicate.Order {
-	return predicate.Order(func(s *sql.Selector) {
-		s.Where(sql.EQ(s.C(FieldID), id))
-	})
+	return predicate.Order(sql.FieldEQ(FieldID, id))
 }
 
 // IDNEQ applies the NEQ predicate on the ID field.
 func IDNEQ(id int) predicate.Order {
-	return predicate.Order(func(s *sql.Selector) {
-		s.Where(sql.NEQ(s.C(FieldID), id))
-	})
+	return predicate.Order(sql.FieldNEQ(FieldID, id))
 }
 
 // IDIn applies the In predicate on the ID field.
 func IDIn(ids ...int) predicate.Order {
-	return predicate.Order(func(s *sql.Selector) {
-		v := make([]any, len(ids))
-		for i := range v {
-			v[i] = ids[i]
-		}
-		s.Where(sql.In(s.C(FieldID), v...))
-	})
+	return predicate.Order(sql.FieldIn(FieldID, ids...))
 }
 
 // IDNotIn applies the NotIn predicate on the ID field.
 func IDNotIn(ids ...int) predicate.Order {
-	return predicate.Order(func(s *sql.Selector) {
-		v := make([]any, len(ids))
-		for i := range v {
-			v[i] = ids[i]
-		}
-		s.Where(sql.NotIn(s.C(FieldID), v...))
-	})
+	return predicate.Order(sql.FieldNotIn(FieldID, ids...))
 }
 
 // IDGT applies the GT predicate on the ID field.
 func IDGT(id int) predicate.Order {
-	return predicate.Order(func(s *sql.Selector) {
-		s.Where(sql.GT(s.C(FieldID), id))
-	})
+	return predicate.Order(sql.FieldGT(FieldID, id))
 }
 
 // IDGTE applies the GTE predicate on the ID field.
 func IDGTE(id int) predicate.Order {
-	return predicate.Order(func(s *sql.Selector) {
-		s.Where(sql.GTE(s.C(FieldID), id))
-	})
+	return predicate.Order(sql.FieldGTE(FieldID, id))
 }
 
 // IDLT applies the LT predicate on the ID field.
 func IDLT(id int) predicate.Order {
-	return predicate.Order(func(s *sql.Selector) {
-		s.Where(sql.LT(s.C(FieldID), id))
-	})
+	return predicate.Order(sql.FieldLT(FieldID, id))
 }
 
 // IDLTE applies the LTE predicate on the ID field.
 func IDLTE(id int) predicate.Order {
-	return predicate.Order(func(s *sql.Selector) {
-		s.Where(sql.LTE(s.C(FieldID), id))
-	})
+	return predicate.Order(sql.FieldLTE(FieldID, id))
 }
 
 // CreatedAt applies equality check predicate on the "created_at" field. It's identical to CreatedAtEQ.
 func CreatedAt(v time.Time) predicate.Order {
-	return predicate.Order(func(s *sql.Selector) {
-		s.Where(sql.EQ(s.C(FieldCreatedAt), v))
-	})
+	return predicate.Order(sql.FieldEQ(FieldCreatedAt, v))
 }
 
 // UpdatedAt applies equality check predicate on the "updated_at" field. It's identical to UpdatedAtEQ.
 func UpdatedAt(v time.Time) predicate.Order {
-	return predicate.Order(func(s *sql.Selector) {
-		s.Where(sql.EQ(s.C(FieldUpdatedAt), v))
-	})
+	return predicate.Order(sql.FieldEQ(FieldUpdatedAt, v))
 }
 
 // Deleted applies equality check predicate on the "deleted" field. It's identical to DeletedEQ.
 func Deleted(v bool) predicate.Order {
-	return predicate.Order(func(s *sql.Selector) {
-		s.Where(sql.EQ(s.C(FieldDeleted), v))
-	})
+	return predicate.Order(sql.FieldEQ(FieldDeleted, v))
 }
 
 // UUID applies equality check predicate on the "uuid" field. It's identical to UUIDEQ.
 func UUID(v uuid.UUID) predicate.Order {
-	return predicate.Order(func(s *sql.Selector) {
-		s.Where(sql.EQ(s.C(FieldUUID), v))
-	})
+	return predicate.Order(sql.FieldEQ(FieldUUID, v))
 }
 
 // UserID applies equality check predicate on the "user_id" field. It's identical to UserIDEQ.
 func UserID(v uuid.UUID) predicate.Order {
-	return predicate.Order(func(s *sql.Selector) {
-		s.Where(sql.EQ(s.C(FieldUserID), v))
-	})
+	return predicate.Order(sql.FieldEQ(FieldUserID, v))
 }
 
 // ProductID applies equality check predicate on the "product_id" field. It's identical to ProductIDEQ.
 func ProductID(v uuid.UUID) predicate.Order {
-	return predicate.Order(func(s *sql.Selector) {
-		s.Where(sql.EQ(s.C(FieldProductID), v))
-	})
+	return predicate.Order(sql.FieldEQ(FieldProductID, v))
 }
 
 // Price applies equality check predicate on the "price" field. It's identical to PriceEQ.
 func Price(v float64) predicate.Order {
-	return predicate.Order(func(s *sql.Selector) {
-		s.Where(sql.EQ(s.C(FieldPrice), v))
-	})
+	return predicate.Order(sql.FieldEQ(FieldPrice, v))
 }
 
 // Note applies equality check predicate on the "note" field. It's identical to NoteEQ.
 func Note(v string) predicate.Order {
-	return predicate.Order(func(s *sql.Selector) {
-		s.Where(sql.EQ(s.C(FieldNote), v))
-	})
+	return predicate.Order(sql.FieldEQ(FieldNote, v))
 }
 
 // PaymentInfo applies equality check predicate on the "payment_info" field. It's identical to PaymentInfoEQ.
 func PaymentInfo(v string) predicate.Order {
-	return predicate.Order(func(s *sql.Selector) {
-		s.Where(sql.EQ(s.C(FieldPaymentInfo), v))
-	})
+	return predicate.Order(sql.FieldEQ(FieldPaymentInfo, v))
 }
 
 // CreatedAtEQ applies the EQ predicate on the "created_at" field.
 func CreatedAtEQ(v time.Time) predicate.Order {
-	return predicate.Order(func(s *sql.Selector) {
-		s.Where(sql.EQ(s.C(FieldCreatedAt), v))
-	})
+	return predicate.Order(sql.FieldEQ(FieldCreatedAt, v))
 }
 
 // CreatedAtNEQ applies the NEQ predicate on the "created_at" field.
 func CreatedAtNEQ(v time.Time) predicate.Order {
-	return predicate.Order(func(s *sql.Selector) {
-		s.Where(sql.NEQ(s.C(FieldCreatedAt), v))
-	})
+	return predicate.Order(sql.FieldNEQ(FieldCreatedAt, v))
 }
 
 // CreatedAtIn applies the In predicate on the "created_at" field.
 func CreatedAtIn(vs ...time.Time) predicate.Order {
-	v := make([]any, len(vs))
-	for i := range v {
-		v[i] = vs[i]
-	}
-	return predicate.Order(func(s *sql.Selector) {
-		s.Where(sql.In(s.C(FieldCreatedAt), v...))
-	})
+	return predicate.Order(sql.FieldIn(FieldCreatedAt, vs...))
 }
 
 // CreatedAtNotIn applies the NotIn predicate on the "created_at" field.
 func CreatedAtNotIn(vs ...time.Time) predicate.Order {
-	v := make([]any, len(vs))
-	for i := range v {
-		v[i] = vs[i]
-	}
-	return predicate.Order(func(s *sql.Selector) {
-		s.Where(sql.NotIn(s.C(FieldCreatedAt), v...))
-	})
+	return predicate.Order(sql.FieldNotIn(FieldCreatedAt, vs...))
 }
 
 // CreatedAtGT applies the GT predicate on the "created_at" field.
 func CreatedAtGT(v time.Time) predicate.Order {
-	return predicate.Order(func(s *sql.Selector) {
-		s.Where(sql.GT(s.C(FieldCreatedAt), v))
-	})
+	return predicate.Order(sql.FieldGT(FieldCreatedAt, v))
 }
 
 // CreatedAtGTE applies the GTE predicate on the "created_at" field.
 func CreatedAtGTE(v time.Time) predicate.Order {
-	return predicate.Order(func(s *sql.Selector) {
-		s.Where(sql.GTE(s.C(FieldCreatedAt), v))
-	})
+	return predicate.Order(sql.FieldGTE(FieldCreatedAt, v))
 }
 
 // CreatedAtLT applies the LT predicate on the "created_at" field.
 func CreatedAtLT(v time.Time) predicate.Order {
-	return predicate.Order(func(s *sql.Selector) {
-		s.Where(sql.LT(s.C(FieldCreatedAt), v))
-	})
+	return predicate.Order(sql.FieldLT(FieldCreatedAt, v))
 }
 
 // CreatedAtLTE applies the LTE predicate on the "created_at" field.
 func CreatedAtLTE(v time.Time) predicate.Order {
-	return predicate.Order(func(s *sql.Selector) {
-		s.Where(sql.LTE(s.C(FieldCreatedAt), v))
-	})
+	return predicate.Order(sql.FieldLTE(FieldCreatedAt, v))
 }
 
 // UpdatedAtEQ applies the EQ predicate on the "updated_at" field.
 func UpdatedAtEQ(v time.Time) predicate.Order {
-	return predicate.Order(func(s *sql.Selector) {
-		s.Where(sql.EQ(s.C(FieldUpdatedAt), v))
-	})
+	return predicate.Order(sql.FieldEQ(FieldUpdatedAt, v))
 }
 
 // UpdatedAtNEQ applies the NEQ predicate on the "updated_at" field.
 func UpdatedAtNEQ(v time.Time) predicate.Order {
-	return predicate.Order(func(s *sql.Selector) {
-		s.Where(sql.NEQ(s.C(FieldUpdatedAt), v))
-	})
+	return predicate.Order(sql.FieldNEQ(FieldUpdatedAt, v))
 }
 
 // UpdatedAtIn applies the In predicate on the "updated_at" field.
 func UpdatedAtIn(vs ...time.Time) predicate.Order {
-	v := make([]any, len(vs))
-	for i := range v {
-		v[i] = vs[i]
-	}
-	return predicate.Order(func(s *sql.Selector) {
-		s.Where(sql.In(s.C(FieldUpdatedAt), v...))
-	})
+	return predicate.Order(sql.FieldIn(FieldUpdatedAt, vs...))
 }
 
 // UpdatedAtNotIn applies the NotIn predicate on the "updated_at" field.
 func UpdatedAtNotIn(vs ...time.Time) predicate.Order {
-	v := make([]any, len(vs))
-	for i := range v {
-		v[i] = vs[i]
-	}
-	return predicate.Order(func(s *sql.Selector) {
-		s.Where(sql.NotIn(s.C(FieldUpdatedAt), v...))
-	})
+	return predicate.Order(sql.FieldNotIn(FieldUpdatedAt, vs...))
 }
 
 // UpdatedAtGT applies the GT predicate on the "updated_at" field.
 func UpdatedAtGT(v time.Time) predicate.Order {
-	return predicate.Order(func(s *sql.Selector) {
-		s.Where(sql.GT(s.C(FieldUpdatedAt), v))
-	})
+	return predicate.Order(sql.FieldGT(FieldUpdatedAt, v))
 }
 
 // UpdatedAtGTE applies the GTE predicate on the "updated_at" field.
 func UpdatedAtGTE(v time.Time) predicate.Order {
-	return predicate.Order(func(s *sql.Selector) {
-		s.Where(sql.GTE(s.C(FieldUpdatedAt), v))
-	})
+	return predicate.Order(sql.FieldGTE(FieldUpdatedAt, v))
 }
 
 // UpdatedAtLT applies the LT predicate on the "updated_at" field.
 func UpdatedAtLT(v time.Time) predicate.Order {
-	return predicate.Order(func(s *sql.Selector) {
-		s.Where(sql.LT(s.C(FieldUpdatedAt), v))
-	})
+	return predicate.Order(sql.FieldLT(FieldUpdatedAt, v))
 }
 
 // UpdatedAtLTE applies the LTE predicate on the "updated_at" field.
 func UpdatedAtLTE(v time.Time) predicate.Order {
-	return predicate.Order(func(s *sql.Selector) {
-		s.Where(sql.LTE(s.C(FieldUpdatedAt), v))
-	})
+	return predicate.Order(sql.FieldLTE(FieldUpdatedAt, v))
 }
 
 // DeletedEQ applies the EQ predicate on the "deleted" field.
 func DeletedEQ(v bool) predicate.Order {
-	return predicate.Order(func(s *sql.Selector) {
-		s.Where(sql.EQ(s.C(FieldDeleted), v))
-	})
+	return predicate.Order(sql.FieldEQ(FieldDeleted, v))
 }
 
 // DeletedNEQ applies the NEQ predicate on the "deleted" field.
 func DeletedNEQ(v bool) predicate.Order {
-	return predicate.Order(func(s *sql.Selector) {
-		s.Where(sql.NEQ(s.C(FieldDeleted), v))
-	})
+	return predicate.Order(sql.FieldNEQ(FieldDeleted, v))
 }
 
 // UUIDEQ applies the EQ predicate on the "uuid" field.
 func UUIDEQ(v uuid.UUID) predicate.Order {
-	return predicate.Order(func(s *sql.Selector) {
-		s.Where(sql.EQ(s.C(FieldUUID), v))
-	})
+	return predicate.Order(sql.FieldEQ(FieldUUID, v))
 }
 
 // UUIDNEQ applies the NEQ predicate on the "uuid" field.
 func UUIDNEQ(v uuid.UUID) predicate.Order {
-	return predicate.Order(func(s *sql.Selector) {
-		s.Where(sql.NEQ(s.C(FieldUUID), v))
-	})
+	return predicate.Order(sql.FieldNEQ(FieldUUID, v))
 }
 
 // UUIDIn applies the In predicate on the "uuid" field.
 func UUIDIn(vs ...uuid.UUID) predicate.Order {
-	v := make([]any, len(vs))
-	for i := range v {
-		v[i] = vs[i]
-	}
-	return predicate.Order(func(s *sql.Selector) {
-		s.Where(sql.In(s.C(FieldUUID), v...))
-	})
+	return predicate.Order(sql.FieldIn(FieldUUID, vs...))
 }
 
 // UUIDNotIn applies the NotIn predicate on the "uuid" field.
 func UUIDNotIn(vs ...uuid.UUID) predicate.Order {
-	v := make([]any, len(vs))
-	for i := range v {
-		v[i] = vs[i]
-	}
-	return predicate.Order(func(s *sql.Selector) {
-		s.Where(sql.NotIn(s.C(FieldUUID), v...))
-	})
+	return predicate.Order(sql.FieldNotIn(FieldUUID, vs...))
 }
 
 // UUIDGT applies the GT predicate on the "uuid" field.
 func UUIDGT(v uuid.UUID) predicate.Order {
-	return predicate.Order(func(s *sql.Selector) {
-		s.Where(sql.GT(s.C(FieldUUID), v))
-	})
+	return predicate.Order(sql.FieldGT(FieldUUID, v))
 }
 
 // UUIDGTE applies the GTE predicate on the "uuid" field.
 func UUIDGTE(v uuid.UUID) predicate.Order {
-	return predicate.Order(func(s *sql.Selector) {
-		s.Where(sql.GTE(s.C(FieldUUID), v))
-	})
+	return predicate.Order(sql.FieldGTE(FieldUUID, v))
 }
 
 // UUIDLT applies the LT predicate on the "uuid" field.
 func UUIDLT(v uuid.UUID) predicate.Order {
-	return predicate.Order(func(s *sql.Selector) {
-		s.Where(sql.LT(s.C(FieldUUID), v))
-	})
+	return predicate.Order(sql.FieldLT(FieldUUID, v))
 }
 
 // UUIDLTE applies the LTE predicate on the "uuid" field.
 func UUIDLTE(v uuid.UUID) predicate.Order {
-	return predicate.Order(func(s *sql.Selector) {
-		s.Where(sql.LTE(s.C(FieldUUID), v))
-	})
+	return predicate.Order(sql.FieldLTE(FieldUUID, v))
 }
 
 // UserIDEQ applies the EQ predicate on the "user_id" field.
 func UserIDEQ(v uuid.UUID) predicate.Order {
-	return predicate.Order(func(s *sql.Selector) {
-		s.Where(sql.EQ(s.C(FieldUserID), v))
-	})
+	return predicate.Order(sql.FieldEQ(FieldUserID, v))
 }
 
 // UserIDNEQ applies the NEQ predicate on the "user_id" field.
 func UserIDNEQ(v uuid.UUID) predicate.Order {
-	return predicate.Order(func(s *sql.Selector) {
-		s.Where(sql.NEQ(s.C(FieldUserID), v))
-	})
+	return predicate.Order(sql.FieldNEQ(FieldUserID, v))
 }
 
 // UserIDIn applies the In predicate on the "user_id" field.
 func UserIDIn(vs ...uuid.UUID) predicate.Order {
-	v := make([]any, len(vs))
-	for i := range v {
-		v[i] = vs[i]
-	}
-	return predicate.Order(func(s *sql.Selector) {
-		s.Where(sql.In(s.C(FieldUserID), v...))
-	})
+	return predicate.Order(sql.FieldIn(FieldUserID, vs...))
 }
 
 // UserIDNotIn applies the NotIn predicate on the "user_id" field.
 func UserIDNotIn(vs ...uuid.UUID) predicate.Order {
-	v := make([]any, len(vs))
-	for i := range v {
-		v[i] = vs[i]
-	}
-	return predicate.Order(func(s *sql.Selector) {
-		s.Where(sql.NotIn(s.C(FieldUserID), v...))
-	})
+	return predicate.Order(sql.FieldNotIn(FieldUserID, vs...))
 }
 
 // UserIDGT applies the GT predicate on the "user_id" field.
 func UserIDGT(v uuid.UUID) predicate.Order {
-	return predicate.Order(func(s *sql.Selector) {
-		s.Where(sql.GT(s.C(FieldUserID), v))
-	})
+	return predicate.Order(sql.FieldGT(FieldUserID, v))
 }
 
 // UserIDGTE applies the GTE predicate on the "user_id" field.
 func UserIDGTE(v uuid.UUID) predicate.Order {
-	return predicate.Order(func(s *sql.Selector) {
-		s.Where(sql.GTE(s.C(FieldUserID), v))
-	})
+	return predicate.Order(sql.FieldGTE(FieldUserID, v))
 }
 
 // UserIDLT applies the LT predicate on the "user_id" field.
 func UserIDLT(v uuid.UUID) predicate.Order {
-	return predicate.Order(func(s *sql.Selector) {
-		s.Where(sql.LT(s.C(FieldUserID), v))
-	})
+	return predicate.Order(sql.FieldLT(FieldUserID, v))
 }
 
 // UserIDLTE applies the LTE predicate on the "user_id" field.
 func UserIDLTE(v uuid.UUID) predicate.Order {
-	return predicate.Order(func(s *sql.Selector) {
-		s.Where(sql.LTE(s.C(FieldUserID), v))
-	})
+	return predicate.Order(sql.FieldLTE(FieldUserID, v))
 }
 
 // ProductIDEQ applies the EQ predicate on the "product_id" field.
 func ProductIDEQ(v uuid.UUID) predicate.Order {
-	return predicate.Order(func(s *sql.Selector) {
-		s.Where(sql.EQ(s.C(FieldProductID), v))
-	})
+	return predicate.Order(sql.FieldEQ(FieldProductID, v))
 }
 
 // ProductIDNEQ applies the NEQ predicate on the "product_id" field.
 func ProductIDNEQ(v uuid.UUID) predicate.Order {
-	return predicate.Order(func(s *sql.Selector) {
-		s.Where(sql.NEQ(s.C(FieldProductID), v))
-	})
+	return predicate.Order(sql.FieldNEQ(FieldProductID, v))
 }
 
 // ProductIDIn applies the In predicate on the "product_id" field.
 func ProductIDIn(vs ...uuid.UUID) predicate.Order {
-	v := make([]any, len(vs))
-	for i := range v {
-		v[i] = vs[i]
-	}
-	return predicate.Order(func(s *sql.Selector) {
-		s.Where(sql.In(s.C(FieldProductID), v...))
-	})
+	return predicate.Order(sql.FieldIn(FieldProductID, vs...))
 }
 
 // ProductIDNotIn applies the NotIn predicate on the "product_id" field.
 func ProductIDNotIn(vs ...uuid.UUID) predicate.Order {
-	v := make([]any, len(vs))
-	for i := range v {
-		v[i] = vs[i]
-	}
-	return predicate.Order(func(s *sql.Selector) {
-		s.Where(sql.NotIn(s.C(FieldProductID), v...))
-	})
+	return predicate.Order(sql.FieldNotIn(FieldProductID, vs...))
 }
 
 // ProductIDGT applies the GT predicate on the "product_id" field.
 func ProductIDGT(v uuid.UUID) predicate.Order {
-	return predicate.Order(func(s *sql.Selector) {
-		s.Where(sql.GT(s.C(FieldProductID), v))
-	})
+	return predicate.Order(sql.FieldGT(FieldProductID, v))
 }
 
 // ProductIDGTE applies the GTE predicate on the "product_id" field.
 func ProductIDGTE(v uuid.UUID) predicate.Order {
-	return predicate.Order(func(s *sql.Selector) {
-		s.Where(sql.GTE(s.C(FieldProductID), v))
-	})
+	return predicate.Order(sql.FieldGTE(FieldProductID, v))
 }
 
 // ProductIDLT applies the LT predicate on the "product_id" field.
 func ProductIDLT(v uuid.UUID) predicate.Order {
-	return predicate.Order(func(s *sql.Selector) {
-		s.Where(sql.LT(s.C(FieldProductID), v))
-	})
+	return predicate.Order(sql.FieldLT(FieldProductID, v))
 }
 
 // ProductIDLTE applies the LTE predicate on the "product_id" field.
 func ProductIDLTE(v uuid.UUID) predicate.Order {
-	return predicate.Order(func(s *sql.Selector) {
-		s.Where(sql.LTE(s.C(FieldProductID), v))
-	})
+	return predicate.Order(sql.FieldLTE(FieldProductID, v))
 }
 
 // PriceEQ applies the EQ predicate on the "price" field.
 func PriceEQ(v float64) predicate.Order {
-	return predicate.Order(func(s *sql.Selector) {
-		s.Where(sql.EQ(s.C(FieldPrice), v))
-	})
+	return predicate.Order(sql.FieldEQ(FieldPrice, v))
 }
 
 // PriceNEQ applies the NEQ predicate on the "price" field.
 func PriceNEQ(v float64) predicate.Order {
-	return predicate.Order(func(s *sql.Selector) {
-		s.Where(sql.NEQ(s.C(FieldPrice), v))
-	})
+	return predicate.Order(sql.FieldNEQ(FieldPrice, v))
 }
 
 // PriceIn applies the In predicate on the "price" field.
 func PriceIn(vs ...float64) predicate.Order {
-	v := make([]any, len(vs))
-	for i := range v {
-		v[i] = vs[i]
-	}
-	return predicate.Order(func(s *sql.Selector) {
-		s.Where(sql.In(s.C(FieldPrice), v...))
-	})
+	return predicate.Order(sql.FieldIn(FieldPrice, vs...))
 }
 
 // PriceNotIn applies the NotIn predicate on the "price" field.
 func PriceNotIn(vs ...float64) predicate.Order {
-	v := make([]any, len(vs))
-	for i := range v {
-		v[i] = vs[i]
-	}
-	return predicate.Order(func(s *sql.Selector) {
-		s.Where(sql.NotIn(s.C(FieldPrice), v...))
-	})
+	return predicate.Order(sql.FieldNotIn(FieldPrice, vs...))
 }
 
 // PriceGT applies the GT predicate on the "price" field.
 func PriceGT(v float64) predicate.Order {
-	return predicate.Order(func(s *sql.Selector) {
-		s.Where(sql.GT(s.C(FieldPrice), v))
-	})
+	return predicate.Order(sql.FieldGT(FieldPrice, v))
 }
 
 // PriceGTE applies the GTE predicate on the "price" field.
 func PriceGTE(v float64) predicate.Order {
-	return predicate.Order(func(s *sql.Selector) {
-		s.Where(sql.GTE(s.C(FieldPrice), v))
-	})
+	return predicate.Order(sql.FieldGTE(FieldPrice, v))
 }
 
 // PriceLT applies the LT predicate on the "price" field.
 func PriceLT(v float64) predicate.Order {
-	return predicate.Order(func(s *sql.Selector) {
-		s.Where(sql.LT(s.C(FieldPrice), v))
-	})
+	return predicate.Order(sql.FieldLT(FieldPrice, v))
 }
 
 // PriceLTE applies the LTE predicate on the "price" field.
 func PriceLTE(v float64) predicate.Order {
-	return predicate.Order(func(s *sql.Selector) {
-		s.Where(sql.LTE(s.C(FieldPrice), v))
-	})
+	return predicate.Order(sql.FieldLTE(FieldPrice, v))
 }
 
 // StatusEQ applies the EQ predicate on the "status" field.
 func StatusEQ(v Status) predicate.Order {
-	return predicate.Order(func(s *sql.Selector) {
-		s.Where(sql.EQ(s.C(FieldStatus), v))
-	})
+	return predicate.Order(sql.FieldEQ(FieldStatus, v))
 }
 
 // StatusNEQ applies the NEQ predicate on the "status" field.
 func StatusNEQ(v Status) predicate.Order {
-	return predicate.Order(func(s *sql.Selector) {
-		s.Where(sql.NEQ(s.C(FieldStatus), v))
-	})
+	return predicate.Order(sql.FieldNEQ(FieldStatus, v))
 }
 
 // StatusIn applies the In predicate on the "status" field.
 func StatusIn(vs ...Status) predicate.Order {
-	v := make([]any, len(vs))
-	for i := range v {
-		v[i] = vs[i]
-	}
-	return predicate.Order(func(s *sql.Selector) {
-		s.Where(sql.In(s.C(FieldStatus), v...))
-	})
+	return predicate.Order(sql.FieldIn(FieldStatus, vs...))
 }
 
 // StatusNotIn applies the NotIn predicate on the "status" field.
 func StatusNotIn(vs ...Status) predicate.Order {
-	v := make([]any, len(vs))
-	for i := range v {
-		v[i] = vs[i]
-	}
-	return predicate.Order(func(s *sql.Selector) {
-		s.Where(sql.NotIn(s.C(FieldStatus), v...))
-	})
+	return predicate.Order(sql.FieldNotIn(FieldStatus, vs...))
 }
 
 // NoteEQ applies the EQ predicate on the "note" field.
 func NoteEQ(v string) predicate.Order {
-	return predicate.Order(func(s *sql.Selector) {
-		s.Where(sql.EQ(s.C(FieldNote), v))
-	})
+	return predicate.Order(sql.FieldEQ(FieldNote, v))
 }
 
 // NoteNEQ applies the NEQ predicate on the "note" field.
 func NoteNEQ(v string) predicate.Order {
-	return predicate.Order(func(s *sql.Selector) {
-		s.Where(sql.NEQ(s.C(FieldNote), v))
-	})
+	return predicate.Order(sql.FieldNEQ(FieldNote, v))
 }
 
 // NoteIn applies the In predicate on the "note" field.
 func NoteIn(vs ...string) predicate.Order {
-	v := make([]any, len(vs))
-	for i := range v {
-		v[i] = vs[i]
-	}
-	return predicate.Order(func(s *sql.Selector) {
-		s.Where(sql.In(s.C(FieldNote), v...))
-	})
+	return predicate.Order(sql.FieldIn(FieldNote, vs...))
 }
 
 // NoteNotIn applies the NotIn predicate on the "note" field.
 func NoteNotIn(vs ...string) predicate.Order {
-	v := make([]any, len(vs))
-	for i := range v {
-		v[i] = vs[i]
-	}
-	return predicate.Order(func(s *sql.Selector) {
-		s.Where(sql.NotIn(s.C(FieldNote), v...))
-	})
+	return predicate.Order(sql.FieldNotIn(FieldNote, vs...))
 }
 
 // NoteGT applies the GT predicate on the "note" field.
 func NoteGT(v string) predicate.Order {
-	return predicate.Order(func(s *sql.Selector) {
-		s.Where(sql.GT(s.C(FieldNote), v))
-	})
+	return predicate.Order(sql.FieldGT(FieldNote, v))
 }
 
 // NoteGTE applies the GTE predicate on the "note" field.
 func NoteGTE(v string) predicate.Order {
-	return predicate.Order(func(s *sql.Selector) {
-		s.Where(sql.GTE(s.C(FieldNote), v))
-	})
+	return predicate.Order(sql.FieldGTE(FieldNote, v))
 }
 
 // NoteLT applies the LT predicate on the "note" field.
 func NoteLT(v string) predicate.Order {
-	return predicate.Order(func(s *sql.Selector) {
-		s.Where(sql.LT(s.C(FieldNote), v))
-	})
+	return predicate.Order(sql.FieldLT(FieldNote, v))
 }
 
 // NoteLTE applies the LTE predicate on the "note" field.
 func NoteLTE(v string) predicate.Order {
-	return predicate.Order(func(s *sql.Selector) {
-		s.Where(sql.LTE(s.C(FieldNote), v))
-	})
+	return predicate.Order(sql.FieldLTE(FieldNote, v))
 }
 
 // NoteContains applies the Contains predicate on the "note" field.
 func NoteContains(v string) predicate.Order {
-	return predicate.Order(func(s *sql.Selector) {
-		s.Where(sql.Contains(s.C(FieldNote), v))
-	})
+	return predicate.Order(sql.FieldContains(FieldNote, v))
 }
 
 // NoteHasPrefix applies the HasPrefix predicate on the "note" field.
 func NoteHasPrefix(v string) predicate.Order {
-	return predicate.Order(func(s *sql.Selector) {
-		s.Where(sql.HasPrefix(s.C(FieldNote), v))
-	})
+	return predicate.Order(sql.FieldHasPrefix(FieldNote, v))
 }
 
 // NoteHasSuffix applies the HasSuffix predicate on the "note" field.
 func NoteHasSuffix(v string) predicate.Order {
-	return predicate.Order(func(s *sql.Selector) {
-		s.Where(sql.HasSuffix(s.C(FieldNote), v))
-	})
+	return predicate.Order(sql.FieldHasSuffix(FieldNote, v))
 }
 
 // NoteIsNil applies the IsNil predicate on the "note" field.
 func NoteIsNil() predicate.Order {
-	return predicate.Order(func(s *sql.Selector) {
-		s.Where(sql.IsNull(s.C(FieldNote)))
-	})
+	return predicate.Order(sql.FieldIsNull(FieldNote))
 }
 
 // NoteNotNil applies the NotNil predicate on the "note" field.
 func NoteNotNil() predicate.Order {
-	return predicate.Order(func(s *sql.Selector) {
-		s.Where(sql.NotNull(s.C(FieldNote)))
-	})
+	return predicate.Order(sql.FieldNotNull(FieldNote))
 }
 
 // NoteEqualFold applies the EqualFold predicate on the "note" field.
 func NoteEqualFold(v string) predicate.Order {
-	return predicate.Order(func(s *sql.Selector) {
-		s.Where(sql.EqualFold(s.C(FieldNote), v))
-	})
+	return predicate.Order(sql.FieldEqualFold(FieldNote, v))
 }
 
 // NoteContainsFold applies the ContainsFold predicate on the "note" field.
 func NoteContainsFold(v string) predicate.Order {
-	return predicate.Order(func(s *sql.Selector) {
-		s.Where(sql.ContainsFold(s.C(FieldNote), v))
-	})
+	return predicate.Order(sql.FieldContainsFold(FieldNote, v))
 }
 
 // PaymentInfoEQ applies the EQ predicate on the "payment_info" field.
 func PaymentInfoEQ(v string) predicate.Order {
-	return predicate.Order(func(s *sql.Selector) {
-		s.Where(sql.EQ(s.C(FieldPaymentInfo), v))
-	})
+	return predicate.Order(sql.FieldEQ(FieldPaymentInfo, v))
 }
 
 // PaymentInfoNEQ applies the NEQ predicate on the "payment_info" field.
 func PaymentInfoNEQ(v string) predicate.Order {
-	return predicate.Order(func(s *sql.Selector) {
-		s.Where(sql.NEQ(s.C(FieldPaymentInfo), v))
-	})
+	return predicate.Order(sql.FieldNEQ(FieldPaymentInfo, v))
 }
 
 // PaymentInfoIn applies the In predicate on the "payment_info" field.
 func PaymentInfoIn(vs ...string) predicate.Order {
-	v := make([]any, len(vs))
-	for i := range v {
-		v[i] = vs[i]
-	}
-	return predicate.Order(func(s *sql.Selector) {
-		s.Where(sql.In(s.C(FieldPaymentInfo), v...))
-	})
+	return predicate.Order(sql.FieldIn(FieldPaymentInfo, vs...))
 }
 
 // PaymentInfoNotIn applies the NotIn predicate on the "payment_info" field.
 func PaymentInfoNotIn(vs ...string) predicate.Order {
-	v := make([]any, len(vs))
-	for i := range v {
-		v[i] = vs[i]
-	}
-	return predicate.Order(func(s *sql.Selector) {
-		s.Where(sql.NotIn(s.C(FieldPaymentInfo), v...))
-	})
+	return predicate.Order(sql.FieldNotIn(FieldPaymentInfo, vs...))
 }
 
 // PaymentInfoGT applies the GT predicate on the "payment_info" field.
 func PaymentInfoGT(v string) predicate.Order {
-	return predicate.Order(func(s *sql.Selector) {
-		s.Where(sql.GT(s.C(FieldPaymentInfo), v))
-	})
+	return predicate.Order(sql.FieldGT(FieldPaymentInfo, v))
 }
 
 // PaymentInfoGTE applies the GTE predicate on the "payment_info" field.
 func PaymentInfoGTE(v string) predicate.Order {
-	return predicate.Order(func(s *sql.Selector) {
-		s.Where(sql.GTE(s.C(FieldPaymentInfo), v))
-	})
+	return predicate.Order(sql.FieldGTE(FieldPaymentInfo, v))
 }
 
 // PaymentInfoLT applies the LT predicate on the "payment_info" field.
 func PaymentInfoLT(v string) predicate.Order {
-	return predicate.Order(func(s *sql.Selector) {
-		s.Where(sql.LT(s.C(FieldPaymentInfo), v))
-	})
+	return predicate.Order(sql.FieldLT(FieldPaymentInfo, v))
 }
 
 // PaymentInfoLTE applies the LTE predicate on the "payment_info" field.
 func PaymentInfoLTE(v string) predicate.Order {
-	return predicate.Order(func(s *sql.Selector) {
-		s.Where(sql.LTE(s.C(FieldPaymentInfo), v))
-	})
+	return predicate.Order(sql.FieldLTE(FieldPaymentInfo, v))
 }
 
 // PaymentInfoContains applies the Contains predicate on the "payment_info" field.
 func PaymentInfoContains(v string) predicate.Order {
-	return predicate.Order(func(s *sql.Selector) {
-		s.Where(sql.Contains(s.C(FieldPaymentInfo), v))
-	})
+	return predicate.Order(sql.FieldContains(FieldPaymentInfo, v))
 }
 
 // PaymentInfoHasPrefix applies the HasPrefix predicate on the "payment_info" field.
 func PaymentInfoHasPrefix(v string) predicate.Order {
-	return predicate.Order(func(s *sql.Selector) {
-		s.Where(sql.HasPrefix(s.C(FieldPaymentInfo), v))
-	})
+	return predicate.Order(sql.FieldHasPrefix(FieldPaymentInfo, v))
 }
 
 // PaymentInfoHasSuffix applies the HasSuffix predicate on the "payment_info" field.
 func PaymentInfoHasSuffix(v string) predicate.Order {
-	return predicate.Order(func(s *sql.Selector) {
-		s.Where(sql.HasSuffix(s.C(FieldPaymentInfo), v))
-	})
+	return predicate.Order(sql.FieldHasSuffix(FieldPaymentInfo, v))
 }
 
 // PaymentInfoIsNil applies the IsNil predicate on the "payment_info" field.
 func PaymentInfoIsNil() predicate.Order {
-	return predicate.Order(func(s *sql.Selector) {
-		s.Where(sql.IsNull(s.C(FieldPaymentInfo)))
-	})
+	return predicate.Order(sql.FieldIsNull(FieldPaymentInfo))
 }
 
 // PaymentInfoNotNil applies the NotNil predicate on the "payment_info" field.
 func PaymentInfoNotNil() predicate.Order {
-	return predicate.Order(func(s *sql.Selector) {
-		s.Where(sql.NotNull(s.C(FieldPaymentInfo)))
-	})
+	return predicate.Order(sql.FieldNotNull(FieldPaymentInfo))
 }
 
 // PaymentInfoEqualFold applies the EqualFold predicate on the "payment_info" field.
 func PaymentInfoEqualFold(v string) predicate.Order {
-	return predicate.Order(func(s *sql.Selector) {
-		s.Where(sql.EqualFold(s.C(FieldPaymentInfo), v))
-	})
+	return predicate.Order(sql.FieldEqualFold(FieldPaymentInfo, v))
 }
 
 // PaymentInfoContainsFold applies the ContainsFold predicate on the "payment_info" field.
 func PaymentInfoContainsFold(v string) predicate.Order {
-	return predicate.Order(func(s *sql.Selector) {
-		s.Where(sql.ContainsFold(s.C(FieldPaymentInfo), v))
-	})
+	return predicate.Order(sql.FieldContainsFold(FieldPaymentInfo, v))
 }
 
 // And groups predicates with the AND operator between them.

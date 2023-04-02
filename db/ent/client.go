@@ -19,6 +19,7 @@ import (
 	"notionboy/db/ent/quota"
 	"notionboy/db/ent/wechatsession"
 
+	"entgo.io/ent"
 	"entgo.io/ent/dialect"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
@@ -49,7 +50,7 @@ type Client struct {
 
 // NewClient creates a new client configured with the given options.
 func NewClient(opts ...Option) *Client {
-	cfg := config{log: log.Println, hooks: &hooks{}}
+	cfg := config{log: log.Println, hooks: &hooks{}, inters: &inters{}}
 	cfg.options(opts...)
 	client := &Client{config: cfg}
 	client.init()
@@ -66,6 +67,55 @@ func (c *Client) init() {
 	c.Product = NewProductClient(c.config)
 	c.Quota = NewQuotaClient(c.config)
 	c.WechatSession = NewWechatSessionClient(c.config)
+}
+
+type (
+	// config is the configuration for the client and its builder.
+	config struct {
+		// driver used for executing database requests.
+		driver dialect.Driver
+		// debug enable a debug logging.
+		debug bool
+		// log used for logging on debug mode.
+		log func(...any)
+		// hooks to execute on mutations.
+		hooks *hooks
+		// interceptors to execute on queries.
+		inters *inters
+	}
+	// Option function to configure the client.
+	Option func(*config)
+)
+
+// options applies the options on the config object.
+func (c *config) options(opts ...Option) {
+	for _, opt := range opts {
+		opt(c)
+	}
+	if c.debug {
+		c.driver = dialect.Debug(c.driver, c.log)
+	}
+}
+
+// Debug enables debug logging on the ent.Driver.
+func Debug() Option {
+	return func(c *config) {
+		c.debug = true
+	}
+}
+
+// Log sets the logging function for debug mode.
+func Log(fn func(...any)) Option {
+	return func(c *config) {
+		c.log = fn
+	}
+}
+
+// Driver configures the client driver.
+func Driver(driver dialect.Driver) Option {
+	return func(c *config) {
+		c.driver = driver
+	}
 }
 
 // Open opens a database/sql.DB specified by the driver name and
@@ -162,14 +212,47 @@ func (c *Client) Close() error {
 // Use adds the mutation hooks to all the entity clients.
 // In order to add hooks to a specific client, call: `client.Node.Use(...)`.
 func (c *Client) Use(hooks ...Hook) {
-	c.Account.Use(hooks...)
-	c.ChatHistory.Use(hooks...)
-	c.Conversation.Use(hooks...)
-	c.ConversationMessage.Use(hooks...)
-	c.Order.Use(hooks...)
-	c.Product.Use(hooks...)
-	c.Quota.Use(hooks...)
-	c.WechatSession.Use(hooks...)
+	for _, n := range []interface{ Use(...Hook) }{
+		c.Account, c.ChatHistory, c.Conversation, c.ConversationMessage, c.Order,
+		c.Product, c.Quota, c.WechatSession,
+	} {
+		n.Use(hooks...)
+	}
+}
+
+// Intercept adds the query interceptors to all the entity clients.
+// In order to add interceptors to a specific client, call: `client.Node.Intercept(...)`.
+func (c *Client) Intercept(interceptors ...Interceptor) {
+	for _, n := range []interface{ Intercept(...Interceptor) }{
+		c.Account, c.ChatHistory, c.Conversation, c.ConversationMessage, c.Order,
+		c.Product, c.Quota, c.WechatSession,
+	} {
+		n.Intercept(interceptors...)
+	}
+}
+
+// Mutate implements the ent.Mutator interface.
+func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
+	switch m := m.(type) {
+	case *AccountMutation:
+		return c.Account.mutate(ctx, m)
+	case *ChatHistoryMutation:
+		return c.ChatHistory.mutate(ctx, m)
+	case *ConversationMutation:
+		return c.Conversation.mutate(ctx, m)
+	case *ConversationMessageMutation:
+		return c.ConversationMessage.mutate(ctx, m)
+	case *OrderMutation:
+		return c.Order.mutate(ctx, m)
+	case *ProductMutation:
+		return c.Product.mutate(ctx, m)
+	case *QuotaMutation:
+		return c.Quota.mutate(ctx, m)
+	case *WechatSessionMutation:
+		return c.WechatSession.mutate(ctx, m)
+	default:
+		return nil, fmt.Errorf("ent: unknown mutation type %T", m)
+	}
 }
 
 // AccountClient is a client for the Account schema.
@@ -186,6 +269,12 @@ func NewAccountClient(c config) *AccountClient {
 // A call to `Use(f, g, h)` equals to `account.Hooks(f(g(h())))`.
 func (c *AccountClient) Use(hooks ...Hook) {
 	c.hooks.Account = append(c.hooks.Account, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `account.Intercept(f(g(h())))`.
+func (c *AccountClient) Intercept(interceptors ...Interceptor) {
+	c.inters.Account = append(c.inters.Account, interceptors...)
 }
 
 // Create returns a builder for creating a Account entity.
@@ -240,6 +329,8 @@ func (c *AccountClient) DeleteOneID(id int) *AccountDeleteOne {
 func (c *AccountClient) Query() *AccountQuery {
 	return &AccountQuery{
 		config: c.config,
+		ctx:    &QueryContext{Type: TypeAccount},
+		inters: c.Interceptors(),
 	}
 }
 
@@ -262,6 +353,26 @@ func (c *AccountClient) Hooks() []Hook {
 	return c.hooks.Account
 }
 
+// Interceptors returns the client interceptors.
+func (c *AccountClient) Interceptors() []Interceptor {
+	return c.inters.Account
+}
+
+func (c *AccountClient) mutate(ctx context.Context, m *AccountMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&AccountCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&AccountUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&AccountUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&AccountDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown Account mutation op: %q", m.Op())
+	}
+}
+
 // ChatHistoryClient is a client for the ChatHistory schema.
 type ChatHistoryClient struct {
 	config
@@ -276,6 +387,12 @@ func NewChatHistoryClient(c config) *ChatHistoryClient {
 // A call to `Use(f, g, h)` equals to `chathistory.Hooks(f(g(h())))`.
 func (c *ChatHistoryClient) Use(hooks ...Hook) {
 	c.hooks.ChatHistory = append(c.hooks.ChatHistory, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `chathistory.Intercept(f(g(h())))`.
+func (c *ChatHistoryClient) Intercept(interceptors ...Interceptor) {
+	c.inters.ChatHistory = append(c.inters.ChatHistory, interceptors...)
 }
 
 // Create returns a builder for creating a ChatHistory entity.
@@ -330,6 +447,8 @@ func (c *ChatHistoryClient) DeleteOneID(id int) *ChatHistoryDeleteOne {
 func (c *ChatHistoryClient) Query() *ChatHistoryQuery {
 	return &ChatHistoryQuery{
 		config: c.config,
+		ctx:    &QueryContext{Type: TypeChatHistory},
+		inters: c.Interceptors(),
 	}
 }
 
@@ -352,6 +471,26 @@ func (c *ChatHistoryClient) Hooks() []Hook {
 	return c.hooks.ChatHistory
 }
 
+// Interceptors returns the client interceptors.
+func (c *ChatHistoryClient) Interceptors() []Interceptor {
+	return c.inters.ChatHistory
+}
+
+func (c *ChatHistoryClient) mutate(ctx context.Context, m *ChatHistoryMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&ChatHistoryCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&ChatHistoryUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&ChatHistoryUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&ChatHistoryDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown ChatHistory mutation op: %q", m.Op())
+	}
+}
+
 // ConversationClient is a client for the Conversation schema.
 type ConversationClient struct {
 	config
@@ -366,6 +505,12 @@ func NewConversationClient(c config) *ConversationClient {
 // A call to `Use(f, g, h)` equals to `conversation.Hooks(f(g(h())))`.
 func (c *ConversationClient) Use(hooks ...Hook) {
 	c.hooks.Conversation = append(c.hooks.Conversation, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `conversation.Intercept(f(g(h())))`.
+func (c *ConversationClient) Intercept(interceptors ...Interceptor) {
+	c.inters.Conversation = append(c.inters.Conversation, interceptors...)
 }
 
 // Create returns a builder for creating a Conversation entity.
@@ -420,6 +565,8 @@ func (c *ConversationClient) DeleteOneID(id int) *ConversationDeleteOne {
 func (c *ConversationClient) Query() *ConversationQuery {
 	return &ConversationQuery{
 		config: c.config,
+		ctx:    &QueryContext{Type: TypeConversation},
+		inters: c.Interceptors(),
 	}
 }
 
@@ -439,7 +586,7 @@ func (c *ConversationClient) GetX(ctx context.Context, id int) *Conversation {
 
 // QueryConversationMessages queries the conversation_messages edge of a Conversation.
 func (c *ConversationClient) QueryConversationMessages(co *Conversation) *ConversationMessageQuery {
-	query := &ConversationMessageQuery{config: c.config}
+	query := (&ConversationMessageClient{config: c.config}).Query()
 	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
 		id := co.ID
 		step := sqlgraph.NewStep(
@@ -458,6 +605,26 @@ func (c *ConversationClient) Hooks() []Hook {
 	return c.hooks.Conversation
 }
 
+// Interceptors returns the client interceptors.
+func (c *ConversationClient) Interceptors() []Interceptor {
+	return c.inters.Conversation
+}
+
+func (c *ConversationClient) mutate(ctx context.Context, m *ConversationMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&ConversationCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&ConversationUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&ConversationUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&ConversationDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown Conversation mutation op: %q", m.Op())
+	}
+}
+
 // ConversationMessageClient is a client for the ConversationMessage schema.
 type ConversationMessageClient struct {
 	config
@@ -472,6 +639,12 @@ func NewConversationMessageClient(c config) *ConversationMessageClient {
 // A call to `Use(f, g, h)` equals to `conversationmessage.Hooks(f(g(h())))`.
 func (c *ConversationMessageClient) Use(hooks ...Hook) {
 	c.hooks.ConversationMessage = append(c.hooks.ConversationMessage, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `conversationmessage.Intercept(f(g(h())))`.
+func (c *ConversationMessageClient) Intercept(interceptors ...Interceptor) {
+	c.inters.ConversationMessage = append(c.inters.ConversationMessage, interceptors...)
 }
 
 // Create returns a builder for creating a ConversationMessage entity.
@@ -526,6 +699,8 @@ func (c *ConversationMessageClient) DeleteOneID(id int) *ConversationMessageDele
 func (c *ConversationMessageClient) Query() *ConversationMessageQuery {
 	return &ConversationMessageQuery{
 		config: c.config,
+		ctx:    &QueryContext{Type: TypeConversationMessage},
+		inters: c.Interceptors(),
 	}
 }
 
@@ -545,7 +720,7 @@ func (c *ConversationMessageClient) GetX(ctx context.Context, id int) *Conversat
 
 // QueryConversations queries the conversations edge of a ConversationMessage.
 func (c *ConversationMessageClient) QueryConversations(cm *ConversationMessage) *ConversationQuery {
-	query := &ConversationQuery{config: c.config}
+	query := (&ConversationClient{config: c.config}).Query()
 	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
 		id := cm.ID
 		step := sqlgraph.NewStep(
@@ -564,6 +739,26 @@ func (c *ConversationMessageClient) Hooks() []Hook {
 	return c.hooks.ConversationMessage
 }
 
+// Interceptors returns the client interceptors.
+func (c *ConversationMessageClient) Interceptors() []Interceptor {
+	return c.inters.ConversationMessage
+}
+
+func (c *ConversationMessageClient) mutate(ctx context.Context, m *ConversationMessageMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&ConversationMessageCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&ConversationMessageUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&ConversationMessageUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&ConversationMessageDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown ConversationMessage mutation op: %q", m.Op())
+	}
+}
+
 // OrderClient is a client for the Order schema.
 type OrderClient struct {
 	config
@@ -578,6 +773,12 @@ func NewOrderClient(c config) *OrderClient {
 // A call to `Use(f, g, h)` equals to `order.Hooks(f(g(h())))`.
 func (c *OrderClient) Use(hooks ...Hook) {
 	c.hooks.Order = append(c.hooks.Order, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `order.Intercept(f(g(h())))`.
+func (c *OrderClient) Intercept(interceptors ...Interceptor) {
+	c.inters.Order = append(c.inters.Order, interceptors...)
 }
 
 // Create returns a builder for creating a Order entity.
@@ -632,6 +833,8 @@ func (c *OrderClient) DeleteOneID(id int) *OrderDeleteOne {
 func (c *OrderClient) Query() *OrderQuery {
 	return &OrderQuery{
 		config: c.config,
+		ctx:    &QueryContext{Type: TypeOrder},
+		inters: c.Interceptors(),
 	}
 }
 
@@ -654,6 +857,26 @@ func (c *OrderClient) Hooks() []Hook {
 	return c.hooks.Order
 }
 
+// Interceptors returns the client interceptors.
+func (c *OrderClient) Interceptors() []Interceptor {
+	return c.inters.Order
+}
+
+func (c *OrderClient) mutate(ctx context.Context, m *OrderMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&OrderCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&OrderUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&OrderUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&OrderDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown Order mutation op: %q", m.Op())
+	}
+}
+
 // ProductClient is a client for the Product schema.
 type ProductClient struct {
 	config
@@ -668,6 +891,12 @@ func NewProductClient(c config) *ProductClient {
 // A call to `Use(f, g, h)` equals to `product.Hooks(f(g(h())))`.
 func (c *ProductClient) Use(hooks ...Hook) {
 	c.hooks.Product = append(c.hooks.Product, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `product.Intercept(f(g(h())))`.
+func (c *ProductClient) Intercept(interceptors ...Interceptor) {
+	c.inters.Product = append(c.inters.Product, interceptors...)
 }
 
 // Create returns a builder for creating a Product entity.
@@ -722,6 +951,8 @@ func (c *ProductClient) DeleteOneID(id int) *ProductDeleteOne {
 func (c *ProductClient) Query() *ProductQuery {
 	return &ProductQuery{
 		config: c.config,
+		ctx:    &QueryContext{Type: TypeProduct},
+		inters: c.Interceptors(),
 	}
 }
 
@@ -744,6 +975,26 @@ func (c *ProductClient) Hooks() []Hook {
 	return c.hooks.Product
 }
 
+// Interceptors returns the client interceptors.
+func (c *ProductClient) Interceptors() []Interceptor {
+	return c.inters.Product
+}
+
+func (c *ProductClient) mutate(ctx context.Context, m *ProductMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&ProductCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&ProductUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&ProductUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&ProductDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown Product mutation op: %q", m.Op())
+	}
+}
+
 // QuotaClient is a client for the Quota schema.
 type QuotaClient struct {
 	config
@@ -758,6 +1009,12 @@ func NewQuotaClient(c config) *QuotaClient {
 // A call to `Use(f, g, h)` equals to `quota.Hooks(f(g(h())))`.
 func (c *QuotaClient) Use(hooks ...Hook) {
 	c.hooks.Quota = append(c.hooks.Quota, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `quota.Intercept(f(g(h())))`.
+func (c *QuotaClient) Intercept(interceptors ...Interceptor) {
+	c.inters.Quota = append(c.inters.Quota, interceptors...)
 }
 
 // Create returns a builder for creating a Quota entity.
@@ -812,6 +1069,8 @@ func (c *QuotaClient) DeleteOneID(id int) *QuotaDeleteOne {
 func (c *QuotaClient) Query() *QuotaQuery {
 	return &QuotaQuery{
 		config: c.config,
+		ctx:    &QueryContext{Type: TypeQuota},
+		inters: c.Interceptors(),
 	}
 }
 
@@ -834,6 +1093,26 @@ func (c *QuotaClient) Hooks() []Hook {
 	return c.hooks.Quota
 }
 
+// Interceptors returns the client interceptors.
+func (c *QuotaClient) Interceptors() []Interceptor {
+	return c.inters.Quota
+}
+
+func (c *QuotaClient) mutate(ctx context.Context, m *QuotaMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&QuotaCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&QuotaUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&QuotaUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&QuotaDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown Quota mutation op: %q", m.Op())
+	}
+}
+
 // WechatSessionClient is a client for the WechatSession schema.
 type WechatSessionClient struct {
 	config
@@ -848,6 +1127,12 @@ func NewWechatSessionClient(c config) *WechatSessionClient {
 // A call to `Use(f, g, h)` equals to `wechatsession.Hooks(f(g(h())))`.
 func (c *WechatSessionClient) Use(hooks ...Hook) {
 	c.hooks.WechatSession = append(c.hooks.WechatSession, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `wechatsession.Intercept(f(g(h())))`.
+func (c *WechatSessionClient) Intercept(interceptors ...Interceptor) {
+	c.inters.WechatSession = append(c.inters.WechatSession, interceptors...)
 }
 
 // Create returns a builder for creating a WechatSession entity.
@@ -902,6 +1187,8 @@ func (c *WechatSessionClient) DeleteOneID(id int) *WechatSessionDeleteOne {
 func (c *WechatSessionClient) Query() *WechatSessionQuery {
 	return &WechatSessionQuery{
 		config: c.config,
+		ctx:    &QueryContext{Type: TypeWechatSession},
+		inters: c.Interceptors(),
 	}
 }
 
@@ -923,3 +1210,35 @@ func (c *WechatSessionClient) GetX(ctx context.Context, id int) *WechatSession {
 func (c *WechatSessionClient) Hooks() []Hook {
 	return c.hooks.WechatSession
 }
+
+// Interceptors returns the client interceptors.
+func (c *WechatSessionClient) Interceptors() []Interceptor {
+	return c.inters.WechatSession
+}
+
+func (c *WechatSessionClient) mutate(ctx context.Context, m *WechatSessionMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&WechatSessionCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&WechatSessionUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&WechatSessionUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&WechatSessionDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown WechatSession mutation op: %q", m.Op())
+	}
+}
+
+// hooks and interceptors per client, for fast access.
+type (
+	hooks struct {
+		Account, ChatHistory, Conversation, ConversationMessage, Order, Product, Quota,
+		WechatSession []ent.Hook
+	}
+	inters struct {
+		Account, ChatHistory, Conversation, ConversationMessage, Order, Product, Quota,
+		WechatSession []ent.Interceptor
+	}
+)

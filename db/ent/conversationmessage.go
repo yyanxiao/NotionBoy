@@ -170,14 +170,14 @@ func (cm *ConversationMessage) assignValues(columns []string, values []any) erro
 
 // QueryConversations queries the "conversations" edge of the ConversationMessage entity.
 func (cm *ConversationMessage) QueryConversations() *ConversationQuery {
-	return (&ConversationMessageClient{config: cm.config}).QueryConversations(cm)
+	return NewConversationMessageClient(cm.config).QueryConversations(cm)
 }
 
 // Update returns a builder for updating this ConversationMessage.
 // Note that you need to call ConversationMessage.Unwrap() before calling this method if this ConversationMessage
 // was returned from a transaction, and the transaction was committed or rolled back.
 func (cm *ConversationMessage) Update() *ConversationMessageUpdateOne {
-	return (&ConversationMessageClient{config: cm.config}).UpdateOne(cm)
+	return NewConversationMessageClient(cm.config).UpdateOne(cm)
 }
 
 // Unwrap unwraps the ConversationMessage entity that was returned from a transaction after it was closed,
@@ -228,9 +228,3 @@ func (cm *ConversationMessage) String() string {
 
 // ConversationMessages is a parsable slice of ConversationMessage.
 type ConversationMessages []*ConversationMessage
-
-func (cm ConversationMessages) config(cfg config) {
-	for _i := range cm {
-		cm[_i].config = cfg
-	}
-}

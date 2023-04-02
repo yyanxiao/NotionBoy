@@ -128,50 +128,8 @@ func (cc *ConversationCreate) Mutation() *ConversationMutation {
 
 // Save creates the Conversation in the database.
 func (cc *ConversationCreate) Save(ctx context.Context) (*Conversation, error) {
-	var (
-		err  error
-		node *Conversation
-	)
 	cc.defaults()
-	if len(cc.hooks) == 0 {
-		if err = cc.check(); err != nil {
-			return nil, err
-		}
-		node, err = cc.sqlSave(ctx)
-	} else {
-		var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
-			mutation, ok := m.(*ConversationMutation)
-			if !ok {
-				return nil, fmt.Errorf("unexpected mutation type %T", m)
-			}
-			if err = cc.check(); err != nil {
-				return nil, err
-			}
-			cc.mutation = mutation
-			if node, err = cc.sqlSave(ctx); err != nil {
-				return nil, err
-			}
-			mutation.id = &node.ID
-			mutation.done = true
-			return node, err
-		})
-		for i := len(cc.hooks) - 1; i >= 0; i-- {
-			if cc.hooks[i] == nil {
-				return nil, fmt.Errorf("ent: uninitialized hook (forgotten import ent/runtime?)")
-			}
-			mut = cc.hooks[i](mut)
-		}
-		v, err := mut.Mutate(ctx, cc.mutation)
-		if err != nil {
-			return nil, err
-		}
-		nv, ok := v.(*Conversation)
-		if !ok {
-			return nil, fmt.Errorf("unexpected node type %T returned from ConversationMutation", v)
-		}
-		node = nv
-	}
-	return node, err
+	return withHooks[*Conversation, ConversationMutation](ctx, cc.sqlSave, cc.mutation, cc.hooks)
 }
 
 // SaveX calls Save and panics if Save returns an error.
@@ -214,12 +172,6 @@ func (cc *ConversationCreate) defaults() {
 
 // check runs all checks and user-defined validators on the builder.
 func (cc *ConversationCreate) check() error {
-	if _, ok := cc.mutation.CreatedAt(); !ok {
-		return &ValidationError{Name: "created_at", err: errors.New(`ent: missing required field "Conversation.created_at"`)}
-	}
-	if _, ok := cc.mutation.UpdatedAt(); !ok {
-		return &ValidationError{Name: "updated_at", err: errors.New(`ent: missing required field "Conversation.updated_at"`)}
-	}
 	if _, ok := cc.mutation.Deleted(); !ok {
 		return &ValidationError{Name: "deleted", err: errors.New(`ent: missing required field "Conversation.deleted"`)}
 	}
@@ -233,6 +185,9 @@ func (cc *ConversationCreate) check() error {
 }
 
 func (cc *ConversationCreate) sqlSave(ctx context.Context) (*Conversation, error) {
+	if err := cc.check(); err != nil {
+		return nil, err
+	}
 	_node, _spec := cc.createSpec()
 	if err := sqlgraph.CreateNode(ctx, cc.driver, _spec); err != nil {
 		if sqlgraph.IsConstraintError(err) {
@@ -242,19 +197,15 @@ func (cc *ConversationCreate) sqlSave(ctx context.Context) (*Conversation, error
 	}
 	id := _spec.ID.Value.(int64)
 	_node.ID = int(id)
+	cc.mutation.id = &_node.ID
+	cc.mutation.done = true
 	return _node, nil
 }
 
 func (cc *ConversationCreate) createSpec() (*Conversation, *sqlgraph.CreateSpec) {
 	var (
 		_node = &Conversation{config: cc.config}
-		_spec = &sqlgraph.CreateSpec{
-			Table: conversation.Table,
-			ID: &sqlgraph.FieldSpec{
-				Type:   field.TypeInt,
-				Column: conversation.FieldID,
-			},
-		}
+		_spec = sqlgraph.NewCreateSpec(conversation.Table, sqlgraph.NewFieldSpec(conversation.FieldID, field.TypeInt))
 	)
 	_spec.OnConflict = cc.conflict
 	if value, ok := cc.mutation.CreatedAt(); ok {
@@ -293,10 +244,7 @@ func (cc *ConversationCreate) createSpec() (*Conversation, *sqlgraph.CreateSpec)
 			Columns: []string{conversation.ConversationMessagesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: &sqlgraph.FieldSpec{
-					Type:   field.TypeInt,
-					Column: conversationmessage.FieldID,
-				},
+				IDSpec: sqlgraph.NewFieldSpec(conversationmessage.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {

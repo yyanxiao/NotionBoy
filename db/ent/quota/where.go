@@ -11,626 +11,402 @@ import (
 
 // ID filters vertices based on their ID field.
 func ID(id int) predicate.Quota {
-	return predicate.Quota(func(s *sql.Selector) {
-		s.Where(sql.EQ(s.C(FieldID), id))
-	})
+	return predicate.Quota(sql.FieldEQ(FieldID, id))
 }
 
 // IDEQ applies the EQ predicate on the ID field.
 func IDEQ(id int) predicate.Quota {
-	return predicate.Quota(func(s *sql.Selector) {
-		s.Where(sql.EQ(s.C(FieldID), id))
-	})
+	return predicate.Quota(sql.FieldEQ(FieldID, id))
 }
 
 // IDNEQ applies the NEQ predicate on the ID field.
 func IDNEQ(id int) predicate.Quota {
-	return predicate.Quota(func(s *sql.Selector) {
-		s.Where(sql.NEQ(s.C(FieldID), id))
-	})
+	return predicate.Quota(sql.FieldNEQ(FieldID, id))
 }
 
 // IDIn applies the In predicate on the ID field.
 func IDIn(ids ...int) predicate.Quota {
-	return predicate.Quota(func(s *sql.Selector) {
-		v := make([]any, len(ids))
-		for i := range v {
-			v[i] = ids[i]
-		}
-		s.Where(sql.In(s.C(FieldID), v...))
-	})
+	return predicate.Quota(sql.FieldIn(FieldID, ids...))
 }
 
 // IDNotIn applies the NotIn predicate on the ID field.
 func IDNotIn(ids ...int) predicate.Quota {
-	return predicate.Quota(func(s *sql.Selector) {
-		v := make([]any, len(ids))
-		for i := range v {
-			v[i] = ids[i]
-		}
-		s.Where(sql.NotIn(s.C(FieldID), v...))
-	})
+	return predicate.Quota(sql.FieldNotIn(FieldID, ids...))
 }
 
 // IDGT applies the GT predicate on the ID field.
 func IDGT(id int) predicate.Quota {
-	return predicate.Quota(func(s *sql.Selector) {
-		s.Where(sql.GT(s.C(FieldID), id))
-	})
+	return predicate.Quota(sql.FieldGT(FieldID, id))
 }
 
 // IDGTE applies the GTE predicate on the ID field.
 func IDGTE(id int) predicate.Quota {
-	return predicate.Quota(func(s *sql.Selector) {
-		s.Where(sql.GTE(s.C(FieldID), id))
-	})
+	return predicate.Quota(sql.FieldGTE(FieldID, id))
 }
 
 // IDLT applies the LT predicate on the ID field.
 func IDLT(id int) predicate.Quota {
-	return predicate.Quota(func(s *sql.Selector) {
-		s.Where(sql.LT(s.C(FieldID), id))
-	})
+	return predicate.Quota(sql.FieldLT(FieldID, id))
 }
 
 // IDLTE applies the LTE predicate on the ID field.
 func IDLTE(id int) predicate.Quota {
-	return predicate.Quota(func(s *sql.Selector) {
-		s.Where(sql.LTE(s.C(FieldID), id))
-	})
+	return predicate.Quota(sql.FieldLTE(FieldID, id))
 }
 
 // CreatedAt applies equality check predicate on the "created_at" field. It's identical to CreatedAtEQ.
 func CreatedAt(v time.Time) predicate.Quota {
-	return predicate.Quota(func(s *sql.Selector) {
-		s.Where(sql.EQ(s.C(FieldCreatedAt), v))
-	})
+	return predicate.Quota(sql.FieldEQ(FieldCreatedAt, v))
 }
 
 // UpdatedAt applies equality check predicate on the "updated_at" field. It's identical to UpdatedAtEQ.
 func UpdatedAt(v time.Time) predicate.Quota {
-	return predicate.Quota(func(s *sql.Selector) {
-		s.Where(sql.EQ(s.C(FieldUpdatedAt), v))
-	})
+	return predicate.Quota(sql.FieldEQ(FieldUpdatedAt, v))
 }
 
 // Deleted applies equality check predicate on the "deleted" field. It's identical to DeletedEQ.
 func Deleted(v bool) predicate.Quota {
-	return predicate.Quota(func(s *sql.Selector) {
-		s.Where(sql.EQ(s.C(FieldDeleted), v))
-	})
+	return predicate.Quota(sql.FieldEQ(FieldDeleted, v))
 }
 
 // UserID applies equality check predicate on the "user_id" field. It's identical to UserIDEQ.
 func UserID(v int) predicate.Quota {
-	return predicate.Quota(func(s *sql.Selector) {
-		s.Where(sql.EQ(s.C(FieldUserID), v))
-	})
+	return predicate.Quota(sql.FieldEQ(FieldUserID, v))
 }
 
 // Plan applies equality check predicate on the "plan" field. It's identical to PlanEQ.
 func Plan(v string) predicate.Quota {
-	return predicate.Quota(func(s *sql.Selector) {
-		s.Where(sql.EQ(s.C(FieldPlan), v))
-	})
+	return predicate.Quota(sql.FieldEQ(FieldPlan, v))
 }
 
 // ResetTime applies equality check predicate on the "reset_time" field. It's identical to ResetTimeEQ.
 func ResetTime(v time.Time) predicate.Quota {
-	return predicate.Quota(func(s *sql.Selector) {
-		s.Where(sql.EQ(s.C(FieldResetTime), v))
-	})
+	return predicate.Quota(sql.FieldEQ(FieldResetTime, v))
 }
 
 // Token applies equality check predicate on the "token" field. It's identical to TokenEQ.
 func Token(v int64) predicate.Quota {
-	return predicate.Quota(func(s *sql.Selector) {
-		s.Where(sql.EQ(s.C(FieldToken), v))
-	})
+	return predicate.Quota(sql.FieldEQ(FieldToken, v))
 }
 
 // TokenUsed applies equality check predicate on the "token_used" field. It's identical to TokenUsedEQ.
 func TokenUsed(v int64) predicate.Quota {
-	return predicate.Quota(func(s *sql.Selector) {
-		s.Where(sql.EQ(s.C(FieldTokenUsed), v))
-	})
+	return predicate.Quota(sql.FieldEQ(FieldTokenUsed, v))
 }
 
 // CreatedAtEQ applies the EQ predicate on the "created_at" field.
 func CreatedAtEQ(v time.Time) predicate.Quota {
-	return predicate.Quota(func(s *sql.Selector) {
-		s.Where(sql.EQ(s.C(FieldCreatedAt), v))
-	})
+	return predicate.Quota(sql.FieldEQ(FieldCreatedAt, v))
 }
 
 // CreatedAtNEQ applies the NEQ predicate on the "created_at" field.
 func CreatedAtNEQ(v time.Time) predicate.Quota {
-	return predicate.Quota(func(s *sql.Selector) {
-		s.Where(sql.NEQ(s.C(FieldCreatedAt), v))
-	})
+	return predicate.Quota(sql.FieldNEQ(FieldCreatedAt, v))
 }
 
 // CreatedAtIn applies the In predicate on the "created_at" field.
 func CreatedAtIn(vs ...time.Time) predicate.Quota {
-	v := make([]any, len(vs))
-	for i := range v {
-		v[i] = vs[i]
-	}
-	return predicate.Quota(func(s *sql.Selector) {
-		s.Where(sql.In(s.C(FieldCreatedAt), v...))
-	})
+	return predicate.Quota(sql.FieldIn(FieldCreatedAt, vs...))
 }
 
 // CreatedAtNotIn applies the NotIn predicate on the "created_at" field.
 func CreatedAtNotIn(vs ...time.Time) predicate.Quota {
-	v := make([]any, len(vs))
-	for i := range v {
-		v[i] = vs[i]
-	}
-	return predicate.Quota(func(s *sql.Selector) {
-		s.Where(sql.NotIn(s.C(FieldCreatedAt), v...))
-	})
+	return predicate.Quota(sql.FieldNotIn(FieldCreatedAt, vs...))
 }
 
 // CreatedAtGT applies the GT predicate on the "created_at" field.
 func CreatedAtGT(v time.Time) predicate.Quota {
-	return predicate.Quota(func(s *sql.Selector) {
-		s.Where(sql.GT(s.C(FieldCreatedAt), v))
-	})
+	return predicate.Quota(sql.FieldGT(FieldCreatedAt, v))
 }
 
 // CreatedAtGTE applies the GTE predicate on the "created_at" field.
 func CreatedAtGTE(v time.Time) predicate.Quota {
-	return predicate.Quota(func(s *sql.Selector) {
-		s.Where(sql.GTE(s.C(FieldCreatedAt), v))
-	})
+	return predicate.Quota(sql.FieldGTE(FieldCreatedAt, v))
 }
 
 // CreatedAtLT applies the LT predicate on the "created_at" field.
 func CreatedAtLT(v time.Time) predicate.Quota {
-	return predicate.Quota(func(s *sql.Selector) {
-		s.Where(sql.LT(s.C(FieldCreatedAt), v))
-	})
+	return predicate.Quota(sql.FieldLT(FieldCreatedAt, v))
 }
 
 // CreatedAtLTE applies the LTE predicate on the "created_at" field.
 func CreatedAtLTE(v time.Time) predicate.Quota {
-	return predicate.Quota(func(s *sql.Selector) {
-		s.Where(sql.LTE(s.C(FieldCreatedAt), v))
-	})
+	return predicate.Quota(sql.FieldLTE(FieldCreatedAt, v))
 }
 
 // UpdatedAtEQ applies the EQ predicate on the "updated_at" field.
 func UpdatedAtEQ(v time.Time) predicate.Quota {
-	return predicate.Quota(func(s *sql.Selector) {
-		s.Where(sql.EQ(s.C(FieldUpdatedAt), v))
-	})
+	return predicate.Quota(sql.FieldEQ(FieldUpdatedAt, v))
 }
 
 // UpdatedAtNEQ applies the NEQ predicate on the "updated_at" field.
 func UpdatedAtNEQ(v time.Time) predicate.Quota {
-	return predicate.Quota(func(s *sql.Selector) {
-		s.Where(sql.NEQ(s.C(FieldUpdatedAt), v))
-	})
+	return predicate.Quota(sql.FieldNEQ(FieldUpdatedAt, v))
 }
 
 // UpdatedAtIn applies the In predicate on the "updated_at" field.
 func UpdatedAtIn(vs ...time.Time) predicate.Quota {
-	v := make([]any, len(vs))
-	for i := range v {
-		v[i] = vs[i]
-	}
-	return predicate.Quota(func(s *sql.Selector) {
-		s.Where(sql.In(s.C(FieldUpdatedAt), v...))
-	})
+	return predicate.Quota(sql.FieldIn(FieldUpdatedAt, vs...))
 }
 
 // UpdatedAtNotIn applies the NotIn predicate on the "updated_at" field.
 func UpdatedAtNotIn(vs ...time.Time) predicate.Quota {
-	v := make([]any, len(vs))
-	for i := range v {
-		v[i] = vs[i]
-	}
-	return predicate.Quota(func(s *sql.Selector) {
-		s.Where(sql.NotIn(s.C(FieldUpdatedAt), v...))
-	})
+	return predicate.Quota(sql.FieldNotIn(FieldUpdatedAt, vs...))
 }
 
 // UpdatedAtGT applies the GT predicate on the "updated_at" field.
 func UpdatedAtGT(v time.Time) predicate.Quota {
-	return predicate.Quota(func(s *sql.Selector) {
-		s.Where(sql.GT(s.C(FieldUpdatedAt), v))
-	})
+	return predicate.Quota(sql.FieldGT(FieldUpdatedAt, v))
 }
 
 // UpdatedAtGTE applies the GTE predicate on the "updated_at" field.
 func UpdatedAtGTE(v time.Time) predicate.Quota {
-	return predicate.Quota(func(s *sql.Selector) {
-		s.Where(sql.GTE(s.C(FieldUpdatedAt), v))
-	})
+	return predicate.Quota(sql.FieldGTE(FieldUpdatedAt, v))
 }
 
 // UpdatedAtLT applies the LT predicate on the "updated_at" field.
 func UpdatedAtLT(v time.Time) predicate.Quota {
-	return predicate.Quota(func(s *sql.Selector) {
-		s.Where(sql.LT(s.C(FieldUpdatedAt), v))
-	})
+	return predicate.Quota(sql.FieldLT(FieldUpdatedAt, v))
 }
 
 // UpdatedAtLTE applies the LTE predicate on the "updated_at" field.
 func UpdatedAtLTE(v time.Time) predicate.Quota {
-	return predicate.Quota(func(s *sql.Selector) {
-		s.Where(sql.LTE(s.C(FieldUpdatedAt), v))
-	})
+	return predicate.Quota(sql.FieldLTE(FieldUpdatedAt, v))
 }
 
 // DeletedEQ applies the EQ predicate on the "deleted" field.
 func DeletedEQ(v bool) predicate.Quota {
-	return predicate.Quota(func(s *sql.Selector) {
-		s.Where(sql.EQ(s.C(FieldDeleted), v))
-	})
+	return predicate.Quota(sql.FieldEQ(FieldDeleted, v))
 }
 
 // DeletedNEQ applies the NEQ predicate on the "deleted" field.
 func DeletedNEQ(v bool) predicate.Quota {
-	return predicate.Quota(func(s *sql.Selector) {
-		s.Where(sql.NEQ(s.C(FieldDeleted), v))
-	})
+	return predicate.Quota(sql.FieldNEQ(FieldDeleted, v))
 }
 
 // UserIDEQ applies the EQ predicate on the "user_id" field.
 func UserIDEQ(v int) predicate.Quota {
-	return predicate.Quota(func(s *sql.Selector) {
-		s.Where(sql.EQ(s.C(FieldUserID), v))
-	})
+	return predicate.Quota(sql.FieldEQ(FieldUserID, v))
 }
 
 // UserIDNEQ applies the NEQ predicate on the "user_id" field.
 func UserIDNEQ(v int) predicate.Quota {
-	return predicate.Quota(func(s *sql.Selector) {
-		s.Where(sql.NEQ(s.C(FieldUserID), v))
-	})
+	return predicate.Quota(sql.FieldNEQ(FieldUserID, v))
 }
 
 // UserIDIn applies the In predicate on the "user_id" field.
 func UserIDIn(vs ...int) predicate.Quota {
-	v := make([]any, len(vs))
-	for i := range v {
-		v[i] = vs[i]
-	}
-	return predicate.Quota(func(s *sql.Selector) {
-		s.Where(sql.In(s.C(FieldUserID), v...))
-	})
+	return predicate.Quota(sql.FieldIn(FieldUserID, vs...))
 }
 
 // UserIDNotIn applies the NotIn predicate on the "user_id" field.
 func UserIDNotIn(vs ...int) predicate.Quota {
-	v := make([]any, len(vs))
-	for i := range v {
-		v[i] = vs[i]
-	}
-	return predicate.Quota(func(s *sql.Selector) {
-		s.Where(sql.NotIn(s.C(FieldUserID), v...))
-	})
+	return predicate.Quota(sql.FieldNotIn(FieldUserID, vs...))
 }
 
 // UserIDGT applies the GT predicate on the "user_id" field.
 func UserIDGT(v int) predicate.Quota {
-	return predicate.Quota(func(s *sql.Selector) {
-		s.Where(sql.GT(s.C(FieldUserID), v))
-	})
+	return predicate.Quota(sql.FieldGT(FieldUserID, v))
 }
 
 // UserIDGTE applies the GTE predicate on the "user_id" field.
 func UserIDGTE(v int) predicate.Quota {
-	return predicate.Quota(func(s *sql.Selector) {
-		s.Where(sql.GTE(s.C(FieldUserID), v))
-	})
+	return predicate.Quota(sql.FieldGTE(FieldUserID, v))
 }
 
 // UserIDLT applies the LT predicate on the "user_id" field.
 func UserIDLT(v int) predicate.Quota {
-	return predicate.Quota(func(s *sql.Selector) {
-		s.Where(sql.LT(s.C(FieldUserID), v))
-	})
+	return predicate.Quota(sql.FieldLT(FieldUserID, v))
 }
 
 // UserIDLTE applies the LTE predicate on the "user_id" field.
 func UserIDLTE(v int) predicate.Quota {
-	return predicate.Quota(func(s *sql.Selector) {
-		s.Where(sql.LTE(s.C(FieldUserID), v))
-	})
+	return predicate.Quota(sql.FieldLTE(FieldUserID, v))
 }
 
 // PlanEQ applies the EQ predicate on the "plan" field.
 func PlanEQ(v string) predicate.Quota {
-	return predicate.Quota(func(s *sql.Selector) {
-		s.Where(sql.EQ(s.C(FieldPlan), v))
-	})
+	return predicate.Quota(sql.FieldEQ(FieldPlan, v))
 }
 
 // PlanNEQ applies the NEQ predicate on the "plan" field.
 func PlanNEQ(v string) predicate.Quota {
-	return predicate.Quota(func(s *sql.Selector) {
-		s.Where(sql.NEQ(s.C(FieldPlan), v))
-	})
+	return predicate.Quota(sql.FieldNEQ(FieldPlan, v))
 }
 
 // PlanIn applies the In predicate on the "plan" field.
 func PlanIn(vs ...string) predicate.Quota {
-	v := make([]any, len(vs))
-	for i := range v {
-		v[i] = vs[i]
-	}
-	return predicate.Quota(func(s *sql.Selector) {
-		s.Where(sql.In(s.C(FieldPlan), v...))
-	})
+	return predicate.Quota(sql.FieldIn(FieldPlan, vs...))
 }
 
 // PlanNotIn applies the NotIn predicate on the "plan" field.
 func PlanNotIn(vs ...string) predicate.Quota {
-	v := make([]any, len(vs))
-	for i := range v {
-		v[i] = vs[i]
-	}
-	return predicate.Quota(func(s *sql.Selector) {
-		s.Where(sql.NotIn(s.C(FieldPlan), v...))
-	})
+	return predicate.Quota(sql.FieldNotIn(FieldPlan, vs...))
 }
 
 // PlanGT applies the GT predicate on the "plan" field.
 func PlanGT(v string) predicate.Quota {
-	return predicate.Quota(func(s *sql.Selector) {
-		s.Where(sql.GT(s.C(FieldPlan), v))
-	})
+	return predicate.Quota(sql.FieldGT(FieldPlan, v))
 }
 
 // PlanGTE applies the GTE predicate on the "plan" field.
 func PlanGTE(v string) predicate.Quota {
-	return predicate.Quota(func(s *sql.Selector) {
-		s.Where(sql.GTE(s.C(FieldPlan), v))
-	})
+	return predicate.Quota(sql.FieldGTE(FieldPlan, v))
 }
 
 // PlanLT applies the LT predicate on the "plan" field.
 func PlanLT(v string) predicate.Quota {
-	return predicate.Quota(func(s *sql.Selector) {
-		s.Where(sql.LT(s.C(FieldPlan), v))
-	})
+	return predicate.Quota(sql.FieldLT(FieldPlan, v))
 }
 
 // PlanLTE applies the LTE predicate on the "plan" field.
 func PlanLTE(v string) predicate.Quota {
-	return predicate.Quota(func(s *sql.Selector) {
-		s.Where(sql.LTE(s.C(FieldPlan), v))
-	})
+	return predicate.Quota(sql.FieldLTE(FieldPlan, v))
 }
 
 // PlanContains applies the Contains predicate on the "plan" field.
 func PlanContains(v string) predicate.Quota {
-	return predicate.Quota(func(s *sql.Selector) {
-		s.Where(sql.Contains(s.C(FieldPlan), v))
-	})
+	return predicate.Quota(sql.FieldContains(FieldPlan, v))
 }
 
 // PlanHasPrefix applies the HasPrefix predicate on the "plan" field.
 func PlanHasPrefix(v string) predicate.Quota {
-	return predicate.Quota(func(s *sql.Selector) {
-		s.Where(sql.HasPrefix(s.C(FieldPlan), v))
-	})
+	return predicate.Quota(sql.FieldHasPrefix(FieldPlan, v))
 }
 
 // PlanHasSuffix applies the HasSuffix predicate on the "plan" field.
 func PlanHasSuffix(v string) predicate.Quota {
-	return predicate.Quota(func(s *sql.Selector) {
-		s.Where(sql.HasSuffix(s.C(FieldPlan), v))
-	})
+	return predicate.Quota(sql.FieldHasSuffix(FieldPlan, v))
 }
 
 // PlanEqualFold applies the EqualFold predicate on the "plan" field.
 func PlanEqualFold(v string) predicate.Quota {
-	return predicate.Quota(func(s *sql.Selector) {
-		s.Where(sql.EqualFold(s.C(FieldPlan), v))
-	})
+	return predicate.Quota(sql.FieldEqualFold(FieldPlan, v))
 }
 
 // PlanContainsFold applies the ContainsFold predicate on the "plan" field.
 func PlanContainsFold(v string) predicate.Quota {
-	return predicate.Quota(func(s *sql.Selector) {
-		s.Where(sql.ContainsFold(s.C(FieldPlan), v))
-	})
+	return predicate.Quota(sql.FieldContainsFold(FieldPlan, v))
 }
 
 // ResetTimeEQ applies the EQ predicate on the "reset_time" field.
 func ResetTimeEQ(v time.Time) predicate.Quota {
-	return predicate.Quota(func(s *sql.Selector) {
-		s.Where(sql.EQ(s.C(FieldResetTime), v))
-	})
+	return predicate.Quota(sql.FieldEQ(FieldResetTime, v))
 }
 
 // ResetTimeNEQ applies the NEQ predicate on the "reset_time" field.
 func ResetTimeNEQ(v time.Time) predicate.Quota {
-	return predicate.Quota(func(s *sql.Selector) {
-		s.Where(sql.NEQ(s.C(FieldResetTime), v))
-	})
+	return predicate.Quota(sql.FieldNEQ(FieldResetTime, v))
 }
 
 // ResetTimeIn applies the In predicate on the "reset_time" field.
 func ResetTimeIn(vs ...time.Time) predicate.Quota {
-	v := make([]any, len(vs))
-	for i := range v {
-		v[i] = vs[i]
-	}
-	return predicate.Quota(func(s *sql.Selector) {
-		s.Where(sql.In(s.C(FieldResetTime), v...))
-	})
+	return predicate.Quota(sql.FieldIn(FieldResetTime, vs...))
 }
 
 // ResetTimeNotIn applies the NotIn predicate on the "reset_time" field.
 func ResetTimeNotIn(vs ...time.Time) predicate.Quota {
-	v := make([]any, len(vs))
-	for i := range v {
-		v[i] = vs[i]
-	}
-	return predicate.Quota(func(s *sql.Selector) {
-		s.Where(sql.NotIn(s.C(FieldResetTime), v...))
-	})
+	return predicate.Quota(sql.FieldNotIn(FieldResetTime, vs...))
 }
 
 // ResetTimeGT applies the GT predicate on the "reset_time" field.
 func ResetTimeGT(v time.Time) predicate.Quota {
-	return predicate.Quota(func(s *sql.Selector) {
-		s.Where(sql.GT(s.C(FieldResetTime), v))
-	})
+	return predicate.Quota(sql.FieldGT(FieldResetTime, v))
 }
 
 // ResetTimeGTE applies the GTE predicate on the "reset_time" field.
 func ResetTimeGTE(v time.Time) predicate.Quota {
-	return predicate.Quota(func(s *sql.Selector) {
-		s.Where(sql.GTE(s.C(FieldResetTime), v))
-	})
+	return predicate.Quota(sql.FieldGTE(FieldResetTime, v))
 }
 
 // ResetTimeLT applies the LT predicate on the "reset_time" field.
 func ResetTimeLT(v time.Time) predicate.Quota {
-	return predicate.Quota(func(s *sql.Selector) {
-		s.Where(sql.LT(s.C(FieldResetTime), v))
-	})
+	return predicate.Quota(sql.FieldLT(FieldResetTime, v))
 }
 
 // ResetTimeLTE applies the LTE predicate on the "reset_time" field.
 func ResetTimeLTE(v time.Time) predicate.Quota {
-	return predicate.Quota(func(s *sql.Selector) {
-		s.Where(sql.LTE(s.C(FieldResetTime), v))
-	})
+	return predicate.Quota(sql.FieldLTE(FieldResetTime, v))
 }
 
 // TokenEQ applies the EQ predicate on the "token" field.
 func TokenEQ(v int64) predicate.Quota {
-	return predicate.Quota(func(s *sql.Selector) {
-		s.Where(sql.EQ(s.C(FieldToken), v))
-	})
+	return predicate.Quota(sql.FieldEQ(FieldToken, v))
 }
 
 // TokenNEQ applies the NEQ predicate on the "token" field.
 func TokenNEQ(v int64) predicate.Quota {
-	return predicate.Quota(func(s *sql.Selector) {
-		s.Where(sql.NEQ(s.C(FieldToken), v))
-	})
+	return predicate.Quota(sql.FieldNEQ(FieldToken, v))
 }
 
 // TokenIn applies the In predicate on the "token" field.
 func TokenIn(vs ...int64) predicate.Quota {
-	v := make([]any, len(vs))
-	for i := range v {
-		v[i] = vs[i]
-	}
-	return predicate.Quota(func(s *sql.Selector) {
-		s.Where(sql.In(s.C(FieldToken), v...))
-	})
+	return predicate.Quota(sql.FieldIn(FieldToken, vs...))
 }
 
 // TokenNotIn applies the NotIn predicate on the "token" field.
 func TokenNotIn(vs ...int64) predicate.Quota {
-	v := make([]any, len(vs))
-	for i := range v {
-		v[i] = vs[i]
-	}
-	return predicate.Quota(func(s *sql.Selector) {
-		s.Where(sql.NotIn(s.C(FieldToken), v...))
-	})
+	return predicate.Quota(sql.FieldNotIn(FieldToken, vs...))
 }
 
 // TokenGT applies the GT predicate on the "token" field.
 func TokenGT(v int64) predicate.Quota {
-	return predicate.Quota(func(s *sql.Selector) {
-		s.Where(sql.GT(s.C(FieldToken), v))
-	})
+	return predicate.Quota(sql.FieldGT(FieldToken, v))
 }
 
 // TokenGTE applies the GTE predicate on the "token" field.
 func TokenGTE(v int64) predicate.Quota {
-	return predicate.Quota(func(s *sql.Selector) {
-		s.Where(sql.GTE(s.C(FieldToken), v))
-	})
+	return predicate.Quota(sql.FieldGTE(FieldToken, v))
 }
 
 // TokenLT applies the LT predicate on the "token" field.
 func TokenLT(v int64) predicate.Quota {
-	return predicate.Quota(func(s *sql.Selector) {
-		s.Where(sql.LT(s.C(FieldToken), v))
-	})
+	return predicate.Quota(sql.FieldLT(FieldToken, v))
 }
 
 // TokenLTE applies the LTE predicate on the "token" field.
 func TokenLTE(v int64) predicate.Quota {
-	return predicate.Quota(func(s *sql.Selector) {
-		s.Where(sql.LTE(s.C(FieldToken), v))
-	})
+	return predicate.Quota(sql.FieldLTE(FieldToken, v))
 }
 
 // TokenUsedEQ applies the EQ predicate on the "token_used" field.
 func TokenUsedEQ(v int64) predicate.Quota {
-	return predicate.Quota(func(s *sql.Selector) {
-		s.Where(sql.EQ(s.C(FieldTokenUsed), v))
-	})
+	return predicate.Quota(sql.FieldEQ(FieldTokenUsed, v))
 }
 
 // TokenUsedNEQ applies the NEQ predicate on the "token_used" field.
 func TokenUsedNEQ(v int64) predicate.Quota {
-	return predicate.Quota(func(s *sql.Selector) {
-		s.Where(sql.NEQ(s.C(FieldTokenUsed), v))
-	})
+	return predicate.Quota(sql.FieldNEQ(FieldTokenUsed, v))
 }
 
 // TokenUsedIn applies the In predicate on the "token_used" field.
 func TokenUsedIn(vs ...int64) predicate.Quota {
-	v := make([]any, len(vs))
-	for i := range v {
-		v[i] = vs[i]
-	}
-	return predicate.Quota(func(s *sql.Selector) {
-		s.Where(sql.In(s.C(FieldTokenUsed), v...))
-	})
+	return predicate.Quota(sql.FieldIn(FieldTokenUsed, vs...))
 }
 
 // TokenUsedNotIn applies the NotIn predicate on the "token_used" field.
 func TokenUsedNotIn(vs ...int64) predicate.Quota {
-	v := make([]any, len(vs))
-	for i := range v {
-		v[i] = vs[i]
-	}
-	return predicate.Quota(func(s *sql.Selector) {
-		s.Where(sql.NotIn(s.C(FieldTokenUsed), v...))
-	})
+	return predicate.Quota(sql.FieldNotIn(FieldTokenUsed, vs...))
 }
 
 // TokenUsedGT applies the GT predicate on the "token_used" field.
 func TokenUsedGT(v int64) predicate.Quota {
-	return predicate.Quota(func(s *sql.Selector) {
-		s.Where(sql.GT(s.C(FieldTokenUsed), v))
-	})
+	return predicate.Quota(sql.FieldGT(FieldTokenUsed, v))
 }
 
 // TokenUsedGTE applies the GTE predicate on the "token_used" field.
 func TokenUsedGTE(v int64) predicate.Quota {
-	return predicate.Quota(func(s *sql.Selector) {
-		s.Where(sql.GTE(s.C(FieldTokenUsed), v))
-	})
+	return predicate.Quota(sql.FieldGTE(FieldTokenUsed, v))
 }
 
 // TokenUsedLT applies the LT predicate on the "token_used" field.
 func TokenUsedLT(v int64) predicate.Quota {
-	return predicate.Quota(func(s *sql.Selector) {
-		s.Where(sql.LT(s.C(FieldTokenUsed), v))
-	})
+	return predicate.Quota(sql.FieldLT(FieldTokenUsed, v))
 }
 
 // TokenUsedLTE applies the LTE predicate on the "token_used" field.
 func TokenUsedLTE(v int64) predicate.Quota {
-	return predicate.Quota(func(s *sql.Selector) {
-		s.Where(sql.LTE(s.C(FieldTokenUsed), v))
-	})
+	return predicate.Quota(sql.FieldLTE(FieldTokenUsed, v))
 }
 
 // And groups predicates with the AND operator between them.

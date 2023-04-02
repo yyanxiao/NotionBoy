@@ -138,7 +138,7 @@ func (pr *Product) assignValues(columns []string, values []any) error {
 // Note that you need to call Product.Unwrap() before calling this method if this Product
 // was returned from a transaction, and the transaction was committed or rolled back.
 func (pr *Product) Update() *ProductUpdateOne {
-	return (&ProductClient{config: pr.config}).UpdateOne(pr)
+	return NewProductClient(pr.config).UpdateOne(pr)
 }
 
 // Unwrap unwraps the Product entity that was returned from a transaction after it was closed,
@@ -189,9 +189,3 @@ func (pr *Product) String() string {
 
 // Products is a parsable slice of Product.
 type Products []*Product
-
-func (pr Products) config(cfg config) {
-	for _i := range pr {
-		pr[_i].config = cfg
-	}
-}

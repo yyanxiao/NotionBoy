@@ -3,11 +3,11 @@ package db
 import (
 	"context"
 	"fmt"
+	"time"
+
 	"notionboy/db/ent"
-	"notionboy/db/ent/migrate"
 	"notionboy/internal/pkg/config"
 	"notionboy/internal/pkg/logger"
-	"time"
 
 	"entgo.io/ent/dialect/sql"
 	_ "github.com/go-sql-driver/mysql"
@@ -22,7 +22,7 @@ func init() {
 	if err != nil {
 		panic("failed to connect database: " + err.Error())
 	}
-	migrateDB()
+	// migrateDB()
 }
 
 func GetClient() *ent.Client {
@@ -49,7 +49,7 @@ func getDbConfig() (driver string, dsn string) {
 		driver = "mysql"
 		m := database.MySQL
 		fmt.Printf("Connect Mysql %s:%d", m.Host, m.Port)
-		dsn = fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=utf8&parseTime=True&loc=Local",
+		dsn = fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=utf8mb4&parseTime=True&loc=Local",
 			m.User, m.Pass, m.Host, m.Port, m.DB)
 	default:
 		panic("invalid database driver")
@@ -71,13 +71,13 @@ func openDB() (*ent.Client, error) {
 	return ent.NewClient(ent.Driver(drv)), nil
 }
 
-func migrateDB() {
-	ctx := context.Background()
-	if err := client.Debug().Schema.Create(
-		ctx,
-		migrate.WithDropColumn(true),
-		migrate.WithDropIndex(true),
-	); err != nil {
-		logger.SugaredLogger.Fatalw("Failed creating schema resources", "err", err)
-	}
-}
+// func migrateDB() {
+// 	ctx := context.Background()
+// 	if err := client.Debug().Schema.Create(
+// 		ctx,
+// 		migrate.WithDropColumn(true),
+// 		migrate.WithDropIndex(true),
+// 	); err != nil {
+// 		logger.SugaredLogger.Fatalw("Failed creating schema resources", "err", err)
+// 	}
+// }

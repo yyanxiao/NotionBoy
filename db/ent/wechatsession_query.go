@@ -17,11 +17,9 @@ import (
 // WechatSessionQuery is the builder for querying WechatSession entities.
 type WechatSessionQuery struct {
 	config
-	limit      *int
-	offset     *int
-	unique     *bool
+	ctx        *QueryContext
 	order      []OrderFunc
-	fields     []string
+	inters     []Interceptor
 	predicates []predicate.WechatSession
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
@@ -34,26 +32,26 @@ func (wsq *WechatSessionQuery) Where(ps ...predicate.WechatSession) *WechatSessi
 	return wsq
 }
 
-// Limit adds a limit step to the query.
+// Limit the number of records to be returned by this query.
 func (wsq *WechatSessionQuery) Limit(limit int) *WechatSessionQuery {
-	wsq.limit = &limit
+	wsq.ctx.Limit = &limit
 	return wsq
 }
 
-// Offset adds an offset step to the query.
+// Offset to start from.
 func (wsq *WechatSessionQuery) Offset(offset int) *WechatSessionQuery {
-	wsq.offset = &offset
+	wsq.ctx.Offset = &offset
 	return wsq
 }
 
 // Unique configures the query builder to filter duplicate records on query.
 // By default, unique is set to true, and can be disabled using this method.
 func (wsq *WechatSessionQuery) Unique(unique bool) *WechatSessionQuery {
-	wsq.unique = &unique
+	wsq.ctx.Unique = &unique
 	return wsq
 }
 
-// Order adds an order step to the query.
+// Order specifies how the records should be ordered.
 func (wsq *WechatSessionQuery) Order(o ...OrderFunc) *WechatSessionQuery {
 	wsq.order = append(wsq.order, o...)
 	return wsq
@@ -62,7 +60,7 @@ func (wsq *WechatSessionQuery) Order(o ...OrderFunc) *WechatSessionQuery {
 // First returns the first WechatSession entity from the query.
 // Returns a *NotFoundError when no WechatSession was found.
 func (wsq *WechatSessionQuery) First(ctx context.Context) (*WechatSession, error) {
-	nodes, err := wsq.Limit(1).All(ctx)
+	nodes, err := wsq.Limit(1).All(setContextOp(ctx, wsq.ctx, "First"))
 	if err != nil {
 		return nil, err
 	}
@@ -85,7 +83,7 @@ func (wsq *WechatSessionQuery) FirstX(ctx context.Context) *WechatSession {
 // Returns a *NotFoundError when no WechatSession ID was found.
 func (wsq *WechatSessionQuery) FirstID(ctx context.Context) (id int, err error) {
 	var ids []int
-	if ids, err = wsq.Limit(1).IDs(ctx); err != nil {
+	if ids, err = wsq.Limit(1).IDs(setContextOp(ctx, wsq.ctx, "FirstID")); err != nil {
 		return
 	}
 	if len(ids) == 0 {
@@ -108,7 +106,7 @@ func (wsq *WechatSessionQuery) FirstIDX(ctx context.Context) int {
 // Returns a *NotSingularError when more than one WechatSession entity is found.
 // Returns a *NotFoundError when no WechatSession entities are found.
 func (wsq *WechatSessionQuery) Only(ctx context.Context) (*WechatSession, error) {
-	nodes, err := wsq.Limit(2).All(ctx)
+	nodes, err := wsq.Limit(2).All(setContextOp(ctx, wsq.ctx, "Only"))
 	if err != nil {
 		return nil, err
 	}
@@ -136,7 +134,7 @@ func (wsq *WechatSessionQuery) OnlyX(ctx context.Context) *WechatSession {
 // Returns a *NotFoundError when no entities are found.
 func (wsq *WechatSessionQuery) OnlyID(ctx context.Context) (id int, err error) {
 	var ids []int
-	if ids, err = wsq.Limit(2).IDs(ctx); err != nil {
+	if ids, err = wsq.Limit(2).IDs(setContextOp(ctx, wsq.ctx, "OnlyID")); err != nil {
 		return
 	}
 	switch len(ids) {
@@ -161,10 +159,12 @@ func (wsq *WechatSessionQuery) OnlyIDX(ctx context.Context) int {
 
 // All executes the query and returns a list of WechatSessions.
 func (wsq *WechatSessionQuery) All(ctx context.Context) ([]*WechatSession, error) {
+	ctx = setContextOp(ctx, wsq.ctx, "All")
 	if err := wsq.prepareQuery(ctx); err != nil {
 		return nil, err
 	}
-	return wsq.sqlAll(ctx)
+	qr := querierAll[[]*WechatSession, *WechatSessionQuery]()
+	return withInterceptors[[]*WechatSession](ctx, wsq, qr, wsq.inters)
 }
 
 // AllX is like All, but panics if an error occurs.
@@ -177,9 +177,12 @@ func (wsq *WechatSessionQuery) AllX(ctx context.Context) []*WechatSession {
 }
 
 // IDs executes the query and returns a list of WechatSession IDs.
-func (wsq *WechatSessionQuery) IDs(ctx context.Context) ([]int, error) {
-	var ids []int
-	if err := wsq.Select(wechatsession.FieldID).Scan(ctx, &ids); err != nil {
+func (wsq *WechatSessionQuery) IDs(ctx context.Context) (ids []int, err error) {
+	if wsq.ctx.Unique == nil && wsq.path != nil {
+		wsq.Unique(true)
+	}
+	ctx = setContextOp(ctx, wsq.ctx, "IDs")
+	if err = wsq.Select(wechatsession.FieldID).Scan(ctx, &ids); err != nil {
 		return nil, err
 	}
 	return ids, nil
@@ -196,10 +199,11 @@ func (wsq *WechatSessionQuery) IDsX(ctx context.Context) []int {
 
 // Count returns the count of the given query.
 func (wsq *WechatSessionQuery) Count(ctx context.Context) (int, error) {
+	ctx = setContextOp(ctx, wsq.ctx, "Count")
 	if err := wsq.prepareQuery(ctx); err != nil {
 		return 0, err
 	}
-	return wsq.sqlCount(ctx)
+	return withInterceptors[int](ctx, wsq, querierCount[*WechatSessionQuery](), wsq.inters)
 }
 
 // CountX is like Count, but panics if an error occurs.
@@ -213,10 +217,15 @@ func (wsq *WechatSessionQuery) CountX(ctx context.Context) int {
 
 // Exist returns true if the query has elements in the graph.
 func (wsq *WechatSessionQuery) Exist(ctx context.Context) (bool, error) {
-	if err := wsq.prepareQuery(ctx); err != nil {
-		return false, err
+	ctx = setContextOp(ctx, wsq.ctx, "Exist")
+	switch _, err := wsq.FirstID(ctx); {
+	case IsNotFound(err):
+		return false, nil
+	case err != nil:
+		return false, fmt.Errorf("ent: check existence: %w", err)
+	default:
+		return true, nil
 	}
-	return wsq.sqlExist(ctx)
 }
 
 // ExistX is like Exist, but panics if an error occurs.
@@ -236,14 +245,13 @@ func (wsq *WechatSessionQuery) Clone() *WechatSessionQuery {
 	}
 	return &WechatSessionQuery{
 		config:     wsq.config,
-		limit:      wsq.limit,
-		offset:     wsq.offset,
+		ctx:        wsq.ctx.Clone(),
 		order:      append([]OrderFunc{}, wsq.order...),
+		inters:     append([]Interceptor{}, wsq.inters...),
 		predicates: append([]predicate.WechatSession{}, wsq.predicates...),
 		// clone intermediate query.
-		sql:    wsq.sql.Clone(),
-		path:   wsq.path,
-		unique: wsq.unique,
+		sql:  wsq.sql.Clone(),
+		path: wsq.path,
 	}
 }
 
@@ -262,16 +270,11 @@ func (wsq *WechatSessionQuery) Clone() *WechatSessionQuery {
 //		Aggregate(ent.Count()).
 //		Scan(ctx, &v)
 func (wsq *WechatSessionQuery) GroupBy(field string, fields ...string) *WechatSessionGroupBy {
-	grbuild := &WechatSessionGroupBy{config: wsq.config}
-	grbuild.fields = append([]string{field}, fields...)
-	grbuild.path = func(ctx context.Context) (prev *sql.Selector, err error) {
-		if err := wsq.prepareQuery(ctx); err != nil {
-			return nil, err
-		}
-		return wsq.sqlQuery(ctx), nil
-	}
+	wsq.ctx.Fields = append([]string{field}, fields...)
+	grbuild := &WechatSessionGroupBy{build: wsq}
+	grbuild.flds = &wsq.ctx.Fields
 	grbuild.label = wechatsession.Label
-	grbuild.flds, grbuild.scan = &grbuild.fields, grbuild.Scan
+	grbuild.scan = grbuild.Scan
 	return grbuild
 }
 
@@ -288,11 +291,11 @@ func (wsq *WechatSessionQuery) GroupBy(field string, fields ...string) *WechatSe
 //		Select(wechatsession.FieldCreatedAt).
 //		Scan(ctx, &v)
 func (wsq *WechatSessionQuery) Select(fields ...string) *WechatSessionSelect {
-	wsq.fields = append(wsq.fields, fields...)
-	selbuild := &WechatSessionSelect{WechatSessionQuery: wsq}
-	selbuild.label = wechatsession.Label
-	selbuild.flds, selbuild.scan = &wsq.fields, selbuild.Scan
-	return selbuild
+	wsq.ctx.Fields = append(wsq.ctx.Fields, fields...)
+	sbuild := &WechatSessionSelect{WechatSessionQuery: wsq}
+	sbuild.label = wechatsession.Label
+	sbuild.flds, sbuild.scan = &wsq.ctx.Fields, sbuild.Scan
+	return sbuild
 }
 
 // Aggregate returns a WechatSessionSelect configured with the given aggregations.
@@ -301,7 +304,17 @@ func (wsq *WechatSessionQuery) Aggregate(fns ...AggregateFunc) *WechatSessionSel
 }
 
 func (wsq *WechatSessionQuery) prepareQuery(ctx context.Context) error {
-	for _, f := range wsq.fields {
+	for _, inter := range wsq.inters {
+		if inter == nil {
+			return fmt.Errorf("ent: uninitialized interceptor (forgotten import ent/runtime?)")
+		}
+		if trv, ok := inter.(Traverser); ok {
+			if err := trv.Traverse(ctx, wsq); err != nil {
+				return err
+			}
+		}
+	}
+	for _, f := range wsq.ctx.Fields {
 		if !wechatsession.ValidColumn(f) {
 			return &ValidationError{Name: f, err: fmt.Errorf("ent: invalid field %q for query", f)}
 		}
@@ -343,41 +356,22 @@ func (wsq *WechatSessionQuery) sqlAll(ctx context.Context, hooks ...queryHook) (
 
 func (wsq *WechatSessionQuery) sqlCount(ctx context.Context) (int, error) {
 	_spec := wsq.querySpec()
-	_spec.Node.Columns = wsq.fields
-	if len(wsq.fields) > 0 {
-		_spec.Unique = wsq.unique != nil && *wsq.unique
+	_spec.Node.Columns = wsq.ctx.Fields
+	if len(wsq.ctx.Fields) > 0 {
+		_spec.Unique = wsq.ctx.Unique != nil && *wsq.ctx.Unique
 	}
 	return sqlgraph.CountNodes(ctx, wsq.driver, _spec)
 }
 
-func (wsq *WechatSessionQuery) sqlExist(ctx context.Context) (bool, error) {
-	switch _, err := wsq.FirstID(ctx); {
-	case IsNotFound(err):
-		return false, nil
-	case err != nil:
-		return false, fmt.Errorf("ent: check existence: %w", err)
-	default:
-		return true, nil
-	}
-}
-
 func (wsq *WechatSessionQuery) querySpec() *sqlgraph.QuerySpec {
-	_spec := &sqlgraph.QuerySpec{
-		Node: &sqlgraph.NodeSpec{
-			Table:   wechatsession.Table,
-			Columns: wechatsession.Columns,
-			ID: &sqlgraph.FieldSpec{
-				Type:   field.TypeInt,
-				Column: wechatsession.FieldID,
-			},
-		},
-		From:   wsq.sql,
-		Unique: true,
-	}
-	if unique := wsq.unique; unique != nil {
+	_spec := sqlgraph.NewQuerySpec(wechatsession.Table, wechatsession.Columns, sqlgraph.NewFieldSpec(wechatsession.FieldID, field.TypeInt))
+	_spec.From = wsq.sql
+	if unique := wsq.ctx.Unique; unique != nil {
 		_spec.Unique = *unique
+	} else if wsq.path != nil {
+		_spec.Unique = true
 	}
-	if fields := wsq.fields; len(fields) > 0 {
+	if fields := wsq.ctx.Fields; len(fields) > 0 {
 		_spec.Node.Columns = make([]string, 0, len(fields))
 		_spec.Node.Columns = append(_spec.Node.Columns, wechatsession.FieldID)
 		for i := range fields {
@@ -393,10 +387,10 @@ func (wsq *WechatSessionQuery) querySpec() *sqlgraph.QuerySpec {
 			}
 		}
 	}
-	if limit := wsq.limit; limit != nil {
+	if limit := wsq.ctx.Limit; limit != nil {
 		_spec.Limit = *limit
 	}
-	if offset := wsq.offset; offset != nil {
+	if offset := wsq.ctx.Offset; offset != nil {
 		_spec.Offset = *offset
 	}
 	if ps := wsq.order; len(ps) > 0 {
@@ -412,7 +406,7 @@ func (wsq *WechatSessionQuery) querySpec() *sqlgraph.QuerySpec {
 func (wsq *WechatSessionQuery) sqlQuery(ctx context.Context) *sql.Selector {
 	builder := sql.Dialect(wsq.driver.Dialect())
 	t1 := builder.Table(wechatsession.Table)
-	columns := wsq.fields
+	columns := wsq.ctx.Fields
 	if len(columns) == 0 {
 		columns = wechatsession.Columns
 	}
@@ -421,7 +415,7 @@ func (wsq *WechatSessionQuery) sqlQuery(ctx context.Context) *sql.Selector {
 		selector = wsq.sql
 		selector.Select(selector.Columns(columns...)...)
 	}
-	if wsq.unique != nil && *wsq.unique {
+	if wsq.ctx.Unique != nil && *wsq.ctx.Unique {
 		selector.Distinct()
 	}
 	for _, p := range wsq.predicates {
@@ -430,12 +424,12 @@ func (wsq *WechatSessionQuery) sqlQuery(ctx context.Context) *sql.Selector {
 	for _, p := range wsq.order {
 		p(selector)
 	}
-	if offset := wsq.offset; offset != nil {
+	if offset := wsq.ctx.Offset; offset != nil {
 		// limit is mandatory for offset clause. We start
 		// with default value, and override it below if needed.
 		selector.Offset(*offset).Limit(math.MaxInt32)
 	}
-	if limit := wsq.limit; limit != nil {
+	if limit := wsq.ctx.Limit; limit != nil {
 		selector.Limit(*limit)
 	}
 	return selector
@@ -443,13 +437,8 @@ func (wsq *WechatSessionQuery) sqlQuery(ctx context.Context) *sql.Selector {
 
 // WechatSessionGroupBy is the group-by builder for WechatSession entities.
 type WechatSessionGroupBy struct {
-	config
 	selector
-	fields []string
-	fns    []AggregateFunc
-	// intermediate query (i.e. traversal path).
-	sql  *sql.Selector
-	path func(context.Context) (*sql.Selector, error)
+	build *WechatSessionQuery
 }
 
 // Aggregate adds the given aggregation functions to the group-by query.
@@ -458,58 +447,46 @@ func (wsgb *WechatSessionGroupBy) Aggregate(fns ...AggregateFunc) *WechatSession
 	return wsgb
 }
 
-// Scan applies the group-by query and scans the result into the given value.
+// Scan applies the selector query and scans the result into the given value.
 func (wsgb *WechatSessionGroupBy) Scan(ctx context.Context, v any) error {
-	query, err := wsgb.path(ctx)
-	if err != nil {
+	ctx = setContextOp(ctx, wsgb.build.ctx, "GroupBy")
+	if err := wsgb.build.prepareQuery(ctx); err != nil {
 		return err
 	}
-	wsgb.sql = query
-	return wsgb.sqlScan(ctx, v)
+	return scanWithInterceptors[*WechatSessionQuery, *WechatSessionGroupBy](ctx, wsgb.build, wsgb, wsgb.build.inters, v)
 }
 
-func (wsgb *WechatSessionGroupBy) sqlScan(ctx context.Context, v any) error {
-	for _, f := range wsgb.fields {
-		if !wechatsession.ValidColumn(f) {
-			return &ValidationError{Name: f, err: fmt.Errorf("invalid field %q for group-by", f)}
-		}
+func (wsgb *WechatSessionGroupBy) sqlScan(ctx context.Context, root *WechatSessionQuery, v any) error {
+	selector := root.sqlQuery(ctx).Select()
+	aggregation := make([]string, 0, len(wsgb.fns))
+	for _, fn := range wsgb.fns {
+		aggregation = append(aggregation, fn(selector))
 	}
-	selector := wsgb.sqlQuery()
+	if len(selector.SelectedColumns()) == 0 {
+		columns := make([]string, 0, len(*wsgb.flds)+len(wsgb.fns))
+		for _, f := range *wsgb.flds {
+			columns = append(columns, selector.C(f))
+		}
+		columns = append(columns, aggregation...)
+		selector.Select(columns...)
+	}
+	selector.GroupBy(selector.Columns(*wsgb.flds...)...)
 	if err := selector.Err(); err != nil {
 		return err
 	}
 	rows := &sql.Rows{}
 	query, args := selector.Query()
-	if err := wsgb.driver.Query(ctx, query, args, rows); err != nil {
+	if err := wsgb.build.driver.Query(ctx, query, args, rows); err != nil {
 		return err
 	}
 	defer rows.Close()
 	return sql.ScanSlice(rows, v)
 }
 
-func (wsgb *WechatSessionGroupBy) sqlQuery() *sql.Selector {
-	selector := wsgb.sql.Select()
-	aggregation := make([]string, 0, len(wsgb.fns))
-	for _, fn := range wsgb.fns {
-		aggregation = append(aggregation, fn(selector))
-	}
-	if len(selector.SelectedColumns()) == 0 {
-		columns := make([]string, 0, len(wsgb.fields)+len(wsgb.fns))
-		for _, f := range wsgb.fields {
-			columns = append(columns, selector.C(f))
-		}
-		columns = append(columns, aggregation...)
-		selector.Select(columns...)
-	}
-	return selector.GroupBy(selector.Columns(wsgb.fields...)...)
-}
-
 // WechatSessionSelect is the builder for selecting fields of WechatSession entities.
 type WechatSessionSelect struct {
 	*WechatSessionQuery
 	selector
-	// intermediate query (i.e. traversal path).
-	sql *sql.Selector
 }
 
 // Aggregate adds the given aggregation functions to the selector query.
@@ -520,26 +497,27 @@ func (wss *WechatSessionSelect) Aggregate(fns ...AggregateFunc) *WechatSessionSe
 
 // Scan applies the selector query and scans the result into the given value.
 func (wss *WechatSessionSelect) Scan(ctx context.Context, v any) error {
+	ctx = setContextOp(ctx, wss.ctx, "Select")
 	if err := wss.prepareQuery(ctx); err != nil {
 		return err
 	}
-	wss.sql = wss.WechatSessionQuery.sqlQuery(ctx)
-	return wss.sqlScan(ctx, v)
+	return scanWithInterceptors[*WechatSessionQuery, *WechatSessionSelect](ctx, wss.WechatSessionQuery, wss, wss.inters, v)
 }
 
-func (wss *WechatSessionSelect) sqlScan(ctx context.Context, v any) error {
+func (wss *WechatSessionSelect) sqlScan(ctx context.Context, root *WechatSessionQuery, v any) error {
+	selector := root.sqlQuery(ctx)
 	aggregation := make([]string, 0, len(wss.fns))
 	for _, fn := range wss.fns {
-		aggregation = append(aggregation, fn(wss.sql))
+		aggregation = append(aggregation, fn(selector))
 	}
 	switch n := len(*wss.selector.flds); {
 	case n == 0 && len(aggregation) > 0:
-		wss.sql.Select(aggregation...)
+		selector.Select(aggregation...)
 	case n != 0 && len(aggregation) > 0:
-		wss.sql.AppendSelect(aggregation...)
+		selector.AppendSelect(aggregation...)
 	}
 	rows := &sql.Rows{}
-	query, args := wss.sql.Query()
+	query, args := selector.Query()
 	if err := wss.driver.Query(ctx, query, args, rows); err != nil {
 		return err
 	}

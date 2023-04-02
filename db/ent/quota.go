@@ -125,7 +125,7 @@ func (q *Quota) assignValues(columns []string, values []any) error {
 // Note that you need to call Quota.Unwrap() before calling this method if this Quota
 // was returned from a transaction, and the transaction was committed or rolled back.
 func (q *Quota) Update() *QuotaUpdateOne {
-	return (&QuotaClient{config: q.config}).UpdateOne(q)
+	return NewQuotaClient(q.config).UpdateOne(q)
 }
 
 // Unwrap unwraps the Quota entity that was returned from a transaction after it was closed,
@@ -173,9 +173,3 @@ func (q *Quota) String() string {
 
 // QuotaSlice is a parsable slice of Quota.
 type QuotaSlice []*Quota
-
-func (q QuotaSlice) config(cfg config) {
-	for _i := range q {
-		q[_i].config = cfg
-	}
-}

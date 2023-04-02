@@ -152,7 +152,7 @@ func (ch *ChatHistory) assignValues(columns []string, values []any) error {
 // Note that you need to call ChatHistory.Unwrap() before calling this method if this ChatHistory
 // was returned from a transaction, and the transaction was committed or rolled back.
 func (ch *ChatHistory) Update() *ChatHistoryUpdateOne {
-	return (&ChatHistoryClient{config: ch.config}).UpdateOne(ch)
+	return NewChatHistoryClient(ch.config).UpdateOne(ch)
 }
 
 // Unwrap unwraps the ChatHistory entity that was returned from a transaction after it was closed,
@@ -209,9 +209,3 @@ func (ch *ChatHistory) String() string {
 
 // ChatHistories is a parsable slice of ChatHistory.
 type ChatHistories []*ChatHistory
-
-func (ch ChatHistories) config(cfg config) {
-	for _i := range ch {
-		ch[_i].config = cfg
-	}
-}

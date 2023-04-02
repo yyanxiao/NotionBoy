@@ -67,35 +67,8 @@ func (wsu *WechatSessionUpdate) Mutation() *WechatSessionMutation {
 
 // Save executes the query and returns the number of nodes affected by the update operation.
 func (wsu *WechatSessionUpdate) Save(ctx context.Context) (int, error) {
-	var (
-		err      error
-		affected int
-	)
 	wsu.defaults()
-	if len(wsu.hooks) == 0 {
-		affected, err = wsu.sqlSave(ctx)
-	} else {
-		var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
-			mutation, ok := m.(*WechatSessionMutation)
-			if !ok {
-				return nil, fmt.Errorf("unexpected mutation type %T", m)
-			}
-			wsu.mutation = mutation
-			affected, err = wsu.sqlSave(ctx)
-			mutation.done = true
-			return affected, err
-		})
-		for i := len(wsu.hooks) - 1; i >= 0; i-- {
-			if wsu.hooks[i] == nil {
-				return 0, fmt.Errorf("ent: uninitialized hook (forgotten import ent/runtime?)")
-			}
-			mut = wsu.hooks[i](mut)
-		}
-		if _, err := mut.Mutate(ctx, wsu.mutation); err != nil {
-			return 0, err
-		}
-	}
-	return affected, err
+	return withHooks[int, WechatSessionMutation](ctx, wsu.sqlSave, wsu.mutation, wsu.hooks)
 }
 
 // SaveX is like Save, but panics if an error occurs.
@@ -129,16 +102,7 @@ func (wsu *WechatSessionUpdate) defaults() {
 }
 
 func (wsu *WechatSessionUpdate) sqlSave(ctx context.Context) (n int, err error) {
-	_spec := &sqlgraph.UpdateSpec{
-		Node: &sqlgraph.NodeSpec{
-			Table:   wechatsession.Table,
-			Columns: wechatsession.Columns,
-			ID: &sqlgraph.FieldSpec{
-				Type:   field.TypeInt,
-				Column: wechatsession.FieldID,
-			},
-		},
-	}
+	_spec := sqlgraph.NewUpdateSpec(wechatsession.Table, wechatsession.Columns, sqlgraph.NewFieldSpec(wechatsession.FieldID, field.TypeInt))
 	if ps := wsu.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
@@ -166,6 +130,7 @@ func (wsu *WechatSessionUpdate) sqlSave(ctx context.Context) (n int, err error) 
 		}
 		return 0, err
 	}
+	wsu.mutation.done = true
 	return n, nil
 }
 
@@ -214,6 +179,12 @@ func (wsuo *WechatSessionUpdateOne) Mutation() *WechatSessionMutation {
 	return wsuo.mutation
 }
 
+// Where appends a list predicates to the WechatSessionUpdate builder.
+func (wsuo *WechatSessionUpdateOne) Where(ps ...predicate.WechatSession) *WechatSessionUpdateOne {
+	wsuo.mutation.Where(ps...)
+	return wsuo
+}
+
 // Select allows selecting one or more fields (columns) of the returned entity.
 // The default is selecting all fields defined in the entity schema.
 func (wsuo *WechatSessionUpdateOne) Select(field string, fields ...string) *WechatSessionUpdateOne {
@@ -223,41 +194,8 @@ func (wsuo *WechatSessionUpdateOne) Select(field string, fields ...string) *Wech
 
 // Save executes the query and returns the updated WechatSession entity.
 func (wsuo *WechatSessionUpdateOne) Save(ctx context.Context) (*WechatSession, error) {
-	var (
-		err  error
-		node *WechatSession
-	)
 	wsuo.defaults()
-	if len(wsuo.hooks) == 0 {
-		node, err = wsuo.sqlSave(ctx)
-	} else {
-		var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
-			mutation, ok := m.(*WechatSessionMutation)
-			if !ok {
-				return nil, fmt.Errorf("unexpected mutation type %T", m)
-			}
-			wsuo.mutation = mutation
-			node, err = wsuo.sqlSave(ctx)
-			mutation.done = true
-			return node, err
-		})
-		for i := len(wsuo.hooks) - 1; i >= 0; i-- {
-			if wsuo.hooks[i] == nil {
-				return nil, fmt.Errorf("ent: uninitialized hook (forgotten import ent/runtime?)")
-			}
-			mut = wsuo.hooks[i](mut)
-		}
-		v, err := mut.Mutate(ctx, wsuo.mutation)
-		if err != nil {
-			return nil, err
-		}
-		nv, ok := v.(*WechatSession)
-		if !ok {
-			return nil, fmt.Errorf("unexpected node type %T returned from WechatSessionMutation", v)
-		}
-		node = nv
-	}
-	return node, err
+	return withHooks[*WechatSession, WechatSessionMutation](ctx, wsuo.sqlSave, wsuo.mutation, wsuo.hooks)
 }
 
 // SaveX is like Save, but panics if an error occurs.
@@ -291,16 +229,7 @@ func (wsuo *WechatSessionUpdateOne) defaults() {
 }
 
 func (wsuo *WechatSessionUpdateOne) sqlSave(ctx context.Context) (_node *WechatSession, err error) {
-	_spec := &sqlgraph.UpdateSpec{
-		Node: &sqlgraph.NodeSpec{
-			Table:   wechatsession.Table,
-			Columns: wechatsession.Columns,
-			ID: &sqlgraph.FieldSpec{
-				Type:   field.TypeInt,
-				Column: wechatsession.FieldID,
-			},
-		},
-	}
+	_spec := sqlgraph.NewUpdateSpec(wechatsession.Table, wechatsession.Columns, sqlgraph.NewFieldSpec(wechatsession.FieldID, field.TypeInt))
 	id, ok := wsuo.mutation.ID()
 	if !ok {
 		return nil, &ValidationError{Name: "id", err: errors.New(`ent: missing "WechatSession.id" for update`)}
@@ -348,5 +277,6 @@ func (wsuo *WechatSessionUpdateOne) sqlSave(ctx context.Context) (_node *WechatS
 		}
 		return nil, err
 	}
+	wsuo.mutation.done = true
 	return _node, nil
 }

@@ -4,7 +4,6 @@ package ent
 
 import (
 	"context"
-	"fmt"
 	"notionboy/db/ent/predicate"
 	"notionboy/db/ent/quota"
 
@@ -28,34 +27,7 @@ func (qd *QuotaDelete) Where(ps ...predicate.Quota) *QuotaDelete {
 
 // Exec executes the deletion query and returns how many vertices were deleted.
 func (qd *QuotaDelete) Exec(ctx context.Context) (int, error) {
-	var (
-		err      error
-		affected int
-	)
-	if len(qd.hooks) == 0 {
-		affected, err = qd.sqlExec(ctx)
-	} else {
-		var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
-			mutation, ok := m.(*QuotaMutation)
-			if !ok {
-				return nil, fmt.Errorf("unexpected mutation type %T", m)
-			}
-			qd.mutation = mutation
-			affected, err = qd.sqlExec(ctx)
-			mutation.done = true
-			return affected, err
-		})
-		for i := len(qd.hooks) - 1; i >= 0; i-- {
-			if qd.hooks[i] == nil {
-				return 0, fmt.Errorf("ent: uninitialized hook (forgotten import ent/runtime?)")
-			}
-			mut = qd.hooks[i](mut)
-		}
-		if _, err := mut.Mutate(ctx, qd.mutation); err != nil {
-			return 0, err
-		}
-	}
-	return affected, err
+	return withHooks[int, QuotaMutation](ctx, qd.sqlExec, qd.mutation, qd.hooks)
 }
 
 // ExecX is like Exec, but panics if an error occurs.
@@ -68,15 +40,7 @@ func (qd *QuotaDelete) ExecX(ctx context.Context) int {
 }
 
 func (qd *QuotaDelete) sqlExec(ctx context.Context) (int, error) {
-	_spec := &sqlgraph.DeleteSpec{
-		Node: &sqlgraph.NodeSpec{
-			Table: quota.Table,
-			ID: &sqlgraph.FieldSpec{
-				Type:   field.TypeInt,
-				Column: quota.FieldID,
-			},
-		},
-	}
+	_spec := sqlgraph.NewDeleteSpec(quota.Table, sqlgraph.NewFieldSpec(quota.FieldID, field.TypeInt))
 	if ps := qd.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
@@ -88,12 +52,19 @@ func (qd *QuotaDelete) sqlExec(ctx context.Context) (int, error) {
 	if err != nil && sqlgraph.IsConstraintError(err) {
 		err = &ConstraintError{msg: err.Error(), wrap: err}
 	}
+	qd.mutation.done = true
 	return affected, err
 }
 
 // QuotaDeleteOne is the builder for deleting a single Quota entity.
 type QuotaDeleteOne struct {
 	qd *QuotaDelete
+}
+
+// Where appends a list predicates to the QuotaDelete builder.
+func (qdo *QuotaDeleteOne) Where(ps ...predicate.Quota) *QuotaDeleteOne {
+	qdo.qd.mutation.Where(ps...)
+	return qdo
 }
 
 // Exec executes the deletion query.
@@ -111,5 +82,7 @@ func (qdo *QuotaDeleteOne) Exec(ctx context.Context) error {
 
 // ExecX is like Exec, but panics if an error occurs.
 func (qdo *QuotaDeleteOne) ExecX(ctx context.Context) {
-	qdo.qd.ExecX(ctx)
+	if err := qdo.Exec(ctx); err != nil {
+		panic(err)
+	}
 }

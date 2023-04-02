@@ -17,11 +17,9 @@ import (
 // OrderQuery is the builder for querying Order entities.
 type OrderQuery struct {
 	config
-	limit      *int
-	offset     *int
-	unique     *bool
+	ctx        *QueryContext
 	order      []OrderFunc
-	fields     []string
+	inters     []Interceptor
 	predicates []predicate.Order
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
@@ -34,26 +32,26 @@ func (oq *OrderQuery) Where(ps ...predicate.Order) *OrderQuery {
 	return oq
 }
 
-// Limit adds a limit step to the query.
+// Limit the number of records to be returned by this query.
 func (oq *OrderQuery) Limit(limit int) *OrderQuery {
-	oq.limit = &limit
+	oq.ctx.Limit = &limit
 	return oq
 }
 
-// Offset adds an offset step to the query.
+// Offset to start from.
 func (oq *OrderQuery) Offset(offset int) *OrderQuery {
-	oq.offset = &offset
+	oq.ctx.Offset = &offset
 	return oq
 }
 
 // Unique configures the query builder to filter duplicate records on query.
 // By default, unique is set to true, and can be disabled using this method.
 func (oq *OrderQuery) Unique(unique bool) *OrderQuery {
-	oq.unique = &unique
+	oq.ctx.Unique = &unique
 	return oq
 }
 
-// Order adds an order step to the query.
+// Order specifies how the records should be ordered.
 func (oq *OrderQuery) Order(o ...OrderFunc) *OrderQuery {
 	oq.order = append(oq.order, o...)
 	return oq
@@ -62,7 +60,7 @@ func (oq *OrderQuery) Order(o ...OrderFunc) *OrderQuery {
 // First returns the first Order entity from the query.
 // Returns a *NotFoundError when no Order was found.
 func (oq *OrderQuery) First(ctx context.Context) (*Order, error) {
-	nodes, err := oq.Limit(1).All(ctx)
+	nodes, err := oq.Limit(1).All(setContextOp(ctx, oq.ctx, "First"))
 	if err != nil {
 		return nil, err
 	}
@@ -85,7 +83,7 @@ func (oq *OrderQuery) FirstX(ctx context.Context) *Order {
 // Returns a *NotFoundError when no Order ID was found.
 func (oq *OrderQuery) FirstID(ctx context.Context) (id int, err error) {
 	var ids []int
-	if ids, err = oq.Limit(1).IDs(ctx); err != nil {
+	if ids, err = oq.Limit(1).IDs(setContextOp(ctx, oq.ctx, "FirstID")); err != nil {
 		return
 	}
 	if len(ids) == 0 {
@@ -108,7 +106,7 @@ func (oq *OrderQuery) FirstIDX(ctx context.Context) int {
 // Returns a *NotSingularError when more than one Order entity is found.
 // Returns a *NotFoundError when no Order entities are found.
 func (oq *OrderQuery) Only(ctx context.Context) (*Order, error) {
-	nodes, err := oq.Limit(2).All(ctx)
+	nodes, err := oq.Limit(2).All(setContextOp(ctx, oq.ctx, "Only"))
 	if err != nil {
 		return nil, err
 	}
@@ -136,7 +134,7 @@ func (oq *OrderQuery) OnlyX(ctx context.Context) *Order {
 // Returns a *NotFoundError when no entities are found.
 func (oq *OrderQuery) OnlyID(ctx context.Context) (id int, err error) {
 	var ids []int
-	if ids, err = oq.Limit(2).IDs(ctx); err != nil {
+	if ids, err = oq.Limit(2).IDs(setContextOp(ctx, oq.ctx, "OnlyID")); err != nil {
 		return
 	}
 	switch len(ids) {
@@ -161,10 +159,12 @@ func (oq *OrderQuery) OnlyIDX(ctx context.Context) int {
 
 // All executes the query and returns a list of Orders.
 func (oq *OrderQuery) All(ctx context.Context) ([]*Order, error) {
+	ctx = setContextOp(ctx, oq.ctx, "All")
 	if err := oq.prepareQuery(ctx); err != nil {
 		return nil, err
 	}
-	return oq.sqlAll(ctx)
+	qr := querierAll[[]*Order, *OrderQuery]()
+	return withInterceptors[[]*Order](ctx, oq, qr, oq.inters)
 }
 
 // AllX is like All, but panics if an error occurs.
@@ -177,9 +177,12 @@ func (oq *OrderQuery) AllX(ctx context.Context) []*Order {
 }
 
 // IDs executes the query and returns a list of Order IDs.
-func (oq *OrderQuery) IDs(ctx context.Context) ([]int, error) {
-	var ids []int
-	if err := oq.Select(order.FieldID).Scan(ctx, &ids); err != nil {
+func (oq *OrderQuery) IDs(ctx context.Context) (ids []int, err error) {
+	if oq.ctx.Unique == nil && oq.path != nil {
+		oq.Unique(true)
+	}
+	ctx = setContextOp(ctx, oq.ctx, "IDs")
+	if err = oq.Select(order.FieldID).Scan(ctx, &ids); err != nil {
 		return nil, err
 	}
 	return ids, nil
@@ -196,10 +199,11 @@ func (oq *OrderQuery) IDsX(ctx context.Context) []int {
 
 // Count returns the count of the given query.
 func (oq *OrderQuery) Count(ctx context.Context) (int, error) {
+	ctx = setContextOp(ctx, oq.ctx, "Count")
 	if err := oq.prepareQuery(ctx); err != nil {
 		return 0, err
 	}
-	return oq.sqlCount(ctx)
+	return withInterceptors[int](ctx, oq, querierCount[*OrderQuery](), oq.inters)
 }
 
 // CountX is like Count, but panics if an error occurs.
@@ -213,10 +217,15 @@ func (oq *OrderQuery) CountX(ctx context.Context) int {
 
 // Exist returns true if the query has elements in the graph.
 func (oq *OrderQuery) Exist(ctx context.Context) (bool, error) {
-	if err := oq.prepareQuery(ctx); err != nil {
-		return false, err
+	ctx = setContextOp(ctx, oq.ctx, "Exist")
+	switch _, err := oq.FirstID(ctx); {
+	case IsNotFound(err):
+		return false, nil
+	case err != nil:
+		return false, fmt.Errorf("ent: check existence: %w", err)
+	default:
+		return true, nil
 	}
-	return oq.sqlExist(ctx)
 }
 
 // ExistX is like Exist, but panics if an error occurs.
@@ -236,14 +245,13 @@ func (oq *OrderQuery) Clone() *OrderQuery {
 	}
 	return &OrderQuery{
 		config:     oq.config,
-		limit:      oq.limit,
-		offset:     oq.offset,
+		ctx:        oq.ctx.Clone(),
 		order:      append([]OrderFunc{}, oq.order...),
+		inters:     append([]Interceptor{}, oq.inters...),
 		predicates: append([]predicate.Order{}, oq.predicates...),
 		// clone intermediate query.
-		sql:    oq.sql.Clone(),
-		path:   oq.path,
-		unique: oq.unique,
+		sql:  oq.sql.Clone(),
+		path: oq.path,
 	}
 }
 
@@ -262,16 +270,11 @@ func (oq *OrderQuery) Clone() *OrderQuery {
 //		Aggregate(ent.Count()).
 //		Scan(ctx, &v)
 func (oq *OrderQuery) GroupBy(field string, fields ...string) *OrderGroupBy {
-	grbuild := &OrderGroupBy{config: oq.config}
-	grbuild.fields = append([]string{field}, fields...)
-	grbuild.path = func(ctx context.Context) (prev *sql.Selector, err error) {
-		if err := oq.prepareQuery(ctx); err != nil {
-			return nil, err
-		}
-		return oq.sqlQuery(ctx), nil
-	}
+	oq.ctx.Fields = append([]string{field}, fields...)
+	grbuild := &OrderGroupBy{build: oq}
+	grbuild.flds = &oq.ctx.Fields
 	grbuild.label = order.Label
-	grbuild.flds, grbuild.scan = &grbuild.fields, grbuild.Scan
+	grbuild.scan = grbuild.Scan
 	return grbuild
 }
 
@@ -288,11 +291,11 @@ func (oq *OrderQuery) GroupBy(field string, fields ...string) *OrderGroupBy {
 //		Select(order.FieldCreatedAt).
 //		Scan(ctx, &v)
 func (oq *OrderQuery) Select(fields ...string) *OrderSelect {
-	oq.fields = append(oq.fields, fields...)
-	selbuild := &OrderSelect{OrderQuery: oq}
-	selbuild.label = order.Label
-	selbuild.flds, selbuild.scan = &oq.fields, selbuild.Scan
-	return selbuild
+	oq.ctx.Fields = append(oq.ctx.Fields, fields...)
+	sbuild := &OrderSelect{OrderQuery: oq}
+	sbuild.label = order.Label
+	sbuild.flds, sbuild.scan = &oq.ctx.Fields, sbuild.Scan
+	return sbuild
 }
 
 // Aggregate returns a OrderSelect configured with the given aggregations.
@@ -301,7 +304,17 @@ func (oq *OrderQuery) Aggregate(fns ...AggregateFunc) *OrderSelect {
 }
 
 func (oq *OrderQuery) prepareQuery(ctx context.Context) error {
-	for _, f := range oq.fields {
+	for _, inter := range oq.inters {
+		if inter == nil {
+			return fmt.Errorf("ent: uninitialized interceptor (forgotten import ent/runtime?)")
+		}
+		if trv, ok := inter.(Traverser); ok {
+			if err := trv.Traverse(ctx, oq); err != nil {
+				return err
+			}
+		}
+	}
+	for _, f := range oq.ctx.Fields {
 		if !order.ValidColumn(f) {
 			return &ValidationError{Name: f, err: fmt.Errorf("ent: invalid field %q for query", f)}
 		}
@@ -343,41 +356,22 @@ func (oq *OrderQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Order,
 
 func (oq *OrderQuery) sqlCount(ctx context.Context) (int, error) {
 	_spec := oq.querySpec()
-	_spec.Node.Columns = oq.fields
-	if len(oq.fields) > 0 {
-		_spec.Unique = oq.unique != nil && *oq.unique
+	_spec.Node.Columns = oq.ctx.Fields
+	if len(oq.ctx.Fields) > 0 {
+		_spec.Unique = oq.ctx.Unique != nil && *oq.ctx.Unique
 	}
 	return sqlgraph.CountNodes(ctx, oq.driver, _spec)
 }
 
-func (oq *OrderQuery) sqlExist(ctx context.Context) (bool, error) {
-	switch _, err := oq.FirstID(ctx); {
-	case IsNotFound(err):
-		return false, nil
-	case err != nil:
-		return false, fmt.Errorf("ent: check existence: %w", err)
-	default:
-		return true, nil
-	}
-}
-
 func (oq *OrderQuery) querySpec() *sqlgraph.QuerySpec {
-	_spec := &sqlgraph.QuerySpec{
-		Node: &sqlgraph.NodeSpec{
-			Table:   order.Table,
-			Columns: order.Columns,
-			ID: &sqlgraph.FieldSpec{
-				Type:   field.TypeInt,
-				Column: order.FieldID,
-			},
-		},
-		From:   oq.sql,
-		Unique: true,
-	}
-	if unique := oq.unique; unique != nil {
+	_spec := sqlgraph.NewQuerySpec(order.Table, order.Columns, sqlgraph.NewFieldSpec(order.FieldID, field.TypeInt))
+	_spec.From = oq.sql
+	if unique := oq.ctx.Unique; unique != nil {
 		_spec.Unique = *unique
+	} else if oq.path != nil {
+		_spec.Unique = true
 	}
-	if fields := oq.fields; len(fields) > 0 {
+	if fields := oq.ctx.Fields; len(fields) > 0 {
 		_spec.Node.Columns = make([]string, 0, len(fields))
 		_spec.Node.Columns = append(_spec.Node.Columns, order.FieldID)
 		for i := range fields {
@@ -393,10 +387,10 @@ func (oq *OrderQuery) querySpec() *sqlgraph.QuerySpec {
 			}
 		}
 	}
-	if limit := oq.limit; limit != nil {
+	if limit := oq.ctx.Limit; limit != nil {
 		_spec.Limit = *limit
 	}
-	if offset := oq.offset; offset != nil {
+	if offset := oq.ctx.Offset; offset != nil {
 		_spec.Offset = *offset
 	}
 	if ps := oq.order; len(ps) > 0 {
@@ -412,7 +406,7 @@ func (oq *OrderQuery) querySpec() *sqlgraph.QuerySpec {
 func (oq *OrderQuery) sqlQuery(ctx context.Context) *sql.Selector {
 	builder := sql.Dialect(oq.driver.Dialect())
 	t1 := builder.Table(order.Table)
-	columns := oq.fields
+	columns := oq.ctx.Fields
 	if len(columns) == 0 {
 		columns = order.Columns
 	}
@@ -421,7 +415,7 @@ func (oq *OrderQuery) sqlQuery(ctx context.Context) *sql.Selector {
 		selector = oq.sql
 		selector.Select(selector.Columns(columns...)...)
 	}
-	if oq.unique != nil && *oq.unique {
+	if oq.ctx.Unique != nil && *oq.ctx.Unique {
 		selector.Distinct()
 	}
 	for _, p := range oq.predicates {
@@ -430,12 +424,12 @@ func (oq *OrderQuery) sqlQuery(ctx context.Context) *sql.Selector {
 	for _, p := range oq.order {
 		p(selector)
 	}
-	if offset := oq.offset; offset != nil {
+	if offset := oq.ctx.Offset; offset != nil {
 		// limit is mandatory for offset clause. We start
 		// with default value, and override it below if needed.
 		selector.Offset(*offset).Limit(math.MaxInt32)
 	}
-	if limit := oq.limit; limit != nil {
+	if limit := oq.ctx.Limit; limit != nil {
 		selector.Limit(*limit)
 	}
 	return selector
@@ -443,13 +437,8 @@ func (oq *OrderQuery) sqlQuery(ctx context.Context) *sql.Selector {
 
 // OrderGroupBy is the group-by builder for Order entities.
 type OrderGroupBy struct {
-	config
 	selector
-	fields []string
-	fns    []AggregateFunc
-	// intermediate query (i.e. traversal path).
-	sql  *sql.Selector
-	path func(context.Context) (*sql.Selector, error)
+	build *OrderQuery
 }
 
 // Aggregate adds the given aggregation functions to the group-by query.
@@ -458,58 +447,46 @@ func (ogb *OrderGroupBy) Aggregate(fns ...AggregateFunc) *OrderGroupBy {
 	return ogb
 }
 
-// Scan applies the group-by query and scans the result into the given value.
+// Scan applies the selector query and scans the result into the given value.
 func (ogb *OrderGroupBy) Scan(ctx context.Context, v any) error {
-	query, err := ogb.path(ctx)
-	if err != nil {
+	ctx = setContextOp(ctx, ogb.build.ctx, "GroupBy")
+	if err := ogb.build.prepareQuery(ctx); err != nil {
 		return err
 	}
-	ogb.sql = query
-	return ogb.sqlScan(ctx, v)
+	return scanWithInterceptors[*OrderQuery, *OrderGroupBy](ctx, ogb.build, ogb, ogb.build.inters, v)
 }
 
-func (ogb *OrderGroupBy) sqlScan(ctx context.Context, v any) error {
-	for _, f := range ogb.fields {
-		if !order.ValidColumn(f) {
-			return &ValidationError{Name: f, err: fmt.Errorf("invalid field %q for group-by", f)}
-		}
+func (ogb *OrderGroupBy) sqlScan(ctx context.Context, root *OrderQuery, v any) error {
+	selector := root.sqlQuery(ctx).Select()
+	aggregation := make([]string, 0, len(ogb.fns))
+	for _, fn := range ogb.fns {
+		aggregation = append(aggregation, fn(selector))
 	}
-	selector := ogb.sqlQuery()
+	if len(selector.SelectedColumns()) == 0 {
+		columns := make([]string, 0, len(*ogb.flds)+len(ogb.fns))
+		for _, f := range *ogb.flds {
+			columns = append(columns, selector.C(f))
+		}
+		columns = append(columns, aggregation...)
+		selector.Select(columns...)
+	}
+	selector.GroupBy(selector.Columns(*ogb.flds...)...)
 	if err := selector.Err(); err != nil {
 		return err
 	}
 	rows := &sql.Rows{}
 	query, args := selector.Query()
-	if err := ogb.driver.Query(ctx, query, args, rows); err != nil {
+	if err := ogb.build.driver.Query(ctx, query, args, rows); err != nil {
 		return err
 	}
 	defer rows.Close()
 	return sql.ScanSlice(rows, v)
 }
 
-func (ogb *OrderGroupBy) sqlQuery() *sql.Selector {
-	selector := ogb.sql.Select()
-	aggregation := make([]string, 0, len(ogb.fns))
-	for _, fn := range ogb.fns {
-		aggregation = append(aggregation, fn(selector))
-	}
-	if len(selector.SelectedColumns()) == 0 {
-		columns := make([]string, 0, len(ogb.fields)+len(ogb.fns))
-		for _, f := range ogb.fields {
-			columns = append(columns, selector.C(f))
-		}
-		columns = append(columns, aggregation...)
-		selector.Select(columns...)
-	}
-	return selector.GroupBy(selector.Columns(ogb.fields...)...)
-}
-
 // OrderSelect is the builder for selecting fields of Order entities.
 type OrderSelect struct {
 	*OrderQuery
 	selector
-	// intermediate query (i.e. traversal path).
-	sql *sql.Selector
 }
 
 // Aggregate adds the given aggregation functions to the selector query.
@@ -520,26 +497,27 @@ func (os *OrderSelect) Aggregate(fns ...AggregateFunc) *OrderSelect {
 
 // Scan applies the selector query and scans the result into the given value.
 func (os *OrderSelect) Scan(ctx context.Context, v any) error {
+	ctx = setContextOp(ctx, os.ctx, "Select")
 	if err := os.prepareQuery(ctx); err != nil {
 		return err
 	}
-	os.sql = os.OrderQuery.sqlQuery(ctx)
-	return os.sqlScan(ctx, v)
+	return scanWithInterceptors[*OrderQuery, *OrderSelect](ctx, os.OrderQuery, os, os.inters, v)
 }
 
-func (os *OrderSelect) sqlScan(ctx context.Context, v any) error {
+func (os *OrderSelect) sqlScan(ctx context.Context, root *OrderQuery, v any) error {
+	selector := root.sqlQuery(ctx)
 	aggregation := make([]string, 0, len(os.fns))
 	for _, fn := range os.fns {
-		aggregation = append(aggregation, fn(os.sql))
+		aggregation = append(aggregation, fn(selector))
 	}
 	switch n := len(*os.selector.flds); {
 	case n == 0 && len(aggregation) > 0:
-		os.sql.Select(aggregation...)
+		selector.Select(aggregation...)
 	case n != 0 && len(aggregation) > 0:
-		os.sql.AppendSelect(aggregation...)
+		selector.AppendSelect(aggregation...)
 	}
 	rows := &sql.Rows{}
-	query, args := os.sql.Query()
+	query, args := selector.Query()
 	if err := os.driver.Query(ctx, query, args, rows); err != nil {
 		return err
 	}

@@ -12,979 +12,637 @@ import (
 
 // ID filters vertices based on their ID field.
 func ID(id int) predicate.ChatHistory {
-	return predicate.ChatHistory(func(s *sql.Selector) {
-		s.Where(sql.EQ(s.C(FieldID), id))
-	})
+	return predicate.ChatHistory(sql.FieldEQ(FieldID, id))
 }
 
 // IDEQ applies the EQ predicate on the ID field.
 func IDEQ(id int) predicate.ChatHistory {
-	return predicate.ChatHistory(func(s *sql.Selector) {
-		s.Where(sql.EQ(s.C(FieldID), id))
-	})
+	return predicate.ChatHistory(sql.FieldEQ(FieldID, id))
 }
 
 // IDNEQ applies the NEQ predicate on the ID field.
 func IDNEQ(id int) predicate.ChatHistory {
-	return predicate.ChatHistory(func(s *sql.Selector) {
-		s.Where(sql.NEQ(s.C(FieldID), id))
-	})
+	return predicate.ChatHistory(sql.FieldNEQ(FieldID, id))
 }
 
 // IDIn applies the In predicate on the ID field.
 func IDIn(ids ...int) predicate.ChatHistory {
-	return predicate.ChatHistory(func(s *sql.Selector) {
-		v := make([]any, len(ids))
-		for i := range v {
-			v[i] = ids[i]
-		}
-		s.Where(sql.In(s.C(FieldID), v...))
-	})
+	return predicate.ChatHistory(sql.FieldIn(FieldID, ids...))
 }
 
 // IDNotIn applies the NotIn predicate on the ID field.
 func IDNotIn(ids ...int) predicate.ChatHistory {
-	return predicate.ChatHistory(func(s *sql.Selector) {
-		v := make([]any, len(ids))
-		for i := range v {
-			v[i] = ids[i]
-		}
-		s.Where(sql.NotIn(s.C(FieldID), v...))
-	})
+	return predicate.ChatHistory(sql.FieldNotIn(FieldID, ids...))
 }
 
 // IDGT applies the GT predicate on the ID field.
 func IDGT(id int) predicate.ChatHistory {
-	return predicate.ChatHistory(func(s *sql.Selector) {
-		s.Where(sql.GT(s.C(FieldID), id))
-	})
+	return predicate.ChatHistory(sql.FieldGT(FieldID, id))
 }
 
 // IDGTE applies the GTE predicate on the ID field.
 func IDGTE(id int) predicate.ChatHistory {
-	return predicate.ChatHistory(func(s *sql.Selector) {
-		s.Where(sql.GTE(s.C(FieldID), id))
-	})
+	return predicate.ChatHistory(sql.FieldGTE(FieldID, id))
 }
 
 // IDLT applies the LT predicate on the ID field.
 func IDLT(id int) predicate.ChatHistory {
-	return predicate.ChatHistory(func(s *sql.Selector) {
-		s.Where(sql.LT(s.C(FieldID), id))
-	})
+	return predicate.ChatHistory(sql.FieldLT(FieldID, id))
 }
 
 // IDLTE applies the LTE predicate on the ID field.
 func IDLTE(id int) predicate.ChatHistory {
-	return predicate.ChatHistory(func(s *sql.Selector) {
-		s.Where(sql.LTE(s.C(FieldID), id))
-	})
+	return predicate.ChatHistory(sql.FieldLTE(FieldID, id))
 }
 
 // CreatedAt applies equality check predicate on the "created_at" field. It's identical to CreatedAtEQ.
 func CreatedAt(v time.Time) predicate.ChatHistory {
-	return predicate.ChatHistory(func(s *sql.Selector) {
-		s.Where(sql.EQ(s.C(FieldCreatedAt), v))
-	})
+	return predicate.ChatHistory(sql.FieldEQ(FieldCreatedAt, v))
 }
 
 // UpdatedAt applies equality check predicate on the "updated_at" field. It's identical to UpdatedAtEQ.
 func UpdatedAt(v time.Time) predicate.ChatHistory {
-	return predicate.ChatHistory(func(s *sql.Selector) {
-		s.Where(sql.EQ(s.C(FieldUpdatedAt), v))
-	})
+	return predicate.ChatHistory(sql.FieldEQ(FieldUpdatedAt, v))
 }
 
 // Deleted applies equality check predicate on the "deleted" field. It's identical to DeletedEQ.
 func Deleted(v bool) predicate.ChatHistory {
-	return predicate.ChatHistory(func(s *sql.Selector) {
-		s.Where(sql.EQ(s.C(FieldDeleted), v))
-	})
+	return predicate.ChatHistory(sql.FieldEQ(FieldDeleted, v))
 }
 
 // UserID applies equality check predicate on the "user_id" field. It's identical to UserIDEQ.
 func UserID(v int) predicate.ChatHistory {
-	return predicate.ChatHistory(func(s *sql.Selector) {
-		s.Where(sql.EQ(s.C(FieldUserID), v))
-	})
+	return predicate.ChatHistory(sql.FieldEQ(FieldUserID, v))
 }
 
 // ConversationIdx applies equality check predicate on the "conversation_idx" field. It's identical to ConversationIdxEQ.
 func ConversationIdx(v int) predicate.ChatHistory {
-	return predicate.ChatHistory(func(s *sql.Selector) {
-		s.Where(sql.EQ(s.C(FieldConversationIdx), v))
-	})
+	return predicate.ChatHistory(sql.FieldEQ(FieldConversationIdx, v))
 }
 
 // ConversationID applies equality check predicate on the "conversation_id" field. It's identical to ConversationIDEQ.
 func ConversationID(v uuid.UUID) predicate.ChatHistory {
-	return predicate.ChatHistory(func(s *sql.Selector) {
-		s.Where(sql.EQ(s.C(FieldConversationID), v))
-	})
+	return predicate.ChatHistory(sql.FieldEQ(FieldConversationID, v))
 }
 
 // MessageID applies equality check predicate on the "message_id" field. It's identical to MessageIDEQ.
 func MessageID(v string) predicate.ChatHistory {
-	return predicate.ChatHistory(func(s *sql.Selector) {
-		s.Where(sql.EQ(s.C(FieldMessageID), v))
-	})
+	return predicate.ChatHistory(sql.FieldEQ(FieldMessageID, v))
 }
 
 // MessageIdx applies equality check predicate on the "message_idx" field. It's identical to MessageIdxEQ.
 func MessageIdx(v int) predicate.ChatHistory {
-	return predicate.ChatHistory(func(s *sql.Selector) {
-		s.Where(sql.EQ(s.C(FieldMessageIdx), v))
-	})
+	return predicate.ChatHistory(sql.FieldEQ(FieldMessageIdx, v))
 }
 
 // Request applies equality check predicate on the "request" field. It's identical to RequestEQ.
 func Request(v string) predicate.ChatHistory {
-	return predicate.ChatHistory(func(s *sql.Selector) {
-		s.Where(sql.EQ(s.C(FieldRequest), v))
-	})
+	return predicate.ChatHistory(sql.FieldEQ(FieldRequest, v))
 }
 
 // Response applies equality check predicate on the "response" field. It's identical to ResponseEQ.
 func Response(v string) predicate.ChatHistory {
-	return predicate.ChatHistory(func(s *sql.Selector) {
-		s.Where(sql.EQ(s.C(FieldResponse), v))
-	})
+	return predicate.ChatHistory(sql.FieldEQ(FieldResponse, v))
 }
 
 // TokenUsage applies equality check predicate on the "token_usage" field. It's identical to TokenUsageEQ.
 func TokenUsage(v int) predicate.ChatHistory {
-	return predicate.ChatHistory(func(s *sql.Selector) {
-		s.Where(sql.EQ(s.C(FieldTokenUsage), v))
-	})
+	return predicate.ChatHistory(sql.FieldEQ(FieldTokenUsage, v))
 }
 
 // CreatedAtEQ applies the EQ predicate on the "created_at" field.
 func CreatedAtEQ(v time.Time) predicate.ChatHistory {
-	return predicate.ChatHistory(func(s *sql.Selector) {
-		s.Where(sql.EQ(s.C(FieldCreatedAt), v))
-	})
+	return predicate.ChatHistory(sql.FieldEQ(FieldCreatedAt, v))
 }
 
 // CreatedAtNEQ applies the NEQ predicate on the "created_at" field.
 func CreatedAtNEQ(v time.Time) predicate.ChatHistory {
-	return predicate.ChatHistory(func(s *sql.Selector) {
-		s.Where(sql.NEQ(s.C(FieldCreatedAt), v))
-	})
+	return predicate.ChatHistory(sql.FieldNEQ(FieldCreatedAt, v))
 }
 
 // CreatedAtIn applies the In predicate on the "created_at" field.
 func CreatedAtIn(vs ...time.Time) predicate.ChatHistory {
-	v := make([]any, len(vs))
-	for i := range v {
-		v[i] = vs[i]
-	}
-	return predicate.ChatHistory(func(s *sql.Selector) {
-		s.Where(sql.In(s.C(FieldCreatedAt), v...))
-	})
+	return predicate.ChatHistory(sql.FieldIn(FieldCreatedAt, vs...))
 }
 
 // CreatedAtNotIn applies the NotIn predicate on the "created_at" field.
 func CreatedAtNotIn(vs ...time.Time) predicate.ChatHistory {
-	v := make([]any, len(vs))
-	for i := range v {
-		v[i] = vs[i]
-	}
-	return predicate.ChatHistory(func(s *sql.Selector) {
-		s.Where(sql.NotIn(s.C(FieldCreatedAt), v...))
-	})
+	return predicate.ChatHistory(sql.FieldNotIn(FieldCreatedAt, vs...))
 }
 
 // CreatedAtGT applies the GT predicate on the "created_at" field.
 func CreatedAtGT(v time.Time) predicate.ChatHistory {
-	return predicate.ChatHistory(func(s *sql.Selector) {
-		s.Where(sql.GT(s.C(FieldCreatedAt), v))
-	})
+	return predicate.ChatHistory(sql.FieldGT(FieldCreatedAt, v))
 }
 
 // CreatedAtGTE applies the GTE predicate on the "created_at" field.
 func CreatedAtGTE(v time.Time) predicate.ChatHistory {
-	return predicate.ChatHistory(func(s *sql.Selector) {
-		s.Where(sql.GTE(s.C(FieldCreatedAt), v))
-	})
+	return predicate.ChatHistory(sql.FieldGTE(FieldCreatedAt, v))
 }
 
 // CreatedAtLT applies the LT predicate on the "created_at" field.
 func CreatedAtLT(v time.Time) predicate.ChatHistory {
-	return predicate.ChatHistory(func(s *sql.Selector) {
-		s.Where(sql.LT(s.C(FieldCreatedAt), v))
-	})
+	return predicate.ChatHistory(sql.FieldLT(FieldCreatedAt, v))
 }
 
 // CreatedAtLTE applies the LTE predicate on the "created_at" field.
 func CreatedAtLTE(v time.Time) predicate.ChatHistory {
-	return predicate.ChatHistory(func(s *sql.Selector) {
-		s.Where(sql.LTE(s.C(FieldCreatedAt), v))
-	})
+	return predicate.ChatHistory(sql.FieldLTE(FieldCreatedAt, v))
 }
 
 // UpdatedAtEQ applies the EQ predicate on the "updated_at" field.
 func UpdatedAtEQ(v time.Time) predicate.ChatHistory {
-	return predicate.ChatHistory(func(s *sql.Selector) {
-		s.Where(sql.EQ(s.C(FieldUpdatedAt), v))
-	})
+	return predicate.ChatHistory(sql.FieldEQ(FieldUpdatedAt, v))
 }
 
 // UpdatedAtNEQ applies the NEQ predicate on the "updated_at" field.
 func UpdatedAtNEQ(v time.Time) predicate.ChatHistory {
-	return predicate.ChatHistory(func(s *sql.Selector) {
-		s.Where(sql.NEQ(s.C(FieldUpdatedAt), v))
-	})
+	return predicate.ChatHistory(sql.FieldNEQ(FieldUpdatedAt, v))
 }
 
 // UpdatedAtIn applies the In predicate on the "updated_at" field.
 func UpdatedAtIn(vs ...time.Time) predicate.ChatHistory {
-	v := make([]any, len(vs))
-	for i := range v {
-		v[i] = vs[i]
-	}
-	return predicate.ChatHistory(func(s *sql.Selector) {
-		s.Where(sql.In(s.C(FieldUpdatedAt), v...))
-	})
+	return predicate.ChatHistory(sql.FieldIn(FieldUpdatedAt, vs...))
 }
 
 // UpdatedAtNotIn applies the NotIn predicate on the "updated_at" field.
 func UpdatedAtNotIn(vs ...time.Time) predicate.ChatHistory {
-	v := make([]any, len(vs))
-	for i := range v {
-		v[i] = vs[i]
-	}
-	return predicate.ChatHistory(func(s *sql.Selector) {
-		s.Where(sql.NotIn(s.C(FieldUpdatedAt), v...))
-	})
+	return predicate.ChatHistory(sql.FieldNotIn(FieldUpdatedAt, vs...))
 }
 
 // UpdatedAtGT applies the GT predicate on the "updated_at" field.
 func UpdatedAtGT(v time.Time) predicate.ChatHistory {
-	return predicate.ChatHistory(func(s *sql.Selector) {
-		s.Where(sql.GT(s.C(FieldUpdatedAt), v))
-	})
+	return predicate.ChatHistory(sql.FieldGT(FieldUpdatedAt, v))
 }
 
 // UpdatedAtGTE applies the GTE predicate on the "updated_at" field.
 func UpdatedAtGTE(v time.Time) predicate.ChatHistory {
-	return predicate.ChatHistory(func(s *sql.Selector) {
-		s.Where(sql.GTE(s.C(FieldUpdatedAt), v))
-	})
+	return predicate.ChatHistory(sql.FieldGTE(FieldUpdatedAt, v))
 }
 
 // UpdatedAtLT applies the LT predicate on the "updated_at" field.
 func UpdatedAtLT(v time.Time) predicate.ChatHistory {
-	return predicate.ChatHistory(func(s *sql.Selector) {
-		s.Where(sql.LT(s.C(FieldUpdatedAt), v))
-	})
+	return predicate.ChatHistory(sql.FieldLT(FieldUpdatedAt, v))
 }
 
 // UpdatedAtLTE applies the LTE predicate on the "updated_at" field.
 func UpdatedAtLTE(v time.Time) predicate.ChatHistory {
-	return predicate.ChatHistory(func(s *sql.Selector) {
-		s.Where(sql.LTE(s.C(FieldUpdatedAt), v))
-	})
+	return predicate.ChatHistory(sql.FieldLTE(FieldUpdatedAt, v))
 }
 
 // DeletedEQ applies the EQ predicate on the "deleted" field.
 func DeletedEQ(v bool) predicate.ChatHistory {
-	return predicate.ChatHistory(func(s *sql.Selector) {
-		s.Where(sql.EQ(s.C(FieldDeleted), v))
-	})
+	return predicate.ChatHistory(sql.FieldEQ(FieldDeleted, v))
 }
 
 // DeletedNEQ applies the NEQ predicate on the "deleted" field.
 func DeletedNEQ(v bool) predicate.ChatHistory {
-	return predicate.ChatHistory(func(s *sql.Selector) {
-		s.Where(sql.NEQ(s.C(FieldDeleted), v))
-	})
+	return predicate.ChatHistory(sql.FieldNEQ(FieldDeleted, v))
 }
 
 // UserIDEQ applies the EQ predicate on the "user_id" field.
 func UserIDEQ(v int) predicate.ChatHistory {
-	return predicate.ChatHistory(func(s *sql.Selector) {
-		s.Where(sql.EQ(s.C(FieldUserID), v))
-	})
+	return predicate.ChatHistory(sql.FieldEQ(FieldUserID, v))
 }
 
 // UserIDNEQ applies the NEQ predicate on the "user_id" field.
 func UserIDNEQ(v int) predicate.ChatHistory {
-	return predicate.ChatHistory(func(s *sql.Selector) {
-		s.Where(sql.NEQ(s.C(FieldUserID), v))
-	})
+	return predicate.ChatHistory(sql.FieldNEQ(FieldUserID, v))
 }
 
 // UserIDIn applies the In predicate on the "user_id" field.
 func UserIDIn(vs ...int) predicate.ChatHistory {
-	v := make([]any, len(vs))
-	for i := range v {
-		v[i] = vs[i]
-	}
-	return predicate.ChatHistory(func(s *sql.Selector) {
-		s.Where(sql.In(s.C(FieldUserID), v...))
-	})
+	return predicate.ChatHistory(sql.FieldIn(FieldUserID, vs...))
 }
 
 // UserIDNotIn applies the NotIn predicate on the "user_id" field.
 func UserIDNotIn(vs ...int) predicate.ChatHistory {
-	v := make([]any, len(vs))
-	for i := range v {
-		v[i] = vs[i]
-	}
-	return predicate.ChatHistory(func(s *sql.Selector) {
-		s.Where(sql.NotIn(s.C(FieldUserID), v...))
-	})
+	return predicate.ChatHistory(sql.FieldNotIn(FieldUserID, vs...))
 }
 
 // UserIDGT applies the GT predicate on the "user_id" field.
 func UserIDGT(v int) predicate.ChatHistory {
-	return predicate.ChatHistory(func(s *sql.Selector) {
-		s.Where(sql.GT(s.C(FieldUserID), v))
-	})
+	return predicate.ChatHistory(sql.FieldGT(FieldUserID, v))
 }
 
 // UserIDGTE applies the GTE predicate on the "user_id" field.
 func UserIDGTE(v int) predicate.ChatHistory {
-	return predicate.ChatHistory(func(s *sql.Selector) {
-		s.Where(sql.GTE(s.C(FieldUserID), v))
-	})
+	return predicate.ChatHistory(sql.FieldGTE(FieldUserID, v))
 }
 
 // UserIDLT applies the LT predicate on the "user_id" field.
 func UserIDLT(v int) predicate.ChatHistory {
-	return predicate.ChatHistory(func(s *sql.Selector) {
-		s.Where(sql.LT(s.C(FieldUserID), v))
-	})
+	return predicate.ChatHistory(sql.FieldLT(FieldUserID, v))
 }
 
 // UserIDLTE applies the LTE predicate on the "user_id" field.
 func UserIDLTE(v int) predicate.ChatHistory {
-	return predicate.ChatHistory(func(s *sql.Selector) {
-		s.Where(sql.LTE(s.C(FieldUserID), v))
-	})
+	return predicate.ChatHistory(sql.FieldLTE(FieldUserID, v))
 }
 
 // ConversationIdxEQ applies the EQ predicate on the "conversation_idx" field.
 func ConversationIdxEQ(v int) predicate.ChatHistory {
-	return predicate.ChatHistory(func(s *sql.Selector) {
-		s.Where(sql.EQ(s.C(FieldConversationIdx), v))
-	})
+	return predicate.ChatHistory(sql.FieldEQ(FieldConversationIdx, v))
 }
 
 // ConversationIdxNEQ applies the NEQ predicate on the "conversation_idx" field.
 func ConversationIdxNEQ(v int) predicate.ChatHistory {
-	return predicate.ChatHistory(func(s *sql.Selector) {
-		s.Where(sql.NEQ(s.C(FieldConversationIdx), v))
-	})
+	return predicate.ChatHistory(sql.FieldNEQ(FieldConversationIdx, v))
 }
 
 // ConversationIdxIn applies the In predicate on the "conversation_idx" field.
 func ConversationIdxIn(vs ...int) predicate.ChatHistory {
-	v := make([]any, len(vs))
-	for i := range v {
-		v[i] = vs[i]
-	}
-	return predicate.ChatHistory(func(s *sql.Selector) {
-		s.Where(sql.In(s.C(FieldConversationIdx), v...))
-	})
+	return predicate.ChatHistory(sql.FieldIn(FieldConversationIdx, vs...))
 }
 
 // ConversationIdxNotIn applies the NotIn predicate on the "conversation_idx" field.
 func ConversationIdxNotIn(vs ...int) predicate.ChatHistory {
-	v := make([]any, len(vs))
-	for i := range v {
-		v[i] = vs[i]
-	}
-	return predicate.ChatHistory(func(s *sql.Selector) {
-		s.Where(sql.NotIn(s.C(FieldConversationIdx), v...))
-	})
+	return predicate.ChatHistory(sql.FieldNotIn(FieldConversationIdx, vs...))
 }
 
 // ConversationIdxGT applies the GT predicate on the "conversation_idx" field.
 func ConversationIdxGT(v int) predicate.ChatHistory {
-	return predicate.ChatHistory(func(s *sql.Selector) {
-		s.Where(sql.GT(s.C(FieldConversationIdx), v))
-	})
+	return predicate.ChatHistory(sql.FieldGT(FieldConversationIdx, v))
 }
 
 // ConversationIdxGTE applies the GTE predicate on the "conversation_idx" field.
 func ConversationIdxGTE(v int) predicate.ChatHistory {
-	return predicate.ChatHistory(func(s *sql.Selector) {
-		s.Where(sql.GTE(s.C(FieldConversationIdx), v))
-	})
+	return predicate.ChatHistory(sql.FieldGTE(FieldConversationIdx, v))
 }
 
 // ConversationIdxLT applies the LT predicate on the "conversation_idx" field.
 func ConversationIdxLT(v int) predicate.ChatHistory {
-	return predicate.ChatHistory(func(s *sql.Selector) {
-		s.Where(sql.LT(s.C(FieldConversationIdx), v))
-	})
+	return predicate.ChatHistory(sql.FieldLT(FieldConversationIdx, v))
 }
 
 // ConversationIdxLTE applies the LTE predicate on the "conversation_idx" field.
 func ConversationIdxLTE(v int) predicate.ChatHistory {
-	return predicate.ChatHistory(func(s *sql.Selector) {
-		s.Where(sql.LTE(s.C(FieldConversationIdx), v))
-	})
+	return predicate.ChatHistory(sql.FieldLTE(FieldConversationIdx, v))
 }
 
 // ConversationIDEQ applies the EQ predicate on the "conversation_id" field.
 func ConversationIDEQ(v uuid.UUID) predicate.ChatHistory {
-	return predicate.ChatHistory(func(s *sql.Selector) {
-		s.Where(sql.EQ(s.C(FieldConversationID), v))
-	})
+	return predicate.ChatHistory(sql.FieldEQ(FieldConversationID, v))
 }
 
 // ConversationIDNEQ applies the NEQ predicate on the "conversation_id" field.
 func ConversationIDNEQ(v uuid.UUID) predicate.ChatHistory {
-	return predicate.ChatHistory(func(s *sql.Selector) {
-		s.Where(sql.NEQ(s.C(FieldConversationID), v))
-	})
+	return predicate.ChatHistory(sql.FieldNEQ(FieldConversationID, v))
 }
 
 // ConversationIDIn applies the In predicate on the "conversation_id" field.
 func ConversationIDIn(vs ...uuid.UUID) predicate.ChatHistory {
-	v := make([]any, len(vs))
-	for i := range v {
-		v[i] = vs[i]
-	}
-	return predicate.ChatHistory(func(s *sql.Selector) {
-		s.Where(sql.In(s.C(FieldConversationID), v...))
-	})
+	return predicate.ChatHistory(sql.FieldIn(FieldConversationID, vs...))
 }
 
 // ConversationIDNotIn applies the NotIn predicate on the "conversation_id" field.
 func ConversationIDNotIn(vs ...uuid.UUID) predicate.ChatHistory {
-	v := make([]any, len(vs))
-	for i := range v {
-		v[i] = vs[i]
-	}
-	return predicate.ChatHistory(func(s *sql.Selector) {
-		s.Where(sql.NotIn(s.C(FieldConversationID), v...))
-	})
+	return predicate.ChatHistory(sql.FieldNotIn(FieldConversationID, vs...))
 }
 
 // ConversationIDGT applies the GT predicate on the "conversation_id" field.
 func ConversationIDGT(v uuid.UUID) predicate.ChatHistory {
-	return predicate.ChatHistory(func(s *sql.Selector) {
-		s.Where(sql.GT(s.C(FieldConversationID), v))
-	})
+	return predicate.ChatHistory(sql.FieldGT(FieldConversationID, v))
 }
 
 // ConversationIDGTE applies the GTE predicate on the "conversation_id" field.
 func ConversationIDGTE(v uuid.UUID) predicate.ChatHistory {
-	return predicate.ChatHistory(func(s *sql.Selector) {
-		s.Where(sql.GTE(s.C(FieldConversationID), v))
-	})
+	return predicate.ChatHistory(sql.FieldGTE(FieldConversationID, v))
 }
 
 // ConversationIDLT applies the LT predicate on the "conversation_id" field.
 func ConversationIDLT(v uuid.UUID) predicate.ChatHistory {
-	return predicate.ChatHistory(func(s *sql.Selector) {
-		s.Where(sql.LT(s.C(FieldConversationID), v))
-	})
+	return predicate.ChatHistory(sql.FieldLT(FieldConversationID, v))
 }
 
 // ConversationIDLTE applies the LTE predicate on the "conversation_id" field.
 func ConversationIDLTE(v uuid.UUID) predicate.ChatHistory {
-	return predicate.ChatHistory(func(s *sql.Selector) {
-		s.Where(sql.LTE(s.C(FieldConversationID), v))
-	})
+	return predicate.ChatHistory(sql.FieldLTE(FieldConversationID, v))
 }
 
 // MessageIDEQ applies the EQ predicate on the "message_id" field.
 func MessageIDEQ(v string) predicate.ChatHistory {
-	return predicate.ChatHistory(func(s *sql.Selector) {
-		s.Where(sql.EQ(s.C(FieldMessageID), v))
-	})
+	return predicate.ChatHistory(sql.FieldEQ(FieldMessageID, v))
 }
 
 // MessageIDNEQ applies the NEQ predicate on the "message_id" field.
 func MessageIDNEQ(v string) predicate.ChatHistory {
-	return predicate.ChatHistory(func(s *sql.Selector) {
-		s.Where(sql.NEQ(s.C(FieldMessageID), v))
-	})
+	return predicate.ChatHistory(sql.FieldNEQ(FieldMessageID, v))
 }
 
 // MessageIDIn applies the In predicate on the "message_id" field.
 func MessageIDIn(vs ...string) predicate.ChatHistory {
-	v := make([]any, len(vs))
-	for i := range v {
-		v[i] = vs[i]
-	}
-	return predicate.ChatHistory(func(s *sql.Selector) {
-		s.Where(sql.In(s.C(FieldMessageID), v...))
-	})
+	return predicate.ChatHistory(sql.FieldIn(FieldMessageID, vs...))
 }
 
 // MessageIDNotIn applies the NotIn predicate on the "message_id" field.
 func MessageIDNotIn(vs ...string) predicate.ChatHistory {
-	v := make([]any, len(vs))
-	for i := range v {
-		v[i] = vs[i]
-	}
-	return predicate.ChatHistory(func(s *sql.Selector) {
-		s.Where(sql.NotIn(s.C(FieldMessageID), v...))
-	})
+	return predicate.ChatHistory(sql.FieldNotIn(FieldMessageID, vs...))
 }
 
 // MessageIDGT applies the GT predicate on the "message_id" field.
 func MessageIDGT(v string) predicate.ChatHistory {
-	return predicate.ChatHistory(func(s *sql.Selector) {
-		s.Where(sql.GT(s.C(FieldMessageID), v))
-	})
+	return predicate.ChatHistory(sql.FieldGT(FieldMessageID, v))
 }
 
 // MessageIDGTE applies the GTE predicate on the "message_id" field.
 func MessageIDGTE(v string) predicate.ChatHistory {
-	return predicate.ChatHistory(func(s *sql.Selector) {
-		s.Where(sql.GTE(s.C(FieldMessageID), v))
-	})
+	return predicate.ChatHistory(sql.FieldGTE(FieldMessageID, v))
 }
 
 // MessageIDLT applies the LT predicate on the "message_id" field.
 func MessageIDLT(v string) predicate.ChatHistory {
-	return predicate.ChatHistory(func(s *sql.Selector) {
-		s.Where(sql.LT(s.C(FieldMessageID), v))
-	})
+	return predicate.ChatHistory(sql.FieldLT(FieldMessageID, v))
 }
 
 // MessageIDLTE applies the LTE predicate on the "message_id" field.
 func MessageIDLTE(v string) predicate.ChatHistory {
-	return predicate.ChatHistory(func(s *sql.Selector) {
-		s.Where(sql.LTE(s.C(FieldMessageID), v))
-	})
+	return predicate.ChatHistory(sql.FieldLTE(FieldMessageID, v))
 }
 
 // MessageIDContains applies the Contains predicate on the "message_id" field.
 func MessageIDContains(v string) predicate.ChatHistory {
-	return predicate.ChatHistory(func(s *sql.Selector) {
-		s.Where(sql.Contains(s.C(FieldMessageID), v))
-	})
+	return predicate.ChatHistory(sql.FieldContains(FieldMessageID, v))
 }
 
 // MessageIDHasPrefix applies the HasPrefix predicate on the "message_id" field.
 func MessageIDHasPrefix(v string) predicate.ChatHistory {
-	return predicate.ChatHistory(func(s *sql.Selector) {
-		s.Where(sql.HasPrefix(s.C(FieldMessageID), v))
-	})
+	return predicate.ChatHistory(sql.FieldHasPrefix(FieldMessageID, v))
 }
 
 // MessageIDHasSuffix applies the HasSuffix predicate on the "message_id" field.
 func MessageIDHasSuffix(v string) predicate.ChatHistory {
-	return predicate.ChatHistory(func(s *sql.Selector) {
-		s.Where(sql.HasSuffix(s.C(FieldMessageID), v))
-	})
+	return predicate.ChatHistory(sql.FieldHasSuffix(FieldMessageID, v))
 }
 
 // MessageIDIsNil applies the IsNil predicate on the "message_id" field.
 func MessageIDIsNil() predicate.ChatHistory {
-	return predicate.ChatHistory(func(s *sql.Selector) {
-		s.Where(sql.IsNull(s.C(FieldMessageID)))
-	})
+	return predicate.ChatHistory(sql.FieldIsNull(FieldMessageID))
 }
 
 // MessageIDNotNil applies the NotNil predicate on the "message_id" field.
 func MessageIDNotNil() predicate.ChatHistory {
-	return predicate.ChatHistory(func(s *sql.Selector) {
-		s.Where(sql.NotNull(s.C(FieldMessageID)))
-	})
+	return predicate.ChatHistory(sql.FieldNotNull(FieldMessageID))
 }
 
 // MessageIDEqualFold applies the EqualFold predicate on the "message_id" field.
 func MessageIDEqualFold(v string) predicate.ChatHistory {
-	return predicate.ChatHistory(func(s *sql.Selector) {
-		s.Where(sql.EqualFold(s.C(FieldMessageID), v))
-	})
+	return predicate.ChatHistory(sql.FieldEqualFold(FieldMessageID, v))
 }
 
 // MessageIDContainsFold applies the ContainsFold predicate on the "message_id" field.
 func MessageIDContainsFold(v string) predicate.ChatHistory {
-	return predicate.ChatHistory(func(s *sql.Selector) {
-		s.Where(sql.ContainsFold(s.C(FieldMessageID), v))
-	})
+	return predicate.ChatHistory(sql.FieldContainsFold(FieldMessageID, v))
 }
 
 // MessageIdxEQ applies the EQ predicate on the "message_idx" field.
 func MessageIdxEQ(v int) predicate.ChatHistory {
-	return predicate.ChatHistory(func(s *sql.Selector) {
-		s.Where(sql.EQ(s.C(FieldMessageIdx), v))
-	})
+	return predicate.ChatHistory(sql.FieldEQ(FieldMessageIdx, v))
 }
 
 // MessageIdxNEQ applies the NEQ predicate on the "message_idx" field.
 func MessageIdxNEQ(v int) predicate.ChatHistory {
-	return predicate.ChatHistory(func(s *sql.Selector) {
-		s.Where(sql.NEQ(s.C(FieldMessageIdx), v))
-	})
+	return predicate.ChatHistory(sql.FieldNEQ(FieldMessageIdx, v))
 }
 
 // MessageIdxIn applies the In predicate on the "message_idx" field.
 func MessageIdxIn(vs ...int) predicate.ChatHistory {
-	v := make([]any, len(vs))
-	for i := range v {
-		v[i] = vs[i]
-	}
-	return predicate.ChatHistory(func(s *sql.Selector) {
-		s.Where(sql.In(s.C(FieldMessageIdx), v...))
-	})
+	return predicate.ChatHistory(sql.FieldIn(FieldMessageIdx, vs...))
 }
 
 // MessageIdxNotIn applies the NotIn predicate on the "message_idx" field.
 func MessageIdxNotIn(vs ...int) predicate.ChatHistory {
-	v := make([]any, len(vs))
-	for i := range v {
-		v[i] = vs[i]
-	}
-	return predicate.ChatHistory(func(s *sql.Selector) {
-		s.Where(sql.NotIn(s.C(FieldMessageIdx), v...))
-	})
+	return predicate.ChatHistory(sql.FieldNotIn(FieldMessageIdx, vs...))
 }
 
 // MessageIdxGT applies the GT predicate on the "message_idx" field.
 func MessageIdxGT(v int) predicate.ChatHistory {
-	return predicate.ChatHistory(func(s *sql.Selector) {
-		s.Where(sql.GT(s.C(FieldMessageIdx), v))
-	})
+	return predicate.ChatHistory(sql.FieldGT(FieldMessageIdx, v))
 }
 
 // MessageIdxGTE applies the GTE predicate on the "message_idx" field.
 func MessageIdxGTE(v int) predicate.ChatHistory {
-	return predicate.ChatHistory(func(s *sql.Selector) {
-		s.Where(sql.GTE(s.C(FieldMessageIdx), v))
-	})
+	return predicate.ChatHistory(sql.FieldGTE(FieldMessageIdx, v))
 }
 
 // MessageIdxLT applies the LT predicate on the "message_idx" field.
 func MessageIdxLT(v int) predicate.ChatHistory {
-	return predicate.ChatHistory(func(s *sql.Selector) {
-		s.Where(sql.LT(s.C(FieldMessageIdx), v))
-	})
+	return predicate.ChatHistory(sql.FieldLT(FieldMessageIdx, v))
 }
 
 // MessageIdxLTE applies the LTE predicate on the "message_idx" field.
 func MessageIdxLTE(v int) predicate.ChatHistory {
-	return predicate.ChatHistory(func(s *sql.Selector) {
-		s.Where(sql.LTE(s.C(FieldMessageIdx), v))
-	})
+	return predicate.ChatHistory(sql.FieldLTE(FieldMessageIdx, v))
 }
 
 // MessageIdxIsNil applies the IsNil predicate on the "message_idx" field.
 func MessageIdxIsNil() predicate.ChatHistory {
-	return predicate.ChatHistory(func(s *sql.Selector) {
-		s.Where(sql.IsNull(s.C(FieldMessageIdx)))
-	})
+	return predicate.ChatHistory(sql.FieldIsNull(FieldMessageIdx))
 }
 
 // MessageIdxNotNil applies the NotNil predicate on the "message_idx" field.
 func MessageIdxNotNil() predicate.ChatHistory {
-	return predicate.ChatHistory(func(s *sql.Selector) {
-		s.Where(sql.NotNull(s.C(FieldMessageIdx)))
-	})
+	return predicate.ChatHistory(sql.FieldNotNull(FieldMessageIdx))
 }
 
 // RequestEQ applies the EQ predicate on the "request" field.
 func RequestEQ(v string) predicate.ChatHistory {
-	return predicate.ChatHistory(func(s *sql.Selector) {
-		s.Where(sql.EQ(s.C(FieldRequest), v))
-	})
+	return predicate.ChatHistory(sql.FieldEQ(FieldRequest, v))
 }
 
 // RequestNEQ applies the NEQ predicate on the "request" field.
 func RequestNEQ(v string) predicate.ChatHistory {
-	return predicate.ChatHistory(func(s *sql.Selector) {
-		s.Where(sql.NEQ(s.C(FieldRequest), v))
-	})
+	return predicate.ChatHistory(sql.FieldNEQ(FieldRequest, v))
 }
 
 // RequestIn applies the In predicate on the "request" field.
 func RequestIn(vs ...string) predicate.ChatHistory {
-	v := make([]any, len(vs))
-	for i := range v {
-		v[i] = vs[i]
-	}
-	return predicate.ChatHistory(func(s *sql.Selector) {
-		s.Where(sql.In(s.C(FieldRequest), v...))
-	})
+	return predicate.ChatHistory(sql.FieldIn(FieldRequest, vs...))
 }
 
 // RequestNotIn applies the NotIn predicate on the "request" field.
 func RequestNotIn(vs ...string) predicate.ChatHistory {
-	v := make([]any, len(vs))
-	for i := range v {
-		v[i] = vs[i]
-	}
-	return predicate.ChatHistory(func(s *sql.Selector) {
-		s.Where(sql.NotIn(s.C(FieldRequest), v...))
-	})
+	return predicate.ChatHistory(sql.FieldNotIn(FieldRequest, vs...))
 }
 
 // RequestGT applies the GT predicate on the "request" field.
 func RequestGT(v string) predicate.ChatHistory {
-	return predicate.ChatHistory(func(s *sql.Selector) {
-		s.Where(sql.GT(s.C(FieldRequest), v))
-	})
+	return predicate.ChatHistory(sql.FieldGT(FieldRequest, v))
 }
 
 // RequestGTE applies the GTE predicate on the "request" field.
 func RequestGTE(v string) predicate.ChatHistory {
-	return predicate.ChatHistory(func(s *sql.Selector) {
-		s.Where(sql.GTE(s.C(FieldRequest), v))
-	})
+	return predicate.ChatHistory(sql.FieldGTE(FieldRequest, v))
 }
 
 // RequestLT applies the LT predicate on the "request" field.
 func RequestLT(v string) predicate.ChatHistory {
-	return predicate.ChatHistory(func(s *sql.Selector) {
-		s.Where(sql.LT(s.C(FieldRequest), v))
-	})
+	return predicate.ChatHistory(sql.FieldLT(FieldRequest, v))
 }
 
 // RequestLTE applies the LTE predicate on the "request" field.
 func RequestLTE(v string) predicate.ChatHistory {
-	return predicate.ChatHistory(func(s *sql.Selector) {
-		s.Where(sql.LTE(s.C(FieldRequest), v))
-	})
+	return predicate.ChatHistory(sql.FieldLTE(FieldRequest, v))
 }
 
 // RequestContains applies the Contains predicate on the "request" field.
 func RequestContains(v string) predicate.ChatHistory {
-	return predicate.ChatHistory(func(s *sql.Selector) {
-		s.Where(sql.Contains(s.C(FieldRequest), v))
-	})
+	return predicate.ChatHistory(sql.FieldContains(FieldRequest, v))
 }
 
 // RequestHasPrefix applies the HasPrefix predicate on the "request" field.
 func RequestHasPrefix(v string) predicate.ChatHistory {
-	return predicate.ChatHistory(func(s *sql.Selector) {
-		s.Where(sql.HasPrefix(s.C(FieldRequest), v))
-	})
+	return predicate.ChatHistory(sql.FieldHasPrefix(FieldRequest, v))
 }
 
 // RequestHasSuffix applies the HasSuffix predicate on the "request" field.
 func RequestHasSuffix(v string) predicate.ChatHistory {
-	return predicate.ChatHistory(func(s *sql.Selector) {
-		s.Where(sql.HasSuffix(s.C(FieldRequest), v))
-	})
+	return predicate.ChatHistory(sql.FieldHasSuffix(FieldRequest, v))
 }
 
 // RequestIsNil applies the IsNil predicate on the "request" field.
 func RequestIsNil() predicate.ChatHistory {
-	return predicate.ChatHistory(func(s *sql.Selector) {
-		s.Where(sql.IsNull(s.C(FieldRequest)))
-	})
+	return predicate.ChatHistory(sql.FieldIsNull(FieldRequest))
 }
 
 // RequestNotNil applies the NotNil predicate on the "request" field.
 func RequestNotNil() predicate.ChatHistory {
-	return predicate.ChatHistory(func(s *sql.Selector) {
-		s.Where(sql.NotNull(s.C(FieldRequest)))
-	})
+	return predicate.ChatHistory(sql.FieldNotNull(FieldRequest))
 }
 
 // RequestEqualFold applies the EqualFold predicate on the "request" field.
 func RequestEqualFold(v string) predicate.ChatHistory {
-	return predicate.ChatHistory(func(s *sql.Selector) {
-		s.Where(sql.EqualFold(s.C(FieldRequest), v))
-	})
+	return predicate.ChatHistory(sql.FieldEqualFold(FieldRequest, v))
 }
 
 // RequestContainsFold applies the ContainsFold predicate on the "request" field.
 func RequestContainsFold(v string) predicate.ChatHistory {
-	return predicate.ChatHistory(func(s *sql.Selector) {
-		s.Where(sql.ContainsFold(s.C(FieldRequest), v))
-	})
+	return predicate.ChatHistory(sql.FieldContainsFold(FieldRequest, v))
 }
 
 // ResponseEQ applies the EQ predicate on the "response" field.
 func ResponseEQ(v string) predicate.ChatHistory {
-	return predicate.ChatHistory(func(s *sql.Selector) {
-		s.Where(sql.EQ(s.C(FieldResponse), v))
-	})
+	return predicate.ChatHistory(sql.FieldEQ(FieldResponse, v))
 }
 
 // ResponseNEQ applies the NEQ predicate on the "response" field.
 func ResponseNEQ(v string) predicate.ChatHistory {
-	return predicate.ChatHistory(func(s *sql.Selector) {
-		s.Where(sql.NEQ(s.C(FieldResponse), v))
-	})
+	return predicate.ChatHistory(sql.FieldNEQ(FieldResponse, v))
 }
 
 // ResponseIn applies the In predicate on the "response" field.
 func ResponseIn(vs ...string) predicate.ChatHistory {
-	v := make([]any, len(vs))
-	for i := range v {
-		v[i] = vs[i]
-	}
-	return predicate.ChatHistory(func(s *sql.Selector) {
-		s.Where(sql.In(s.C(FieldResponse), v...))
-	})
+	return predicate.ChatHistory(sql.FieldIn(FieldResponse, vs...))
 }
 
 // ResponseNotIn applies the NotIn predicate on the "response" field.
 func ResponseNotIn(vs ...string) predicate.ChatHistory {
-	v := make([]any, len(vs))
-	for i := range v {
-		v[i] = vs[i]
-	}
-	return predicate.ChatHistory(func(s *sql.Selector) {
-		s.Where(sql.NotIn(s.C(FieldResponse), v...))
-	})
+	return predicate.ChatHistory(sql.FieldNotIn(FieldResponse, vs...))
 }
 
 // ResponseGT applies the GT predicate on the "response" field.
 func ResponseGT(v string) predicate.ChatHistory {
-	return predicate.ChatHistory(func(s *sql.Selector) {
-		s.Where(sql.GT(s.C(FieldResponse), v))
-	})
+	return predicate.ChatHistory(sql.FieldGT(FieldResponse, v))
 }
 
 // ResponseGTE applies the GTE predicate on the "response" field.
 func ResponseGTE(v string) predicate.ChatHistory {
-	return predicate.ChatHistory(func(s *sql.Selector) {
-		s.Where(sql.GTE(s.C(FieldResponse), v))
-	})
+	return predicate.ChatHistory(sql.FieldGTE(FieldResponse, v))
 }
 
 // ResponseLT applies the LT predicate on the "response" field.
 func ResponseLT(v string) predicate.ChatHistory {
-	return predicate.ChatHistory(func(s *sql.Selector) {
-		s.Where(sql.LT(s.C(FieldResponse), v))
-	})
+	return predicate.ChatHistory(sql.FieldLT(FieldResponse, v))
 }
 
 // ResponseLTE applies the LTE predicate on the "response" field.
 func ResponseLTE(v string) predicate.ChatHistory {
-	return predicate.ChatHistory(func(s *sql.Selector) {
-		s.Where(sql.LTE(s.C(FieldResponse), v))
-	})
+	return predicate.ChatHistory(sql.FieldLTE(FieldResponse, v))
 }
 
 // ResponseContains applies the Contains predicate on the "response" field.
 func ResponseContains(v string) predicate.ChatHistory {
-	return predicate.ChatHistory(func(s *sql.Selector) {
-		s.Where(sql.Contains(s.C(FieldResponse), v))
-	})
+	return predicate.ChatHistory(sql.FieldContains(FieldResponse, v))
 }
 
 // ResponseHasPrefix applies the HasPrefix predicate on the "response" field.
 func ResponseHasPrefix(v string) predicate.ChatHistory {
-	return predicate.ChatHistory(func(s *sql.Selector) {
-		s.Where(sql.HasPrefix(s.C(FieldResponse), v))
-	})
+	return predicate.ChatHistory(sql.FieldHasPrefix(FieldResponse, v))
 }
 
 // ResponseHasSuffix applies the HasSuffix predicate on the "response" field.
 func ResponseHasSuffix(v string) predicate.ChatHistory {
-	return predicate.ChatHistory(func(s *sql.Selector) {
-		s.Where(sql.HasSuffix(s.C(FieldResponse), v))
-	})
+	return predicate.ChatHistory(sql.FieldHasSuffix(FieldResponse, v))
 }
 
 // ResponseIsNil applies the IsNil predicate on the "response" field.
 func ResponseIsNil() predicate.ChatHistory {
-	return predicate.ChatHistory(func(s *sql.Selector) {
-		s.Where(sql.IsNull(s.C(FieldResponse)))
-	})
+	return predicate.ChatHistory(sql.FieldIsNull(FieldResponse))
 }
 
 // ResponseNotNil applies the NotNil predicate on the "response" field.
 func ResponseNotNil() predicate.ChatHistory {
-	return predicate.ChatHistory(func(s *sql.Selector) {
-		s.Where(sql.NotNull(s.C(FieldResponse)))
-	})
+	return predicate.ChatHistory(sql.FieldNotNull(FieldResponse))
 }
 
 // ResponseEqualFold applies the EqualFold predicate on the "response" field.
 func ResponseEqualFold(v string) predicate.ChatHistory {
-	return predicate.ChatHistory(func(s *sql.Selector) {
-		s.Where(sql.EqualFold(s.C(FieldResponse), v))
-	})
+	return predicate.ChatHistory(sql.FieldEqualFold(FieldResponse, v))
 }
 
 // ResponseContainsFold applies the ContainsFold predicate on the "response" field.
 func ResponseContainsFold(v string) predicate.ChatHistory {
-	return predicate.ChatHistory(func(s *sql.Selector) {
-		s.Where(sql.ContainsFold(s.C(FieldResponse), v))
-	})
+	return predicate.ChatHistory(sql.FieldContainsFold(FieldResponse, v))
 }
 
 // TokenUsageEQ applies the EQ predicate on the "token_usage" field.
 func TokenUsageEQ(v int) predicate.ChatHistory {
-	return predicate.ChatHistory(func(s *sql.Selector) {
-		s.Where(sql.EQ(s.C(FieldTokenUsage), v))
-	})
+	return predicate.ChatHistory(sql.FieldEQ(FieldTokenUsage, v))
 }
 
 // TokenUsageNEQ applies the NEQ predicate on the "token_usage" field.
 func TokenUsageNEQ(v int) predicate.ChatHistory {
-	return predicate.ChatHistory(func(s *sql.Selector) {
-		s.Where(sql.NEQ(s.C(FieldTokenUsage), v))
-	})
+	return predicate.ChatHistory(sql.FieldNEQ(FieldTokenUsage, v))
 }
 
 // TokenUsageIn applies the In predicate on the "token_usage" field.
 func TokenUsageIn(vs ...int) predicate.ChatHistory {
-	v := make([]any, len(vs))
-	for i := range v {
-		v[i] = vs[i]
-	}
-	return predicate.ChatHistory(func(s *sql.Selector) {
-		s.Where(sql.In(s.C(FieldTokenUsage), v...))
-	})
+	return predicate.ChatHistory(sql.FieldIn(FieldTokenUsage, vs...))
 }
 
 // TokenUsageNotIn applies the NotIn predicate on the "token_usage" field.
 func TokenUsageNotIn(vs ...int) predicate.ChatHistory {
-	v := make([]any, len(vs))
-	for i := range v {
-		v[i] = vs[i]
-	}
-	return predicate.ChatHistory(func(s *sql.Selector) {
-		s.Where(sql.NotIn(s.C(FieldTokenUsage), v...))
-	})
+	return predicate.ChatHistory(sql.FieldNotIn(FieldTokenUsage, vs...))
 }
 
 // TokenUsageGT applies the GT predicate on the "token_usage" field.
 func TokenUsageGT(v int) predicate.ChatHistory {
-	return predicate.ChatHistory(func(s *sql.Selector) {
-		s.Where(sql.GT(s.C(FieldTokenUsage), v))
-	})
+	return predicate.ChatHistory(sql.FieldGT(FieldTokenUsage, v))
 }
 
 // TokenUsageGTE applies the GTE predicate on the "token_usage" field.
 func TokenUsageGTE(v int) predicate.ChatHistory {
-	return predicate.ChatHistory(func(s *sql.Selector) {
-		s.Where(sql.GTE(s.C(FieldTokenUsage), v))
-	})
+	return predicate.ChatHistory(sql.FieldGTE(FieldTokenUsage, v))
 }
 
 // TokenUsageLT applies the LT predicate on the "token_usage" field.
 func TokenUsageLT(v int) predicate.ChatHistory {
-	return predicate.ChatHistory(func(s *sql.Selector) {
-		s.Where(sql.LT(s.C(FieldTokenUsage), v))
-	})
+	return predicate.ChatHistory(sql.FieldLT(FieldTokenUsage, v))
 }
 
 // TokenUsageLTE applies the LTE predicate on the "token_usage" field.
 func TokenUsageLTE(v int) predicate.ChatHistory {
-	return predicate.ChatHistory(func(s *sql.Selector) {
-		s.Where(sql.LTE(s.C(FieldTokenUsage), v))
-	})
+	return predicate.ChatHistory(sql.FieldLTE(FieldTokenUsage, v))
 }
 
 // TokenUsageIsNil applies the IsNil predicate on the "token_usage" field.
 func TokenUsageIsNil() predicate.ChatHistory {
-	return predicate.ChatHistory(func(s *sql.Selector) {
-		s.Where(sql.IsNull(s.C(FieldTokenUsage)))
-	})
+	return predicate.ChatHistory(sql.FieldIsNull(FieldTokenUsage))
 }
 
 // TokenUsageNotNil applies the NotNil predicate on the "token_usage" field.
 func TokenUsageNotNil() predicate.ChatHistory {
-	return predicate.ChatHistory(func(s *sql.Selector) {
-		s.Where(sql.NotNull(s.C(FieldTokenUsage)))
-	})
+	return predicate.ChatHistory(sql.FieldNotNull(FieldTokenUsage))
 }
 
 // And groups predicates with the AND operator between them.

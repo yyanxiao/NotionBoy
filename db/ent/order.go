@@ -146,7 +146,7 @@ func (o *Order) assignValues(columns []string, values []any) error {
 // Note that you need to call Order.Unwrap() before calling this method if this Order
 // was returned from a transaction, and the transaction was committed or rolled back.
 func (o *Order) Update() *OrderUpdateOne {
-	return (&OrderClient{config: o.config}).UpdateOne(o)
+	return NewOrderClient(o.config).UpdateOne(o)
 }
 
 // Unwrap unwraps the Order entity that was returned from a transaction after it was closed,
@@ -200,9 +200,3 @@ func (o *Order) String() string {
 
 // Orders is a parsable slice of Order.
 type Orders []*Order
-
-func (o Orders) config(cfg config) {
-	for _i := range o {
-		o[_i].config = cfg
-	}
-}

@@ -83,50 +83,8 @@ func (wsc *WechatSessionCreate) Mutation() *WechatSessionMutation {
 
 // Save creates the WechatSession in the database.
 func (wsc *WechatSessionCreate) Save(ctx context.Context) (*WechatSession, error) {
-	var (
-		err  error
-		node *WechatSession
-	)
 	wsc.defaults()
-	if len(wsc.hooks) == 0 {
-		if err = wsc.check(); err != nil {
-			return nil, err
-		}
-		node, err = wsc.sqlSave(ctx)
-	} else {
-		var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
-			mutation, ok := m.(*WechatSessionMutation)
-			if !ok {
-				return nil, fmt.Errorf("unexpected mutation type %T", m)
-			}
-			if err = wsc.check(); err != nil {
-				return nil, err
-			}
-			wsc.mutation = mutation
-			if node, err = wsc.sqlSave(ctx); err != nil {
-				return nil, err
-			}
-			mutation.id = &node.ID
-			mutation.done = true
-			return node, err
-		})
-		for i := len(wsc.hooks) - 1; i >= 0; i-- {
-			if wsc.hooks[i] == nil {
-				return nil, fmt.Errorf("ent: uninitialized hook (forgotten import ent/runtime?)")
-			}
-			mut = wsc.hooks[i](mut)
-		}
-		v, err := mut.Mutate(ctx, wsc.mutation)
-		if err != nil {
-			return nil, err
-		}
-		nv, ok := v.(*WechatSession)
-		if !ok {
-			return nil, fmt.Errorf("unexpected node type %T returned from WechatSessionMutation", v)
-		}
-		node = nv
-	}
-	return node, err
+	return withHooks[*WechatSession, WechatSessionMutation](ctx, wsc.sqlSave, wsc.mutation, wsc.hooks)
 }
 
 // SaveX calls Save and panics if Save returns an error.
@@ -169,12 +127,6 @@ func (wsc *WechatSessionCreate) defaults() {
 
 // check runs all checks and user-defined validators on the builder.
 func (wsc *WechatSessionCreate) check() error {
-	if _, ok := wsc.mutation.CreatedAt(); !ok {
-		return &ValidationError{Name: "created_at", err: errors.New(`ent: missing required field "WechatSession.created_at"`)}
-	}
-	if _, ok := wsc.mutation.UpdatedAt(); !ok {
-		return &ValidationError{Name: "updated_at", err: errors.New(`ent: missing required field "WechatSession.updated_at"`)}
-	}
 	if _, ok := wsc.mutation.Deleted(); !ok {
 		return &ValidationError{Name: "deleted", err: errors.New(`ent: missing required field "WechatSession.deleted"`)}
 	}
@@ -188,6 +140,9 @@ func (wsc *WechatSessionCreate) check() error {
 }
 
 func (wsc *WechatSessionCreate) sqlSave(ctx context.Context) (*WechatSession, error) {
+	if err := wsc.check(); err != nil {
+		return nil, err
+	}
 	_node, _spec := wsc.createSpec()
 	if err := sqlgraph.CreateNode(ctx, wsc.driver, _spec); err != nil {
 		if sqlgraph.IsConstraintError(err) {
@@ -197,19 +152,15 @@ func (wsc *WechatSessionCreate) sqlSave(ctx context.Context) (*WechatSession, er
 	}
 	id := _spec.ID.Value.(int64)
 	_node.ID = int(id)
+	wsc.mutation.id = &_node.ID
+	wsc.mutation.done = true
 	return _node, nil
 }
 
 func (wsc *WechatSessionCreate) createSpec() (*WechatSession, *sqlgraph.CreateSpec) {
 	var (
 		_node = &WechatSession{config: wsc.config}
-		_spec = &sqlgraph.CreateSpec{
-			Table: wechatsession.Table,
-			ID: &sqlgraph.FieldSpec{
-				Type:   field.TypeInt,
-				Column: wechatsession.FieldID,
-			},
-		}
+		_spec = sqlgraph.NewCreateSpec(wechatsession.Table, sqlgraph.NewFieldSpec(wechatsession.FieldID, field.TypeInt))
 	)
 	_spec.OnConflict = wsc.conflict
 	if value, ok := wsc.mutation.CreatedAt(); ok {

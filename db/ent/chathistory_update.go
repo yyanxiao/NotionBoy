@@ -202,35 +202,8 @@ func (chu *ChatHistoryUpdate) Mutation() *ChatHistoryMutation {
 
 // Save executes the query and returns the number of nodes affected by the update operation.
 func (chu *ChatHistoryUpdate) Save(ctx context.Context) (int, error) {
-	var (
-		err      error
-		affected int
-	)
 	chu.defaults()
-	if len(chu.hooks) == 0 {
-		affected, err = chu.sqlSave(ctx)
-	} else {
-		var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
-			mutation, ok := m.(*ChatHistoryMutation)
-			if !ok {
-				return nil, fmt.Errorf("unexpected mutation type %T", m)
-			}
-			chu.mutation = mutation
-			affected, err = chu.sqlSave(ctx)
-			mutation.done = true
-			return affected, err
-		})
-		for i := len(chu.hooks) - 1; i >= 0; i-- {
-			if chu.hooks[i] == nil {
-				return 0, fmt.Errorf("ent: uninitialized hook (forgotten import ent/runtime?)")
-			}
-			mut = chu.hooks[i](mut)
-		}
-		if _, err := mut.Mutate(ctx, chu.mutation); err != nil {
-			return 0, err
-		}
-	}
-	return affected, err
+	return withHooks[int, ChatHistoryMutation](ctx, chu.sqlSave, chu.mutation, chu.hooks)
 }
 
 // SaveX is like Save, but panics if an error occurs.
@@ -264,16 +237,7 @@ func (chu *ChatHistoryUpdate) defaults() {
 }
 
 func (chu *ChatHistoryUpdate) sqlSave(ctx context.Context) (n int, err error) {
-	_spec := &sqlgraph.UpdateSpec{
-		Node: &sqlgraph.NodeSpec{
-			Table:   chathistory.Table,
-			Columns: chathistory.Columns,
-			ID: &sqlgraph.FieldSpec{
-				Type:   field.TypeInt,
-				Column: chathistory.FieldID,
-			},
-		},
-	}
+	_spec := sqlgraph.NewUpdateSpec(chathistory.Table, chathistory.Columns, sqlgraph.NewFieldSpec(chathistory.FieldID, field.TypeInt))
 	if ps := chu.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
@@ -346,6 +310,7 @@ func (chu *ChatHistoryUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		return 0, err
 	}
+	chu.mutation.done = true
 	return n, nil
 }
 
@@ -528,6 +493,12 @@ func (chuo *ChatHistoryUpdateOne) Mutation() *ChatHistoryMutation {
 	return chuo.mutation
 }
 
+// Where appends a list predicates to the ChatHistoryUpdate builder.
+func (chuo *ChatHistoryUpdateOne) Where(ps ...predicate.ChatHistory) *ChatHistoryUpdateOne {
+	chuo.mutation.Where(ps...)
+	return chuo
+}
+
 // Select allows selecting one or more fields (columns) of the returned entity.
 // The default is selecting all fields defined in the entity schema.
 func (chuo *ChatHistoryUpdateOne) Select(field string, fields ...string) *ChatHistoryUpdateOne {
@@ -537,41 +508,8 @@ func (chuo *ChatHistoryUpdateOne) Select(field string, fields ...string) *ChatHi
 
 // Save executes the query and returns the updated ChatHistory entity.
 func (chuo *ChatHistoryUpdateOne) Save(ctx context.Context) (*ChatHistory, error) {
-	var (
-		err  error
-		node *ChatHistory
-	)
 	chuo.defaults()
-	if len(chuo.hooks) == 0 {
-		node, err = chuo.sqlSave(ctx)
-	} else {
-		var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
-			mutation, ok := m.(*ChatHistoryMutation)
-			if !ok {
-				return nil, fmt.Errorf("unexpected mutation type %T", m)
-			}
-			chuo.mutation = mutation
-			node, err = chuo.sqlSave(ctx)
-			mutation.done = true
-			return node, err
-		})
-		for i := len(chuo.hooks) - 1; i >= 0; i-- {
-			if chuo.hooks[i] == nil {
-				return nil, fmt.Errorf("ent: uninitialized hook (forgotten import ent/runtime?)")
-			}
-			mut = chuo.hooks[i](mut)
-		}
-		v, err := mut.Mutate(ctx, chuo.mutation)
-		if err != nil {
-			return nil, err
-		}
-		nv, ok := v.(*ChatHistory)
-		if !ok {
-			return nil, fmt.Errorf("unexpected node type %T returned from ChatHistoryMutation", v)
-		}
-		node = nv
-	}
-	return node, err
+	return withHooks[*ChatHistory, ChatHistoryMutation](ctx, chuo.sqlSave, chuo.mutation, chuo.hooks)
 }
 
 // SaveX is like Save, but panics if an error occurs.
@@ -605,16 +543,7 @@ func (chuo *ChatHistoryUpdateOne) defaults() {
 }
 
 func (chuo *ChatHistoryUpdateOne) sqlSave(ctx context.Context) (_node *ChatHistory, err error) {
-	_spec := &sqlgraph.UpdateSpec{
-		Node: &sqlgraph.NodeSpec{
-			Table:   chathistory.Table,
-			Columns: chathistory.Columns,
-			ID: &sqlgraph.FieldSpec{
-				Type:   field.TypeInt,
-				Column: chathistory.FieldID,
-			},
-		},
-	}
+	_spec := sqlgraph.NewUpdateSpec(chathistory.Table, chathistory.Columns, sqlgraph.NewFieldSpec(chathistory.FieldID, field.TypeInt))
 	id, ok := chuo.mutation.ID()
 	if !ok {
 		return nil, &ValidationError{Name: "id", err: errors.New(`ent: missing "ChatHistory.id" for update`)}
@@ -707,5 +636,6 @@ func (chuo *ChatHistoryUpdateOne) sqlSave(ctx context.Context) (_node *ChatHisto
 		}
 		return nil, err
 	}
+	chuo.mutation.done = true
 	return _node, nil
 }

@@ -3,14 +3,14 @@ module notionboy
 go 1.18
 
 require (
-	entgo.io/ent v0.11.4
+	entgo.io/ent v0.11.10
 	github.com/aws/aws-sdk-go v1.44.167
 	github.com/envoyproxy/protoc-gen-validate v0.1.0
 	github.com/fsnotify/fsnotify v1.6.0
 	github.com/go-co-op/gocron v1.18.0
 	github.com/go-resty/resty/v2 v2.7.0
 	github.com/go-rod/rod v0.112.2
-	github.com/go-sql-driver/mysql v1.6.0
+	github.com/go-sql-driver/mysql v1.7.0
 	github.com/golang-jwt/jwt/v5 v5.0.0-rc.1
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.15.0
 	github.com/jomei/notionapi v1.9.3
@@ -20,7 +20,7 @@ require (
 	github.com/silenceper/wechat/v2 v2.1.4
 	github.com/sirupsen/logrus v1.9.0
 	github.com/spf13/viper v1.14.0
-	github.com/stretchr/testify v1.8.1
+	github.com/stretchr/testify v1.8.2
 	github.com/wechatpay-apiv3/wechatpay-go v0.2.16
 	golang.org/x/oauth2 v0.3.0
 	golang.org/x/text v0.5.0
@@ -49,7 +49,7 @@ require (
 )
 
 require (
-	ariga.io/atlas v0.8.3 // indirect
+	ariga.io/atlas v0.9.2-0.20230303073438-03a4779a6338 // indirect
 	github.com/agext/levenshtein v1.2.3 // indirect
 	github.com/apparentlymart/go-textseg/v13 v13.0.0 // indirect
 	github.com/bradfitz/gomemcache v0.0.0-20221031212613-62deef7fc822 // indirect
@@ -76,10 +76,10 @@ require (
 	github.com/zclconf/go-cty v1.12.1 // indirect
 	go.uber.org/zap v1.24.0
 	golang.org/x/crypto v0.3.0 // indirect
-	golang.org/x/mod v0.7.0 // indirect
+	golang.org/x/mod v0.8.0 // indirect
 	golang.org/x/net v0.3.0
 	golang.org/x/sync v0.1.0
-	golang.org/x/sys v0.3.0 // indirect
+	golang.org/x/sys v0.5.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
 	google.golang.org/protobuf v1.28.1
 	gopkg.in/ini.v1 v1.67.0 // indirect

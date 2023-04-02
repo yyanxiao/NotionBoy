@@ -13,774 +13,502 @@ import (
 
 // ID filters vertices based on their ID field.
 func ID(id int) predicate.ConversationMessage {
-	return predicate.ConversationMessage(func(s *sql.Selector) {
-		s.Where(sql.EQ(s.C(FieldID), id))
-	})
+	return predicate.ConversationMessage(sql.FieldEQ(FieldID, id))
 }
 
 // IDEQ applies the EQ predicate on the ID field.
 func IDEQ(id int) predicate.ConversationMessage {
-	return predicate.ConversationMessage(func(s *sql.Selector) {
-		s.Where(sql.EQ(s.C(FieldID), id))
-	})
+	return predicate.ConversationMessage(sql.FieldEQ(FieldID, id))
 }
 
 // IDNEQ applies the NEQ predicate on the ID field.
 func IDNEQ(id int) predicate.ConversationMessage {
-	return predicate.ConversationMessage(func(s *sql.Selector) {
-		s.Where(sql.NEQ(s.C(FieldID), id))
-	})
+	return predicate.ConversationMessage(sql.FieldNEQ(FieldID, id))
 }
 
 // IDIn applies the In predicate on the ID field.
 func IDIn(ids ...int) predicate.ConversationMessage {
-	return predicate.ConversationMessage(func(s *sql.Selector) {
-		v := make([]any, len(ids))
-		for i := range v {
-			v[i] = ids[i]
-		}
-		s.Where(sql.In(s.C(FieldID), v...))
-	})
+	return predicate.ConversationMessage(sql.FieldIn(FieldID, ids...))
 }
 
 // IDNotIn applies the NotIn predicate on the ID field.
 func IDNotIn(ids ...int) predicate.ConversationMessage {
-	return predicate.ConversationMessage(func(s *sql.Selector) {
-		v := make([]any, len(ids))
-		for i := range v {
-			v[i] = ids[i]
-		}
-		s.Where(sql.NotIn(s.C(FieldID), v...))
-	})
+	return predicate.ConversationMessage(sql.FieldNotIn(FieldID, ids...))
 }
 
 // IDGT applies the GT predicate on the ID field.
 func IDGT(id int) predicate.ConversationMessage {
-	return predicate.ConversationMessage(func(s *sql.Selector) {
-		s.Where(sql.GT(s.C(FieldID), id))
-	})
+	return predicate.ConversationMessage(sql.FieldGT(FieldID, id))
 }
 
 // IDGTE applies the GTE predicate on the ID field.
 func IDGTE(id int) predicate.ConversationMessage {
-	return predicate.ConversationMessage(func(s *sql.Selector) {
-		s.Where(sql.GTE(s.C(FieldID), id))
-	})
+	return predicate.ConversationMessage(sql.FieldGTE(FieldID, id))
 }
 
 // IDLT applies the LT predicate on the ID field.
 func IDLT(id int) predicate.ConversationMessage {
-	return predicate.ConversationMessage(func(s *sql.Selector) {
-		s.Where(sql.LT(s.C(FieldID), id))
-	})
+	return predicate.ConversationMessage(sql.FieldLT(FieldID, id))
 }
 
 // IDLTE applies the LTE predicate on the ID field.
 func IDLTE(id int) predicate.ConversationMessage {
-	return predicate.ConversationMessage(func(s *sql.Selector) {
-		s.Where(sql.LTE(s.C(FieldID), id))
-	})
+	return predicate.ConversationMessage(sql.FieldLTE(FieldID, id))
 }
 
 // CreatedAt applies equality check predicate on the "created_at" field. It's identical to CreatedAtEQ.
 func CreatedAt(v time.Time) predicate.ConversationMessage {
-	return predicate.ConversationMessage(func(s *sql.Selector) {
-		s.Where(sql.EQ(s.C(FieldCreatedAt), v))
-	})
+	return predicate.ConversationMessage(sql.FieldEQ(FieldCreatedAt, v))
 }
 
 // UpdatedAt applies equality check predicate on the "updated_at" field. It's identical to UpdatedAtEQ.
 func UpdatedAt(v time.Time) predicate.ConversationMessage {
-	return predicate.ConversationMessage(func(s *sql.Selector) {
-		s.Where(sql.EQ(s.C(FieldUpdatedAt), v))
-	})
+	return predicate.ConversationMessage(sql.FieldEQ(FieldUpdatedAt, v))
 }
 
 // Deleted applies equality check predicate on the "deleted" field. It's identical to DeletedEQ.
 func Deleted(v bool) predicate.ConversationMessage {
-	return predicate.ConversationMessage(func(s *sql.Selector) {
-		s.Where(sql.EQ(s.C(FieldDeleted), v))
-	})
+	return predicate.ConversationMessage(sql.FieldEQ(FieldDeleted, v))
 }
 
 // UUID applies equality check predicate on the "uuid" field. It's identical to UUIDEQ.
 func UUID(v uuid.UUID) predicate.ConversationMessage {
-	return predicate.ConversationMessage(func(s *sql.Selector) {
-		s.Where(sql.EQ(s.C(FieldUUID), v))
-	})
+	return predicate.ConversationMessage(sql.FieldEQ(FieldUUID, v))
 }
 
 // UserID applies equality check predicate on the "user_id" field. It's identical to UserIDEQ.
 func UserID(v uuid.UUID) predicate.ConversationMessage {
-	return predicate.ConversationMessage(func(s *sql.Selector) {
-		s.Where(sql.EQ(s.C(FieldUserID), v))
-	})
+	return predicate.ConversationMessage(sql.FieldEQ(FieldUserID, v))
 }
 
 // ConversationID applies equality check predicate on the "conversation_id" field. It's identical to ConversationIDEQ.
 func ConversationID(v uuid.UUID) predicate.ConversationMessage {
-	return predicate.ConversationMessage(func(s *sql.Selector) {
-		s.Where(sql.EQ(s.C(FieldConversationID), v))
-	})
+	return predicate.ConversationMessage(sql.FieldEQ(FieldConversationID, v))
 }
 
 // Request applies equality check predicate on the "request" field. It's identical to RequestEQ.
 func Request(v string) predicate.ConversationMessage {
-	return predicate.ConversationMessage(func(s *sql.Selector) {
-		s.Where(sql.EQ(s.C(FieldRequest), v))
-	})
+	return predicate.ConversationMessage(sql.FieldEQ(FieldRequest, v))
 }
 
 // Response applies equality check predicate on the "response" field. It's identical to ResponseEQ.
 func Response(v string) predicate.ConversationMessage {
-	return predicate.ConversationMessage(func(s *sql.Selector) {
-		s.Where(sql.EQ(s.C(FieldResponse), v))
-	})
+	return predicate.ConversationMessage(sql.FieldEQ(FieldResponse, v))
 }
 
 // TokenUsage applies equality check predicate on the "token_usage" field. It's identical to TokenUsageEQ.
 func TokenUsage(v int64) predicate.ConversationMessage {
-	return predicate.ConversationMessage(func(s *sql.Selector) {
-		s.Where(sql.EQ(s.C(FieldTokenUsage), v))
-	})
+	return predicate.ConversationMessage(sql.FieldEQ(FieldTokenUsage, v))
 }
 
 // CreatedAtEQ applies the EQ predicate on the "created_at" field.
 func CreatedAtEQ(v time.Time) predicate.ConversationMessage {
-	return predicate.ConversationMessage(func(s *sql.Selector) {
-		s.Where(sql.EQ(s.C(FieldCreatedAt), v))
-	})
+	return predicate.ConversationMessage(sql.FieldEQ(FieldCreatedAt, v))
 }
 
 // CreatedAtNEQ applies the NEQ predicate on the "created_at" field.
 func CreatedAtNEQ(v time.Time) predicate.ConversationMessage {
-	return predicate.ConversationMessage(func(s *sql.Selector) {
-		s.Where(sql.NEQ(s.C(FieldCreatedAt), v))
-	})
+	return predicate.ConversationMessage(sql.FieldNEQ(FieldCreatedAt, v))
 }
 
 // CreatedAtIn applies the In predicate on the "created_at" field.
 func CreatedAtIn(vs ...time.Time) predicate.ConversationMessage {
-	v := make([]any, len(vs))
-	for i := range v {
-		v[i] = vs[i]
-	}
-	return predicate.ConversationMessage(func(s *sql.Selector) {
-		s.Where(sql.In(s.C(FieldCreatedAt), v...))
-	})
+	return predicate.ConversationMessage(sql.FieldIn(FieldCreatedAt, vs...))
 }
 
 // CreatedAtNotIn applies the NotIn predicate on the "created_at" field.
 func CreatedAtNotIn(vs ...time.Time) predicate.ConversationMessage {
-	v := make([]any, len(vs))
-	for i := range v {
-		v[i] = vs[i]
-	}
-	return predicate.ConversationMessage(func(s *sql.Selector) {
-		s.Where(sql.NotIn(s.C(FieldCreatedAt), v...))
-	})
+	return predicate.ConversationMessage(sql.FieldNotIn(FieldCreatedAt, vs...))
 }
 
 // CreatedAtGT applies the GT predicate on the "created_at" field.
 func CreatedAtGT(v time.Time) predicate.ConversationMessage {
-	return predicate.ConversationMessage(func(s *sql.Selector) {
-		s.Where(sql.GT(s.C(FieldCreatedAt), v))
-	})
+	return predicate.ConversationMessage(sql.FieldGT(FieldCreatedAt, v))
 }
 
 // CreatedAtGTE applies the GTE predicate on the "created_at" field.
 func CreatedAtGTE(v time.Time) predicate.ConversationMessage {
-	return predicate.ConversationMessage(func(s *sql.Selector) {
-		s.Where(sql.GTE(s.C(FieldCreatedAt), v))
-	})
+	return predicate.ConversationMessage(sql.FieldGTE(FieldCreatedAt, v))
 }
 
 // CreatedAtLT applies the LT predicate on the "created_at" field.
 func CreatedAtLT(v time.Time) predicate.ConversationMessage {
-	return predicate.ConversationMessage(func(s *sql.Selector) {
-		s.Where(sql.LT(s.C(FieldCreatedAt), v))
-	})
+	return predicate.ConversationMessage(sql.FieldLT(FieldCreatedAt, v))
 }
 
 // CreatedAtLTE applies the LTE predicate on the "created_at" field.
 func CreatedAtLTE(v time.Time) predicate.ConversationMessage {
-	return predicate.ConversationMessage(func(s *sql.Selector) {
-		s.Where(sql.LTE(s.C(FieldCreatedAt), v))
-	})
+	return predicate.ConversationMessage(sql.FieldLTE(FieldCreatedAt, v))
 }
 
 // UpdatedAtEQ applies the EQ predicate on the "updated_at" field.
 func UpdatedAtEQ(v time.Time) predicate.ConversationMessage {
-	return predicate.ConversationMessage(func(s *sql.Selector) {
-		s.Where(sql.EQ(s.C(FieldUpdatedAt), v))
-	})
+	return predicate.ConversationMessage(sql.FieldEQ(FieldUpdatedAt, v))
 }
 
 // UpdatedAtNEQ applies the NEQ predicate on the "updated_at" field.
 func UpdatedAtNEQ(v time.Time) predicate.ConversationMessage {
-	return predicate.ConversationMessage(func(s *sql.Selector) {
-		s.Where(sql.NEQ(s.C(FieldUpdatedAt), v))
-	})
+	return predicate.ConversationMessage(sql.FieldNEQ(FieldUpdatedAt, v))
 }
 
 // UpdatedAtIn applies the In predicate on the "updated_at" field.
 func UpdatedAtIn(vs ...time.Time) predicate.ConversationMessage {
-	v := make([]any, len(vs))
-	for i := range v {
-		v[i] = vs[i]
-	}
-	return predicate.ConversationMessage(func(s *sql.Selector) {
-		s.Where(sql.In(s.C(FieldUpdatedAt), v...))
-	})
+	return predicate.ConversationMessage(sql.FieldIn(FieldUpdatedAt, vs...))
 }
 
 // UpdatedAtNotIn applies the NotIn predicate on the "updated_at" field.
 func UpdatedAtNotIn(vs ...time.Time) predicate.ConversationMessage {
-	v := make([]any, len(vs))
-	for i := range v {
-		v[i] = vs[i]
-	}
-	return predicate.ConversationMessage(func(s *sql.Selector) {
-		s.Where(sql.NotIn(s.C(FieldUpdatedAt), v...))
-	})
+	return predicate.ConversationMessage(sql.FieldNotIn(FieldUpdatedAt, vs...))
 }
 
 // UpdatedAtGT applies the GT predicate on the "updated_at" field.
 func UpdatedAtGT(v time.Time) predicate.ConversationMessage {
-	return predicate.ConversationMessage(func(s *sql.Selector) {
-		s.Where(sql.GT(s.C(FieldUpdatedAt), v))
-	})
+	return predicate.ConversationMessage(sql.FieldGT(FieldUpdatedAt, v))
 }
 
 // UpdatedAtGTE applies the GTE predicate on the "updated_at" field.
 func UpdatedAtGTE(v time.Time) predicate.ConversationMessage {
-	return predicate.ConversationMessage(func(s *sql.Selector) {
-		s.Where(sql.GTE(s.C(FieldUpdatedAt), v))
-	})
+	return predicate.ConversationMessage(sql.FieldGTE(FieldUpdatedAt, v))
 }
 
 // UpdatedAtLT applies the LT predicate on the "updated_at" field.
 func UpdatedAtLT(v time.Time) predicate.ConversationMessage {
-	return predicate.ConversationMessage(func(s *sql.Selector) {
-		s.Where(sql.LT(s.C(FieldUpdatedAt), v))
-	})
+	return predicate.ConversationMessage(sql.FieldLT(FieldUpdatedAt, v))
 }
 
 // UpdatedAtLTE applies the LTE predicate on the "updated_at" field.
 func UpdatedAtLTE(v time.Time) predicate.ConversationMessage {
-	return predicate.ConversationMessage(func(s *sql.Selector) {
-		s.Where(sql.LTE(s.C(FieldUpdatedAt), v))
-	})
+	return predicate.ConversationMessage(sql.FieldLTE(FieldUpdatedAt, v))
 }
 
 // DeletedEQ applies the EQ predicate on the "deleted" field.
 func DeletedEQ(v bool) predicate.ConversationMessage {
-	return predicate.ConversationMessage(func(s *sql.Selector) {
-		s.Where(sql.EQ(s.C(FieldDeleted), v))
-	})
+	return predicate.ConversationMessage(sql.FieldEQ(FieldDeleted, v))
 }
 
 // DeletedNEQ applies the NEQ predicate on the "deleted" field.
 func DeletedNEQ(v bool) predicate.ConversationMessage {
-	return predicate.ConversationMessage(func(s *sql.Selector) {
-		s.Where(sql.NEQ(s.C(FieldDeleted), v))
-	})
+	return predicate.ConversationMessage(sql.FieldNEQ(FieldDeleted, v))
 }
 
 // UUIDEQ applies the EQ predicate on the "uuid" field.
 func UUIDEQ(v uuid.UUID) predicate.ConversationMessage {
-	return predicate.ConversationMessage(func(s *sql.Selector) {
-		s.Where(sql.EQ(s.C(FieldUUID), v))
-	})
+	return predicate.ConversationMessage(sql.FieldEQ(FieldUUID, v))
 }
 
 // UUIDNEQ applies the NEQ predicate on the "uuid" field.
 func UUIDNEQ(v uuid.UUID) predicate.ConversationMessage {
-	return predicate.ConversationMessage(func(s *sql.Selector) {
-		s.Where(sql.NEQ(s.C(FieldUUID), v))
-	})
+	return predicate.ConversationMessage(sql.FieldNEQ(FieldUUID, v))
 }
 
 // UUIDIn applies the In predicate on the "uuid" field.
 func UUIDIn(vs ...uuid.UUID) predicate.ConversationMessage {
-	v := make([]any, len(vs))
-	for i := range v {
-		v[i] = vs[i]
-	}
-	return predicate.ConversationMessage(func(s *sql.Selector) {
-		s.Where(sql.In(s.C(FieldUUID), v...))
-	})
+	return predicate.ConversationMessage(sql.FieldIn(FieldUUID, vs...))
 }
 
 // UUIDNotIn applies the NotIn predicate on the "uuid" field.
 func UUIDNotIn(vs ...uuid.UUID) predicate.ConversationMessage {
-	v := make([]any, len(vs))
-	for i := range v {
-		v[i] = vs[i]
-	}
-	return predicate.ConversationMessage(func(s *sql.Selector) {
-		s.Where(sql.NotIn(s.C(FieldUUID), v...))
-	})
+	return predicate.ConversationMessage(sql.FieldNotIn(FieldUUID, vs...))
 }
 
 // UUIDGT applies the GT predicate on the "uuid" field.
 func UUIDGT(v uuid.UUID) predicate.ConversationMessage {
-	return predicate.ConversationMessage(func(s *sql.Selector) {
-		s.Where(sql.GT(s.C(FieldUUID), v))
-	})
+	return predicate.ConversationMessage(sql.FieldGT(FieldUUID, v))
 }
 
 // UUIDGTE applies the GTE predicate on the "uuid" field.
 func UUIDGTE(v uuid.UUID) predicate.ConversationMessage {
-	return predicate.ConversationMessage(func(s *sql.Selector) {
-		s.Where(sql.GTE(s.C(FieldUUID), v))
-	})
+	return predicate.ConversationMessage(sql.FieldGTE(FieldUUID, v))
 }
 
 // UUIDLT applies the LT predicate on the "uuid" field.
 func UUIDLT(v uuid.UUID) predicate.ConversationMessage {
-	return predicate.ConversationMessage(func(s *sql.Selector) {
-		s.Where(sql.LT(s.C(FieldUUID), v))
-	})
+	return predicate.ConversationMessage(sql.FieldLT(FieldUUID, v))
 }
 
 // UUIDLTE applies the LTE predicate on the "uuid" field.
 func UUIDLTE(v uuid.UUID) predicate.ConversationMessage {
-	return predicate.ConversationMessage(func(s *sql.Selector) {
-		s.Where(sql.LTE(s.C(FieldUUID), v))
-	})
+	return predicate.ConversationMessage(sql.FieldLTE(FieldUUID, v))
 }
 
 // UserIDEQ applies the EQ predicate on the "user_id" field.
 func UserIDEQ(v uuid.UUID) predicate.ConversationMessage {
-	return predicate.ConversationMessage(func(s *sql.Selector) {
-		s.Where(sql.EQ(s.C(FieldUserID), v))
-	})
+	return predicate.ConversationMessage(sql.FieldEQ(FieldUserID, v))
 }
 
 // UserIDNEQ applies the NEQ predicate on the "user_id" field.
 func UserIDNEQ(v uuid.UUID) predicate.ConversationMessage {
-	return predicate.ConversationMessage(func(s *sql.Selector) {
-		s.Where(sql.NEQ(s.C(FieldUserID), v))
-	})
+	return predicate.ConversationMessage(sql.FieldNEQ(FieldUserID, v))
 }
 
 // UserIDIn applies the In predicate on the "user_id" field.
 func UserIDIn(vs ...uuid.UUID) predicate.ConversationMessage {
-	v := make([]any, len(vs))
-	for i := range v {
-		v[i] = vs[i]
-	}
-	return predicate.ConversationMessage(func(s *sql.Selector) {
-		s.Where(sql.In(s.C(FieldUserID), v...))
-	})
+	return predicate.ConversationMessage(sql.FieldIn(FieldUserID, vs...))
 }
 
 // UserIDNotIn applies the NotIn predicate on the "user_id" field.
 func UserIDNotIn(vs ...uuid.UUID) predicate.ConversationMessage {
-	v := make([]any, len(vs))
-	for i := range v {
-		v[i] = vs[i]
-	}
-	return predicate.ConversationMessage(func(s *sql.Selector) {
-		s.Where(sql.NotIn(s.C(FieldUserID), v...))
-	})
+	return predicate.ConversationMessage(sql.FieldNotIn(FieldUserID, vs...))
 }
 
 // UserIDGT applies the GT predicate on the "user_id" field.
 func UserIDGT(v uuid.UUID) predicate.ConversationMessage {
-	return predicate.ConversationMessage(func(s *sql.Selector) {
-		s.Where(sql.GT(s.C(FieldUserID), v))
-	})
+	return predicate.ConversationMessage(sql.FieldGT(FieldUserID, v))
 }
 
 // UserIDGTE applies the GTE predicate on the "user_id" field.
 func UserIDGTE(v uuid.UUID) predicate.ConversationMessage {
-	return predicate.ConversationMessage(func(s *sql.Selector) {
-		s.Where(sql.GTE(s.C(FieldUserID), v))
-	})
+	return predicate.ConversationMessage(sql.FieldGTE(FieldUserID, v))
 }
 
 // UserIDLT applies the LT predicate on the "user_id" field.
 func UserIDLT(v uuid.UUID) predicate.ConversationMessage {
-	return predicate.ConversationMessage(func(s *sql.Selector) {
-		s.Where(sql.LT(s.C(FieldUserID), v))
-	})
+	return predicate.ConversationMessage(sql.FieldLT(FieldUserID, v))
 }
 
 // UserIDLTE applies the LTE predicate on the "user_id" field.
 func UserIDLTE(v uuid.UUID) predicate.ConversationMessage {
-	return predicate.ConversationMessage(func(s *sql.Selector) {
-		s.Where(sql.LTE(s.C(FieldUserID), v))
-	})
+	return predicate.ConversationMessage(sql.FieldLTE(FieldUserID, v))
 }
 
 // ConversationIDEQ applies the EQ predicate on the "conversation_id" field.
 func ConversationIDEQ(v uuid.UUID) predicate.ConversationMessage {
-	return predicate.ConversationMessage(func(s *sql.Selector) {
-		s.Where(sql.EQ(s.C(FieldConversationID), v))
-	})
+	return predicate.ConversationMessage(sql.FieldEQ(FieldConversationID, v))
 }
 
 // ConversationIDNEQ applies the NEQ predicate on the "conversation_id" field.
 func ConversationIDNEQ(v uuid.UUID) predicate.ConversationMessage {
-	return predicate.ConversationMessage(func(s *sql.Selector) {
-		s.Where(sql.NEQ(s.C(FieldConversationID), v))
-	})
+	return predicate.ConversationMessage(sql.FieldNEQ(FieldConversationID, v))
 }
 
 // ConversationIDIn applies the In predicate on the "conversation_id" field.
 func ConversationIDIn(vs ...uuid.UUID) predicate.ConversationMessage {
-	v := make([]any, len(vs))
-	for i := range v {
-		v[i] = vs[i]
-	}
-	return predicate.ConversationMessage(func(s *sql.Selector) {
-		s.Where(sql.In(s.C(FieldConversationID), v...))
-	})
+	return predicate.ConversationMessage(sql.FieldIn(FieldConversationID, vs...))
 }
 
 // ConversationIDNotIn applies the NotIn predicate on the "conversation_id" field.
 func ConversationIDNotIn(vs ...uuid.UUID) predicate.ConversationMessage {
-	v := make([]any, len(vs))
-	for i := range v {
-		v[i] = vs[i]
-	}
-	return predicate.ConversationMessage(func(s *sql.Selector) {
-		s.Where(sql.NotIn(s.C(FieldConversationID), v...))
-	})
+	return predicate.ConversationMessage(sql.FieldNotIn(FieldConversationID, vs...))
 }
 
 // ConversationIDGT applies the GT predicate on the "conversation_id" field.
 func ConversationIDGT(v uuid.UUID) predicate.ConversationMessage {
-	return predicate.ConversationMessage(func(s *sql.Selector) {
-		s.Where(sql.GT(s.C(FieldConversationID), v))
-	})
+	return predicate.ConversationMessage(sql.FieldGT(FieldConversationID, v))
 }
 
 // ConversationIDGTE applies the GTE predicate on the "conversation_id" field.
 func ConversationIDGTE(v uuid.UUID) predicate.ConversationMessage {
-	return predicate.ConversationMessage(func(s *sql.Selector) {
-		s.Where(sql.GTE(s.C(FieldConversationID), v))
-	})
+	return predicate.ConversationMessage(sql.FieldGTE(FieldConversationID, v))
 }
 
 // ConversationIDLT applies the LT predicate on the "conversation_id" field.
 func ConversationIDLT(v uuid.UUID) predicate.ConversationMessage {
-	return predicate.ConversationMessage(func(s *sql.Selector) {
-		s.Where(sql.LT(s.C(FieldConversationID), v))
-	})
+	return predicate.ConversationMessage(sql.FieldLT(FieldConversationID, v))
 }
 
 // ConversationIDLTE applies the LTE predicate on the "conversation_id" field.
 func ConversationIDLTE(v uuid.UUID) predicate.ConversationMessage {
-	return predicate.ConversationMessage(func(s *sql.Selector) {
-		s.Where(sql.LTE(s.C(FieldConversationID), v))
-	})
+	return predicate.ConversationMessage(sql.FieldLTE(FieldConversationID, v))
 }
 
 // RequestEQ applies the EQ predicate on the "request" field.
 func RequestEQ(v string) predicate.ConversationMessage {
-	return predicate.ConversationMessage(func(s *sql.Selector) {
-		s.Where(sql.EQ(s.C(FieldRequest), v))
-	})
+	return predicate.ConversationMessage(sql.FieldEQ(FieldRequest, v))
 }
 
 // RequestNEQ applies the NEQ predicate on the "request" field.
 func RequestNEQ(v string) predicate.ConversationMessage {
-	return predicate.ConversationMessage(func(s *sql.Selector) {
-		s.Where(sql.NEQ(s.C(FieldRequest), v))
-	})
+	return predicate.ConversationMessage(sql.FieldNEQ(FieldRequest, v))
 }
 
 // RequestIn applies the In predicate on the "request" field.
 func RequestIn(vs ...string) predicate.ConversationMessage {
-	v := make([]any, len(vs))
-	for i := range v {
-		v[i] = vs[i]
-	}
-	return predicate.ConversationMessage(func(s *sql.Selector) {
-		s.Where(sql.In(s.C(FieldRequest), v...))
-	})
+	return predicate.ConversationMessage(sql.FieldIn(FieldRequest, vs...))
 }
 
 // RequestNotIn applies the NotIn predicate on the "request" field.
 func RequestNotIn(vs ...string) predicate.ConversationMessage {
-	v := make([]any, len(vs))
-	for i := range v {
-		v[i] = vs[i]
-	}
-	return predicate.ConversationMessage(func(s *sql.Selector) {
-		s.Where(sql.NotIn(s.C(FieldRequest), v...))
-	})
+	return predicate.ConversationMessage(sql.FieldNotIn(FieldRequest, vs...))
 }
 
 // RequestGT applies the GT predicate on the "request" field.
 func RequestGT(v string) predicate.ConversationMessage {
-	return predicate.ConversationMessage(func(s *sql.Selector) {
-		s.Where(sql.GT(s.C(FieldRequest), v))
-	})
+	return predicate.ConversationMessage(sql.FieldGT(FieldRequest, v))
 }
 
 // RequestGTE applies the GTE predicate on the "request" field.
 func RequestGTE(v string) predicate.ConversationMessage {
-	return predicate.ConversationMessage(func(s *sql.Selector) {
-		s.Where(sql.GTE(s.C(FieldRequest), v))
-	})
+	return predicate.ConversationMessage(sql.FieldGTE(FieldRequest, v))
 }
 
 // RequestLT applies the LT predicate on the "request" field.
 func RequestLT(v string) predicate.ConversationMessage {
-	return predicate.ConversationMessage(func(s *sql.Selector) {
-		s.Where(sql.LT(s.C(FieldRequest), v))
-	})
+	return predicate.ConversationMessage(sql.FieldLT(FieldRequest, v))
 }
 
 // RequestLTE applies the LTE predicate on the "request" field.
 func RequestLTE(v string) predicate.ConversationMessage {
-	return predicate.ConversationMessage(func(s *sql.Selector) {
-		s.Where(sql.LTE(s.C(FieldRequest), v))
-	})
+	return predicate.ConversationMessage(sql.FieldLTE(FieldRequest, v))
 }
 
 // RequestContains applies the Contains predicate on the "request" field.
 func RequestContains(v string) predicate.ConversationMessage {
-	return predicate.ConversationMessage(func(s *sql.Selector) {
-		s.Where(sql.Contains(s.C(FieldRequest), v))
-	})
+	return predicate.ConversationMessage(sql.FieldContains(FieldRequest, v))
 }
 
 // RequestHasPrefix applies the HasPrefix predicate on the "request" field.
 func RequestHasPrefix(v string) predicate.ConversationMessage {
-	return predicate.ConversationMessage(func(s *sql.Selector) {
-		s.Where(sql.HasPrefix(s.C(FieldRequest), v))
-	})
+	return predicate.ConversationMessage(sql.FieldHasPrefix(FieldRequest, v))
 }
 
 // RequestHasSuffix applies the HasSuffix predicate on the "request" field.
 func RequestHasSuffix(v string) predicate.ConversationMessage {
-	return predicate.ConversationMessage(func(s *sql.Selector) {
-		s.Where(sql.HasSuffix(s.C(FieldRequest), v))
-	})
+	return predicate.ConversationMessage(sql.FieldHasSuffix(FieldRequest, v))
 }
 
 // RequestIsNil applies the IsNil predicate on the "request" field.
 func RequestIsNil() predicate.ConversationMessage {
-	return predicate.ConversationMessage(func(s *sql.Selector) {
-		s.Where(sql.IsNull(s.C(FieldRequest)))
-	})
+	return predicate.ConversationMessage(sql.FieldIsNull(FieldRequest))
 }
 
 // RequestNotNil applies the NotNil predicate on the "request" field.
 func RequestNotNil() predicate.ConversationMessage {
-	return predicate.ConversationMessage(func(s *sql.Selector) {
-		s.Where(sql.NotNull(s.C(FieldRequest)))
-	})
+	return predicate.ConversationMessage(sql.FieldNotNull(FieldRequest))
 }
 
 // RequestEqualFold applies the EqualFold predicate on the "request" field.
 func RequestEqualFold(v string) predicate.ConversationMessage {
-	return predicate.ConversationMessage(func(s *sql.Selector) {
-		s.Where(sql.EqualFold(s.C(FieldRequest), v))
-	})
+	return predicate.ConversationMessage(sql.FieldEqualFold(FieldRequest, v))
 }
 
 // RequestContainsFold applies the ContainsFold predicate on the "request" field.
 func RequestContainsFold(v string) predicate.ConversationMessage {
-	return predicate.ConversationMessage(func(s *sql.Selector) {
-		s.Where(sql.ContainsFold(s.C(FieldRequest), v))
-	})
+	return predicate.ConversationMessage(sql.FieldContainsFold(FieldRequest, v))
 }
 
 // ResponseEQ applies the EQ predicate on the "response" field.
 func ResponseEQ(v string) predicate.ConversationMessage {
-	return predicate.ConversationMessage(func(s *sql.Selector) {
-		s.Where(sql.EQ(s.C(FieldResponse), v))
-	})
+	return predicate.ConversationMessage(sql.FieldEQ(FieldResponse, v))
 }
 
 // ResponseNEQ applies the NEQ predicate on the "response" field.
 func ResponseNEQ(v string) predicate.ConversationMessage {
-	return predicate.ConversationMessage(func(s *sql.Selector) {
-		s.Where(sql.NEQ(s.C(FieldResponse), v))
-	})
+	return predicate.ConversationMessage(sql.FieldNEQ(FieldResponse, v))
 }
 
 // ResponseIn applies the In predicate on the "response" field.
 func ResponseIn(vs ...string) predicate.ConversationMessage {
-	v := make([]any, len(vs))
-	for i := range v {
-		v[i] = vs[i]
-	}
-	return predicate.ConversationMessage(func(s *sql.Selector) {
-		s.Where(sql.In(s.C(FieldResponse), v...))
-	})
+	return predicate.ConversationMessage(sql.FieldIn(FieldResponse, vs...))
 }
 
 // ResponseNotIn applies the NotIn predicate on the "response" field.
 func ResponseNotIn(vs ...string) predicate.ConversationMessage {
-	v := make([]any, len(vs))
-	for i := range v {
-		v[i] = vs[i]
-	}
-	return predicate.ConversationMessage(func(s *sql.Selector) {
-		s.Where(sql.NotIn(s.C(FieldResponse), v...))
-	})
+	return predicate.ConversationMessage(sql.FieldNotIn(FieldResponse, vs...))
 }
 
 // ResponseGT applies the GT predicate on the "response" field.
 func ResponseGT(v string) predicate.ConversationMessage {
-	return predicate.ConversationMessage(func(s *sql.Selector) {
-		s.Where(sql.GT(s.C(FieldResponse), v))
-	})
+	return predicate.ConversationMessage(sql.FieldGT(FieldResponse, v))
 }
 
 // ResponseGTE applies the GTE predicate on the "response" field.
 func ResponseGTE(v string) predicate.ConversationMessage {
-	return predicate.ConversationMessage(func(s *sql.Selector) {
-		s.Where(sql.GTE(s.C(FieldResponse), v))
-	})
+	return predicate.ConversationMessage(sql.FieldGTE(FieldResponse, v))
 }
 
 // ResponseLT applies the LT predicate on the "response" field.
 func ResponseLT(v string) predicate.ConversationMessage {
-	return predicate.ConversationMessage(func(s *sql.Selector) {
-		s.Where(sql.LT(s.C(FieldResponse), v))
-	})
+	return predicate.ConversationMessage(sql.FieldLT(FieldResponse, v))
 }
 
 // ResponseLTE applies the LTE predicate on the "response" field.
 func ResponseLTE(v string) predicate.ConversationMessage {
-	return predicate.ConversationMessage(func(s *sql.Selector) {
-		s.Where(sql.LTE(s.C(FieldResponse), v))
-	})
+	return predicate.ConversationMessage(sql.FieldLTE(FieldResponse, v))
 }
 
 // ResponseContains applies the Contains predicate on the "response" field.
 func ResponseContains(v string) predicate.ConversationMessage {
-	return predicate.ConversationMessage(func(s *sql.Selector) {
-		s.Where(sql.Contains(s.C(FieldResponse), v))
-	})
+	return predicate.ConversationMessage(sql.FieldContains(FieldResponse, v))
 }
 
 // ResponseHasPrefix applies the HasPrefix predicate on the "response" field.
 func ResponseHasPrefix(v string) predicate.ConversationMessage {
-	return predicate.ConversationMessage(func(s *sql.Selector) {
-		s.Where(sql.HasPrefix(s.C(FieldResponse), v))
-	})
+	return predicate.ConversationMessage(sql.FieldHasPrefix(FieldResponse, v))
 }
 
 // ResponseHasSuffix applies the HasSuffix predicate on the "response" field.
 func ResponseHasSuffix(v string) predicate.ConversationMessage {
-	return predicate.ConversationMessage(func(s *sql.Selector) {
-		s.Where(sql.HasSuffix(s.C(FieldResponse), v))
-	})
+	return predicate.ConversationMessage(sql.FieldHasSuffix(FieldResponse, v))
 }
 
 // ResponseIsNil applies the IsNil predicate on the "response" field.
 func ResponseIsNil() predicate.ConversationMessage {
-	return predicate.ConversationMessage(func(s *sql.Selector) {
-		s.Where(sql.IsNull(s.C(FieldResponse)))
-	})
+	return predicate.ConversationMessage(sql.FieldIsNull(FieldResponse))
 }
 
 // ResponseNotNil applies the NotNil predicate on the "response" field.
 func ResponseNotNil() predicate.ConversationMessage {
-	return predicate.ConversationMessage(func(s *sql.Selector) {
-		s.Where(sql.NotNull(s.C(FieldResponse)))
-	})
+	return predicate.ConversationMessage(sql.FieldNotNull(FieldResponse))
 }
 
 // ResponseEqualFold applies the EqualFold predicate on the "response" field.
 func ResponseEqualFold(v string) predicate.ConversationMessage {
-	return predicate.ConversationMessage(func(s *sql.Selector) {
-		s.Where(sql.EqualFold(s.C(FieldResponse), v))
-	})
+	return predicate.ConversationMessage(sql.FieldEqualFold(FieldResponse, v))
 }
 
 // ResponseContainsFold applies the ContainsFold predicate on the "response" field.
 func ResponseContainsFold(v string) predicate.ConversationMessage {
-	return predicate.ConversationMessage(func(s *sql.Selector) {
-		s.Where(sql.ContainsFold(s.C(FieldResponse), v))
-	})
+	return predicate.ConversationMessage(sql.FieldContainsFold(FieldResponse, v))
 }
 
 // TokenUsageEQ applies the EQ predicate on the "token_usage" field.
 func TokenUsageEQ(v int64) predicate.ConversationMessage {
-	return predicate.ConversationMessage(func(s *sql.Selector) {
-		s.Where(sql.EQ(s.C(FieldTokenUsage), v))
-	})
+	return predicate.ConversationMessage(sql.FieldEQ(FieldTokenUsage, v))
 }
 
 // TokenUsageNEQ applies the NEQ predicate on the "token_usage" field.
 func TokenUsageNEQ(v int64) predicate.ConversationMessage {
-	return predicate.ConversationMessage(func(s *sql.Selector) {
-		s.Where(sql.NEQ(s.C(FieldTokenUsage), v))
-	})
+	return predicate.ConversationMessage(sql.FieldNEQ(FieldTokenUsage, v))
 }
 
 // TokenUsageIn applies the In predicate on the "token_usage" field.
 func TokenUsageIn(vs ...int64) predicate.ConversationMessage {
-	v := make([]any, len(vs))
-	for i := range v {
-		v[i] = vs[i]
-	}
-	return predicate.ConversationMessage(func(s *sql.Selector) {
-		s.Where(sql.In(s.C(FieldTokenUsage), v...))
-	})
+	return predicate.ConversationMessage(sql.FieldIn(FieldTokenUsage, vs...))
 }
 
 // TokenUsageNotIn applies the NotIn predicate on the "token_usage" field.
 func TokenUsageNotIn(vs ...int64) predicate.ConversationMessage {
-	v := make([]any, len(vs))
-	for i := range v {
-		v[i] = vs[i]
-	}
-	return predicate.ConversationMessage(func(s *sql.Selector) {
-		s.Where(sql.NotIn(s.C(FieldTokenUsage), v...))
-	})
+	return predicate.ConversationMessage(sql.FieldNotIn(FieldTokenUsage, vs...))
 }
 
 // TokenUsageGT applies the GT predicate on the "token_usage" field.
 func TokenUsageGT(v int64) predicate.ConversationMessage {
-	return predicate.ConversationMessage(func(s *sql.Selector) {
-		s.Where(sql.GT(s.C(FieldTokenUsage), v))
-	})
+	return predicate.ConversationMessage(sql.FieldGT(FieldTokenUsage, v))
 }
 
 // TokenUsageGTE applies the GTE predicate on the "token_usage" field.
 func TokenUsageGTE(v int64) predicate.ConversationMessage {
-	return predicate.ConversationMessage(func(s *sql.Selector) {
-		s.Where(sql.GTE(s.C(FieldTokenUsage), v))
-	})
+	return predicate.ConversationMessage(sql.FieldGTE(FieldTokenUsage, v))
 }
 
 // TokenUsageLT applies the LT predicate on the "token_usage" field.
 func TokenUsageLT(v int64) predicate.ConversationMessage {
-	return predicate.ConversationMessage(func(s *sql.Selector) {
-		s.Where(sql.LT(s.C(FieldTokenUsage), v))
-	})
+	return predicate.ConversationMessage(sql.FieldLT(FieldTokenUsage, v))
 }
 
 // TokenUsageLTE applies the LTE predicate on the "token_usage" field.
 func TokenUsageLTE(v int64) predicate.ConversationMessage {
-	return predicate.ConversationMessage(func(s *sql.Selector) {
-		s.Where(sql.LTE(s.C(FieldTokenUsage), v))
-	})
+	return predicate.ConversationMessage(sql.FieldLTE(FieldTokenUsage, v))
 }
 
 // TokenUsageIsNil applies the IsNil predicate on the "token_usage" field.
 func TokenUsageIsNil() predicate.ConversationMessage {
-	return predicate.ConversationMessage(func(s *sql.Selector) {
-		s.Where(sql.IsNull(s.C(FieldTokenUsage)))
-	})
+	return predicate.ConversationMessage(sql.FieldIsNull(FieldTokenUsage))
 }
 
 // TokenUsageNotNil applies the NotNil predicate on the "token_usage" field.
 func TokenUsageNotNil() predicate.ConversationMessage {
-	return predicate.ConversationMessage(func(s *sql.Selector) {
-		s.Where(sql.NotNull(s.C(FieldTokenUsage)))
-	})
+	return predicate.ConversationMessage(sql.FieldNotNull(FieldTokenUsage))
 }
 
 // HasConversations applies the HasEdge predicate on the "conversations" edge.
@@ -788,7 +516,6 @@ func HasConversations() predicate.ConversationMessage {
 	return predicate.ConversationMessage(func(s *sql.Selector) {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(Table, FieldID),
-			sqlgraph.To(ConversationsTable, FieldID),
 			sqlgraph.Edge(sqlgraph.M2O, true, ConversationsTable, ConversationsColumn),
 		)
 		sqlgraph.HasNeighbors(s, step)

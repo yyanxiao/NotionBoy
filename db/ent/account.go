@@ -184,7 +184,7 @@ func (a *Account) assignValues(columns []string, values []any) error {
 // Note that you need to call Account.Unwrap() before calling this method if this Account
 // was returned from a transaction, and the transaction was committed or rolled back.
 func (a *Account) Update() *AccountUpdateOne {
-	return (&AccountClient{config: a.config}).UpdateOne(a)
+	return NewAccountClient(a.config).UpdateOne(a)
 }
 
 // Unwrap unwraps the Account entity that was returned from a transaction after it was closed,
@@ -251,9 +251,3 @@ func (a *Account) String() string {
 
 // Accounts is a parsable slice of Account.
 type Accounts []*Account
-
-func (a Accounts) config(cfg config) {
-	for _i := range a {
-		a[_i].config = cfg
-	}
-}

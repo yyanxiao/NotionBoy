@@ -161,35 +161,8 @@ func (cmu *ConversationMessageUpdate) ClearConversations() *ConversationMessageU
 
 // Save executes the query and returns the number of nodes affected by the update operation.
 func (cmu *ConversationMessageUpdate) Save(ctx context.Context) (int, error) {
-	var (
-		err      error
-		affected int
-	)
 	cmu.defaults()
-	if len(cmu.hooks) == 0 {
-		affected, err = cmu.sqlSave(ctx)
-	} else {
-		var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
-			mutation, ok := m.(*ConversationMessageMutation)
-			if !ok {
-				return nil, fmt.Errorf("unexpected mutation type %T", m)
-			}
-			cmu.mutation = mutation
-			affected, err = cmu.sqlSave(ctx)
-			mutation.done = true
-			return affected, err
-		})
-		for i := len(cmu.hooks) - 1; i >= 0; i-- {
-			if cmu.hooks[i] == nil {
-				return 0, fmt.Errorf("ent: uninitialized hook (forgotten import ent/runtime?)")
-			}
-			mut = cmu.hooks[i](mut)
-		}
-		if _, err := mut.Mutate(ctx, cmu.mutation); err != nil {
-			return 0, err
-		}
-	}
-	return affected, err
+	return withHooks[int, ConversationMessageMutation](ctx, cmu.sqlSave, cmu.mutation, cmu.hooks)
 }
 
 // SaveX is like Save, but panics if an error occurs.
@@ -223,16 +196,7 @@ func (cmu *ConversationMessageUpdate) defaults() {
 }
 
 func (cmu *ConversationMessageUpdate) sqlSave(ctx context.Context) (n int, err error) {
-	_spec := &sqlgraph.UpdateSpec{
-		Node: &sqlgraph.NodeSpec{
-			Table:   conversationmessage.Table,
-			Columns: conversationmessage.Columns,
-			ID: &sqlgraph.FieldSpec{
-				Type:   field.TypeInt,
-				Column: conversationmessage.FieldID,
-			},
-		},
-	}
+	_spec := sqlgraph.NewUpdateSpec(conversationmessage.Table, conversationmessage.Columns, sqlgraph.NewFieldSpec(conversationmessage.FieldID, field.TypeInt))
 	if ps := cmu.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
@@ -281,10 +245,7 @@ func (cmu *ConversationMessageUpdate) sqlSave(ctx context.Context) (n int, err e
 			Columns: []string{conversationmessage.ConversationsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: &sqlgraph.FieldSpec{
-					Type:   field.TypeInt,
-					Column: conversation.FieldID,
-				},
+				IDSpec: sqlgraph.NewFieldSpec(conversation.FieldID, field.TypeInt),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -297,10 +258,7 @@ func (cmu *ConversationMessageUpdate) sqlSave(ctx context.Context) (n int, err e
 			Columns: []string{conversationmessage.ConversationsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: &sqlgraph.FieldSpec{
-					Type:   field.TypeInt,
-					Column: conversation.FieldID,
-				},
+				IDSpec: sqlgraph.NewFieldSpec(conversation.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {
@@ -316,6 +274,7 @@ func (cmu *ConversationMessageUpdate) sqlSave(ctx context.Context) (n int, err e
 		}
 		return 0, err
 	}
+	cmu.mutation.done = true
 	return n, nil
 }
 
@@ -456,6 +415,12 @@ func (cmuo *ConversationMessageUpdateOne) ClearConversations() *ConversationMess
 	return cmuo
 }
 
+// Where appends a list predicates to the ConversationMessageUpdate builder.
+func (cmuo *ConversationMessageUpdateOne) Where(ps ...predicate.ConversationMessage) *ConversationMessageUpdateOne {
+	cmuo.mutation.Where(ps...)
+	return cmuo
+}
+
 // Select allows selecting one or more fields (columns) of the returned entity.
 // The default is selecting all fields defined in the entity schema.
 func (cmuo *ConversationMessageUpdateOne) Select(field string, fields ...string) *ConversationMessageUpdateOne {
@@ -465,41 +430,8 @@ func (cmuo *ConversationMessageUpdateOne) Select(field string, fields ...string)
 
 // Save executes the query and returns the updated ConversationMessage entity.
 func (cmuo *ConversationMessageUpdateOne) Save(ctx context.Context) (*ConversationMessage, error) {
-	var (
-		err  error
-		node *ConversationMessage
-	)
 	cmuo.defaults()
-	if len(cmuo.hooks) == 0 {
-		node, err = cmuo.sqlSave(ctx)
-	} else {
-		var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
-			mutation, ok := m.(*ConversationMessageMutation)
-			if !ok {
-				return nil, fmt.Errorf("unexpected mutation type %T", m)
-			}
-			cmuo.mutation = mutation
-			node, err = cmuo.sqlSave(ctx)
-			mutation.done = true
-			return node, err
-		})
-		for i := len(cmuo.hooks) - 1; i >= 0; i-- {
-			if cmuo.hooks[i] == nil {
-				return nil, fmt.Errorf("ent: uninitialized hook (forgotten import ent/runtime?)")
-			}
-			mut = cmuo.hooks[i](mut)
-		}
-		v, err := mut.Mutate(ctx, cmuo.mutation)
-		if err != nil {
-			return nil, err
-		}
-		nv, ok := v.(*ConversationMessage)
-		if !ok {
-			return nil, fmt.Errorf("unexpected node type %T returned from ConversationMessageMutation", v)
-		}
-		node = nv
-	}
-	return node, err
+	return withHooks[*ConversationMessage, ConversationMessageMutation](ctx, cmuo.sqlSave, cmuo.mutation, cmuo.hooks)
 }
 
 // SaveX is like Save, but panics if an error occurs.
@@ -533,16 +465,7 @@ func (cmuo *ConversationMessageUpdateOne) defaults() {
 }
 
 func (cmuo *ConversationMessageUpdateOne) sqlSave(ctx context.Context) (_node *ConversationMessage, err error) {
-	_spec := &sqlgraph.UpdateSpec{
-		Node: &sqlgraph.NodeSpec{
-			Table:   conversationmessage.Table,
-			Columns: conversationmessage.Columns,
-			ID: &sqlgraph.FieldSpec{
-				Type:   field.TypeInt,
-				Column: conversationmessage.FieldID,
-			},
-		},
-	}
+	_spec := sqlgraph.NewUpdateSpec(conversationmessage.Table, conversationmessage.Columns, sqlgraph.NewFieldSpec(conversationmessage.FieldID, field.TypeInt))
 	id, ok := cmuo.mutation.ID()
 	if !ok {
 		return nil, &ValidationError{Name: "id", err: errors.New(`ent: missing "ConversationMessage.id" for update`)}
@@ -608,10 +531,7 @@ func (cmuo *ConversationMessageUpdateOne) sqlSave(ctx context.Context) (_node *C
 			Columns: []string{conversationmessage.ConversationsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: &sqlgraph.FieldSpec{
-					Type:   field.TypeInt,
-					Column: conversation.FieldID,
-				},
+				IDSpec: sqlgraph.NewFieldSpec(conversation.FieldID, field.TypeInt),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -624,10 +544,7 @@ func (cmuo *ConversationMessageUpdateOne) sqlSave(ctx context.Context) (_node *C
 			Columns: []string{conversationmessage.ConversationsColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: &sqlgraph.FieldSpec{
-					Type:   field.TypeInt,
-					Column: conversation.FieldID,
-				},
+				IDSpec: sqlgraph.NewFieldSpec(conversation.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {
@@ -646,5 +563,6 @@ func (cmuo *ConversationMessageUpdateOne) sqlSave(ctx context.Context) (_node *C
 		}
 		return nil, err
 	}
+	cmuo.mutation.done = true
 	return _node, nil
 }

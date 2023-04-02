@@ -109,50 +109,8 @@ func (qc *QuotaCreate) Mutation() *QuotaMutation {
 
 // Save creates the Quota in the database.
 func (qc *QuotaCreate) Save(ctx context.Context) (*Quota, error) {
-	var (
-		err  error
-		node *Quota
-	)
 	qc.defaults()
-	if len(qc.hooks) == 0 {
-		if err = qc.check(); err != nil {
-			return nil, err
-		}
-		node, err = qc.sqlSave(ctx)
-	} else {
-		var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
-			mutation, ok := m.(*QuotaMutation)
-			if !ok {
-				return nil, fmt.Errorf("unexpected mutation type %T", m)
-			}
-			if err = qc.check(); err != nil {
-				return nil, err
-			}
-			qc.mutation = mutation
-			if node, err = qc.sqlSave(ctx); err != nil {
-				return nil, err
-			}
-			mutation.id = &node.ID
-			mutation.done = true
-			return node, err
-		})
-		for i := len(qc.hooks) - 1; i >= 0; i-- {
-			if qc.hooks[i] == nil {
-				return nil, fmt.Errorf("ent: uninitialized hook (forgotten import ent/runtime?)")
-			}
-			mut = qc.hooks[i](mut)
-		}
-		v, err := mut.Mutate(ctx, qc.mutation)
-		if err != nil {
-			return nil, err
-		}
-		nv, ok := v.(*Quota)
-		if !ok {
-			return nil, fmt.Errorf("unexpected node type %T returned from QuotaMutation", v)
-		}
-		node = nv
-	}
-	return node, err
+	return withHooks[*Quota, QuotaMutation](ctx, qc.sqlSave, qc.mutation, qc.hooks)
 }
 
 // SaveX calls Save and panics if Save returns an error.
@@ -199,12 +157,6 @@ func (qc *QuotaCreate) defaults() {
 
 // check runs all checks and user-defined validators on the builder.
 func (qc *QuotaCreate) check() error {
-	if _, ok := qc.mutation.CreatedAt(); !ok {
-		return &ValidationError{Name: "created_at", err: errors.New(`ent: missing required field "Quota.created_at"`)}
-	}
-	if _, ok := qc.mutation.UpdatedAt(); !ok {
-		return &ValidationError{Name: "updated_at", err: errors.New(`ent: missing required field "Quota.updated_at"`)}
-	}
 	if _, ok := qc.mutation.Deleted(); !ok {
 		return &ValidationError{Name: "deleted", err: errors.New(`ent: missing required field "Quota.deleted"`)}
 	}
@@ -227,6 +179,9 @@ func (qc *QuotaCreate) check() error {
 }
 
 func (qc *QuotaCreate) sqlSave(ctx context.Context) (*Quota, error) {
+	if err := qc.check(); err != nil {
+		return nil, err
+	}
 	_node, _spec := qc.createSpec()
 	if err := sqlgraph.CreateNode(ctx, qc.driver, _spec); err != nil {
 		if sqlgraph.IsConstraintError(err) {
@@ -236,19 +191,15 @@ func (qc *QuotaCreate) sqlSave(ctx context.Context) (*Quota, error) {
 	}
 	id := _spec.ID.Value.(int64)
 	_node.ID = int(id)
+	qc.mutation.id = &_node.ID
+	qc.mutation.done = true
 	return _node, nil
 }
 
 func (qc *QuotaCreate) createSpec() (*Quota, *sqlgraph.CreateSpec) {
 	var (
 		_node = &Quota{config: qc.config}
-		_spec = &sqlgraph.CreateSpec{
-			Table: quota.Table,
-			ID: &sqlgraph.FieldSpec{
-				Type:   field.TypeInt,
-				Column: quota.FieldID,
-			},
-		}
+		_spec = sqlgraph.NewCreateSpec(quota.Table, sqlgraph.NewFieldSpec(quota.FieldID, field.TypeInt))
 	)
 	_spec.OnConflict = qc.conflict
 	if value, ok := qc.mutation.CreatedAt(); ok {

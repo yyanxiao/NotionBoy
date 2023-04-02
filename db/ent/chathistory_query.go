@@ -17,11 +17,9 @@ import (
 // ChatHistoryQuery is the builder for querying ChatHistory entities.
 type ChatHistoryQuery struct {
 	config
-	limit      *int
-	offset     *int
-	unique     *bool
+	ctx        *QueryContext
 	order      []OrderFunc
-	fields     []string
+	inters     []Interceptor
 	predicates []predicate.ChatHistory
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
@@ -34,26 +32,26 @@ func (chq *ChatHistoryQuery) Where(ps ...predicate.ChatHistory) *ChatHistoryQuer
 	return chq
 }
 
-// Limit adds a limit step to the query.
+// Limit the number of records to be returned by this query.
 func (chq *ChatHistoryQuery) Limit(limit int) *ChatHistoryQuery {
-	chq.limit = &limit
+	chq.ctx.Limit = &limit
 	return chq
 }
 
-// Offset adds an offset step to the query.
+// Offset to start from.
 func (chq *ChatHistoryQuery) Offset(offset int) *ChatHistoryQuery {
-	chq.offset = &offset
+	chq.ctx.Offset = &offset
 	return chq
 }
 
 // Unique configures the query builder to filter duplicate records on query.
 // By default, unique is set to true, and can be disabled using this method.
 func (chq *ChatHistoryQuery) Unique(unique bool) *ChatHistoryQuery {
-	chq.unique = &unique
+	chq.ctx.Unique = &unique
 	return chq
 }
 
-// Order adds an order step to the query.
+// Order specifies how the records should be ordered.
 func (chq *ChatHistoryQuery) Order(o ...OrderFunc) *ChatHistoryQuery {
 	chq.order = append(chq.order, o...)
 	return chq
@@ -62,7 +60,7 @@ func (chq *ChatHistoryQuery) Order(o ...OrderFunc) *ChatHistoryQuery {
 // First returns the first ChatHistory entity from the query.
 // Returns a *NotFoundError when no ChatHistory was found.
 func (chq *ChatHistoryQuery) First(ctx context.Context) (*ChatHistory, error) {
-	nodes, err := chq.Limit(1).All(ctx)
+	nodes, err := chq.Limit(1).All(setContextOp(ctx, chq.ctx, "First"))
 	if err != nil {
 		return nil, err
 	}
@@ -85,7 +83,7 @@ func (chq *ChatHistoryQuery) FirstX(ctx context.Context) *ChatHistory {
 // Returns a *NotFoundError when no ChatHistory ID was found.
 func (chq *ChatHistoryQuery) FirstID(ctx context.Context) (id int, err error) {
 	var ids []int
-	if ids, err = chq.Limit(1).IDs(ctx); err != nil {
+	if ids, err = chq.Limit(1).IDs(setContextOp(ctx, chq.ctx, "FirstID")); err != nil {
 		return
 	}
 	if len(ids) == 0 {
@@ -108,7 +106,7 @@ func (chq *ChatHistoryQuery) FirstIDX(ctx context.Context) int {
 // Returns a *NotSingularError when more than one ChatHistory entity is found.
 // Returns a *NotFoundError when no ChatHistory entities are found.
 func (chq *ChatHistoryQuery) Only(ctx context.Context) (*ChatHistory, error) {
-	nodes, err := chq.Limit(2).All(ctx)
+	nodes, err := chq.Limit(2).All(setContextOp(ctx, chq.ctx, "Only"))
 	if err != nil {
 		return nil, err
 	}
@@ -136,7 +134,7 @@ func (chq *ChatHistoryQuery) OnlyX(ctx context.Context) *ChatHistory {
 // Returns a *NotFoundError when no entities are found.
 func (chq *ChatHistoryQuery) OnlyID(ctx context.Context) (id int, err error) {
 	var ids []int
-	if ids, err = chq.Limit(2).IDs(ctx); err != nil {
+	if ids, err = chq.Limit(2).IDs(setContextOp(ctx, chq.ctx, "OnlyID")); err != nil {
 		return
 	}
 	switch len(ids) {
@@ -161,10 +159,12 @@ func (chq *ChatHistoryQuery) OnlyIDX(ctx context.Context) int {
 
 // All executes the query and returns a list of ChatHistories.
 func (chq *ChatHistoryQuery) All(ctx context.Context) ([]*ChatHistory, error) {
+	ctx = setContextOp(ctx, chq.ctx, "All")
 	if err := chq.prepareQuery(ctx); err != nil {
 		return nil, err
 	}
-	return chq.sqlAll(ctx)
+	qr := querierAll[[]*ChatHistory, *ChatHistoryQuery]()
+	return withInterceptors[[]*ChatHistory](ctx, chq, qr, chq.inters)
 }
 
 // AllX is like All, but panics if an error occurs.
@@ -177,9 +177,12 @@ func (chq *ChatHistoryQuery) AllX(ctx context.Context) []*ChatHistory {
 }
 
 // IDs executes the query and returns a list of ChatHistory IDs.
-func (chq *ChatHistoryQuery) IDs(ctx context.Context) ([]int, error) {
-	var ids []int
-	if err := chq.Select(chathistory.FieldID).Scan(ctx, &ids); err != nil {
+func (chq *ChatHistoryQuery) IDs(ctx context.Context) (ids []int, err error) {
+	if chq.ctx.Unique == nil && chq.path != nil {
+		chq.Unique(true)
+	}
+	ctx = setContextOp(ctx, chq.ctx, "IDs")
+	if err = chq.Select(chathistory.FieldID).Scan(ctx, &ids); err != nil {
 		return nil, err
 	}
 	return ids, nil
@@ -196,10 +199,11 @@ func (chq *ChatHistoryQuery) IDsX(ctx context.Context) []int {
 
 // Count returns the count of the given query.
 func (chq *ChatHistoryQuery) Count(ctx context.Context) (int, error) {
+	ctx = setContextOp(ctx, chq.ctx, "Count")
 	if err := chq.prepareQuery(ctx); err != nil {
 		return 0, err
 	}
-	return chq.sqlCount(ctx)
+	return withInterceptors[int](ctx, chq, querierCount[*ChatHistoryQuery](), chq.inters)
 }
 
 // CountX is like Count, but panics if an error occurs.
@@ -213,10 +217,15 @@ func (chq *ChatHistoryQuery) CountX(ctx context.Context) int {
 
 // Exist returns true if the query has elements in the graph.
 func (chq *ChatHistoryQuery) Exist(ctx context.Context) (bool, error) {
-	if err := chq.prepareQuery(ctx); err != nil {
-		return false, err
+	ctx = setContextOp(ctx, chq.ctx, "Exist")
+	switch _, err := chq.FirstID(ctx); {
+	case IsNotFound(err):
+		return false, nil
+	case err != nil:
+		return false, fmt.Errorf("ent: check existence: %w", err)
+	default:
+		return true, nil
 	}
-	return chq.sqlExist(ctx)
 }
 
 // ExistX is like Exist, but panics if an error occurs.
@@ -236,14 +245,13 @@ func (chq *ChatHistoryQuery) Clone() *ChatHistoryQuery {
 	}
 	return &ChatHistoryQuery{
 		config:     chq.config,
-		limit:      chq.limit,
-		offset:     chq.offset,
+		ctx:        chq.ctx.Clone(),
 		order:      append([]OrderFunc{}, chq.order...),
+		inters:     append([]Interceptor{}, chq.inters...),
 		predicates: append([]predicate.ChatHistory{}, chq.predicates...),
 		// clone intermediate query.
-		sql:    chq.sql.Clone(),
-		path:   chq.path,
-		unique: chq.unique,
+		sql:  chq.sql.Clone(),
+		path: chq.path,
 	}
 }
 
@@ -262,16 +270,11 @@ func (chq *ChatHistoryQuery) Clone() *ChatHistoryQuery {
 //		Aggregate(ent.Count()).
 //		Scan(ctx, &v)
 func (chq *ChatHistoryQuery) GroupBy(field string, fields ...string) *ChatHistoryGroupBy {
-	grbuild := &ChatHistoryGroupBy{config: chq.config}
-	grbuild.fields = append([]string{field}, fields...)
-	grbuild.path = func(ctx context.Context) (prev *sql.Selector, err error) {
-		if err := chq.prepareQuery(ctx); err != nil {
-			return nil, err
-		}
-		return chq.sqlQuery(ctx), nil
-	}
+	chq.ctx.Fields = append([]string{field}, fields...)
+	grbuild := &ChatHistoryGroupBy{build: chq}
+	grbuild.flds = &chq.ctx.Fields
 	grbuild.label = chathistory.Label
-	grbuild.flds, grbuild.scan = &grbuild.fields, grbuild.Scan
+	grbuild.scan = grbuild.Scan
 	return grbuild
 }
 
@@ -288,11 +291,11 @@ func (chq *ChatHistoryQuery) GroupBy(field string, fields ...string) *ChatHistor
 //		Select(chathistory.FieldCreatedAt).
 //		Scan(ctx, &v)
 func (chq *ChatHistoryQuery) Select(fields ...string) *ChatHistorySelect {
-	chq.fields = append(chq.fields, fields...)
-	selbuild := &ChatHistorySelect{ChatHistoryQuery: chq}
-	selbuild.label = chathistory.Label
-	selbuild.flds, selbuild.scan = &chq.fields, selbuild.Scan
-	return selbuild
+	chq.ctx.Fields = append(chq.ctx.Fields, fields...)
+	sbuild := &ChatHistorySelect{ChatHistoryQuery: chq}
+	sbuild.label = chathistory.Label
+	sbuild.flds, sbuild.scan = &chq.ctx.Fields, sbuild.Scan
+	return sbuild
 }
 
 // Aggregate returns a ChatHistorySelect configured with the given aggregations.
@@ -301,7 +304,17 @@ func (chq *ChatHistoryQuery) Aggregate(fns ...AggregateFunc) *ChatHistorySelect 
 }
 
 func (chq *ChatHistoryQuery) prepareQuery(ctx context.Context) error {
-	for _, f := range chq.fields {
+	for _, inter := range chq.inters {
+		if inter == nil {
+			return fmt.Errorf("ent: uninitialized interceptor (forgotten import ent/runtime?)")
+		}
+		if trv, ok := inter.(Traverser); ok {
+			if err := trv.Traverse(ctx, chq); err != nil {
+				return err
+			}
+		}
+	}
+	for _, f := range chq.ctx.Fields {
 		if !chathistory.ValidColumn(f) {
 			return &ValidationError{Name: f, err: fmt.Errorf("ent: invalid field %q for query", f)}
 		}
@@ -343,41 +356,22 @@ func (chq *ChatHistoryQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]
 
 func (chq *ChatHistoryQuery) sqlCount(ctx context.Context) (int, error) {
 	_spec := chq.querySpec()
-	_spec.Node.Columns = chq.fields
-	if len(chq.fields) > 0 {
-		_spec.Unique = chq.unique != nil && *chq.unique
+	_spec.Node.Columns = chq.ctx.Fields
+	if len(chq.ctx.Fields) > 0 {
+		_spec.Unique = chq.ctx.Unique != nil && *chq.ctx.Unique
 	}
 	return sqlgraph.CountNodes(ctx, chq.driver, _spec)
 }
 
-func (chq *ChatHistoryQuery) sqlExist(ctx context.Context) (bool, error) {
-	switch _, err := chq.FirstID(ctx); {
-	case IsNotFound(err):
-		return false, nil
-	case err != nil:
-		return false, fmt.Errorf("ent: check existence: %w", err)
-	default:
-		return true, nil
-	}
-}
-
 func (chq *ChatHistoryQuery) querySpec() *sqlgraph.QuerySpec {
-	_spec := &sqlgraph.QuerySpec{
-		Node: &sqlgraph.NodeSpec{
-			Table:   chathistory.Table,
-			Columns: chathistory.Columns,
-			ID: &sqlgraph.FieldSpec{
-				Type:   field.TypeInt,
-				Column: chathistory.FieldID,
-			},
-		},
-		From:   chq.sql,
-		Unique: true,
-	}
-	if unique := chq.unique; unique != nil {
+	_spec := sqlgraph.NewQuerySpec(chathistory.Table, chathistory.Columns, sqlgraph.NewFieldSpec(chathistory.FieldID, field.TypeInt))
+	_spec.From = chq.sql
+	if unique := chq.ctx.Unique; unique != nil {
 		_spec.Unique = *unique
+	} else if chq.path != nil {
+		_spec.Unique = true
 	}
-	if fields := chq.fields; len(fields) > 0 {
+	if fields := chq.ctx.Fields; len(fields) > 0 {
 		_spec.Node.Columns = make([]string, 0, len(fields))
 		_spec.Node.Columns = append(_spec.Node.Columns, chathistory.FieldID)
 		for i := range fields {
@@ -393,10 +387,10 @@ func (chq *ChatHistoryQuery) querySpec() *sqlgraph.QuerySpec {
 			}
 		}
 	}
-	if limit := chq.limit; limit != nil {
+	if limit := chq.ctx.Limit; limit != nil {
 		_spec.Limit = *limit
 	}
-	if offset := chq.offset; offset != nil {
+	if offset := chq.ctx.Offset; offset != nil {
 		_spec.Offset = *offset
 	}
 	if ps := chq.order; len(ps) > 0 {
@@ -412,7 +406,7 @@ func (chq *ChatHistoryQuery) querySpec() *sqlgraph.QuerySpec {
 func (chq *ChatHistoryQuery) sqlQuery(ctx context.Context) *sql.Selector {
 	builder := sql.Dialect(chq.driver.Dialect())
 	t1 := builder.Table(chathistory.Table)
-	columns := chq.fields
+	columns := chq.ctx.Fields
 	if len(columns) == 0 {
 		columns = chathistory.Columns
 	}
@@ -421,7 +415,7 @@ func (chq *ChatHistoryQuery) sqlQuery(ctx context.Context) *sql.Selector {
 		selector = chq.sql
 		selector.Select(selector.Columns(columns...)...)
 	}
-	if chq.unique != nil && *chq.unique {
+	if chq.ctx.Unique != nil && *chq.ctx.Unique {
 		selector.Distinct()
 	}
 	for _, p := range chq.predicates {
@@ -430,12 +424,12 @@ func (chq *ChatHistoryQuery) sqlQuery(ctx context.Context) *sql.Selector {
 	for _, p := range chq.order {
 		p(selector)
 	}
-	if offset := chq.offset; offset != nil {
+	if offset := chq.ctx.Offset; offset != nil {
 		// limit is mandatory for offset clause. We start
 		// with default value, and override it below if needed.
 		selector.Offset(*offset).Limit(math.MaxInt32)
 	}
-	if limit := chq.limit; limit != nil {
+	if limit := chq.ctx.Limit; limit != nil {
 		selector.Limit(*limit)
 	}
 	return selector
@@ -443,13 +437,8 @@ func (chq *ChatHistoryQuery) sqlQuery(ctx context.Context) *sql.Selector {
 
 // ChatHistoryGroupBy is the group-by builder for ChatHistory entities.
 type ChatHistoryGroupBy struct {
-	config
 	selector
-	fields []string
-	fns    []AggregateFunc
-	// intermediate query (i.e. traversal path).
-	sql  *sql.Selector
-	path func(context.Context) (*sql.Selector, error)
+	build *ChatHistoryQuery
 }
 
 // Aggregate adds the given aggregation functions to the group-by query.
@@ -458,58 +447,46 @@ func (chgb *ChatHistoryGroupBy) Aggregate(fns ...AggregateFunc) *ChatHistoryGrou
 	return chgb
 }
 
-// Scan applies the group-by query and scans the result into the given value.
+// Scan applies the selector query and scans the result into the given value.
 func (chgb *ChatHistoryGroupBy) Scan(ctx context.Context, v any) error {
-	query, err := chgb.path(ctx)
-	if err != nil {
+	ctx = setContextOp(ctx, chgb.build.ctx, "GroupBy")
+	if err := chgb.build.prepareQuery(ctx); err != nil {
 		return err
 	}
-	chgb.sql = query
-	return chgb.sqlScan(ctx, v)
+	return scanWithInterceptors[*ChatHistoryQuery, *ChatHistoryGroupBy](ctx, chgb.build, chgb, chgb.build.inters, v)
 }
 
-func (chgb *ChatHistoryGroupBy) sqlScan(ctx context.Context, v any) error {
-	for _, f := range chgb.fields {
-		if !chathistory.ValidColumn(f) {
-			return &ValidationError{Name: f, err: fmt.Errorf("invalid field %q for group-by", f)}
-		}
+func (chgb *ChatHistoryGroupBy) sqlScan(ctx context.Context, root *ChatHistoryQuery, v any) error {
+	selector := root.sqlQuery(ctx).Select()
+	aggregation := make([]string, 0, len(chgb.fns))
+	for _, fn := range chgb.fns {
+		aggregation = append(aggregation, fn(selector))
 	}
-	selector := chgb.sqlQuery()
+	if len(selector.SelectedColumns()) == 0 {
+		columns := make([]string, 0, len(*chgb.flds)+len(chgb.fns))
+		for _, f := range *chgb.flds {
+			columns = append(columns, selector.C(f))
+		}
+		columns = append(columns, aggregation...)
+		selector.Select(columns...)
+	}
+	selector.GroupBy(selector.Columns(*chgb.flds...)...)
 	if err := selector.Err(); err != nil {
 		return err
 	}
 	rows := &sql.Rows{}
 	query, args := selector.Query()
-	if err := chgb.driver.Query(ctx, query, args, rows); err != nil {
+	if err := chgb.build.driver.Query(ctx, query, args, rows); err != nil {
 		return err
 	}
 	defer rows.Close()
 	return sql.ScanSlice(rows, v)
 }
 
-func (chgb *ChatHistoryGroupBy) sqlQuery() *sql.Selector {
-	selector := chgb.sql.Select()
-	aggregation := make([]string, 0, len(chgb.fns))
-	for _, fn := range chgb.fns {
-		aggregation = append(aggregation, fn(selector))
-	}
-	if len(selector.SelectedColumns()) == 0 {
-		columns := make([]string, 0, len(chgb.fields)+len(chgb.fns))
-		for _, f := range chgb.fields {
-			columns = append(columns, selector.C(f))
-		}
-		columns = append(columns, aggregation...)
-		selector.Select(columns...)
-	}
-	return selector.GroupBy(selector.Columns(chgb.fields...)...)
-}
-
 // ChatHistorySelect is the builder for selecting fields of ChatHistory entities.
 type ChatHistorySelect struct {
 	*ChatHistoryQuery
 	selector
-	// intermediate query (i.e. traversal path).
-	sql *sql.Selector
 }
 
 // Aggregate adds the given aggregation functions to the selector query.
@@ -520,26 +497,27 @@ func (chs *ChatHistorySelect) Aggregate(fns ...AggregateFunc) *ChatHistorySelect
 
 // Scan applies the selector query and scans the result into the given value.
 func (chs *ChatHistorySelect) Scan(ctx context.Context, v any) error {
+	ctx = setContextOp(ctx, chs.ctx, "Select")
 	if err := chs.prepareQuery(ctx); err != nil {
 		return err
 	}
-	chs.sql = chs.ChatHistoryQuery.sqlQuery(ctx)
-	return chs.sqlScan(ctx, v)
+	return scanWithInterceptors[*ChatHistoryQuery, *ChatHistorySelect](ctx, chs.ChatHistoryQuery, chs, chs.inters, v)
 }
 
-func (chs *ChatHistorySelect) sqlScan(ctx context.Context, v any) error {
+func (chs *ChatHistorySelect) sqlScan(ctx context.Context, root *ChatHistoryQuery, v any) error {
+	selector := root.sqlQuery(ctx)
 	aggregation := make([]string, 0, len(chs.fns))
 	for _, fn := range chs.fns {
-		aggregation = append(aggregation, fn(chs.sql))
+		aggregation = append(aggregation, fn(selector))
 	}
 	switch n := len(*chs.selector.flds); {
 	case n == 0 && len(aggregation) > 0:
-		chs.sql.Select(aggregation...)
+		selector.Select(aggregation...)
 	case n != 0 && len(aggregation) > 0:
-		chs.sql.AppendSelect(aggregation...)
+		selector.AppendSelect(aggregation...)
 	}
 	rows := &sql.Rows{}
-	query, args := chs.sql.Query()
+	query, args := selector.Query()
 	if err := chs.driver.Query(ctx, query, args, rows); err != nil {
 		return err
 	}
