@@ -53,6 +53,9 @@ func initQuota(ctx context.Context, userID int) error {
 
 // UpdateQuota update quota
 func UpdateQuota(cli *ent.Client, ctx context.Context, userID int, tokens int64, planName string) error {
+	// init quota if not exist
+	//nolint:errcheck
+	QueryQuota(ctx, userID)
 	return cli.Quota.
 		Update().
 		SetToken(tokens).

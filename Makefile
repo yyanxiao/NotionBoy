@@ -60,7 +60,7 @@ mrehash:
 mapply:
 	atlas migrate apply \
 		--dir "file://db/ent/migrate/migrations" \
-		--url "mysql://$(DB_NAME):$(DB_PASSWORD)@$(DB_HOST):$(DB_PORT)/$(DB_NAME)" --baseline 20230402035028
+		--url "mysql://$(DB_NAME):$(DB_PASSWORD)@$(DB_HOST):$(DB_PORT)/$(DB_NAME)"
 
 mstatus:
 	atlas migrate status \

@@ -38,14 +38,14 @@ const models: Model[] = [
 		name: "GPT40314",
 		value: "gpt-4-0314",
 	},
-	{
-		name: "GPT432K",
-		value: "gpt-4-32k",
-	},
-	{
-		name: "GPT432K0314",
-		value: "gpt-4-32k-0314",
-	},
+	// {
+	// 	name: "GPT432K",
+	// 	value: "gpt-4-32k",
+	// },
+	// {
+	// 	name: "GPT432K0314",
+	// 	value: "gpt-4-32k-0314",
+	// },
 ];
 
 export function ChatInputBox({ onSendMessage, isLoading }: ChatInputBoxProps) {

@@ -146,6 +146,7 @@ export default function Example() {
 						</DialogDescription>
 					</DialogHeader>
 					<div className="inline-flex items-center justify-center w-full ">
+						{loaddingShow()}
 						{wxpayQrcode && (
 							<QRCodeSVG
 								className="w-1/3"
@@ -216,7 +217,7 @@ export default function Example() {
 	return (
 		<>
 			<SiteHeader />
-			{loaddingShow()}
+			{/* {loaddingShow()} */}
 			{showOrder()}
 		</>
 	);
