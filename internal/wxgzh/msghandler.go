@@ -41,6 +41,8 @@ func (ex *OfficialAccount) messageHandler(ctx context.Context, msg *message.MixM
 		return scanQrcode(ctx, msg)
 	case message.EventClick:
 		return handleMenuClick(ctx, msg)
+	case message.EventView:
+		return nil
 	}
 	// TrimSpace will remove all space in the beginning and end of the string for matching commands
 	msg.Content = strings.TrimSpace(msg.Content)

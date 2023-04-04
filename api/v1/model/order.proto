@@ -57,7 +57,18 @@ message PayOrderRequest {
   string payment_method = 2;
 }
 
+message PayOrderConfig {
+  string timestamp = 1;
+  string nonce_str = 2;
+  string pre_pay_id = 3;
+  string sign_type = 4;
+  string package = 5;
+  string pay_sign = 6;
+  string app_id = 7;
+}
+
 message PayOrderResponse {
   string status = 1;
   string qrcode = 2;
+  PayOrderConfig config = 3;
 }

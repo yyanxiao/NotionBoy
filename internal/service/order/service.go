@@ -6,9 +6,11 @@ import (
 	"notionboy/api/pb/model"
 	"notionboy/db/ent"
 	"notionboy/db/ent/order"
+	"notionboy/internal/pkg/config"
 	"notionboy/internal/pkg/db"
 	"notionboy/internal/pkg/db/dao"
 	"notionboy/internal/pkg/logger"
+	"strings"
 
 	"github.com/google/uuid"
 	"google.golang.org/grpc/status"
@@ -147,18 +149,40 @@ func (s *OrderServiceImpl) PayOrder(ctx context.Context, acc *ent.Account, req *
 	}
 
 	dto := NewOrderDTO(o, p)
+	res := &model.PayOrderResponse{
+		Status: "ok",
+	}
 
-	qrcode, err := Prepay(ctx, dto)
-	if err != nil {
-		logger.SugaredLogger.Errorw("PayOrder prepay error", "err", err, "order", dto)
-		return nil, err
+	ua := ctx.Value(config.ContextKeyUserAgent)
+	if ua != nil && strings.Contains(ua.(string), "MicroMessenger") {
+		logger.SugaredLogger.Infow("PayOrder in wechat", "order", dto)
+		// 微信浏览器内支付，使用 JSAPI
+		prePayId, err := prepayInWexin(ctx, dto, acc.UserID)
+		if err != nil {
+			logger.SugaredLogger.Errorw("PayOrder prepay error", "err", err, "order", dto)
+			return nil, err
+		}
+		bConfig, err := BuildJSAPIBraigeConfig(prePayId)
+		if err != nil {
+			logger.SugaredLogger.Errorw("PayOrder prepay error", "err", err, "order", dto)
+			return nil, err
+		}
+		res.Config = bConfig
+	} else {
+		qrcode, err := Prepay(ctx, dto)
+		if err != nil {
+			logger.SugaredLogger.Errorw("PayOrder prepay error", "err", err, "order", dto)
+			return nil, err
+		}
+		res.Qrcode = qrcode
 	}
 	err = dao.UpdateOrderStatus(db.GetClient(), ctx, o.UUID, acc.UUID, order.StatusPaying)
 	if err != nil {
 		logger.SugaredLogger.Errorw("PayOrder update order status error", "err", err, "order", dto)
 		return nil, err
 	}
-	return &model.PayOrderResponse{Qrcode: qrcode, Status: "ok"}, nil
+	logger.SugaredLogger.Infow("PayOrder success", "res", res)
+	return res, nil
 }
 
 // processOrder after receive wechat pay notify, will call this method to process order

@@ -1,13 +1,7 @@
 import { useEffect, useState } from "react";
 
 import { SiteHeader } from "@/components/site-header";
-import { Service } from "@/lib/pb/server.pb";
-import { Product } from "@/lib/pb/model/product.pb";
-import { Loader2 } from "lucide-react";
-import { useRouter } from "next/router";
-import { Order } from "@/lib/pb/model/order.pb";
-import { QRCodeSVG } from "qrcode.react";
-import { useToast } from "@/hooks/use-toast";
+import { Button } from "@/components/ui/button";
 import {
 	Dialog,
 	DialogContent,
@@ -16,9 +10,19 @@ import {
 	DialogTitle,
 	DialogTrigger,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { isLogin } from "@/lib/utils";
 import { siteConfig } from "@/config/site";
+import { useToast } from "@/hooks/use-toast";
+import { Order, PayOrderConfig } from "@/lib/pb/model/order.pb";
+import { Product } from "@/lib/pb/model/product.pb";
+import { Service } from "@/lib/pb/server.pb";
+import { isLogin } from "@/lib/utils";
+import { Loader2 } from "lucide-react";
+import Head from "next/head";
+import { useRouter } from "next/router";
+import { QRCodeSVG } from "qrcode.react";
+import WeChatPayment from "@/components/WeChatPayment";
+import Script from "next/script";
+
 export default function Example() {
 	const [productId, setProductID] = useState<string>("");
 	const [product, setProduct] = useState<Product>();
@@ -26,6 +30,7 @@ export default function Example() {
 	const [isLoading, setIsLoading] = useState<boolean>(false);
 
 	const [wxpayQrcode, setWxpayQrcode] = useState<string>();
+	const [wxpayConfig, setWxpayConfig] = useState<PayOrderConfig>();
 
 	const { toast } = useToast();
 	const router = useRouter();
@@ -84,6 +89,8 @@ export default function Example() {
 			const resp = await Service.PayOrder({ id: order.id });
 			if (resp.qrcode) {
 				setWxpayQrcode(resp.qrcode);
+			} else if (resp.config) {
+				setWxpayConfig(resp.config);
 			} else {
 				toast({
 					variant: "destructive",
@@ -133,31 +140,62 @@ export default function Example() {
 	};
 
 	const payWithWechat = () => {
-		return (
-			<Dialog>
-				<DialogTrigger onClick={handleCheckout} asChild>
-					<Button className="w-full">微信支付</Button>
-				</DialogTrigger>
-				<DialogContent>
-					<DialogHeader>
-						<DialogTitle>扫码支付</DialogTitle>
-						<DialogDescription>
-							请扫描下方二维码进行进行支付
-						</DialogDescription>
-					</DialogHeader>
-					<div className="inline-flex items-center justify-center w-full ">
-						{loaddingShow()}
-						{wxpayQrcode && (
-							<QRCodeSVG
-								className="w-1/3"
-								size={192}
-								value={wxpayQrcode}
-							/>
-						)}
-					</div>
-				</DialogContent>
-			</Dialog>
-		);
+		if (window.navigator.userAgent.indexOf("MicroMessenger") != -1) {
+			return (
+				<>
+					<Dialog>
+						<DialogTrigger onClick={handleCheckout} asChild>
+							<Button className="w-full">微信支付</Button>
+						</DialogTrigger>
+						<DialogContent>
+							<DialogHeader>
+								<DialogTitle>微信支付</DialogTitle>
+								<DialogDescription>
+									请稍后，正在为您跳转到微信支付
+								</DialogDescription>
+							</DialogHeader>
+							<div className="inline-flex items-center justify-center w-full ">
+								{loaddingShow()}
+								{wxpayConfig && (
+									<WeChatPayment
+										cfg={wxpayConfig}
+										onSuccess={() => {
+											() => setIsLoading(true);
+										}}
+									></WeChatPayment>
+								)}
+							</div>
+						</DialogContent>
+					</Dialog>
+				</>
+			);
+		} else {
+			return (
+				<Dialog>
+					<DialogTrigger onClick={handleCheckout} asChild>
+						<Button className="w-full">微信支付</Button>
+					</DialogTrigger>
+					<DialogContent>
+						<DialogHeader>
+							<DialogTitle>扫码支付</DialogTitle>
+							<DialogDescription>
+								请扫描下方二维码进行进行支付
+							</DialogDescription>
+						</DialogHeader>
+						<div className="inline-flex items-center justify-center w-full ">
+							{loaddingShow()}
+							{wxpayQrcode && (
+								<QRCodeSVG
+									className="w-1/3"
+									size={192}
+									value={wxpayQrcode}
+								/>
+							)}
+						</div>
+					</DialogContent>
+				</Dialog>
+			);
+		}
 	};
 
 	const loaddingShow = () => {
@@ -216,6 +254,7 @@ export default function Example() {
 	};
 	return (
 		<>
+			<Script src="https://res.wx.qq.com/open/js/jweixin-1.6.0.js"></Script>
 			<SiteHeader />
 			{/* {loaddingShow()} */}
 			{showOrder()}

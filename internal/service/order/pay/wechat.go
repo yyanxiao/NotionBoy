@@ -7,6 +7,7 @@ import (
 
 	"github.com/wechatpay-apiv3/wechatpay-go/core"
 	"github.com/wechatpay-apiv3/wechatpay-go/core/option"
+	"github.com/wechatpay-apiv3/wechatpay-go/services/payments/jsapi"
 	"github.com/wechatpay-apiv3/wechatpay-go/services/payments/native"
 	"github.com/wechatpay-apiv3/wechatpay-go/utils"
 )
@@ -40,4 +41,9 @@ func NewClient() *core.Client {
 func NewNativeAPIService() native.NativeApiService {
 	client := NewClient()
 	return native.NativeApiService{Client: client}
+}
+
+func NewJSAPIService() jsapi.JsapiApiService {
+	client := NewClient()
+	return jsapi.JsapiApiService{Client: client}
 }

@@ -950,6 +950,120 @@ var _ interface {
 	ErrorName() string
 } = PayOrderRequestValidationError{}
 
+// Validate checks the field values on PayOrderConfig with the rules defined in
+// the proto definition for this message. If any rules are violated, the first
+// error encountered is returned, or nil if there are no violations.
+func (m *PayOrderConfig) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on PayOrderConfig with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// result is a list of violation errors wrapped in PayOrderConfigMultiError,
+// or nil if none found.
+func (m *PayOrderConfig) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *PayOrderConfig) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Timestamp
+
+	// no validation rules for NonceStr
+
+	// no validation rules for PrePayId
+
+	// no validation rules for SignType
+
+	// no validation rules for Package
+
+	// no validation rules for PaySign
+
+	// no validation rules for AppId
+
+	if len(errors) > 0 {
+		return PayOrderConfigMultiError(errors)
+	}
+
+	return nil
+}
+
+// PayOrderConfigMultiError is an error wrapping multiple validation errors
+// returned by PayOrderConfig.ValidateAll() if the designated constraints
+// aren't met.
+type PayOrderConfigMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m PayOrderConfigMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m PayOrderConfigMultiError) AllErrors() []error { return m }
+
+// PayOrderConfigValidationError is the validation error returned by
+// PayOrderConfig.Validate if the designated constraints aren't met.
+type PayOrderConfigValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e PayOrderConfigValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e PayOrderConfigValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e PayOrderConfigValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e PayOrderConfigValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e PayOrderConfigValidationError) ErrorName() string { return "PayOrderConfigValidationError" }
+
+// Error satisfies the builtin error interface
+func (e PayOrderConfigValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sPayOrderConfig.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = PayOrderConfigValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = PayOrderConfigValidationError{}
+
 // Validate checks the field values on PayOrderResponse with the rules defined
 // in the proto definition for this message. If any rules are violated, the
 // first error encountered is returned, or nil if there are no violations.
@@ -975,6 +1089,35 @@ func (m *PayOrderResponse) validate(all bool) error {
 	// no validation rules for Status
 
 	// no validation rules for Qrcode
+
+	if all {
+		switch v := interface{}(m.GetConfig()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, PayOrderResponseValidationError{
+					field:  "Config",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, PayOrderResponseValidationError{
+					field:  "Config",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetConfig()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return PayOrderResponseValidationError{
+				field:  "Config",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
 
 	if len(errors) > 0 {
 		return PayOrderResponseMultiError(errors)

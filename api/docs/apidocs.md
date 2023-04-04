@@ -49,6 +49,7 @@
     - [ListOrdersRequest](#servicev1-ListOrdersRequest)
     - [ListOrdersResponse](#servicev1-ListOrdersResponse)
     - [Order](#servicev1-Order)
+    - [PayOrderConfig](#servicev1-PayOrderConfig)
     - [PayOrderRequest](#servicev1-PayOrderRequest)
     - [PayOrderResponse](#servicev1-PayOrderResponse)
     - [UpdateOrderRequest](#servicev1-UpdateOrderRequest)
@@ -747,6 +748,27 @@ NumericEnum is one or zero.
 
 
 
+<a name="servicev1-PayOrderConfig"></a>
+
+### PayOrderConfig
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| timestamp | [string](#string) |  |  |
+| nonce_str | [string](#string) |  |  |
+| pre_pay_id | [string](#string) |  |  |
+| sign_type | [string](#string) |  |  |
+| package | [string](#string) |  |  |
+| pay_sign | [string](#string) |  |  |
+| app_id | [string](#string) |  |  |
+
+
+
+
+
+
 <a name="servicev1-PayOrderRequest"></a>
 
 ### PayOrderRequest
@@ -773,6 +795,7 @@ NumericEnum is one or zero.
 | ----- | ---- | ----- | ----------- |
 | status | [string](#string) |  |  |
 | qrcode | [string](#string) |  |  |
+| config | [PayOrderConfig](#servicev1-PayOrderConfig) |  |  |
 
 
 

@@ -1855,6 +1855,32 @@
         }
       }
     },
+    "servicev1PayOrderConfig": {
+      "type": "object",
+      "properties": {
+        "timestamp": {
+          "type": "string"
+        },
+        "nonceStr": {
+          "type": "string"
+        },
+        "prePayId": {
+          "type": "string"
+        },
+        "signType": {
+          "type": "string"
+        },
+        "package": {
+          "type": "string"
+        },
+        "paySign": {
+          "type": "string"
+        },
+        "appId": {
+          "type": "string"
+        }
+      }
+    },
     "servicev1PayOrderResponse": {
       "type": "object",
       "properties": {
@@ -1863,6 +1889,9 @@
         },
         "qrcode": {
           "type": "string"
+        },
+        "config": {
+          "$ref": "#/definitions/servicev1PayOrderConfig"
         }
       }
     },

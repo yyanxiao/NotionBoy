@@ -53,7 +53,18 @@ export type PayOrderRequest = {
   paymentMethod?: string
 }
 
+export type PayOrderConfig = {
+  timestamp?: string
+  nonceStr?: string
+  prePayId?: string
+  signType?: string
+  package?: string
+  paySign?: string
+  appId?: string
+}
+
 export type PayOrderResponse = {
   status?: string
   qrcode?: string
+  config?: PayOrderConfig
 }
