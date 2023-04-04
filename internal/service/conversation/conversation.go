@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/pkoukk/tiktoken-go"
 	gogpt "github.com/sashabaranov/go-openai"
 )
 
@@ -61,16 +62,19 @@ func (m *Message) toChatMessage() []gogpt.ChatCompletionMessage {
 	}
 }
 
-func (m *Message) calculateTokens() int64 {
-	// 1. get raw tokens
-	// 2. calculate tokens base on model
+func (h *History) calculateTokens(m *Message) int64 {
 	usage := m.Usage
-
 	if usage == nil {
-		// TODO fix it calculate tokens
-		// for now, just use len([]byte) / 4 as tokens
-		promptTokens := len(m.Request) / 4
-		completionTokens := len(m.Response) / 4
+		promptTokens := 0
+		completionTokens := 0
+		tk, _ := tiktoken.EncodingForModel(m.Model)
+		promptTokens += len(tk.Encode(h.Instruction, nil, nil))
+		for _, m := range h.Messages[:len(h.Messages)-1] {
+			promptTokens += len(tk.Encode(m.Request, nil, nil))
+			promptTokens += len(tk.Encode(m.Response, nil, nil))
+		}
+		promptTokens += len(tk.Encode(m.Request, nil, nil))
+		completionTokens += len(tk.Encode(m.Response, nil, nil))
 		usage = &gogpt.Usage{
 			PromptTokens:     promptTokens,
 			CompletionTokens: completionTokens,
@@ -188,8 +192,8 @@ func (h *History) getQuotaFromDB() error {
 }
 
 func (h *History) saveMessageToDB(message *Message) (*ent.ConversationMessage, error) {
-	usage := message.calculateTokens()
-
+	// usage should contains all tokens current message add message history
+	usage := h.calculateTokens(message)
 	msg := &ent.ConversationMessage{
 		UUID:           uuid.New(),
 		ConversationID: h.ConversationId,
@@ -197,7 +201,9 @@ func (h *History) saveMessageToDB(message *Message) (*ent.ConversationMessage, e
 		Request:        message.Request,
 		Response:       message.Response,
 		TokenUsage:     usage,
+		Model:          message.Model,
 	}
+	logger.SugaredLogger.Debugw("SaveConversationMessage to DB", "conversationMessage", msg)
 	tx, err := db.GetClient().Tx(h.Ctx)
 	if err != nil {
 		logger.SugaredLogger.Errorw("SaveConversationMessage", "err", err)

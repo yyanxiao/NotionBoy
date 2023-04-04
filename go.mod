@@ -16,6 +16,7 @@ require (
 	github.com/jomei/notionapi v1.9.3
 	github.com/mattn/go-sqlite3 v1.14.16
 	github.com/patrickmn/go-cache v2.1.0+incompatible
+	github.com/pkoukk/tiktoken-go v0.1.0
 	github.com/sashabaranov/go-openai v1.5.7
 	github.com/silenceper/wechat/v2 v2.1.4
 	github.com/sirupsen/logrus v1.9.0
@@ -32,6 +33,7 @@ require (
 require (
 	github.com/cespare/xxhash/v2 v2.1.2 // indirect
 	github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f // indirect
+	github.com/dlclark/regexp2 v1.8.1 // indirect
 	github.com/go-redis/redis/v8 v8.11.5 // indirect
 	github.com/jmespath/go-jmespath v0.4.0 // indirect
 	github.com/pelletier/go-toml/v2 v2.0.6 // indirect

@@ -159,7 +159,6 @@ func (m *conversationMgr) CreateStreamConversationMessage(ctx context.Context, a
 		return err
 	}
 
-	logger.SugaredLogger.Debugw("chat with history", "conversationMessage", conversationMessage)
 	dto := ConversationMessageDTOFromDB(conversationMessage)
 	if err = stream.Send(dto.ToPB()); err != nil {
 		logger.SugaredLogger.Debugw("send message error", "err", err)
