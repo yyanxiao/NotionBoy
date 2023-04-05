@@ -57,26 +57,7 @@ func OnUnbind(c tele.Context) error {
 }
 
 func OnWebUI(c tele.Context) error {
-	sender := c.Sender()
-	if sender == nil {
-		return c.Reply("User do not exist")
-	}
-	ctx := context.Background()
-	acc, err := queryUserAccount(ctx, c)
-	if err != nil {
-		logger.SugaredLogger.Errorf("Query Account Error: %v", err)
-		return c.Reply("Query Account Error: " + err.Error())
-	}
-
-	svc := auth.NewAuthServer()
-	token, err := svc.GenrateToken(ctx, acc.UUID.String(), "", "")
-	if err != nil {
-		return c.Reply(fmt.Sprintf("生成 Token 失败: %s", err.Error()))
-	}
-
-	webui := fmt.Sprintf("%s/web?token=%s", config.GetConfig().Service.URL, token)
-
-	return c.Reply(webui)
+	return c.Reply(config.GetConfig().Service.URL)
 }
 
 func OnMagicCode(c tele.Context) error {
@@ -113,4 +94,18 @@ func OnWhoAmI(c tele.Context) error {
 
 func OnSOS(c tele.Context) error {
 	return c.Reply(fmt.Sprintf("欢迎添加作者微信，请搜索🔍:  %s", config.GetConfig().Wechat.AuthorID))
+}
+
+func OnApiKey(c tele.Context) error {
+	sender := c.Sender()
+	if sender == nil {
+		return fmt.Errorf("User do not exist")
+	}
+	ctx := context.Background()
+	key, err := auth.GenerateApiKey(ctx, account.UserTypeTelegram, strconv.FormatInt(sender.ID, 10))
+	if err != nil {
+		return c.Reply("生成 API Key 失败: " + err.Error())
+	}
+
+	return c.Reply(key)
 }

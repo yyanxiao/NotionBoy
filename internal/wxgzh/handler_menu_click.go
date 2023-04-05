@@ -36,6 +36,8 @@ func handleMenuClick(c context.Context, msg *message.MixMessage) *message.Reply 
 		return unBindingNotion(c, msg)
 	case BtnMagicCode.String():
 		return magicCode(c, msg)
+	case BtnApiKey.String():
+		return apiKey(c, msg)
 	case BtnhelpSOS.String():
 		return sosInfo(c, msg)
 	case BtnWhoAMI.String():

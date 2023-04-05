@@ -23,6 +23,7 @@ const (
 	BtnHelpZlib
 	BtnhelpSOS
 	BtnWhoAMI
+	BtnApiKey
 )
 
 func buildMenuButton() []*menu.Button {
@@ -38,7 +39,8 @@ func buildCmdMenuButton() *menu.Button {
 	unbindButton := menu.NewClickButton("解绑 Notion", BtnUnbind.String())
 	magicCodeButton := menu.NewClickButton("MagicCode", BtnMagicCode.String())
 	whoAMIButton := menu.NewClickButton("个人信息", BtnWhoAMI.String())
-	return menu.NewSubButton("常用命令", []*menu.Button{bindButton, unbindButton, magicCodeButton, whoAMIButton})
+	apiKeyButton := menu.NewClickButton("API Key", BtnApiKey.String())
+	return menu.NewSubButton("常用命令", []*menu.Button{bindButton, unbindButton, magicCodeButton, whoAMIButton, apiKeyButton})
 }
 
 func buildServiceMenuButton() *menu.Button {

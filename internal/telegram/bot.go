@@ -35,6 +35,20 @@ func DefaultBot() *TeleBot {
 	return bot
 }
 
+/* Commands for telegram bot
+apikey - Get your Notion API key
+bind - Bind your Telegram account to your Notion account
+chat - Chat with ChatGPT
+contact - Get the contact information of the author
+help - Display help message
+magiccode - Get a magic code for logging into the web UI
+start - Start the bot
+unbind - Unbind your Telegram account from your Notion account
+webui - Open the NotionBoy web page
+whoami - Display information about your account
+zlib - Search for Zlibrary books
+*/
+
 func (b *TeleBot) registerHandlers() {
 	b.Handle("/chat", handler.OnChatGPT)
 	b.Handle("/start", handler.OnStart)
@@ -43,10 +57,10 @@ func (b *TeleBot) registerHandlers() {
 	b.Handle("/unbind", handler.OnUnbind)
 	b.Handle("/zlib", handler.OnZlib)
 	b.Handle("/webui", handler.OnWebUI)
-	b.Handle("/magiccode", handler.OnMagicCode)
 	b.Handle("/MagicCode", handler.OnMagicCode)
 	b.Handle("/whoami", handler.OnWhoAmI)
 	b.Handle("/sos", handler.OnSOS)
+	b.Handle("/apikey", handler.OnApiKey)
 
 	b.Handle(&tele.InlineButton{Unique: handler.INLINE_UNIQUE_ZLIB_SEARCHER}, handler.OnZlib)
 	b.Handle(&tele.InlineButton{Unique: handler.INLINE_UNIQUE_ZLIB_SAVE_TO_NOTION}, handler.OnZlibSaveToNotion)
