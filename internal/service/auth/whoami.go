@@ -3,11 +3,12 @@ package auth
 import (
 	"context"
 	"fmt"
+	"time"
+
 	"notionboy/db/ent"
 	"notionboy/db/ent/account"
 	"notionboy/internal/pkg/db/dao"
 	"notionboy/internal/pkg/logger"
-	"time"
 
 	"github.com/google/uuid"
 )

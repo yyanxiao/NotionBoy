@@ -3,10 +3,11 @@ package r2
 import (
 	"context"
 	"fmt"
-	"notionboy/internal/pkg/config"
-	"notionboy/internal/pkg/logger"
 	"sync"
 	"time"
+
+	"notionboy/internal/pkg/config"
+	"notionboy/internal/pkg/logger"
 
 	"github.com/go-resty/resty/v2"
 )

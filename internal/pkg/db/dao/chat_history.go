@@ -2,6 +2,7 @@ package dao
 
 import (
 	"context"
+
 	"notionboy/db/ent"
 	"notionboy/db/ent/chathistory"
 	"notionboy/internal/pkg/db"
@@ -13,7 +14,7 @@ import (
 // 1. select latest conversation history by limit
 // 2. get all messages from the conversations in step 1
 // 3. return all messages order by conversation_idx and message_idx
-func QueryChatHistory(ctx context.Context, userID int, limit int) ([]*ent.ChatHistory, error) {
+func QueryChatHistory(ctx context.Context, userID, limit int) ([]*ent.ChatHistory, error) {
 	histories, err := db.GetClient().ChatHistory.Query().
 		Select(chathistory.FieldConversationID).
 		Where(chathistory.UserIDEQ(userID), chathistory.ConversationIdxEQ(0)).

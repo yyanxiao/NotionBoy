@@ -4,8 +4,9 @@ import (
 	"fmt"
 	"html/template"
 	"net/http"
-	"notionboy/internal/pkg/config"
 	"strings"
+
+	"notionboy/internal/pkg/config"
 )
 
 var ipfsTemplate = `

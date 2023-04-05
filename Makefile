@@ -11,7 +11,6 @@ init:
 	pre-commit install
 
 static: init
-	golangci-lint run --fix --enable gofumpt
 	pre-commit run --all-files
 
 run:

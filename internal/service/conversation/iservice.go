@@ -2,6 +2,7 @@ package conversation
 
 import (
 	"context"
+
 	"notionboy/api/pb"
 	"notionboy/api/pb/model"
 	"notionboy/db/ent"

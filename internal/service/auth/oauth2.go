@@ -2,9 +2,10 @@ package auth
 
 import (
 	"context"
+	"strings"
+
 	"notionboy/internal/pkg/jwt"
 	"notionboy/internal/pkg/logger"
-	"strings"
 
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"

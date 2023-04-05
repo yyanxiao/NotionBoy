@@ -3,11 +3,12 @@ package auth
 import (
 	"context"
 	"fmt"
+	"strings"
+	"sync"
+
 	"notionboy/db/ent"
 	"notionboy/internal/pkg/config"
 	"notionboy/internal/pkg/logger"
-	"strings"
-	"sync"
 
 	wechat "github.com/silenceper/wechat/v2"
 	"github.com/silenceper/wechat/v2/cache"

@@ -1,8 +1,9 @@
 package jwt
 
 import (
-	"notionboy/internal/pkg/config"
 	"testing"
+
+	"notionboy/internal/pkg/config"
 
 	"github.com/stretchr/testify/assert"
 )

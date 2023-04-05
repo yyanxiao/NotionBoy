@@ -2,11 +2,12 @@ package handler
 
 import (
 	"context"
+	"strings"
+	"time"
+
 	"notionboy/internal/chatgpt"
 	"notionboy/internal/pkg/config"
 	"notionboy/internal/pkg/logger"
-	"strings"
-	"time"
 
 	tele "gopkg.in/telebot.v3"
 )

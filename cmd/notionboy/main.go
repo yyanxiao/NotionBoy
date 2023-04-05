@@ -3,6 +3,7 @@ package main
 import (
 	"io"
 	"log"
+
 	"notionboy/internal/scheduler"
 	"notionboy/internal/server"
 	"notionboy/internal/telegram"

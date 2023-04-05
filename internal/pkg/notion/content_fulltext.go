@@ -3,6 +3,7 @@ package notion
 import (
 	"context"
 	"fmt"
+
 	"notionboy/db/ent"
 	"notionboy/internal/pkg/fulltext"
 

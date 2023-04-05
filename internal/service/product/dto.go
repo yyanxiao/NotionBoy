@@ -1,9 +1,10 @@
 package product
 
 import (
+	"time"
+
 	"notionboy/api/pb/model"
 	"notionboy/db/ent"
-	"time"
 )
 
 type ProductDTO struct {

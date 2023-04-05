@@ -3,6 +3,9 @@ package handler
 import (
 	"context"
 	"fmt"
+	"strconv"
+	"time"
+
 	"notionboy/db/ent/account"
 	"notionboy/internal/pkg/config"
 	"notionboy/internal/pkg/db/dao"
@@ -10,8 +13,6 @@ import (
 	"notionboy/internal/pkg/notion"
 	"notionboy/internal/pkg/utils/cache"
 	"notionboy/internal/service/auth"
-	"strconv"
-	"time"
 
 	"github.com/google/uuid"
 	tele "gopkg.in/telebot.v3"

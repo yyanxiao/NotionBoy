@@ -3,13 +3,14 @@ package auth
 import (
 	"context"
 	"fmt"
+	"strings"
+	"time"
+
 	"notionboy/db/ent"
 	"notionboy/internal/pkg/config"
 	"notionboy/internal/pkg/db/dao"
 	"notionboy/internal/pkg/jwt"
 	"notionboy/internal/pkg/utils/cache"
-	"strings"
-	"time"
 
 	"github.com/google/uuid"
 	"github.com/silenceper/wechat/v2/officialaccount/basic"
@@ -29,7 +30,7 @@ type AuthServer interface {
 	GetAccountByApiKey(ctx context.Context, appiKey string) (*ent.Account, error)
 	GetAccountByUserId(ctx context.Context, userId uuid.UUID) *ent.Account
 	GetOAuthProviders(ctx context.Context) ([]Provider, error)
-	OAuthCallback(ctx context.Context, code string, state string) (string, error)
+	OAuthCallback(ctx context.Context, code, state string) (string, error)
 	GenerateWechatQRCode(ctx context.Context) (string, string, error)
 }
 

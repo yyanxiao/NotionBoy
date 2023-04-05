@@ -2,11 +2,12 @@ package middleware
 
 import (
 	"context"
+	"strings"
+
 	"notionboy/internal/pkg/config"
 	"notionboy/internal/pkg/jwt"
 	"notionboy/internal/pkg/logger"
 	"notionboy/internal/service/auth"
-	"strings"
 
 	"github.com/google/uuid"
 	grpc_auth "github.com/grpc-ecosystem/go-grpc-middleware/auth"

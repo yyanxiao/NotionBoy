@@ -2,10 +2,11 @@ package dao
 
 import (
 	"context"
+	"strings"
+
 	"notionboy/db/ent"
 	"notionboy/db/ent/order"
 	"notionboy/internal/pkg/db"
-	"strings"
 
 	"github.com/google/uuid"
 )

@@ -4,11 +4,12 @@ import (
 	"context"
 	"errors"
 	"io"
+	"strings"
+
 	"notionboy/api/pb"
 	"notionboy/db/ent"
 	"notionboy/internal/pkg/config"
 	"notionboy/internal/pkg/logger"
-	"strings"
 
 	gogpt "github.com/sashabaranov/go-openai"
 )

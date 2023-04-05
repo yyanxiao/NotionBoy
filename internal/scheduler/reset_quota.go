@@ -2,8 +2,9 @@ package scheduler
 
 import (
 	"context"
-	"notionboy/internal/pkg/db/dao"
 	"time"
+
+	"notionboy/internal/pkg/db/dao"
 )
 
 func resetUserQuota(ctx context.Context) error {

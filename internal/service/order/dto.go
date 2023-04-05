@@ -1,10 +1,11 @@
 package order
 
 import (
+	"time"
+
 	"notionboy/api/pb/model"
 	"notionboy/db/ent"
 	"notionboy/internal/service/product"
-	"time"
 )
 
 type OrderDTO struct {

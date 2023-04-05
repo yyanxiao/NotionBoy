@@ -2,9 +2,10 @@ package jwt
 
 import (
 	"fmt"
+	"time"
+
 	"notionboy/internal/pkg/config"
 	"notionboy/internal/pkg/logger"
-	"time"
 
 	"github.com/golang-jwt/jwt/v5"
 )

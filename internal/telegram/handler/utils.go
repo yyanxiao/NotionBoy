@@ -3,10 +3,11 @@ package handler
 import (
 	"context"
 	"fmt"
+	"strconv"
+
 	"notionboy/db/ent"
 	"notionboy/db/ent/account"
 	"notionboy/internal/pkg/db/dao"
-	"strconv"
 
 	tele "gopkg.in/telebot.v3"
 )

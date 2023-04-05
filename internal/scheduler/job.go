@@ -2,8 +2,9 @@ package scheduler
 
 import (
 	"context"
-	"notionboy/internal/pkg/logger"
 	"time"
+
+	"notionboy/internal/pkg/logger"
 
 	"github.com/go-co-op/gocron"
 )

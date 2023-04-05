@@ -3,13 +3,14 @@ package handler
 import (
 	"context"
 	"fmt"
+	"strconv"
+	"strings"
+	"time"
+
 	"notionboy/internal/pkg/config"
 	"notionboy/internal/pkg/logger"
 	"notionboy/internal/pkg/notion"
 	"notionboy/internal/zlib"
-	"strconv"
-	"strings"
-	"time"
 
 	tele "gopkg.in/telebot.v3"
 )

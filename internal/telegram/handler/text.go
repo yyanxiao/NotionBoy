@@ -2,6 +2,7 @@ package handler
 
 import (
 	"context"
+
 	"notionboy/internal/pkg/config"
 	"notionboy/internal/pkg/logger"
 	"notionboy/internal/pkg/notion"

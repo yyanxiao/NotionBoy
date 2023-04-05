@@ -5,9 +5,10 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"sync"
+
 	"notionboy/internal/pkg/config"
 	"notionboy/internal/pkg/logger"
-	"sync"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"

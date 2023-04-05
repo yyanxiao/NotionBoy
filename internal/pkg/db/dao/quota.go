@@ -2,12 +2,13 @@ package dao
 
 import (
 	"context"
+	"strings"
+	"time"
+
 	"notionboy/db/ent"
 	"notionboy/db/ent/quota"
 	"notionboy/internal/pkg/db"
 	"notionboy/internal/pkg/logger"
-	"strings"
-	"time"
 )
 
 const (
@@ -58,7 +59,7 @@ func UpdateQuota(cli *ent.Client, ctx context.Context, userID int, tokens int64,
 	QueryQuota(ctx, userID)
 	return cli.Quota.
 		Update().
-		SetToken(tokens).
+		AddTokenUsed(tokens).
 		SetPlan(planName).
 		SetResetTime(nextResetTime()).
 		Where(quota.UserIDEQ(userID)).

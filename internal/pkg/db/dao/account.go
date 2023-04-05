@@ -2,12 +2,13 @@ package dao
 
 import (
 	"context"
+	"strings"
+
 	"notionboy/db/ent"
 	"notionboy/db/ent/account"
 	"notionboy/internal/pkg/config"
 	"notionboy/internal/pkg/db"
 	"notionboy/internal/pkg/logger"
-	"strings"
 
 	"github.com/google/uuid"
 )
@@ -170,7 +171,7 @@ func UpdateIsLatestSchema(ctx context.Context, databaseID string, isLatest bool)
 }
 
 // UpdateAccountApiKey Save Api Key
-func UpdateAccountApiKey(ctx context.Context, id uuid.UUID, apiKey uuid.UUID) error {
+func UpdateAccountApiKey(ctx context.Context, id, apiKey uuid.UUID) error {
 	return db.GetClient().Account.
 		Update().
 		Where(account.UUIDEQ(id)).

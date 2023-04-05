@@ -2,6 +2,7 @@ package wxgzh
 
 import (
 	"fmt"
+
 	"notionboy/internal/pkg/config"
 
 	"github.com/silenceper/wechat/v2/officialaccount/menu"

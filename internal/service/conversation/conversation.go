@@ -3,12 +3,13 @@ package conversation
 import (
 	"context"
 	"fmt"
+	"time"
+
 	"notionboy/db/ent"
 	"notionboy/internal/pkg/db"
 	"notionboy/internal/pkg/db/dao"
 	"notionboy/internal/pkg/logger"
 	"notionboy/internal/pkg/utils/cache"
-	"time"
 
 	"github.com/google/uuid"
 	"github.com/pkoukk/tiktoken-go"
@@ -97,7 +98,7 @@ func (h *History) calculateTokens(m *Message) int64 {
 	return int64(totalTokens)
 }
 
-func NewHistory(ctx context.Context, acc *ent.Account, conversationId string, instruction string) *History {
+func NewHistory(ctx context.Context, acc *ent.Account, conversationId, instruction string) *History {
 	if instruction == "" {
 		instruction = DEFAULT_INSTRUCTION
 	}

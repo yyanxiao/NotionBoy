@@ -2,6 +2,7 @@ package dao
 
 import (
 	"context"
+
 	"notionboy/db/ent"
 	"notionboy/db/ent/conversation"
 	"notionboy/internal/pkg/db"
@@ -18,7 +19,7 @@ func CreateConversation(ctx context.Context, userId uuid.UUID, instruction, titl
 		Save(ctx)
 }
 
-func UpdateConversation(ctx context.Context, userId uuid.UUID, id uuid.UUID, instruction, title string) (*ent.Conversation, error) {
+func UpdateConversation(ctx context.Context, userId, id uuid.UUID, instruction, title string) (*ent.Conversation, error) {
 	query := db.GetClient().Conversation.Create().
 		SetUUID(id).
 		SetUserID(userId)

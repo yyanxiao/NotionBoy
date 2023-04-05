@@ -2,12 +2,13 @@ package conversation
 
 import (
 	"context"
+	"strings"
+
 	"notionboy/api/pb"
 	"notionboy/api/pb/model"
 	"notionboy/db/ent"
 	"notionboy/internal/pkg/db/dao"
 	"notionboy/internal/pkg/logger"
-	"strings"
 
 	"github.com/google/uuid"
 	"google.golang.org/grpc/status"

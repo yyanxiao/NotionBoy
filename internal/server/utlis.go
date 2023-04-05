@@ -3,6 +3,7 @@ package server
 import (
 	"fmt"
 	"net/http"
+
 	"notionboy/internal/pkg/logger"
 )
 

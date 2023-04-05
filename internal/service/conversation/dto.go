@@ -1,9 +1,10 @@
 package conversation
 
 import (
+	"time"
+
 	"notionboy/api/pb/model"
 	"notionboy/db/ent"
-	"time"
 
 	"github.com/google/uuid"
 )

@@ -3,10 +3,11 @@ package server
 import (
 	"fmt"
 	"net/http"
+	"strings"
+
 	"notionboy/internal/pkg/config"
 	"notionboy/internal/pkg/logger"
 	"notionboy/internal/telegram"
-	"strings"
 )
 
 func proxyTelegramFile(w http.ResponseWriter, r *http.Request) {

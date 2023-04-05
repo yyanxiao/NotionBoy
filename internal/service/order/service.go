@@ -3,6 +3,8 @@ package order
 import (
 	"context"
 	"encoding/json"
+	"strings"
+
 	"notionboy/api/pb/model"
 	"notionboy/db/ent"
 	"notionboy/db/ent/order"
@@ -10,7 +12,6 @@ import (
 	"notionboy/internal/pkg/db"
 	"notionboy/internal/pkg/db/dao"
 	"notionboy/internal/pkg/logger"
-	"strings"
 
 	"github.com/google/uuid"
 	"google.golang.org/grpc/status"

@@ -2,6 +2,7 @@ package auth
 
 import (
 	"context"
+
 	"notionboy/db/ent/account"
 	"notionboy/internal/pkg/db/dao"
 	"notionboy/internal/pkg/logger"

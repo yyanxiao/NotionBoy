@@ -3,6 +3,9 @@ package wxgzh
 import (
 	"context"
 	"fmt"
+	"strings"
+	"time"
+
 	"notionboy/db/ent"
 	"notionboy/internal/chatgpt"
 	"notionboy/internal/pkg/config"
@@ -10,8 +13,6 @@ import (
 	"notionboy/internal/pkg/logger"
 	"notionboy/internal/pkg/notion"
 	"notionboy/internal/pkg/utils/cache"
-	"strings"
-	"time"
 
 	"github.com/silenceper/wechat/v2/officialaccount/message"
 )

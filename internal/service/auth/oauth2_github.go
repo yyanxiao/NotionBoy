@@ -3,6 +3,7 @@ package auth
 import (
 	"context"
 	"fmt"
+
 	"notionboy/db/ent"
 	"notionboy/internal/pkg/config"
 	"notionboy/internal/pkg/logger"

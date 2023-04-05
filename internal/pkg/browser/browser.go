@@ -1,9 +1,10 @@
 package browser
 
 import (
+	"sync"
+
 	"notionboy/internal/pkg/config"
 	"notionboy/internal/pkg/logger"
-	"sync"
 
 	"github.com/go-rod/rod"
 )

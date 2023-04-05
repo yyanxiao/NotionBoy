@@ -3,10 +3,11 @@ package handler
 import (
 	"context"
 	"fmt"
+	"time"
+
 	"notionboy/internal/pkg/config"
 	"notionboy/internal/pkg/logger"
 	"notionboy/internal/pkg/notion"
-	"time"
 
 	"github.com/jomei/notionapi"
 	tele "gopkg.in/telebot.v3"
