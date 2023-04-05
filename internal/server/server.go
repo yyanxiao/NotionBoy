@@ -54,6 +54,8 @@ func registerHttpHandlers(ctx context.Context, mux *http.ServeMux) {
 	mux.HandleFunc("/status", func(w http.ResponseWriter, r *http.Request) {
 		renderHtml(w, "ok", http.StatusOK)
 	})
+	// proxy for openai chat API
+	mux.HandleFunc("/v1/chat/completions", completions)
 
 	webui.RegisterHandlers(mux)
 }

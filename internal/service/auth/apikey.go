@@ -16,6 +16,9 @@ func GenerateApiKey(ctx context.Context, userType account.UserType, userId strin
 		logger.SugaredLogger.Errorw("GenerateApiKey query account failed", "error", err, "userType", userType, "userId", userId)
 		return "", err
 	}
+	if acc.APIKey != uuid.Nil {
+		return acc.APIKey.String(), nil
+	}
 
 	apiKey := uuid.New()
 	if err := dao.UpdateAccountApiKey(ctx, acc.UUID, apiKey); err != nil {
