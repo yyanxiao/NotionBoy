@@ -68,7 +68,11 @@ func (h *History) calculateTokens(m *Message) int64 {
 	if usage == nil {
 		promptTokens := 0
 		completionTokens := 0
-		tk, _ := tiktoken.EncodingForModel(m.Model)
+		tk, err := tiktoken.GetEncoding("cl100k_base")
+		if err != nil {
+			logger.SugaredLogger.Errorw("tiktoken.EncodingForModel", "error", err)
+			return 0
+		}
 		promptTokens += len(tk.Encode(h.Instruction, nil, nil))
 		for _, m := range h.Messages[:len(h.Messages)-1] {
 			promptTokens += len(tk.Encode(m.Request, nil, nil))

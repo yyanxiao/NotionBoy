@@ -40,3 +40,15 @@ func completions(w http.ResponseWriter, r *http.Request) {
 
 	handler.Completions(r.Context(), w, token, &req)
 }
+
+func proxyOpenAI(w http.ResponseWriter, r *http.Request) {
+	token := ""
+
+	for k, v := range r.Header {
+		if k == "Authorization" {
+			token = v[0]
+			break
+		}
+	}
+	handler.Proxy(r.Context(), w, r, token)
+}

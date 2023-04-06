@@ -106,7 +106,7 @@ func calcuteTokenUsage(req *openai.ChatCompletionRequest, respStr string) int64 
 	totalTokens := 0
 	promptTokens := 0
 	completionTokens := 0
-	tk, _ := tiktoken.EncodingForModel(req.Model)
+	tk, _ := tiktoken.GetEncoding("cl100k_base")
 
 	// token for req
 	for _, msg := range req.Messages {
