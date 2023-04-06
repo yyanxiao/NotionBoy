@@ -59,7 +59,7 @@ func UpdateQuota(cli *ent.Client, ctx context.Context, userID int, tokens int64,
 	QueryQuota(ctx, userID)
 	return cli.Quota.
 		Update().
-		AddTokenUsed(tokens).
+		AddToken(tokens).
 		SetPlan(planName).
 		SetResetTime(nextResetTime()).
 		Where(quota.UserIDEQ(userID)).
