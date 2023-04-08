@@ -2,8 +2,10 @@ package handler
 
 import (
 	"context"
+	"net/http"
 
 	"notionboy/internal/pkg/logger"
+	"notionboy/internal/service/order"
 
 	model "notionboy/api/pb/model"
 
@@ -39,4 +41,9 @@ func (s *Server) DeleteOrder(ctx context.Context, req *model.DeleteOrderRequest)
 func (s *Server) PayOrder(ctx context.Context, req *model.PayOrderRequest) (*model.PayOrderResponse, error) {
 	acc := getAccFromContext(ctx)
 	return s.OrderService.PayOrder(ctx, acc, req)
+}
+
+func WechatPayCallback(ctx context.Context, r *http.Request) error {
+	orderSvc := order.NewOrderService()
+	return orderSvc.WechatPayCallBack(ctx, r)
 }

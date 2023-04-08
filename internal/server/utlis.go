@@ -1,7 +1,9 @@
 package server
 
 import (
+	"encoding/json"
 	"fmt"
+	"html/template"
 	"net/http"
 
 	"notionboy/internal/pkg/logger"
@@ -39,22 +41,22 @@ func renderHtml(w http.ResponseWriter, data interface{}, statusCode int) {
 }
 
 // RenderJson render json response
-//func renderJson(w http.ResponseWriter, data interface{}, statusCode int) {
-//	w.WriteHeader(http.StatusOK)
-//	dataJsonBytes, err := json.Marshal(data)
-//	if err != nil {
-//		w.Header().Set("Content-Type", "text/html; charset=utf-8")
-//		logger.SugaredLogger.Infow("Can not marshal", "msg", data)
-//		//_, _ = fmt.Fprintf(w, data.(string))
-//		t := template.New("data")
-//		if err = t.Execute(w, data); err != nil {
-//			http.Error(w, err.Error(), http.StatusInternalServerError)
-//		}
-//		return
-//	}
-//	w.Header().Set("Content-Type", "application/json")
-//	_, _ = w.Write(dataJsonBytes)
-//}
+func renderJson(w http.ResponseWriter, data interface{}, statusCode int) {
+	w.WriteHeader(statusCode)
+	dataJsonBytes, err := json.Marshal(data)
+	if err != nil {
+		w.Header().Set("Content-Type", "text/html; charset=utf-8")
+		logger.SugaredLogger.Infow("Can not marshal", "msg", data)
+		//_, _ = fmt.Fprintf(w, data.(string))
+		t := template.New("data")
+		if err = t.Execute(w, data); err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		}
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	_, _ = w.Write(dataJsonBytes)
+}
 
 func corsMiddleware(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {

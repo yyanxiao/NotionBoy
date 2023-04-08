@@ -2,7 +2,7 @@ package order
 
 import (
 	"context"
-	"encoding/json"
+	"net/http"
 	"strings"
 
 	"notionboy/api/pb/model"
@@ -12,8 +12,10 @@ import (
 	"notionboy/internal/pkg/db"
 	"notionboy/internal/pkg/db/dao"
 	"notionboy/internal/pkg/logger"
+	"notionboy/internal/service/order/pay"
 
 	"github.com/google/uuid"
+	"github.com/wechatpay-apiv3/wechatpay-go/services/payments"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
@@ -61,7 +63,7 @@ func (s *OrderServiceImpl) GetOrder(ctx context.Context, acc *ent.Account, req *
 	}
 
 	//nolint:errcheck
-	go processOrder(acc, o, p)
+	go processOrder(o.UserID, o.UUID, o.Status)
 
 	dto := NewOrderDTO(o, p)
 	return dto.ToProto(), nil
@@ -186,74 +188,34 @@ func (s *OrderServiceImpl) PayOrder(ctx context.Context, acc *ent.Account, req *
 	return res, nil
 }
 
-// processOrder after receive wechat pay notify, will call this method to process order
-func processOrder(acc *ent.Account, o *ent.Order, p *ent.Product) error {
-	ctx := context.Background()
-	dto := NewOrderDTO(o, p)
-	if o.Status == order.StatusPaying {
-		return processAfterPaying(ctx, acc, dto)
-	} else if o.Status == order.StatusPaid {
-		return processAfterPaid(ctx, acc, dto)
+// WechatCallBack wechat pay callback
+func (s *OrderServiceImpl) WechatPayCallBack(ctx context.Context, r *http.Request) error {
+	handler, err := pay.NewNotifyHandler()
+	if err != nil {
+		logger.SugaredLogger.Errorw("WechatCallBack new handler error", "err", err)
 	}
+
+	transaction := new(payments.Transaction)
+	req, err := handler.ParseNotifyRequest(ctx, r, transaction)
+	if err != nil {
+		logger.SugaredLogger.Errorw("WechatCallBack parse request error", "err", err)
+		return err
+	}
+	logger.SugaredLogger.Infow("WechatCallBack", "summary", req.Summary, "transaction", transaction)
+
+	userId, err := uuid.Parse(*transaction.Attach)
+	if err != nil {
+		logger.SugaredLogger.Errorw("WechatCallBack parse user id error", "err", err)
+		return err
+	}
+
+	orderId, err := uuid.Parse(*transaction.OutTradeNo)
+	if err != nil {
+		logger.SugaredLogger.Errorw("WechatCallBack parse order id error", "err", err)
+		return err
+	}
+	status := order.StatusPaying
+	//nolint:errcheck
+	go processOrder(userId, orderId, status)
 	return nil
-}
-
-func processAfterPaying(ctx context.Context, acc *ent.Account, dto *OrderDTO) error {
-	tx, err := db.GetClient().Tx(ctx)
-	if err != nil {
-		logger.SugaredLogger.Errorw("processAfterPaying get tx error", "err", err, "order", dto)
-		return err
-	}
-	// query order status from wechat
-	res, err := QueryOrderStatus(ctx, dto)
-	if err != nil {
-		logger.SugaredLogger.Errorw("processAfterPaying query order status from wechat error", "err", err, "order", dto)
-		return err
-	}
-	if *res.TradeState == "SUCCESS" {
-		// update order success status and payment info
-		paymentInfo, err := json.Marshal(res)
-		if err != nil {
-			logger.SugaredLogger.Errorw("processAfterPaying marshal payment info error", "err", err, "order", dto)
-			return err
-		}
-		err = tx.Order.Update().Where(order.UUIDEQ(dto.UUID), order.UserIDEQ(dto.UserID)).SetStatus(order.StatusPaid).SetPaymentInfo(string(paymentInfo)).Exec(ctx)
-		if err != nil {
-			logger.SugaredLogger.Errorw("processAfterPaying update order status to StatusPaid error", "err", err, "order", dto)
-			return err
-		}
-	}
-	return tx.Commit()
-}
-
-func processAfterPaid(ctx context.Context, acc *ent.Account, dto *OrderDTO) error {
-	// 1. update order status to Prcesssing
-	// 2. update user quota
-	// 3. update order status to Completed
-	tx, err := db.GetClient().Tx(ctx)
-	if err != nil {
-		logger.SugaredLogger.Errorw("processAfterPaid get tx error", "err", err, "order", dto)
-		return err
-	}
-
-	err = dao.UpdateOrderStatus(tx.Client(), ctx, dto.UUID, acc.UUID, order.StatusProcessing)
-	if err != nil {
-		logger.SugaredLogger.Errorw("processAfterPaid update order status to StatusProcessing error", "err", err, "order", dto)
-		return err
-	}
-
-	// update quota token
-	err = dao.UpdateQuota(tx.Client(), ctx, acc.ID, dto.Product.Token, dto.Product.Name)
-
-	if err != nil {
-		logger.SugaredLogger.Errorw("processAfterPaid update quota error", "err", err, "order", dto)
-		return err
-	}
-	// update order status to completed
-	err = dao.UpdateOrderStatus(tx.Client(), ctx, dto.UUID, acc.UUID, order.StatusCompleted)
-	if err != nil {
-		logger.SugaredLogger.Errorw("processAfterPaid update order status error", "err", err, "order", dto, "status", order.StatusCompleted)
-		return err
-	}
-	return tx.Commit()
 }

@@ -7,13 +7,19 @@ import (
 	"notionboy/internal/pkg/logger"
 
 	"github.com/wechatpay-apiv3/wechatpay-go/core"
+	"github.com/wechatpay-apiv3/wechatpay-go/core/auth/verifiers"
+	"github.com/wechatpay-apiv3/wechatpay-go/core/downloader"
+	"github.com/wechatpay-apiv3/wechatpay-go/core/notify"
 	"github.com/wechatpay-apiv3/wechatpay-go/core/option"
 	"github.com/wechatpay-apiv3/wechatpay-go/services/payments/jsapi"
 	"github.com/wechatpay-apiv3/wechatpay-go/services/payments/native"
 	"github.com/wechatpay-apiv3/wechatpay-go/utils"
 )
 
-var client *core.Client
+var (
+	client  *core.Client
+	handler *notify.Handler
+)
 
 func NewClient() *core.Client {
 	if client == nil {
@@ -47,4 +53,37 @@ func NewNativeAPIService() native.NativeApiService {
 func NewJSAPIService() jsapi.JsapiApiService {
 	client := NewClient()
 	return jsapi.JsapiApiService{Client: client}
+}
+
+func NewNotifyHandler() (*notify.Handler, error) {
+	var err error
+	if handler == nil {
+		handler, err = newHandler()
+		if err != nil {
+			logger.SugaredLogger.Panicw("new wechat pay handler error", "err", err)
+		}
+	}
+	return handler, nil
+}
+
+func newHandler() (*notify.Handler, error) {
+	ctx := context.Background()
+	cfg := config.GetConfig().Wechat
+	mchPrivateKey, err := utils.LoadPrivateKeyWithPath(cfg.MchPrivateKeyPath)
+	if err != nil {
+		logger.SugaredLogger.Panicw("load merchant private key error", "err", err)
+		return nil, err
+	}
+	d, err := downloader.NewCertificateDownloader(ctx, cfg.MchID, mchPrivateKey, cfg.MchCertificateSerialNumber, cfg.MchAPIv3Key)
+	if err != nil {
+		logger.SugaredLogger.Errorw("WechatCallBack new downloader error", "err", err)
+		return nil, err
+	}
+
+	handler, err := notify.NewRSANotifyHandler(config.GetConfig().Wechat.MchAPIv3Key, verifiers.NewSHA256WithRSAVerifier(d))
+	if err != nil {
+		logger.SugaredLogger.Errorw("WechatCallBack new handler error", "err", err)
+		return nil, err
+	}
+	return handler, nil
 }

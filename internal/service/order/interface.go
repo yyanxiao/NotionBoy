@@ -2,6 +2,7 @@ package order
 
 import (
 	"context"
+	"net/http"
 
 	"notionboy/api/pb/model"
 	"notionboy/db/ent"
@@ -18,6 +19,7 @@ type OrderService interface {
 	DeleteOrder(ctx context.Context, acc *ent.Account, req *model.DeleteOrderRequest) (*emptypb.Empty, error)
 	UpdateOrder(ctx context.Context, acc *ent.Account, req *model.UpdateOrderRequest) (*model.Order, error)
 	PayOrder(ctx context.Context, acc *ent.Account, req *model.PayOrderRequest) (*model.PayOrderResponse, error)
+	WechatPayCallBack(ctx context.Context, r *http.Request) error
 }
 
 func NewOrderService() OrderService {

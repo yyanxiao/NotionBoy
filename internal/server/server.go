@@ -58,6 +58,9 @@ func registerHttpHandlers(ctx context.Context, mux *http.ServeMux) {
 	mux.HandleFunc("/v1/chat/completions", corsMiddleware(completions))
 	mux.HandleFunc("/v1/models", corsMiddleware(proxyOpenAI))
 
+	// wechat pay callback
+	mux.HandleFunc("/v1/wechatpay/callback", wechatPayCallback)
+
 	webui.RegisterHandlers(mux)
 }
 
