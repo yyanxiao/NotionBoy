@@ -58,6 +58,7 @@ func (b *TeleBot) registerHandlers() {
 	b.Handle("/zlib", handler.OnZlib)
 	b.Handle("/webui", handler.OnWebUI)
 	b.Handle("/MagicCode", handler.OnMagicCode)
+	b.Handle("/magiccode", handler.OnMagicCode)
 	b.Handle("/whoami", handler.OnWhoAmI)
 	b.Handle("/sos", handler.OnSOS)
 	b.Handle("/apikey", handler.OnApiKey)
