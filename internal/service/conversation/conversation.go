@@ -3,6 +3,7 @@ package conversation
 import (
 	"context"
 	"fmt"
+	"sync"
 	"time"
 
 	"notionboy/db/ent"
@@ -13,11 +14,11 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/pkoukk/tiktoken-go"
-	gogpt "github.com/sashabaranov/go-openai"
+	"github.com/sashabaranov/go-openai"
 )
 
 const DEFAULT_INSTRUCTION = `
-You are ChatGPT, a large language model trained by OpenAI. You Respond as concisely as possible for each response. It's essential to respond concisely and use the same language as the user, Please keep this in mind.
+You are ChatGPT, a large language model trained by OpenAI. Answer as concisely as possible. It's essential to use the same language as the user.
 `
 
 const (
@@ -33,6 +34,11 @@ const (
 
 var cacheClient = cache.DefaultClient()
 
+var (
+	tk   *tiktoken.Tiktoken
+	once sync.Once
+)
+
 type History struct {
 	Ctx            context.Context
 	Account        *ent.Account
@@ -41,17 +47,18 @@ type History struct {
 	Messages       []*Message
 	Quota          *ent.Quota
 	isRateLimit    bool
+	Summary        string // summary of the conversation for reduce the size of the prompt
 }
 
 type Message struct {
 	Request  string
 	Response string
 	Model    string
-	Usage    *gogpt.Usage
+	Usage    *openai.Usage
 }
 
-func (m *Message) toChatMessage() []gogpt.ChatCompletionMessage {
-	return []gogpt.ChatCompletionMessage{
+func (m *Message) toChatMessage() []openai.ChatCompletionMessage {
+	return []openai.ChatCompletionMessage{
 		{
 			Role:    ROLE_USER,
 			Content: m.Request,
@@ -63,24 +70,38 @@ func (m *Message) toChatMessage() []gogpt.ChatCompletionMessage {
 	}
 }
 
+func getTiktoken() *tiktoken.Tiktoken {
+	if tk == nil {
+		var err error
+		once.Do(func() {
+			tk, err = tiktoken.GetEncoding("cl100k_base")
+			if err != nil {
+				logger.SugaredLogger.Errorw("tiktoken.EncodingForModel", "error", err)
+			}
+		})
+	}
+	return tk
+}
+
+func calculateTokens(msg string) int {
+	tk = getTiktoken()
+	return len(tk.Encode(msg, nil, nil))
+}
+
 func (h *History) calculateTokens(m *Message) int64 {
 	usage := m.Usage
 	if usage == nil {
 		promptTokens := 0
 		completionTokens := 0
-		tk, err := tiktoken.GetEncoding("cl100k_base")
-		if err != nil {
-			logger.SugaredLogger.Errorw("tiktoken.EncodingForModel", "error", err)
-			return 0
+		tk = getTiktoken()
+		promptTokens += calculateTokens(h.Instruction)
+		for _, tm := range h.Messages[:len(h.Messages)-1] {
+			promptTokens += calculateTokens(tm.Request)
+			promptTokens += calculateTokens(tm.Response)
 		}
-		promptTokens += len(tk.Encode(h.Instruction, nil, nil))
-		for _, m := range h.Messages[:len(h.Messages)-1] {
-			promptTokens += len(tk.Encode(m.Request, nil, nil))
-			promptTokens += len(tk.Encode(m.Response, nil, nil))
-		}
-		promptTokens += len(tk.Encode(m.Request, nil, nil))
-		completionTokens += len(tk.Encode(m.Response, nil, nil))
-		usage = &gogpt.Usage{
+		promptTokens += calculateTokens(m.Request)
+		completionTokens += calculateTokens(m.Response)
+		usage = &openai.Usage{
 			PromptTokens:     promptTokens,
 			CompletionTokens: completionTokens,
 			TotalTokens:      promptTokens + completionTokens,
@@ -91,11 +112,11 @@ func (h *History) calculateTokens(m *Message) int64 {
 
 	// https://openai.com/pricing#faq-token
 	switch m.Model {
-	case gogpt.GPT3Dot5Turbo, gogpt.GPT3Dot5Turbo0301:
+	case openai.GPT3Dot5Turbo, openai.GPT3Dot5Turbo0301:
 		totalTokens = usage.TotalTokens
-	case gogpt.GPT4, gogpt.GPT40314:
+	case openai.GPT4, openai.GPT40314:
 		totalTokens = usage.PromptTokens*15 + usage.CompletionTokens*30
-	case gogpt.GPT432K, gogpt.GPT432K0314:
+	case openai.GPT432K, openai.GPT432K0314:
 		totalTokens = usage.PromptTokens*30 + usage.CompletionTokens*60
 	}
 
@@ -141,7 +162,7 @@ func (h *History) Load() error {
 	return err
 }
 
-func (h *History) Save(req *gogpt.ChatCompletionMessage, resp *gogpt.ChatCompletionResponse) (*ent.ConversationMessage, error) {
+func (h *History) Save(req *openai.ChatCompletionMessage, resp *openai.ChatCompletionResponse) (*ent.ConversationMessage, error) {
 	msg := &Message{
 		Request:  req.Content,
 		Response: getResponse(resp),
@@ -256,16 +277,16 @@ func (h *History) append(message *Message) {
 	h.Messages = append(h.Messages, message)
 }
 
-func (h *History) buildRequestMessages(prompt string) []gogpt.ChatCompletionMessage {
-	messages := make([]gogpt.ChatCompletionMessage, 0)
-	messages = append(messages, gogpt.ChatCompletionMessage{
+func (h *History) buildRequestMessages(prompt string) []openai.ChatCompletionMessage {
+	messages := make([]openai.ChatCompletionMessage, 0)
+	messages = append(messages, openai.ChatCompletionMessage{
 		Role:    ROLE_SYSTEM,
 		Content: h.Instruction,
 	})
 	for _, message := range h.Messages {
 		messages = append(messages, message.toChatMessage()...)
 	}
-	messages = append(messages, gogpt.ChatCompletionMessage{
+	messages = append(messages, openai.ChatCompletionMessage{
 		Role:    ROLE_USER,
 		Content: prompt,
 	})
@@ -273,7 +294,73 @@ func (h *History) buildRequestMessages(prompt string) []gogpt.ChatCompletionMess
 	return messages
 }
 
-func getResponse(resp *gogpt.ChatCompletionResponse) string {
+// summaryMessages summary messages to fit model limit
+func (h *History) summaryMessages(model, prompt string) {
+	tokens := 0
+	modelLimit := 2000
+	switch model {
+	case openai.GPT4, openai.GPT40314:
+		modelLimit = 4096
+	case openai.GPT432K, openai.GPT432K0314:
+		modelLimit = 8192
+	}
+	for _, message := range h.Messages {
+		tokens += calculateTokens(message.Request)
+		tokens += calculateTokens(message.Response)
+	}
+	tokens += calculateTokens(prompt)
+
+	if tokens > modelLimit {
+		logger.SugaredLogger.Debugw("history too long, summary message", "tokens", tokens, "modelLimit", modelLimit)
+		// summary messages
+		req := openai.ChatCompletionRequest{
+			Model:    openai.GPT3Dot5Turbo,
+			Messages: h.buildRequestMessages("Please summary the conversation to less than 1000 tokens"),
+		}
+
+		resp, err := defaultApiClient.CreateChatCompletion(h.Ctx, req)
+		if err != nil {
+			logger.SugaredLogger.Errorw("summaryMessages", "err", err)
+			return
+		}
+		logger.SugaredLogger.Infow("summaryMessages", "resp", resp)
+		h.Messages = []*Message{
+			{
+				Request:  "The summary of our previous conversation",
+				Response: getResponse(&resp),
+				Model:    model,
+			},
+		}
+
+		// update toke nusage
+		tx, err := db.GetClient().Tx(h.Ctx)
+		if err != nil {
+			logger.SugaredLogger.Errorw("Init transaction for symmary message error", "err", err)
+			return
+		}
+		err = dao.IncrUsedTokenQuota(tx.Client(), h.Ctx, h.Account.ID, int64(resp.Usage.TotalTokens))
+		if err != nil {
+			logger.SugaredLogger.Errorw("IncrUsedTokenQuota for symmary message error", "err", err)
+			if e := tx.Rollback(); e != nil {
+				return
+			}
+			return
+		}
+		if err := dao.IncrConversationUsedToken(tx.Client(), h.Ctx, h.ConversationId, int64(resp.Usage.TotalTokens)); err != nil {
+			logger.SugaredLogger.Errorw("IncrConversationUsedToken for symmary message error", "err", err)
+			if e := tx.Rollback(); e != nil {
+				return
+			}
+			return
+		}
+		if err := tx.Commit(); err != nil {
+			logger.SugaredLogger.Errorw("Commit on update token for summary message error", "err", err)
+			return
+		}
+	}
+}
+
+func getResponse(resp *openai.ChatCompletionResponse) string {
 	if len(resp.Choices) > 0 {
 		return resp.Choices[0].Message.Content
 	}

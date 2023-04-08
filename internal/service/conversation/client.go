@@ -11,18 +11,18 @@ import (
 	"notionboy/internal/pkg/config"
 	"notionboy/internal/pkg/logger"
 
-	gogpt "github.com/sashabaranov/go-openai"
+	"github.com/sashabaranov/go-openai"
 )
 
-const DEFAULT_MODEL = gogpt.GPT3Dot5Turbo
+const DEFAULT_MODEL = openai.GPT3Dot5Turbo
 
 type ConversationClient struct {
-	*gogpt.Client
+	*openai.Client
 }
 
 func newApiClient(apiKey string) *ConversationClient {
 	client := &ConversationClient{
-		Client: gogpt.NewClient(apiKey),
+		Client: openai.NewClient(apiKey),
 	}
 	return client
 }
@@ -51,10 +51,10 @@ func (cli *ConversationClient) ChatWithHistory(ctx context.Context, acc *ent.Acc
 	if model == "" {
 		selectModel = DEFAULT_MODEL
 	}
-
+	history.summaryMessages(selectModel, prompt)
 	reqMsg := history.buildRequestMessages(prompt)
 
-	req := gogpt.ChatCompletionRequest{
+	req := openai.ChatCompletionRequest{
 		Model:    selectModel,
 		Messages: reqMsg,
 	}
@@ -82,14 +82,14 @@ func (cli *ConversationClient) StreamChatWithHistory(ctx context.Context, acc *e
 		return nil, errors.New(config.MSG_ERROR_QUOTA_LIMIT)
 	}
 
-	reqMsg := h.buildRequestMessages(prompt)
-
 	selectModel := model
 	if model == "" {
 		selectModel = DEFAULT_MODEL
 	}
+	h.summaryMessages(selectModel, prompt)
+	reqMsg := h.buildRequestMessages(prompt)
 
-	req := gogpt.ChatCompletionRequest{
+	req := openai.ChatCompletionRequest{
 		Model:    selectModel,
 		Messages: reqMsg,
 		Stream:   true,
