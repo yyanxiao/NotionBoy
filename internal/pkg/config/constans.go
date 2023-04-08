@@ -47,7 +47,14 @@ const (
 如果微信打开有问题，请复制 URL 到浏览器打开。
 
 `
+	MSG_START = `欢迎使用 NotionBoy, 了解 NotionBoy 的使用指南，请参考: https://vaayne.notion.site/07c3385eb59348218d2174a8983de475
 
+NotionBoy 现阶段有三个功能:
+- 快速笔记: 直接在微信公众号或者 Telegram 中回复内容并且加上 # 标签, 即可将内容同步到 Notion 中, 例如: 「#notionboy 这是一条快速笔记」
+- 全文收藏: 如果想收藏一篇文章, 可以回复文章链接并且加上 #全文 的标签, 例如: 「/collect https://mp.weixin.qq.com/s/ib7HrRMIXwZjJyYFOwBQrw」
+- Chat: 与 ChatGPT 畅聊, NotionBoy 提供最方便使用的 ChatGPT 体验, 包括 GPT-4, 直接回复 ChatGPT 即可开始聊天, 例如: 「/chat 你好」, 也可以通过网页版获得完整的体验
+- Zlib: 搜索 Z-Library 中的电子书, 加上 #ext(e.g: #pdf) 可以指定搜索的文件类型。例如「/zlib 如何阅读一本书 #pdf」
+`
 	MSG_UNBIND_SUCCESS  = "成功解除 Notion 绑定！"
 	MSG_UNBIND_FAILED   = "解除 Notion 绑定失败！失败原因: "
 	MSG_UNSUPPOERT      = "不支持的消息类型!"

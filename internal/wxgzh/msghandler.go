@@ -34,7 +34,7 @@ func init() {
 func (ex *OfficialAccount) messageHandler(ctx context.Context, msg *message.MixMessage) *message.Reply {
 	switch msg.Event {
 	case message.EventSubscribe:
-		return helpInfo(ctx, msg)
+		return onSubscribe(ctx, msg)
 	case message.EventUnsubscribe:
 		unsubscribe(ctx, msg)
 		return nil

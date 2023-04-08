@@ -28,7 +28,7 @@ func OnStart(c tele.Context) error {
 	if err := dao.SaveBasicAccount(context.Background(), account.UserTypeTelegram, strconv.FormatInt(sender.ID, 10)); err != nil {
 		logger.SugaredLogger.Errorw("SaveBasicAccount failed", "err", err)
 	}
-	return c.Send(config.MSG_HELP)
+	return c.Send(config.MSG_START)
 }
 
 func OnBind(c tele.Context) error {

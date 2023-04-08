@@ -19,13 +19,14 @@ type MyInfo struct {
 }
 
 type MyInfoDTO struct {
-	UserID           uuid.UUID `json:"user_id"` // uuid of user
-	UserType         string    `json:"user_type"`
+	UserID           uuid.UUID `json:"user_id"`            // uuid of user
+	UserType         string    `json:"user_type"`          // type of user, "wechat" or "telegram"
 	NotionDatabaseID string    `json:"notion_database_id"` // id of notion database, if not exist, it will be ""
 	Plan             string    `json:"plan"`               // plan of user, default to "free"
 	TotalToken       int64     `json:"toatl_token"`        // quota of user
 	UsedToken        int64     `json:"used_token"`         // used quota of user, default to 0
 	ResetTime        time.Time `json:"reset_time"`         // reset time of quota
+	ApiKey           string    `json:"api_key"`            // api key of user
 }
 
 func (m *MyInfo) ToDTO() *MyInfoDTO {
@@ -37,13 +38,14 @@ func (m *MyInfo) ToDTO() *MyInfoDTO {
 		TotalToken:       m.Quota.Token,
 		UsedToken:        m.Quota.TokenUsed,
 		ResetTime:        m.Quota.ResetTime,
+		ApiKey:           m.Account.APIKey.String(),
 	}
 }
 
 func (m *MyInfoDTO) String() string {
 	// concatentate all fields and split by \n
-	return fmt.Sprintf("用户ID: %s\n\n用户类型: %s\n\nNotionDB: %s\n\n订阅计划: %s\n\nToken总量: %d\n\n已用Token: %d\n\n额度重置时间: %s\n",
-		m.UserID, m.UserType, m.NotionDatabaseID, m.Plan, m.TotalToken, m.UsedToken, m.ResetTime.Format(time.RFC3339))
+	return fmt.Sprintf("用户ID: %s\n\n用户类型: %s\n\nNotionDB: %s\n\n订阅计划: %s\n\nToken总量: %d\n\n已用Token: %d\n\n额度重置时间: %s\n\nAPIKey: %s\n",
+		m.UserID, m.UserType, m.NotionDatabaseID, m.Plan, m.TotalToken, m.UsedToken, m.ResetTime.Format(time.RFC3339), m.ApiKey)
 }
 
 func WhoAmI(ctx context.Context, userType account.UserType, userId string) (*MyInfoDTO, error) {

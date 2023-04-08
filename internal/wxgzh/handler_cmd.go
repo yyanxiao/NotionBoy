@@ -47,6 +47,10 @@ func bindNotion(c context.Context, msg *message.MixMessage) *message.Reply {
 	return &message.Reply{MsgType: message.MsgTypeText, MsgData: message.NewText(text)}
 }
 
+func onSubscribe(c context.Context, msg *message.MixMessage) *message.Reply {
+	return &message.Reply{MsgType: message.MsgTypeText, MsgData: message.NewText(config.MSG_START)}
+}
+
 func helpInfo(c context.Context, msg *message.MixMessage) *message.Reply {
 	return &message.Reply{MsgType: message.MsgTypeText, MsgData: message.NewText(config.MSG_HELP)}
 }

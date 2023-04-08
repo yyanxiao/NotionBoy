@@ -39,8 +39,7 @@ func buildCmdMenuButton() *menu.Button {
 	unbindButton := menu.NewClickButton("解绑 Notion", BtnUnbind.String())
 	magicCodeButton := menu.NewClickButton("MagicCode", BtnMagicCode.String())
 	whoAMIButton := menu.NewClickButton("个人信息", BtnWhoAMI.String())
-	apiKeyButton := menu.NewClickButton("API Key", BtnApiKey.String())
-	return menu.NewSubButton("常用命令", []*menu.Button{bindButton, unbindButton, magicCodeButton, whoAMIButton, apiKeyButton})
+	return menu.NewSubButton("常用命令", []*menu.Button{bindButton, unbindButton, magicCodeButton, whoAMIButton})
 }
 
 func buildServiceMenuButton() *menu.Button {
