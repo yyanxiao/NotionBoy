@@ -21,9 +21,10 @@ import (
 var cacheClient = cache.DefaultClient()
 
 func unsubscribe(c context.Context, msg *message.MixMessage) {
-	if err := dao.DeleteAccount(c, account.UserTypeWechat, msg.GetOpenID()); err != nil {
-		logger.SugaredLogger.Errorw("delete account failed", "err", err)
-	}
+	logger.SugaredLogger.Infow("unsubscribe", "openid", msg.GetOpenID())
+	// if err := dao.DeleteAccount(c, account.UserTypeWechat, msg.GetOpenID()); err != nil {
+	// 	logger.SugaredLogger.Errorw("delete account failed", "err", err)
+	// }
 }
 
 func unBindingNotion(c context.Context, msg *message.MixMessage) *message.Reply {
