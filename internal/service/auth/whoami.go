@@ -55,6 +55,17 @@ func WhoAmI(ctx context.Context, userType account.UserType, userId string) (*MyI
 		return nil, err
 	}
 
+	// if no api key, generate one
+	if acc.APIKey == uuid.Nil {
+		apiKey := uuid.New()
+		err = dao.UpdateAccountApiKey(ctx, acc.UUID, apiKey)
+		if err != nil {
+			logger.SugaredLogger.Errorw("Update account set api key failed", "error", err, "account", acc)
+			return nil, err
+		}
+		acc.APIKey = apiKey
+	}
+
 	quota, err := dao.QueryQuota(ctx, acc.ID)
 	if err != nil {
 		logger.SugaredLogger.Errorw("query quota failed", "error", err, "account", acc)
