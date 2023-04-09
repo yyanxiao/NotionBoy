@@ -87,7 +87,7 @@ func (m *chatMgr) ChatWithHistory(ctx context.Context, acc *ent.Account, prompt,
 	history.Load()
 
 	if history.ConversationID == "" {
-		cvs, err := svc.CreateConversation(ctx, acc, "", "")
+		cvs, err := svc.CreateConversation(ctx, acc, "", "", "")
 		if err != nil {
 			return "", err
 		}

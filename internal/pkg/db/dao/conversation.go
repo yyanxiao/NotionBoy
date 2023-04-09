@@ -10,12 +10,16 @@ import (
 	"github.com/google/uuid"
 )
 
-func CreateConversation(ctx context.Context, userId uuid.UUID, instruction, title string) (*ent.Conversation, error) {
+func CreateConversation(ctx context.Context, id, userId uuid.UUID, instruction, title string) (*ent.Conversation, error) {
+	uid := id
+	if id == uuid.Nil {
+		uid = uuid.New()
+	}
 	return db.GetClient().Conversation.Create().
 		SetInstruction(instruction).
 		SetTitle(title).
 		SetUserID(userId).
-		SetUUID(uuid.New()).
+		SetUUID(uid).
 		Save(ctx)
 }
 

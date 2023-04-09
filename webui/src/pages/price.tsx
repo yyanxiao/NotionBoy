@@ -17,6 +17,10 @@ export default function PricePage() {
 		Service.ListProducts({})
 			.then((res) => {
 				if (res.products) {
+					res.products.sort(
+						(a, b) => (b.price as number) - (a.price as number)
+					);
+
 					setProducts(res.products);
 				} else {
 					toast({
@@ -79,7 +83,11 @@ export default function PricePage() {
 							</p>
 							<Link
 								href={`${siteConfig.links.order}?product=${p.id}`}
-								className="block w-full px-3 py-2 mt-10 text-sm font-semibold text-center text-white bg-indigo-600 rounded-md shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+								className={`block w-full px-3 py-2 mt-10 text-sm font-semibold text-center text-white bg-indigo-600 rounded-md shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 ${
+									p.price === 0
+										? "opacity-50 cursor-not-allowed"
+										: ""
+								}}`}
 							>
 								购买
 							</Link>
@@ -110,6 +118,13 @@ export default function PricePage() {
 								所有的会员都能使用 NotionBoy
 								的所有服务，哪怕不付费，不同的是付费会员有更多的用量。
 							</strong>
+							<Link
+								href="https://www.notion.so/vaayne/2a4906985bc647209a96069bfebfdc3d"
+								target={"_blank"}
+								className={`inline-flex  self-center w-64 px-3 py-2 mt-10 text-sm font-semibold items-center text-white bg-indigo-600 rounded-md shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600`}
+							>
+								详细的介绍请查看账户与会员 FAQ
+							</Link>
 						</p>
 					</div>
 

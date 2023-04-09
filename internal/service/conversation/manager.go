@@ -14,14 +14,22 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-func (m *conversationMgr) CreateConversation(ctx context.Context, acc *ent.Account, instruction, title string) (*ConversationDTO, error) {
+func (m *conversationMgr) CreateConversation(ctx context.Context, acc *ent.Account, id, instruction, title string) (*ConversationDTO, error) {
 	if instruction == "" {
 		instruction = DEFAULT_INSTRUCTION
 	}
 	if title == "" {
 		title = DEFAULT_TITLE
 	}
-	res, err := dao.CreateConversation(ctx, acc.UUID, instruction, title)
+	var err error
+	uid := uuid.New()
+	if id != "" {
+		uid, err = uuid.Parse(id)
+		if err != nil {
+			return nil, status.Errorf(400, "invalid id, %s", err.Error())
+		}
+	}
+	res, err := dao.CreateConversation(ctx, uid, acc.UUID, instruction, title)
 	return ConversationDTOFromDB(res), err
 }
 
@@ -73,7 +81,7 @@ func (m *conversationMgr) CreateConversationMessage(ctx context.Context, acc *en
 	if err != nil {
 		if strings.Contains(err.Error(), "not found") {
 			logger.SugaredLogger.Debugw("conversation not found, create a new one", "conversationId", conversationId)
-			conversationDTO, err := m.CreateConversation(ctx, acc, "", "")
+			conversationDTO, err := m.CreateConversation(ctx, acc, conversationId, "", "")
 			if err != nil {
 				return nil, err
 			}
@@ -140,7 +148,7 @@ func (m *conversationMgr) CreateStreamConversationMessage(ctx context.Context, a
 	if err != nil {
 		if strings.Contains(err.Error(), "not found") {
 			logger.SugaredLogger.Debugw("conversation not found, create a new one", "conversationId", conversationId)
-			conversationDTO, err := m.CreateConversation(ctx, acc, "", "")
+			conversationDTO, err := m.CreateConversation(ctx, acc, conversationId, "", "")
 			if err != nil {
 				return err
 			}

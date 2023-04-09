@@ -19,7 +19,7 @@ func (s *Server) CreateConversation(ctx context.Context, req *model.CreateConver
 		return nil, status.Errorf(codes.Unauthenticated, "Request unauthenticated")
 	}
 
-	dto, err := s.ConversationService.CreateConversation(ctx, acc, req.GetInstruction(), req.GetTitle())
+	dto, err := s.ConversationService.CreateConversation(ctx, acc, "", req.GetInstruction(), req.GetTitle())
 	if err != nil {
 		return nil, err
 	}
