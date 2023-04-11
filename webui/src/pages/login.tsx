@@ -1,4 +1,5 @@
 import { TOKEN, TOKEN_EXPIRE } from "@/components/auth";
+import { MarkdownComponent } from "@/components/chat/markdown";
 import { Button } from "@/components/ui/button";
 import {
 	Dialog,
@@ -18,7 +19,7 @@ import {
 } from "@/lib/pb/model/common.pb";
 import { Service } from "@/lib/pb/server.pb";
 import Cookies from "js-cookie";
-import { marked } from "marked";
+
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
@@ -160,19 +161,15 @@ export default function SignIn() {
 						<DialogTitle className="prose">
 							使用微信或者 Telegram 获取 MagicCode
 						</DialogTitle>
-						<DialogDescription
-							className="prose"
-							dangerouslySetInnerHTML={{
-								__html: marked(
-									`微信搜索 **NotionBoy** 关注并回复 \`/MagicCode\`
-									<br />
-									OR
-									<br/>
-									Telegram 关注 [**NotionBoy**](https://t.me/TheNotionBoyBot) 并回复 \`/MagicCode\`
-									`
-								),
-							}}
-						></DialogDescription>
+						<DialogDescription className="prose">
+							<MarkdownComponent
+								text={`
+微信搜索 **NotionBoy** 关注并回复 \`/MagicCode\`
+
+Telegram 关注 [**NotionBoy**](https://t.me/TheNotionBoyBot) 并回复 \`/MagicCode\`
+													`}
+							/>
+						</DialogDescription>
 					</DialogHeader>
 					<div className="flex items-center w-full max-w-sm space-x-2">
 						<Input

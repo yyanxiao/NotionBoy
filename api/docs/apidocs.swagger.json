@@ -1471,6 +1471,48 @@
         ]
       }
     },
+    "/v1/prompts": {
+      "get": {
+        "operationId": "Service_ListPrompts",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/servicev1ListPromptsResponse"
+            }
+          },
+          "404": {
+            "description": "Returned when the resource does not exist.",
+            "schema": {
+              "type": "string",
+              "format": "string"
+            }
+          },
+          "418": {
+            "description": "I'm a teapot.",
+            "schema": {
+              "type": "string",
+              "format": "string"
+            }
+          },
+          "500": {
+            "description": "Server error",
+            "schema": {
+              "$ref": "common.ErrorResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "tags": [
+          "Service"
+        ]
+      }
+    },
     "/v1/status": {
       "get": {
         "operationId": "Service_Status",
@@ -1749,6 +1791,18 @@
         }
       }
     },
+    "servicev1ListPromptsResponse": {
+      "type": "object",
+      "properties": {
+        "prompts": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/servicev1Prompt"
+          }
+        }
+      }
+    },
     "servicev1Message": {
       "type": "object",
       "properties": {
@@ -1929,6 +1983,17 @@
           "format": "int64"
         },
         "description": {
+          "type": "string"
+        }
+      }
+    },
+    "servicev1Prompt": {
+      "type": "object",
+      "properties": {
+        "act": {
+          "type": "string"
+        },
+        "prompt": {
           "type": "string"
         }
       }

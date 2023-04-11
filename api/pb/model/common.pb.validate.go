@@ -1159,3 +1159,241 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = GenerateWechatQRCodeResponseValidationError{}
+
+// Validate checks the field values on Prompt with the rules defined in the
+// proto definition for this message. If any rules are violated, the first
+// error encountered is returned, or nil if there are no violations.
+func (m *Prompt) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on Prompt with the rules defined in the
+// proto definition for this message. If any rules are violated, the result is
+// a list of violation errors wrapped in PromptMultiError, or nil if none found.
+func (m *Prompt) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *Prompt) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Act
+
+	// no validation rules for Prompt
+
+	if len(errors) > 0 {
+		return PromptMultiError(errors)
+	}
+
+	return nil
+}
+
+// PromptMultiError is an error wrapping multiple validation errors returned by
+// Prompt.ValidateAll() if the designated constraints aren't met.
+type PromptMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m PromptMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m PromptMultiError) AllErrors() []error { return m }
+
+// PromptValidationError is the validation error returned by Prompt.Validate if
+// the designated constraints aren't met.
+type PromptValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e PromptValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e PromptValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e PromptValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e PromptValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e PromptValidationError) ErrorName() string { return "PromptValidationError" }
+
+// Error satisfies the builtin error interface
+func (e PromptValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sPrompt.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = PromptValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = PromptValidationError{}
+
+// Validate checks the field values on ListPromptsResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *ListPromptsResponse) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on ListPromptsResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// ListPromptsResponseMultiError, or nil if none found.
+func (m *ListPromptsResponse) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *ListPromptsResponse) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	for idx, item := range m.GetPrompts() {
+		_, _ = idx, item
+
+		if all {
+			switch v := interface{}(item).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, ListPromptsResponseValidationError{
+						field:  fmt.Sprintf("Prompts[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, ListPromptsResponseValidationError{
+						field:  fmt.Sprintf("Prompts[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return ListPromptsResponseValidationError{
+					field:  fmt.Sprintf("Prompts[%v]", idx),
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	}
+
+	if len(errors) > 0 {
+		return ListPromptsResponseMultiError(errors)
+	}
+
+	return nil
+}
+
+// ListPromptsResponseMultiError is an error wrapping multiple validation
+// errors returned by ListPromptsResponse.ValidateAll() if the designated
+// constraints aren't met.
+type ListPromptsResponseMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m ListPromptsResponseMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m ListPromptsResponseMultiError) AllErrors() []error { return m }
+
+// ListPromptsResponseValidationError is the validation error returned by
+// ListPromptsResponse.Validate if the designated constraints aren't met.
+type ListPromptsResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e ListPromptsResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e ListPromptsResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e ListPromptsResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e ListPromptsResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e ListPromptsResponseValidationError) ErrorName() string {
+	return "ListPromptsResponseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e ListPromptsResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sListPromptsResponse.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = ListPromptsResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = ListPromptsResponseValidationError{}

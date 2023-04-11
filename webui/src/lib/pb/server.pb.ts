@@ -97,4 +97,7 @@ export class Service {
   static UpdateProduct(req: Servicev1Product.UpdateProductRequest, initReq?: fm.InitReq): Promise<Servicev1Product.Product> {
     return fm.fetchReq<Servicev1Product.UpdateProductRequest, Servicev1Product.Product>(`/v1/products/${req["id"]}`, {...initReq, method: "PATCH", body: JSON.stringify(req, fm.replacer)})
   }
+  static ListPrompts(req: GoogleProtobufEmpty.Empty, initReq?: fm.InitReq): Promise<Servicev1Common.ListPromptsResponse> {
+    return fm.fetchReq<GoogleProtobufEmpty.Empty, Servicev1Common.ListPromptsResponse>(`/v1/prompts?${fm.renderURLSearchParams(req, [])}`, {...initReq, method: "GET"})
+  }
 }

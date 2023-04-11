@@ -6,6 +6,7 @@ import (
 	"notionboy/internal/service/conversation"
 	"notionboy/internal/service/order"
 	"notionboy/internal/service/product"
+	"notionboy/internal/service/prompt"
 )
 
 // Server is the gRPC server.
@@ -15,6 +16,7 @@ type Server struct {
 	AuthService         auth.AuthServer
 	OrderService        order.OrderService
 	ProductService      product.ProductService
+	PromptService       prompt.PromptService
 }
 
 func NewServer() *Server {
@@ -23,5 +25,6 @@ func NewServer() *Server {
 		AuthService:         auth.NewAuthServer(),
 		OrderService:        order.NewOrderService(),
 		ProductService:      product.NewProductService(),
+		PromptService:       prompt.NewPromptService(),
 	}
 }

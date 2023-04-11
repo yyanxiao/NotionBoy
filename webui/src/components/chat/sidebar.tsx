@@ -21,7 +21,7 @@ export function SideBarComponent() {
 	} = useContext(ChatContext);
 
 	return (
-		<div className="bg-gray-100 text-gray-800 h-full overflow-hidden">
+		<div className="h-full overflow-hidden text-gray-800 bg-gray-100">
 			<div className="relative flex flex-col justify-between h-full ">
 				<div className="sticky top-0 left-0 flex flex-row items-center justify-center">
 					<Button
@@ -36,14 +36,14 @@ export function SideBarComponent() {
 
 				<ConversationListComponent />
 
-				<div className="sticky bottom-0 left-0 container mx-auto flex flex-col items-start p-2 bg-gray-400 rounded-lg">
-					<div className="w-full h-10 flex flex-row items-center p-2">
+				<div className="container sticky bottom-0 left-0 flex flex-col items-start p-2 mx-auto bg-gray-400 rounded-lg">
+					<div className="flex flex-row items-center w-full h-10 p-2">
 						<Home />
 						<Link className="px-2" href={siteConfig.links.home}>
 							Notionboy
 						</Link>
 					</div>
-					<div className="w-full h-10 flex flex-row items-center p-2">
+					<div className="flex flex-row items-center w-full h-10 p-2">
 						<LogOut />
 						<AuthLoginButton />
 					</div>
@@ -62,7 +62,7 @@ export function SideBarComponent() {
 										"text-slate-700 dark:text-slate-400",
 								})}
 							>
-								<Icons.gitHub className="h-5 w-5" />
+								<Icons.gitHub className="w-5 h-5" />
 								<span className="sr-only">GitHub</span>
 							</div>
 						</Link>
@@ -79,7 +79,7 @@ export function SideBarComponent() {
 										"text-slate-700 dark:text-slate-400",
 								})}
 							>
-								<Icons.twitter className="h-5 w-5 fill-current" />
+								<Icons.twitter className="w-5 h-5 fill-current" />
 								<span className="sr-only">Twitter</span>
 							</div>
 						</Link>

@@ -55,3 +55,12 @@ export type GenerateWechatQRCodeResponse = {
   url?: string
   qrcode?: string
 }
+
+export type Prompt = {
+  act?: string
+  prompt?: string
+}
+
+export type ListPromptsResponse = {
+  prompts?: Prompt[]
+}

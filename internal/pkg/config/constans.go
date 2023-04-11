@@ -85,8 +85,9 @@ NotionBoy 现阶段有三个功能:
 如果是想使用 Zlib 搜索, 可以不用绑定 Notion, 请按照下面的格式回复（不包括「」）即可
 「/zlib 书名或者作者」
 `
-	MSG_ERROR_QUOTA_NOT_FOUND = `查询账户失败: 没有找到 Quota 信息, 请联系作者!`
-	MSG_ERROR_QUOTA_LIMIT     = `额度已经用完, 请点击公众号菜单栏服务中的 VIP 进行充值`
+	MSG_ERROR_QUOTA_NOT_FOUND  = `查询账户失败: 没有找到 Quota 信息, 请联系作者!`
+	MSG_ERROR_QUOTA_LIMIT      = `额度已经用完, 请点击公众号菜单栏服务中的 VIP 进行充值`
+	MSG_ERROR_QUOTA_NOT_ENOUGH = `额度不足以回答，请更换模型、减少上下文或者点击公众号菜单栏服务中的 VIP 进行充值`
 
 	MSG_WELCOME = `#NotionBoy 欢迎🎉使用 Notion Boy!`
 

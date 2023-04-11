@@ -10,10 +10,12 @@
     - [GenerateWechatQRCodeResponse](#servicev1-GenerateWechatQRCodeResponse)
     - [GenrateTokenRequest](#servicev1-GenrateTokenRequest)
     - [GenrateTokenResponse](#servicev1-GenrateTokenResponse)
+    - [ListPromptsResponse](#servicev1-ListPromptsResponse)
     - [OAuthCallbackRequest](#servicev1-OAuthCallbackRequest)
     - [OAuthProvider](#servicev1-OAuthProvider)
     - [OAuthURLRequest](#servicev1-OAuthURLRequest)
     - [OAuthURLResponse](#servicev1-OAuthURLResponse)
+    - [Prompt](#servicev1-Prompt)
 
     - [NumericEnum](#servicev1-NumericEnum)
 
@@ -166,6 +168,21 @@
 
 
 
+<a name="servicev1-ListPromptsResponse"></a>
+
+### ListPromptsResponse
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| prompts | [Prompt](#servicev1-Prompt) | repeated |  |
+
+
+
+
+
+
 <a name="servicev1-OAuthCallbackRequest"></a>
 
 ### OAuthCallbackRequest
@@ -217,6 +234,22 @@
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | providers | [OAuthProvider](#servicev1-OAuthProvider) | repeated |  |
+
+
+
+
+
+
+<a name="servicev1-Prompt"></a>
+
+### Prompt
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| act | [string](#string) |  |  |
+| prompt | [string](#string) |  |  |
 
 
 
@@ -889,6 +922,7 @@ NumericEnum is one or zero.
 | ListProducts | [ListProductsRequest](#servicev1-ListProductsRequest) | [ListProductsResponse](#servicev1-ListProductsResponse) |  |
 | DeleteProduct | [DeleteProductRequest](#servicev1-DeleteProductRequest) | [.google.protobuf.Empty](#google-protobuf-Empty) |  |
 | UpdateProduct | [UpdateProductRequest](#servicev1-UpdateProductRequest) | [Product](#servicev1-Product) |  |
+| ListPrompts | [.google.protobuf.Empty](#google-protobuf-Empty) | [ListPromptsResponse](#servicev1-ListPromptsResponse) |  |
 
 
 

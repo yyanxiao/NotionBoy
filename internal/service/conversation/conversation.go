@@ -2,11 +2,13 @@ package conversation
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"sync"
 	"time"
 
 	"notionboy/db/ent"
+	"notionboy/internal/pkg/config"
 	"notionboy/internal/pkg/db"
 	"notionboy/internal/pkg/db/dao"
 	"notionboy/internal/pkg/logger"
@@ -295,20 +297,35 @@ func (h *History) buildRequestMessages(prompt string) []openai.ChatCompletionMes
 }
 
 // summaryMessages summary messages to fit model limit
-func (h *History) summaryMessages(model, prompt string) {
+func (h *History) summaryMessages(model, prompt string) error {
 	tokens := 0
-	modelLimit := 2000
-	switch model {
-	case openai.GPT4, openai.GPT40314:
-		modelLimit = 4096
-	case openai.GPT432K, openai.GPT432K0314:
-		modelLimit = 8192
-	}
 	for _, message := range h.Messages {
 		tokens += calculateTokens(message.Request)
 		tokens += calculateTokens(message.Response)
 	}
 	tokens += calculateTokens(prompt)
+
+	// if tokens is more than quota limit , return error
+	var modelLimit int
+
+	switch model {
+	case openai.GPT4, openai.GPT40314:
+		modelLimit = 4096
+		if ((tokens + 1000) * 15) > int(h.Quota.Token-h.Quota.TokenUsed) {
+			return errors.New(config.MSG_ERROR_QUOTA_NOT_ENOUGH)
+		}
+
+	case openai.GPT432K, openai.GPT432K0314:
+		modelLimit = 8192
+		if ((tokens + 1000) * 30) > int(h.Quota.Token-h.Quota.TokenUsed) {
+			return errors.New(config.MSG_ERROR_QUOTA_NOT_ENOUGH)
+		}
+	default:
+		modelLimit = 2000
+		if ((tokens + 1000) * 1) > int(h.Quota.Token-h.Quota.TokenUsed) {
+			return errors.New(config.MSG_ERROR_QUOTA_NOT_ENOUGH)
+		}
+	}
 
 	if tokens > modelLimit {
 		logger.SugaredLogger.Debugw("history too long, summary message", "tokens", tokens, "modelLimit", modelLimit)
@@ -321,7 +338,7 @@ func (h *History) summaryMessages(model, prompt string) {
 		resp, err := defaultApiClient.CreateChatCompletion(h.Ctx, req)
 		if err != nil {
 			logger.SugaredLogger.Errorw("summaryMessages", "err", err)
-			return
+			return err
 		}
 		logger.SugaredLogger.Infow("summaryMessages", "resp", resp)
 		h.Messages = []*Message{
@@ -336,28 +353,29 @@ func (h *History) summaryMessages(model, prompt string) {
 		tx, err := db.GetClient().Tx(h.Ctx)
 		if err != nil {
 			logger.SugaredLogger.Errorw("Init transaction for symmary message error", "err", err)
-			return
+			return err
 		}
 		err = dao.IncrUsedTokenQuota(tx.Client(), h.Ctx, h.Account.ID, int64(resp.Usage.TotalTokens))
 		if err != nil {
 			logger.SugaredLogger.Errorw("IncrUsedTokenQuota for symmary message error", "err", err)
 			if e := tx.Rollback(); e != nil {
-				return
+				return err
 			}
-			return
+			return err
 		}
 		if err := dao.IncrConversationUsedToken(tx.Client(), h.Ctx, h.ConversationId, int64(resp.Usage.TotalTokens)); err != nil {
 			logger.SugaredLogger.Errorw("IncrConversationUsedToken for symmary message error", "err", err)
 			if e := tx.Rollback(); e != nil {
-				return
+				return err
 			}
-			return
+			return err
 		}
 		if err := tx.Commit(); err != nil {
 			logger.SugaredLogger.Errorw("Commit on update token for summary message error", "err", err)
-			return
+			return err
 		}
 	}
+	return nil
 }
 
 func getResponse(resp *openai.ChatCompletionResponse) string {

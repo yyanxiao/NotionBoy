@@ -51,12 +51,15 @@ func (cli *ConversationClient) ChatWithHistory(ctx context.Context, acc *ent.Acc
 	if model == "" {
 		selectModel = DEFAULT_MODEL
 	}
-	history.summaryMessages(selectModel, prompt)
+	if err := history.summaryMessages(selectModel, prompt); err != nil {
+		return nil, err
+	}
 	reqMsg := history.buildRequestMessages(prompt)
 
 	req := openai.ChatCompletionRequest{
-		Model:    selectModel,
-		Messages: reqMsg,
+		Model:     selectModel,
+		Messages:  reqMsg,
+		MaxTokens: 2000,
 	}
 
 	resp, err := cli.CreateChatCompletion(ctx, req)
@@ -86,13 +89,16 @@ func (cli *ConversationClient) StreamChatWithHistory(ctx context.Context, acc *e
 	if model == "" {
 		selectModel = DEFAULT_MODEL
 	}
-	h.summaryMessages(selectModel, prompt)
+	if err := h.summaryMessages(selectModel, prompt); err != nil {
+		return nil, err
+	}
 	reqMsg := h.buildRequestMessages(prompt)
 
 	req := openai.ChatCompletionRequest{
-		Model:    selectModel,
-		Messages: reqMsg,
-		Stream:   true,
+		Model:     selectModel,
+		Messages:  reqMsg,
+		Stream:    true,
+		MaxTokens: 2000,
 	}
 
 	conversationMessage := &ent.ConversationMessage{

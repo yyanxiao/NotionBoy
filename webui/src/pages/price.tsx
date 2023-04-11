@@ -42,6 +42,12 @@ export default function PricePage() {
 	const planComponent = (p: Product) => {
 		const features = [`${p.token} OpenAI Token`, `${p.storage}MB Storage`];
 
+		const payUrl = (p: Product) => {
+			return p.price === 0
+				? ""
+				: `${siteConfig.links.order}?product=${p.id}`;
+		};
+
 		return (
 			<div
 				key={p.id}
@@ -82,7 +88,7 @@ export default function PricePage() {
 								</span>
 							</p>
 							<Link
-								href={`${siteConfig.links.order}?product=${p.id}`}
+								href={payUrl(p)}
 								className={`block w-full px-3 py-2 mt-10 text-sm font-semibold text-center text-white bg-indigo-600 rounded-md shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 ${
 									p.price === 0
 										? "opacity-50 cursor-not-allowed"

@@ -48,6 +48,7 @@ const (
 	Service_ListProducts_FullMethodName         = "/servicev1.Service/ListProducts"
 	Service_DeleteProduct_FullMethodName        = "/servicev1.Service/DeleteProduct"
 	Service_UpdateProduct_FullMethodName        = "/servicev1.Service/UpdateProduct"
+	Service_ListPrompts_FullMethodName          = "/servicev1.Service/ListPrompts"
 )
 
 // ServiceClient is the client API for Service service.
@@ -94,6 +95,7 @@ type ServiceClient interface {
 	ListProducts(ctx context.Context, in *model.ListProductsRequest, opts ...grpc.CallOption) (*model.ListProductsResponse, error)
 	DeleteProduct(ctx context.Context, in *model.DeleteProductRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	UpdateProduct(ctx context.Context, in *model.UpdateProductRequest, opts ...grpc.CallOption) (*model.Product, error)
+	ListPrompts(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*model.ListPromptsResponse, error)
 }
 
 type serviceClient struct {
@@ -370,6 +372,15 @@ func (c *serviceClient) UpdateProduct(ctx context.Context, in *model.UpdateProdu
 	return out, nil
 }
 
+func (c *serviceClient) ListPrompts(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*model.ListPromptsResponse, error) {
+	out := new(model.ListPromptsResponse)
+	err := c.cc.Invoke(ctx, Service_ListPrompts_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ServiceServer is the server API for Service service.
 // All implementations must embed UnimplementedServiceServer
 // for forward compatibility
@@ -414,6 +425,7 @@ type ServiceServer interface {
 	ListProducts(context.Context, *model.ListProductsRequest) (*model.ListProductsResponse, error)
 	DeleteProduct(context.Context, *model.DeleteProductRequest) (*emptypb.Empty, error)
 	UpdateProduct(context.Context, *model.UpdateProductRequest) (*model.Product, error)
+	ListPrompts(context.Context, *emptypb.Empty) (*model.ListPromptsResponse, error)
 	mustEmbedUnimplementedServiceServer()
 }
 
@@ -501,6 +513,9 @@ func (UnimplementedServiceServer) DeleteProduct(context.Context, *model.DeletePr
 }
 func (UnimplementedServiceServer) UpdateProduct(context.Context, *model.UpdateProductRequest) (*model.Product, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateProduct not implemented")
+}
+func (UnimplementedServiceServer) ListPrompts(context.Context, *emptypb.Empty) (*model.ListPromptsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListPrompts not implemented")
 }
 func (UnimplementedServiceServer) mustEmbedUnimplementedServiceServer() {}
 
@@ -1004,6 +1019,24 @@ func _Service_UpdateProduct_Handler(srv interface{}, ctx context.Context, dec fu
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Service_ListPrompts_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(emptypb.Empty)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ServiceServer).ListPrompts(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Service_ListPrompts_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ServiceServer).ListPrompts(ctx, req.(*emptypb.Empty))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Service_ServiceDesc is the grpc.ServiceDesc for Service service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -1114,6 +1147,10 @@ var Service_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "UpdateProduct",
 			Handler:    _Service_UpdateProduct_Handler,
+		},
+		{
+			MethodName: "ListPrompts",
+			Handler:    _Service_ListPrompts_Handler,
 		},
 	},
 	Streams: []grpc.StreamDesc{
