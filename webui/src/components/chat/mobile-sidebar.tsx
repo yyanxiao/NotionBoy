@@ -5,7 +5,7 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { List } from "lucide-react";
 import { SideBarComponent } from "./sidebar";
 
-export function SideSheetComponent() {
+export function MobileSideBarComponent() {
 	return (
 		<Sheet>
 			<SheetTrigger asChild>
@@ -13,11 +13,7 @@ export function SideSheetComponent() {
 					<List />
 				</Button>
 			</SheetTrigger>
-			<SheetContent
-				position="left"
-				size="content"
-				className="bg-gray-100 text-gray-800 h-screen"
-			>
+			<SheetContent position="left" size="content" className="h-screen">
 				<SideBarComponent />
 			</SheetContent>
 		</Sheet>

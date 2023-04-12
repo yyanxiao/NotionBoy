@@ -22,3 +22,11 @@ export function isLogin() {
 	const token = Cookies.get("token");
 	return token != undefined;
 }
+
+export function currentTime() {
+	return new Date().toISOString().replace(/T/, " ").replace(/\..+/, "");
+}
+
+export function parseDateTime(input: string) {
+	return new Date(input).toLocaleString();
+}

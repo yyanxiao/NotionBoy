@@ -5,6 +5,16 @@ module.exports = {
 	darkMode: ["class", '[data-theme="dark"]'],
 	content: ["./src/**/*.{ts,tsx}"],
 	theme: {
+		// https://www.happyhues.co/palettes/3
+		// colors: {
+		// 	my: {
+		// 		primary: "#fffffe",
+		// 		secondary: "#90b4ce",
+		// 		tertiary: "#ef4565",
+		// 		highlight: "#3da9fc",
+		// 		stroke: "#2a2a2a",
+		// 	},
+		// },
 		extend: {
 			fontFamily: {
 				sans: ["var(--font-sans)", ...fontFamily.sans],

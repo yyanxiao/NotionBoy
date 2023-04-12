@@ -12,7 +12,7 @@ import { useRouter } from "next/router";
 
 import ChatWindow from "@/components/chat/chat-window";
 import { ChatInputBox } from "@/components/chat/input-box";
-import { isLogin } from "@/lib/utils";
+import { currentTime, isLogin } from "@/lib/utils";
 import { siteConfig } from "@/config/site";
 
 import { SideBarComponent } from "@/components/chat/sidebar";
@@ -135,6 +135,7 @@ export default function Chat() {
 			id: uuidv4(),
 			conversationId: selectedConversation?.id as string,
 			request: request,
+			createdAt: currentTime(),
 		};
 		// add message request to messageMap
 		addMessageToMessageMap(
@@ -153,8 +154,14 @@ export default function Chat() {
 				fullMessage += msg.response;
 			}
 			message.response = fullMessage;
-			message.createdAt = msg.createdAt;
-			message.updatedAt = msg.updatedAt;
+			if (msg.createdAt != "0001-01-01T00:00:00Z") {
+				message.createdAt = msg.createdAt;
+			}
+			if (msg.updatedAt != "0001-01-01T00:00:00Z") {
+				message.updatedAt = msg.updatedAt;
+			} else {
+				message.updatedAt = currentTime();
+			}
 			message.tokenUsage = msg.tokenUsage;
 			addMessageToMessageMap(
 				selectedConversation?.id as string,
@@ -203,10 +210,10 @@ export default function Chat() {
 				<div className="hidden lg:block fixed left-0 top-0 bottom-0 w-[19.5rem]">
 					<SideBarComponent />
 				</div>
-				<div className="lg:pl-[19.5rem]">
+				<div className="lg:pl-[19.5rem] bg-[#fffffe]">
 					<div className="flex flex-col h-full max-w-6xl mx-auto">
 						<div className="relative flex flex-col min-h-screen">
-							<div className="sticky top-0 left-0 h-10 bg-gray-200 rounded-sm lg:hidden ">
+							<div className="sticky top-0 left-0 h-10 rounded-sm lg:hidden ">
 								<MobileChatHeader />
 							</div>
 							<div className="flex-grow">
@@ -219,7 +226,7 @@ export default function Chat() {
 									}
 								/>
 							</div>
-							<div className="sticky bottom-0 bg-white">
+							<div className="sticky bottom-0 bg-[#fffffe]">
 								<ChatInputBox
 									onSendMessage={handleMessageSend}
 									isLoading={isLoading}

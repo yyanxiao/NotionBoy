@@ -57,37 +57,41 @@ export default function ConversationListComponent() {
 	};
 
 	return (
-		<div className="flex flex-col h-full w-full overflow-auto">
+		<div className="flex flex-col w-full h-full overflow-auto ">
 			{conversations.map((conversation) => {
 				return (
-					<div
-						className="flex items-center justify-start m-1 text-sm rounded-lg px-1 border-2 border-gray-400"
-						key={conversation.id}
-					>
-						<Button
-							variant="ghost"
+					<div className="px-1" key={conversation.id}>
+						<div
+							className="flex items-center justify-start px-1 m-1 text-sm rounded-lg"
 							key={conversation.id}
-							className={`my-1 flex-1 border-0 ${
-								selectedConversation?.id === conversation.id
-									? "bg-blue-400"
-									: ""
-							} }`}
-							onClick={() =>
-								setSelectedConversation(conversation)
-							}
 						>
-							<div className="text-xs">
-								<p>{conversation.title || conversation.id}</p>
-								<p>{conversation.createdAt}</p>
-							</div>
-						</Button>
-						<Button
-							onClick={() =>
-								handleDeleteConversation(conversation)
-							}
-						>
-							<Trash2 />
-						</Button>
+							<Button
+								variant="ghost"
+								key={conversation.id}
+								className={`my-1 flex-1 border-0 hover:bg-[#3da9fc] ${
+									selectedConversation?.id === conversation.id
+										? "bg-[#3da9fc]"
+										: ""
+								} }`}
+								onClick={() =>
+									setSelectedConversation(conversation)
+								}
+							>
+								<div className="text-xs">
+									<p>
+										{conversation.title || conversation.id}
+									</p>
+									<p>{conversation.createdAt}</p>
+								</div>
+							</Button>
+							<Button
+								onClick={() =>
+									handleDeleteConversation(conversation)
+								}
+							>
+								<Trash2 />
+							</Button>
+						</div>
 					</div>
 				);
 			})}

@@ -1,9 +1,13 @@
+import { useToast } from "@/hooks/use-toast";
 import { Conversation, Message } from "@/lib/pb/model/conversation.pb";
+import { parseDateTime } from "@/lib/utils";
 
 import "highlight.js/styles/github.css";
-import { Bot, User } from "lucide-react";
+import { Bot, Copy, User } from "lucide-react";
 
 import { useEffect, useRef } from "react";
+import { Button } from "../ui/button";
+import { Separator } from "../ui/separator";
 import { MarkdownComponent } from "./markdown";
 type Props = {
 	messages: Message[] | undefined;
@@ -12,6 +16,7 @@ type Props = {
 
 export default function ChatWindow(props: Props) {
 	const messagesEndRef = useRef<HTMLDivElement | null>(null);
+	const { toast } = useToast();
 	useEffect(() => {
 		if (messagesEndRef.current) {
 			messagesEndRef.current.scrollTo({
@@ -20,41 +25,80 @@ export default function ChatWindow(props: Props) {
 			});
 		}
 	}, [props.messages, messagesEndRef]);
+
+	const messageComponents = (message: Message, isResponse: boolean) => {
+		const md = () => {
+			if (isResponse && message.response) {
+				return <MarkdownComponent text={message.response} />;
+			} else if (message.request) {
+				return <MarkdownComponent text={message.request} />;
+			} else {
+				return null;
+			}
+		};
+		const icon = () => {
+			return (
+				<div className="w-8 h-8">{isResponse ? <Bot /> : <User />}</div>
+			);
+		};
+		return (
+			<div
+				className={`flex flex-row items-start justify-start w-full rounded-sm p-2`}
+				key={`${message.id}-resp`}
+			>
+				{icon()}
+				<div className="relative flex flex-col w-full rounded-lg bg-sky-100">
+					<div className="px-2 my-1">
+						<strong>{isResponse ? "Bot" : "User"}</strong>
+						<span className="px-2">
+							{parseDateTime(message.updatedAt as string)}
+						</span>
+						{isResponse && message.tokenUsage && (
+							<strong className="px-2">
+								Token Usage: {message.tokenUsage}
+							</strong>
+						)}
+					</div>
+					<div className="absolute top-0 right-0">
+						<Button
+							variant="ghost"
+							className="py-0"
+							onClick={() => {
+								navigator.clipboard.writeText(
+									isResponse
+										? (message.response as string)
+										: (message.request as string)
+								);
+								toast({
+									title: "Copied to clipboard",
+									variant: "default",
+								});
+							}}
+						>
+							<Copy />
+						</Button>
+					</div>
+
+					{md()}
+				</div>
+			</div>
+		);
+	};
+
 	return (
-		<div ref={messagesEndRef} className="flex flex-col flex-1">
+		<div ref={messagesEndRef} className="flex flex-col flex-1 mt-2">
 			{props.selectedConversation ? (
-				<div className="box-border flex flex-col flex-1 w-full p-4 overflow-auto rounded-lg">
+				<div className="box-border flex flex-col flex-1 overflow-auto rounded-lg">
 					{props.messages?.map((message) => {
 						return (
-							<div key={message.id}>
-								{message.request !== undefined &&
-									message.request !== "" && (
-										<div
-											className="flex flex-row items-center justify-end w-full my-2"
-											key={`${message.id}-req`}
-										>
-											<div className="p-2 mx-2 overflow-auto prose bg-blue-200 dark:prose-invert lg:prose-lg text-start rounded-xl">
-												<MarkdownComponent
-													text={message.request}
-												/>
-											</div>
-											<User className="flex-none w-8 h-8 " />
-										</div>
-									)}
-								{message.response !== undefined &&
-									message.response !== "" && (
-										<div
-											className="flex flex-row items-center justify-start w-full my-2 "
-											key={`${message.id}-resp`}
-										>
-											<Bot className="flex-none w-8 h-8" />
-											<div className="p-2 mx-2 overflow-auto prose bg-green-200 dark:prose-invert lg:prose-lg text-start rounded-xl">
-												<MarkdownComponent
-													text={message.response}
-												/>
-											</div>
-										</div>
-									)}
+							<div key={message.id} className="flex flex-col">
+								<Separator className="border-black " />
+								<div className="">
+									{messageComponents(message, false)}
+								</div>
+								<div className="">
+									{messageComponents(message, true)}
+								</div>
 							</div>
 						);
 					})}
