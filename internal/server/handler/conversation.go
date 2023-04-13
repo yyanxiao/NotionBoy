@@ -58,7 +58,7 @@ func (s *Server) ListConversations(ctx context.Context, req *model.ListConversat
 		return nil, status.Errorf(codes.Unauthenticated, "Request unauthenticated")
 	}
 
-	res, err := s.ConversationService.ListConversations(ctx, acc, 10, 0)
+	res, err := s.ConversationService.ListConversations(ctx, acc, int(req.Limit), int(req.Offset))
 	if err != nil {
 		return nil, err
 	}
@@ -115,7 +115,7 @@ func (s *Server) ListMessages(ctx context.Context, req *model.ListMessagesReques
 		return nil, status.Errorf(codes.Unauthenticated, "Request unauthenticated")
 	}
 
-	res, err := s.ConversationService.ListConversationMessages(ctx, acc, req.GetConversationId(), 10, 0)
+	res, err := s.ConversationService.ListConversationMessages(ctx, acc, req.GetConversationId(), int(req.Limit), int(req.Offset))
 	if err != nil {
 		return nil, err
 	}

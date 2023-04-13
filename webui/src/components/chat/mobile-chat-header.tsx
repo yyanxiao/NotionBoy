@@ -6,6 +6,7 @@ import { useContext } from "react";
 import { ChatSettings } from "./settings";
 import { MobileSideBarComponent } from "./mobile-sidebar";
 import { ChatContext } from "@/lib/states/chat-context";
+import { RoleDialog } from "./role";
 
 export default function MobileChatHeader() {
 	const {
@@ -17,7 +18,7 @@ export default function MobileChatHeader() {
 	} = useContext(ChatContext);
 
 	return (
-		<div className="flex flex-row items-center justify-between mx-2 text-[#fffffe] bg-[#094067] rounded-lg">
+		<div className="flex flex-row items-center justify-between text-[#fffffe] bg-[#094067] rounded-lg">
 			<MobileSideBarComponent />
 
 			<div className="">{selectedConversation?.title}</div>
@@ -29,7 +30,6 @@ export default function MobileChatHeader() {
 				>
 					<Plus />
 				</Button>
-				<ChatSettings />
 			</div>
 		</div>
 	);

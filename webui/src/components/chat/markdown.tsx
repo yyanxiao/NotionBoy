@@ -13,7 +13,7 @@ type MarkdownComponentProps = {
 export function MarkdownComponent(props: MarkdownComponentProps) {
 	return (
 		<ReactMarkdown
-			className="p-2 mx-2 prose dark:prose-invert md:prose-md md:max-w-none text-start rounded-xl"
+			className="p-2 mx-2 prose dark:prose-invert md:prose-lg md:max-w-none text-start rounded-xl"
 			remarkPlugins={[remarkGfm, remarkMath]}
 			rehypePlugins={[rehypeMathjax]}
 			components={{

@@ -30,6 +30,9 @@ func ListOrders(ctx context.Context, userId uuid.UUID, status order.Status, limi
 	if status != "" {
 		query = query.Where(order.StatusEQ(status))
 	}
+	if limit == 0 {
+		limit = 10
+	}
 
 	return query.
 		Order(ent.Desc(order.FieldCreatedAt)).

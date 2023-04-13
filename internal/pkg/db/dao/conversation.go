@@ -59,6 +59,9 @@ func GetConversation(ctx context.Context, conversationId uuid.UUID) (*ent.Conver
 }
 
 func ListConversations(ctx context.Context, userId uuid.UUID, limit, offset int) ([]*ent.Conversation, error) {
+	if limit == 0 {
+		limit = 10
+	}
 	return db.GetClient().Conversation.Query().
 		Where(conversation.UserIDEQ(userId), conversation.TokenUsageGT(0)).
 		Order(ent.Desc(conversation.FieldCreatedAt)).

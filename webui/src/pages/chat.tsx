@@ -41,7 +41,9 @@ export default function Chat() {
 
 		// list conversatons when pages loads and there are no conversations
 		if (conversations.length == 0) {
-			Service.ListConversations({})
+			Service.ListConversations({
+				limit: 100,
+			})
 				.then((response) => {
 					if (response.conversations === undefined) {
 						return;
@@ -95,7 +97,10 @@ export default function Chat() {
 		}
 
 		setIsLoading(true);
-		Service.ListMessages({ conversationId: selectedConversation.id })
+		Service.ListMessages({
+			conversationId: selectedConversation.id,
+			limit: 100,
+		})
 			.then((response) => {
 				if (response.messages === undefined) {
 					return;

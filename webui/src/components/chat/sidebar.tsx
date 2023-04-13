@@ -1,15 +1,14 @@
 import { siteConfig } from "@/config/site";
 
+import { ChatContext } from "@/lib/states/chat-context";
 import { Home, LogOut, Plus } from "lucide-react";
 import Link from "next/link";
 import { useContext } from "react";
 import { AuthLoginButton } from "../auth";
-import { Button, buttonVariants } from "../ui/button";
-import ConversationListComponent from "./conversations";
-import { ChatSettings } from "./settings";
-import { ChatContext } from "@/lib/states/chat-context";
-import { Separator } from "../ui/separator";
 import { Icons } from "../icons";
+import { Button, buttonVariants } from "../ui/button";
+import { Separator } from "../ui/separator";
+import ConversationListComponent from "./conversations";
 
 export function SideBarComponent() {
 	const {
@@ -31,7 +30,6 @@ export function SideBarComponent() {
 					>
 						<Plus />
 					</Button>
-					<ChatSettings />
 				</div>
 				<Separator />
 

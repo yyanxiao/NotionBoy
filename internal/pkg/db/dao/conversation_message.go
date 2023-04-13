@@ -29,6 +29,9 @@ func GetConversationMessage(ctx context.Context, ConversationMessageId uuid.UUID
 }
 
 func ListConversationMessages(ctx context.Context, conversationId uuid.UUID, limit, offset int) ([]*ent.ConversationMessage, error) {
+	if limit == 0 {
+		limit = 10
+	}
 	return db.GetClient().ConversationMessage.Query().
 		Where(conversationmessage.ConversationID(conversationId)).
 		Order(ent.Asc(conversationmessage.FieldCreatedAt)).

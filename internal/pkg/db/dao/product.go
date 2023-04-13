@@ -28,6 +28,9 @@ func ListProductsByIds(ctx context.Context, ids []uuid.UUID) ([]*ent.Product, er
 }
 
 func ListProducts(ctx context.Context, limit, offset int) ([]*ent.Product, error) {
+	if limit == 0 {
+		limit = 10
+	}
 	return db.GetClient().Product.Query().
 		Order(ent.Desc(order.FieldCreatedAt)).
 		Limit(limit).

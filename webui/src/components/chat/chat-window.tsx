@@ -7,8 +7,10 @@ import { Bot, Copy, User } from "lucide-react";
 
 import { useEffect, useRef } from "react";
 import { Button } from "../ui/button";
-import { Separator } from "../ui/separator";
+
 import { MarkdownComponent } from "./markdown";
+import { RoleDialog } from "./role";
+
 type Props = {
 	messages: Message[] | undefined;
 	selectedConversation: Conversation;
@@ -43,13 +45,15 @@ export default function ChatWindow(props: Props) {
 		};
 		return (
 			<div
-				className={`flex flex-row items-start justify-start w-full rounded-lg p-2 ${
-					isResponse ? "bg-sky-100" : ""
-				}`}
+				className={`flex flex-row items-start justify-start w-full rounded-lg p-2 `}
 				key={`${message.id}-resp`}
 			>
 				{icon()}
-				<div className="relative flex flex-col w-full text-sm rounded-lg">
+				<div
+					className={`relative flex flex-col w-full text-sm rounded-lg ${
+						isResponse ? "bg-sky-100" : "bg-blue-100"
+					}`}
+				>
 					<div className="px-2 my-1">
 						<strong>{isResponse ? "Bot" : "User"}</strong>
 						<span className="px-2">
@@ -88,21 +92,39 @@ export default function ChatWindow(props: Props) {
 		);
 	};
 
+	const renderMessages = () => {
+		if (props.messages && props.messages.length > 0) {
+			return props.messages.map((message) => {
+				return (
+					<div key={message.id} className="flex flex-col">
+						{message.request && (
+							<div>{messageComponents(message, false)}</div>
+						)}
+						{message.response && (
+							<div>{messageComponents(message, true)}</div>
+						)}
+					</div>
+				);
+			});
+		}
+		return (
+			<div className="fixed h-48 md:w-96 top-1/3 left-1/4 lg:left-1/2">
+				<div className="grid justify-between grid-cols-2 gap-2">
+					<div className="bg-[#abd1c6] rounded-lg w-full">
+						<RoleDialog />
+					</div>
+					{/* <div className="bg-[#abd1c6] rounded-lg w-full">
+						<UploadFileComponent />
+					</div> */}
+				</div>
+			</div>
+		);
+	};
+
 	return (
 		<div ref={messagesEndRef} className="flex flex-col flex-1 mt-2">
-			<div className="box-border flex flex-col flex-1 overflow-auto">
-				{props.messages?.map((message) => {
-					return (
-						<div key={message.id} className="flex flex-col">
-							<div className="">
-								{messageComponents(message, false)}
-							</div>
-							<div className="">
-								{messageComponents(message, true)}
-							</div>
-						</div>
-					);
-				})}
+			<div className="box-border flex flex-col overflow-auto">
+				{renderMessages()}
 			</div>
 		</div>
 	);
