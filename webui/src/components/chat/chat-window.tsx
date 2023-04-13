@@ -43,11 +43,13 @@ export default function ChatWindow(props: Props) {
 		};
 		return (
 			<div
-				className={`flex flex-row items-start justify-start w-full rounded-sm p-2`}
+				className={`flex flex-row items-start justify-start w-full rounded-lg p-2 ${
+					isResponse ? "bg-sky-100" : ""
+				}`}
 				key={`${message.id}-resp`}
 			>
 				{icon()}
-				<div className="relative flex flex-col w-full rounded-lg bg-sky-100">
+				<div className="relative flex flex-col w-full text-sm rounded-lg">
 					<div className="px-2 my-1">
 						<strong>{isResponse ? "Bot" : "User"}</strong>
 						<span className="px-2">
@@ -55,7 +57,7 @@ export default function ChatWindow(props: Props) {
 						</span>
 						{isResponse && message.tokenUsage && (
 							<strong className="px-2">
-								Token Usage: {message.tokenUsage}
+								Token: {message.tokenUsage}
 							</strong>
 						)}
 					</div>
@@ -63,6 +65,7 @@ export default function ChatWindow(props: Props) {
 						<Button
 							variant="ghost"
 							className="py-0"
+							size={"sm"}
 							onClick={() => {
 								navigator.clipboard.writeText(
 									isResponse
@@ -75,7 +78,7 @@ export default function ChatWindow(props: Props) {
 								});
 							}}
 						>
-							<Copy />
+							<Copy size={18} />
 						</Button>
 					</div>
 
@@ -87,27 +90,20 @@ export default function ChatWindow(props: Props) {
 
 	return (
 		<div ref={messagesEndRef} className="flex flex-col flex-1 mt-2">
-			{props.selectedConversation ? (
-				<div className="box-border flex flex-col flex-1 overflow-auto rounded-lg">
-					{props.messages?.map((message) => {
-						return (
-							<div key={message.id} className="flex flex-col">
-								<Separator className="border-black " />
-								<div className="">
-									{messageComponents(message, false)}
-								</div>
-								<div className="">
-									{messageComponents(message, true)}
-								</div>
+			<div className="box-border flex flex-col flex-1 overflow-auto">
+				{props.messages?.map((message) => {
+					return (
+						<div key={message.id} className="flex flex-col">
+							<div className="">
+								{messageComponents(message, false)}
 							</div>
-						);
-					})}
-				</div>
-			) : (
-				<div className="box-border flex flex-col flex-1 w-full p-4 overflow-auto rounded-lg">
-					<p>No conversation selected</p>
-				</div>
-			)}
+							<div className="">
+								{messageComponents(message, true)}
+							</div>
+						</div>
+					);
+				})}
+			</div>
 		</div>
 	);
 }

@@ -27,24 +27,12 @@ const models: Model[] = [
 		value: "gpt-3.5-turbo",
 	},
 	{
-		name: "GPT3Dot5Turbo0301",
-		value: "gpt-3.5-turbo-0301",
-	},
-	{
 		name: "GPT4",
 		value: "gpt-4",
-	},
-	{
-		name: "GPT40314",
-		value: "gpt-4-0314",
 	},
 	// {
 	// 	name: "GPT432K",
 	// 	value: "gpt-4-32k",
-	// },
-	// {
-	// 	name: "GPT432K0314",
-	// 	value: "gpt-4-32k-0314",
 	// },
 ];
 
