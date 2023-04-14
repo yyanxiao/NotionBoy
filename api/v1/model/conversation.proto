@@ -84,6 +84,13 @@ message CreateMessageRequest {
   string model = 2;
   // request request of the message
   string request = 3;
+  // temperature What sampling temperature to use, between 0 and 2.
+  // Higher values like 0.8 will make the output more random, while lower values
+  // like 0.2 will make it more focused and deterministic. default 1
+  float temperature = 4;
+  // max_tokens The maximum number of tokens to generate in the chat completion.
+  // default 2000
+  int32 max_tokens = 5;
 }
 
 message ListMessagesRequest {

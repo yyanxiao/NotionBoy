@@ -24,9 +24,8 @@ func CreateConversation(ctx context.Context, id, userId uuid.UUID, instruction, 
 }
 
 func UpdateConversation(ctx context.Context, userId, id uuid.UUID, instruction, title string) (*ent.Conversation, error) {
-	query := db.GetClient().Conversation.Create().
-		SetUUID(id).
-		SetUserID(userId)
+	query := db.GetClient().Conversation.Update().
+		Where(conversation.UUIDEQ(id), conversation.UserIDEQ(userId))
 
 	needUpdate := false
 
@@ -42,8 +41,6 @@ func UpdateConversation(ctx context.Context, userId, id uuid.UUID, instruction, 
 
 	if needUpdate {
 		if err := query.
-			OnConflict().
-			UpdateNewValues().
 			Exec(ctx); err != nil {
 			return nil, err
 		}

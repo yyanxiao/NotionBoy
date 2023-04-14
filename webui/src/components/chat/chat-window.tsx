@@ -3,17 +3,17 @@ import { Conversation, Message } from "@/lib/pb/model/conversation.pb";
 import { parseDateTime } from "@/lib/utils";
 
 import "highlight.js/styles/github.css";
-import { Bot, Copy, User } from "lucide-react";
+import { Bot, Copy, Trash2, User } from "lucide-react";
 
 import { useEffect, useRef } from "react";
 import { Button } from "../ui/button";
 
 import { MarkdownComponent } from "./markdown";
-import { RoleDialog } from "./role";
 
 type Props = {
 	messages: Message[] | undefined;
 	selectedConversation: Conversation;
+	onMessageDelete: (conversationId: string, messageId: string) => void;
 };
 
 export default function ChatWindow(props: Props) {
@@ -43,6 +43,52 @@ export default function ChatWindow(props: Props) {
 				<div className="w-8 h-8">{isResponse ? <Bot /> : <User />}</div>
 			);
 		};
+
+		const copyMessage = () => {
+			return (
+				<div className="absolute top-0 right-0">
+					<Button
+						variant="ghost"
+						className="p-0 mx-1"
+						size={"sm"}
+						onClick={() => {
+							navigator.clipboard.writeText(
+								isResponse
+									? (message.response as string)
+									: (message.request as string)
+							);
+							toast({
+								title: "Copied to clipboard",
+								variant: "default",
+							});
+						}}
+					>
+						<Copy size={18} />
+					</Button>
+				</div>
+			);
+		};
+
+		const deleteMessage = () => {
+			return (
+				<div className="absolute top-0 right-6">
+					<Button
+						variant="ghost"
+						className="p-0 mx-1"
+						size={"sm"}
+						onClick={() => {
+							props.onMessageDelete(
+								props.selectedConversation.id as string,
+								message.id as string
+							);
+						}}
+					>
+						<Trash2 size={18} />
+					</Button>
+				</div>
+			);
+		};
+
 		return (
 			<div
 				className={`flex flex-row items-start justify-start w-full rounded-lg p-2 `}
@@ -65,27 +111,8 @@ export default function ChatWindow(props: Props) {
 							</strong>
 						)}
 					</div>
-					<div className="absolute top-0 right-0">
-						<Button
-							variant="ghost"
-							className="py-0"
-							size={"sm"}
-							onClick={() => {
-								navigator.clipboard.writeText(
-									isResponse
-										? (message.response as string)
-										: (message.request as string)
-								);
-								toast({
-									title: "Copied to clipboard",
-									variant: "default",
-								});
-							}}
-						>
-							<Copy size={18} />
-						</Button>
-					</div>
-
+					{copyMessage()}
+					{deleteMessage()}
 					{md()}
 				</div>
 			</div>
@@ -107,18 +134,6 @@ export default function ChatWindow(props: Props) {
 				);
 			});
 		}
-		return (
-			<div className="fixed h-48 md:w-96 top-1/3 left-1/4 lg:left-1/2">
-				<div className="grid justify-between grid-cols-2 gap-2">
-					<div className="bg-[#abd1c6] rounded-lg w-full">
-						<RoleDialog />
-					</div>
-					{/* <div className="bg-[#abd1c6] rounded-lg w-full">
-						<UploadFileComponent />
-					</div> */}
-				</div>
-			</div>
-		);
 	};
 
 	return (

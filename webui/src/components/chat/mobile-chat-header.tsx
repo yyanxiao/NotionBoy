@@ -3,10 +3,8 @@ import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { useContext } from "react";
 
-import { ChatSettings } from "./settings";
 import { MobileSideBarComponent } from "./mobile-sidebar";
 import { ChatContext } from "@/lib/states/chat-context";
-import { RoleDialog } from "./role";
 
 export default function MobileChatHeader() {
 	const {

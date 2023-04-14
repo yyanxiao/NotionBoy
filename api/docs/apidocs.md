@@ -351,6 +351,8 @@ NumericEnum is one or zero.
 | conversation_id | [string](#string) |  | conversation_id uuid of the conversation |
 | model | [string](#string) |  |  |
 | request | [string](#string) |  | request request of the message |
+| temperature | [float](#float) |  | temperature What sampling temperature to use, between 0 and 2. Higher values like 0.8 will make the output more random, while lower values like 0.2 will make it more focused and deterministic. default 1 |
+| max_tokens | [int32](#int32) |  | max_tokens The maximum number of tokens to generate in the chat completion. default 2000 |
 
 
 

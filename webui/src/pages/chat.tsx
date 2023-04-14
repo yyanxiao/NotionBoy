@@ -1,22 +1,22 @@
-import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
-import { v4 as uuidv4 } from "uuid";
 import {
 	Conversation,
 	CreateMessageRequest,
 	Message,
 } from "@/lib/pb/model/conversation.pb";
+import { useEffect, useState } from "react";
+import { v4 as uuidv4 } from "uuid";
 
 import { Service } from "@/lib/pb/server.pb";
 import { useRouter } from "next/router";
 
 import ChatWindow from "@/components/chat/chat-window";
 import { ChatInputBox } from "@/components/chat/input-box";
-import { currentTime, isLogin } from "@/lib/utils";
 import { siteConfig } from "@/config/site";
+import { currentTime, isLogin } from "@/lib/utils";
 
-import { SideBarComponent } from "@/components/chat/sidebar";
 import MobileChatHeader from "@/components/chat/mobile-chat-header";
+import { SideBarComponent } from "@/components/chat/sidebar";
 import { DefaultInstruction } from "@/config/prompts";
 import { ChatContext } from "@/lib/states/chat-context";
 
@@ -28,7 +28,6 @@ export default function Chat() {
 		new Map()
 	);
 	const [isLoading, setIsLoading] = useState(false);
-
 	const router = useRouter();
 	const { toast } = useToast();
 
@@ -122,7 +121,12 @@ export default function Chat() {
 			});
 	}, [selectedConversation]);
 
-	const handleMessageSend = (request: string, model: string) => {
+	const handleMessageSend = (
+		request: string,
+		model: string,
+		temperature: number,
+		maxTokens: number
+	) => {
 		setIsLoading(true);
 		if (request === undefined || request === "") {
 			return;
@@ -132,6 +136,8 @@ export default function Chat() {
 			conversationId: selectedConversation?.id,
 			request: request,
 			model: model,
+			temperature: temperature,
+			maxTokens: maxTokens,
 		} as CreateMessageRequest;
 
 		console.log("createMessageRequest", createMessageRequest);
@@ -195,6 +201,35 @@ export default function Chat() {
 			});
 	};
 
+	const handleMessageDelete = (conversationId: string, messageId: string) => {
+		setIsLoading(true);
+		Service.DeleteMessage({
+			conversationId: conversationId,
+			id: messageId,
+		})
+			.then(() => {
+				const messages = messageMap
+					.get(conversationId)
+					?.filter((m) => m.id !== messageId);
+				messageMap.set(conversationId, messages as Message[]);
+				setMessageMap(new Map(messageMap));
+				toast({
+					variant: "default",
+					title: "DeleteMessage success",
+				});
+			})
+			.catch((error) => {
+				toast({
+					variant: "destructive",
+					title: "DeleteMessage error",
+					description: JSON.stringify(error),
+				});
+			})
+			.finally(() => {
+				setIsLoading(false);
+			});
+	};
+
 	const handleCreateConversation = () => {
 		const conversation = newConversation();
 		setSelectedConversation(conversation);
@@ -229,12 +264,16 @@ export default function Chat() {
 									selectedConversation={
 										selectedConversation as Conversation
 									}
+									onMessageDelete={handleMessageDelete}
 								/>
 							</div>
 							<div className="sticky bottom-0 bg-[#fffffe]">
 								<ChatInputBox
 									onSendMessage={handleMessageSend}
 									isLoading={isLoading}
+									messages={messageMap.get(
+										selectedConversation?.id as string
+									)}
 								/>
 							</div>
 						</div>

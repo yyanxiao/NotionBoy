@@ -137,8 +137,6 @@ func (m *conversationMgr) DeleteConversationMessage(ctx context.Context, acc *en
 
 func (m *conversationMgr) CreateStreamConversationMessage(ctx context.Context, acc *ent.Account, stream pb.Service_CreateMessageServer, req *model.CreateMessageRequest) error {
 	conversationId := req.GetConversationId()
-	request := req.GetRequest()
-	model := req.GetModel()
 	id, err := uuid.Parse(conversationId)
 	if err != nil {
 		return status.Errorf(400, "invalid id %s", err.Error())
@@ -161,7 +159,7 @@ func (m *conversationMgr) CreateStreamConversationMessage(ctx context.Context, a
 
 	apiClient := NewApiClient(acc.OpenaiAPIKey)
 
-	conversationMessage, err := apiClient.StreamChatWithHistory(ctx, acc, conversation.Instruction, conversationId, request, model, stream)
+	conversationMessage, err := apiClient.StreamChatWithHistory(ctx, acc, conversation.Instruction, req, stream)
 	// logger.SugaredLogger.Debugw("chat with history", "message", message, "err", err)
 	if err != nil {
 		logger.SugaredLogger.Debugw("chat with history error", "err", err)

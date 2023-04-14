@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"notionboy/api/pb"
+	"notionboy/api/pb/model"
 	"notionboy/db/ent"
 	"notionboy/internal/pkg/config"
 	"notionboy/internal/pkg/logger"
@@ -74,8 +75,9 @@ func (cli *ConversationClient) ChatWithHistory(ctx context.Context, acc *ent.Acc
 	return msg, nil
 }
 
-func (cli *ConversationClient) StreamChatWithHistory(ctx context.Context, acc *ent.Account, instruction, conversationId, prompt, model string, stream pb.Service_CreateMessageServer) (*ent.ConversationMessage, error) {
-	logger.SugaredLogger.Debugw("Get prompt message for api client", "prompt", prompt, "conversationId", conversationId, "instruction", instruction)
+func (cli *ConversationClient) StreamChatWithHistory(ctx context.Context, acc *ent.Account, instruction string, req *model.CreateMessageRequest, stream pb.Service_CreateMessageServer) (*ent.ConversationMessage, error) {
+	logger.SugaredLogger.Debugw("Get prompt message for api client", "req", req)
+	conversationId := req.ConversationId
 	h := NewHistory(ctx, acc, conversationId, instruction)
 	err := h.Load()
 	if err != nil {
@@ -85,30 +87,37 @@ func (cli *ConversationClient) StreamChatWithHistory(ctx context.Context, acc *e
 		return nil, errors.New(config.MSG_ERROR_QUOTA_LIMIT)
 	}
 
-	selectModel := model
-	if model == "" {
-		selectModel = DEFAULT_MODEL
+	if req.Model == "" {
+		req.Model = DEFAULT_MODEL
 	}
-	if err := h.summaryMessages(selectModel, prompt); err != nil {
+	if req.Temperature == 0 {
+		req.Temperature = 1
+	}
+	if req.MaxTokens == 0 {
+		req.MaxTokens = 2000
+	}
+
+	if err := h.summaryMessages(req.Model, req.Request); err != nil {
 		return nil, err
 	}
-	reqMsg := h.buildRequestMessages(prompt)
+	reqMsg := h.buildRequestMessages(req.Request)
 
-	req := openai.ChatCompletionRequest{
-		Model:     selectModel,
-		Messages:  reqMsg,
-		Stream:    true,
-		MaxTokens: 2000,
+	chatReq := openai.ChatCompletionRequest{
+		Model:       req.Model,
+		Messages:    reqMsg,
+		Stream:      true,
+		MaxTokens:   int(req.MaxTokens),
+		Temperature: req.Temperature,
 	}
 
 	conversationMessage := &ent.ConversationMessage{
 		ConversationID: h.ConversationId,
 		UserID:         acc.UUID,
-		Request:        prompt,
-		Model:          selectModel,
+		Request:        req.Request,
+		Model:          req.Model,
 	}
 
-	streamResp, err := cli.CreateChatCompletionStream(ctx, req)
+	streamResp, err := cli.CreateChatCompletionStream(ctx, chatReq)
 	if err != nil {
 		return conversationMessage, err
 	}
@@ -121,9 +130,9 @@ func (cli *ConversationClient) StreamChatWithHistory(ctx context.Context, acc *e
 			conversationMessage.Response = sb.String()
 
 			msg := &Message{
-				Request:  prompt,
+				Request:  req.Request,
 				Response: sb.String(),
-				Model:    selectModel,
+				Model:    req.Model,
 			}
 			h.append(msg)
 			h.saveToCache()

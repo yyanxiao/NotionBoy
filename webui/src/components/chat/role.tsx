@@ -71,11 +71,10 @@ export function RoleDialog() {
 
 	useEffect(() => {
 		setFilteredPrompts(
-			prompts.filter(
-				(p) =>
-					p.act?.includes(searchValue) ||
-					p.prompt?.includes(searchValue)
-			)
+			prompts.filter((p) => {
+				const regExp = new RegExp(searchValue, "i");
+				return regExp.test(p.act as string);
+			})
 		);
 	}, [searchValue]);
 
@@ -86,7 +85,7 @@ export function RoleDialog() {
 			title: selectedPrompt?.act,
 		} as Conversation;
 		Service.UpdateConversation(conversation)
-			.then((resp) => {
+			.then(() => {
 				setSelectedConversation(conversation);
 				setConversations(
 					conversations.map((c) => {
@@ -112,9 +111,8 @@ export function RoleDialog() {
 		<Dialog open={isOpen} onOpenChange={setIsOpen}>
 			<DialogTrigger asChild>
 				<Button
-					variant="ghost"
+					variant="outline"
 					className="flex flex-row w-full space-x-1"
-					onClick={handleCreateConversation}
 				>
 					<span>🎭 选择角色</span>
 				</Button>

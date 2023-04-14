@@ -1171,6 +1171,10 @@ func (m *CreateMessageRequest) validate(all bool) error {
 
 	// no validation rules for Request
 
+	// no validation rules for Temperature
+
+	// no validation rules for MaxTokens
+
 	if len(errors) > 0 {
 		return CreateMessageRequestMultiError(errors)
 	}
