@@ -5,8 +5,8 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
-import { Info, Loader2, Send, Settings2 } from "lucide-react";
-import { useState } from "react";
+import { Info, Loader2, RefreshCw, Send, Settings2 } from "lucide-react";
+import { useContext, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -27,16 +27,7 @@ import * as Form from "@radix-ui/react-form";
 import { Slider } from "../ui/slider";
 import { Textarea } from "../ui/textarea";
 import { RoleDialog } from "./role";
-type ChatInputBoxProps = {
-	onSendMessage: (
-		message: string,
-		model: string,
-		temperature: number,
-		maxTokens: number
-	) => void;
-	isLoading: boolean;
-	messages: Message[] | undefined;
-};
+import { MessageContext } from "@/lib/states/chat-context";
 
 interface Model {
 	name: string;
@@ -58,21 +49,36 @@ const models: Model[] = [
 	// },
 ];
 
-export function ChatInputBox({
-	onSendMessage,
-	isLoading,
-	messages,
-}: ChatInputBoxProps) {
+export function ChatInputBox() {
 	const [inputValue, setInputValue] = useState<string>("");
 	const [isSending, setIsSending] = useState<boolean>(false);
-	const [model, setModel] = useState<string>("gpt-3.5-turbo");
-	const [temperature, setTemperature] = useState<number>(1);
-	const [maxTokens, setMaxTokens] = useState<number>(1000);
 	const [isOpen, setIsOpen] = useState<boolean>(false);
+
+	const {
+		selectedConversation,
+		isLoading,
+		messages,
+		model,
+		temperature,
+		maxTokens,
+		setModel,
+		setTemperature,
+		setMaxTokens,
+		onMessageSend,
+		onMessageUpdate,
+		onMessageDelete,
+	} = useContext(MessageContext);
 
 	const handleMessageSend = () => {
 		setIsSending(true);
-		onSendMessage(inputValue, model, temperature, maxTokens);
+		onMessageSend(inputValue, model, temperature, maxTokens);
+		setInputValue("");
+		setIsSending(false);
+	};
+
+	const handleMessageUpdate = (message: Message) => {
+		setIsSending(true);
+		onMessageUpdate(message, model, temperature, maxTokens);
 		setInputValue("");
 		setIsSending(false);
 	};
@@ -101,7 +107,7 @@ export function ChatInputBox({
 		return (
 			<Popover open={isOpen} onOpenChange={setIsOpen}>
 				<PopoverTrigger asChild>
-					<Button variant="outline">
+					<Button variant="outline" size="sm">
 						<Settings2 />
 						<span className="sr-only">Open popover</span>
 					</Button>
@@ -210,10 +216,27 @@ export function ChatInputBox({
 		);
 	};
 
+	const regenerateButton = () => {
+		return (
+			<Button
+				variant="outline"
+				size="sm"
+				onClick={() => {
+					if (messages && messages.length > 0) {
+						handleMessageUpdate(messages[messages.length - 1]);
+					}
+				}}
+			>
+				<RefreshCw />
+			</Button>
+		);
+	};
+
 	return (
 		<div className="relative flex flex-col items-center m-2 space-y-2">
 			<div className="flex flex-row items-center justify-center space-x-2">
 				{messages && messages.length == 0 && <RoleDialog />}
+				{messages && messages.length > 0 && regenerateButton()}
 				{settings()}
 			</div>
 

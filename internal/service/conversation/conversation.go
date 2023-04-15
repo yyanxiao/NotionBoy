@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"notionboy/db/ent"
+	"notionboy/db/ent/conversationmessage"
 	"notionboy/internal/pkg/config"
 	"notionboy/internal/pkg/db"
 	"notionboy/internal/pkg/db/dao"
@@ -53,6 +54,7 @@ type History struct {
 }
 
 type Message struct {
+	Id       uuid.UUID
 	Request  string
 	Response string
 	Model    string
@@ -222,16 +224,13 @@ func (h *History) getQuotaFromDB() error {
 func (h *History) saveMessageToDB(message *Message) (*ent.ConversationMessage, error) {
 	// usage should contains all tokens current message add message history
 	usage := h.calculateTokens(message)
-	msg := &ent.ConversationMessage{
-		UUID:           uuid.New(),
-		ConversationID: h.ConversationId,
-		UserID:         h.Account.UUID,
-		Request:        message.Request,
-		Response:       message.Response,
-		TokenUsage:     usage,
-		Model:          message.Model,
+	var messageId uuid.UUID
+	if message.Id != uuid.Nil {
+		messageId = message.Id
+	} else {
+		messageId = uuid.New()
 	}
-	logger.SugaredLogger.Debugw("SaveConversationMessage to DB", "conversationMessage", msg)
+
 	tx, err := db.GetClient().Tx(h.Ctx)
 	if err != nil {
 		logger.SugaredLogger.Errorw("SaveConversationMessage", "err", err)
@@ -256,27 +255,98 @@ func (h *History) saveMessageToDB(message *Message) (*ent.ConversationMessage, e
 		return nil, err
 	}
 
-	if err := tx.ConversationMessage.Create().
-		SetUserID(msg.UserID).
-		SetConversationID(msg.ConversationID).
-		SetRequest(msg.Request).
-		SetResponse(msg.Response).
-		SetTokenUsage(msg.TokenUsage).
-		SetModel(message.Model).
-		SetUUID(uuid.New()).Exec(h.Ctx); err != nil {
+	var msg *ent.ConversationMessage
+
+	if message.Id != uuid.Nil {
+		// update existing
+		msg, err = tx.ConversationMessage.Query().Where(conversationmessage.UUIDEQ(message.Id)).Only(h.Ctx)
 		if err != nil {
-			logger.SugaredLogger.Errorw("SaveConversationMessage", "err", err)
+			logger.SugaredLogger.Errorw("Update ConversationMessage error", "err", err)
 			if e := tx.Rollback(); e != nil {
 				return nil, e
 			}
 			return nil, err
 		}
+
+		if err := tx.ConversationMessage.Update().
+			SetRequest(message.Request).
+			SetResponse(message.Response).
+			SetTokenUsage(usage).
+			SetModel(message.Model).
+			Where(conversationmessage.UUIDEQ(message.Id)).
+			Exec(h.Ctx); err != nil {
+			if err != nil {
+				logger.SugaredLogger.Errorw("Update ConversationMessage error", "err", err)
+				if e := tx.Rollback(); e != nil {
+					return nil, e
+				}
+				return nil, err
+			}
+		}
+		// delete all message that created after this message
+		if _, err := tx.ConversationMessage.Delete().
+			Where(conversationmessage.ConversationIDEQ(h.ConversationId), conversationmessage.UserIDEQ(msg.UserID), conversationmessage.CreatedAtGT(msg.CreatedAt)).
+			Exec(h.Ctx); err != nil {
+			if err != nil {
+				logger.SugaredLogger.Errorw("Delete ConversationMessage error", "err", err)
+				if e := tx.Rollback(); e != nil {
+					return nil, e
+				}
+				return nil, err
+			}
+		}
+	} else {
+		// create new
+		msg = &ent.ConversationMessage{
+			UUID:           messageId,
+			ConversationID: h.ConversationId,
+			UserID:         h.Account.UUID,
+			Request:        message.Request,
+			Response:       message.Response,
+			TokenUsage:     usage,
+			Model:          message.Model,
+		}
+		if err := tx.ConversationMessage.Create().
+			SetUserID(msg.UserID).
+			SetConversationID(msg.ConversationID).
+			SetRequest(msg.Request).
+			SetResponse(msg.Response).
+			SetTokenUsage(msg.TokenUsage).
+			SetModel(message.Model).
+			SetUUID(msg.UUID).Exec(h.Ctx); err != nil {
+			if err != nil {
+				logger.SugaredLogger.Errorw("SaveConversationMessage", "err", err)
+				if e := tx.Rollback(); e != nil {
+					return nil, e
+				}
+				return nil, err
+			}
+		}
+	}
+	// return the message
+	msg, err = tx.ConversationMessage.Query().Where(conversationmessage.UUIDEQ(messageId)).Only(h.Ctx)
+	if err != nil {
+		logger.SugaredLogger.Errorw("Update ConversationMessage error", "err", err)
+		if e := tx.Rollback(); e != nil {
+			return nil, e
+		}
+		return nil, err
 	}
 	return msg, tx.Commit()
 }
 
 func (h *History) append(message *Message) {
-	h.Messages = append(h.Messages, message)
+	if message.Id == uuid.Nil {
+		h.Messages = append(h.Messages, message)
+		return
+	}
+	// discard message behide the message with same id
+	for i, msg := range h.Messages {
+		if msg.Id == message.Id {
+			h.Messages = append(h.Messages[:i+1], message)
+			break
+		}
+	}
 }
 
 func (h *History) buildRequestMessages(prompt string) []openai.ChatCompletionMessage {

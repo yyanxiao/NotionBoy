@@ -68,6 +68,15 @@ export type CreateMessageRequest = {
   maxTokens?: number
 }
 
+export type UpdateMessageRequest = {
+  conversationId?: string
+  id?: string
+  model?: string
+  request?: string
+  temperature?: number
+  maxTokens?: number
+}
+
 export type ListMessagesRequest = {
   conversationId?: string
   limit?: number

@@ -112,6 +112,7 @@ export function RoleDialog() {
 			<DialogTrigger asChild>
 				<Button
 					variant="outline"
+					size="sm"
 					className="flex flex-row w-full space-x-1"
 				>
 					<span>🎭 选择角色</span>

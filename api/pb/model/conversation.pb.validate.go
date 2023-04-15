@@ -1255,6 +1255,120 @@ var _ interface {
 	ErrorName() string
 } = CreateMessageRequestValidationError{}
 
+// Validate checks the field values on UpdateMessageRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *UpdateMessageRequest) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on UpdateMessageRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// UpdateMessageRequestMultiError, or nil if none found.
+func (m *UpdateMessageRequest) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *UpdateMessageRequest) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for ConversationId
+
+	// no validation rules for Id
+
+	// no validation rules for Model
+
+	// no validation rules for Request
+
+	// no validation rules for Temperature
+
+	// no validation rules for MaxTokens
+
+	if len(errors) > 0 {
+		return UpdateMessageRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+// UpdateMessageRequestMultiError is an error wrapping multiple validation
+// errors returned by UpdateMessageRequest.ValidateAll() if the designated
+// constraints aren't met.
+type UpdateMessageRequestMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m UpdateMessageRequestMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m UpdateMessageRequestMultiError) AllErrors() []error { return m }
+
+// UpdateMessageRequestValidationError is the validation error returned by
+// UpdateMessageRequest.Validate if the designated constraints aren't met.
+type UpdateMessageRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e UpdateMessageRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e UpdateMessageRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e UpdateMessageRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e UpdateMessageRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e UpdateMessageRequestValidationError) ErrorName() string {
+	return "UpdateMessageRequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e UpdateMessageRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sUpdateMessageRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = UpdateMessageRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = UpdateMessageRequestValidationError{}
+
 // Validate checks the field values on ListMessagesRequest with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.

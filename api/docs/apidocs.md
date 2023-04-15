@@ -34,6 +34,7 @@
     - [ListMessagesResponse](#servicev1-ListMessagesResponse)
     - [Message](#servicev1-Message)
     - [UpdateConversationRequest](#servicev1-UpdateConversationRequest)
+    - [UpdateMessageRequest](#servicev1-UpdateMessageRequest)
 
 - [model/product.proto](#model_product-proto)
     - [CreateProductRequest](#servicev1-CreateProductRequest)
@@ -523,6 +524,26 @@ NumericEnum is one or zero.
 
 
 
+<a name="servicev1-UpdateMessageRequest"></a>
+
+### UpdateMessageRequest
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| conversation_id | [string](#string) |  | conversation_id uuid of the conversation |
+| id | [string](#string) |  | id uuid of the message |
+| model | [string](#string) |  | model model of the message |
+| request | [string](#string) |  | request request of the message |
+| temperature | [float](#float) |  | temperature What sampling temperature to use, between 0 and 2. Higher values like 0.8 will make the output more random, while lower values like 0.2 will make it more focused and deterministic. default 1 |
+| max_tokens | [int32](#int32) |  | max_tokens The maximum number of tokens to generate in the chat completion. default 2000 |
+
+
+
+
+
+
 
 
 
@@ -910,6 +931,7 @@ NumericEnum is one or zero.
 | ListConversations | [ListConversationsRequest](#servicev1-ListConversationsRequest) | [ListConversationsResponse](#servicev1-ListConversationsResponse) |  |
 | DeleteConversation | [DeleteConversationRequest](#servicev1-DeleteConversationRequest) | [.google.protobuf.Empty](#google-protobuf-Empty) |  |
 | CreateMessage | [CreateMessageRequest](#servicev1-CreateMessageRequest) | [Message](#servicev1-Message) stream |  |
+| UpdateMessage | [UpdateMessageRequest](#servicev1-UpdateMessageRequest) | [Message](#servicev1-Message) stream |  |
 | GetMessage | [GetMessageRequest](#servicev1-GetMessageRequest) | [Message](#servicev1-Message) |  |
 | ListMessages | [ListMessagesRequest](#servicev1-ListMessagesRequest) | [ListMessagesResponse](#servicev1-ListMessagesResponse) |  |
 | DeleteMessage | [DeleteMessageRequest](#servicev1-DeleteMessageRequest) | [.google.protobuf.Empty](#google-protobuf-Empty) |  |

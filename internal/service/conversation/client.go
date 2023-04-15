@@ -12,6 +12,7 @@ import (
 	"notionboy/internal/pkg/config"
 	"notionboy/internal/pkg/logger"
 
+	"github.com/google/uuid"
 	"github.com/sashabaranov/go-openai"
 )
 
@@ -75,11 +76,47 @@ func (cli *ConversationClient) ChatWithHistory(ctx context.Context, acc *ent.Acc
 	return msg, nil
 }
 
+func (cli *ConversationClient) StreamChatWithHistoryUpdate(ctx context.Context, acc *ent.Account, instruction string, req *model.UpdateMessageRequest, stream pb.Service_UpdateMessageServer) (*ent.ConversationMessage, error) {
+	return streamChatWithHistory(ctx, cli, acc, instruction, req, stream)
+}
+
 func (cli *ConversationClient) StreamChatWithHistory(ctx context.Context, acc *ent.Account, instruction string, req *model.CreateMessageRequest, stream pb.Service_CreateMessageServer) (*ent.ConversationMessage, error) {
-	logger.SugaredLogger.Debugw("Get prompt message for api client", "req", req)
-	conversationId := req.ConversationId
+	return streamChatWithHistory(ctx, cli, acc, instruction, req, stream)
+}
+
+func streamChatWithHistory(ctx context.Context, cli *ConversationClient, acc *ent.Account, instruction string, req interface{}, s interface{}) (*ent.ConversationMessage, error) {
+	// pre process
+	var conversationId string
+	var selectedModel string
+	var temperature float32
+	var maxTokens int32
+	var prompt string
+	var messageId uuid.UUID
+	var err error
+
+	switch r := req.(type) {
+	case *model.CreateMessageRequest:
+		conversationId = r.ConversationId
+		selectedModel = r.Model
+		temperature = r.Temperature
+		maxTokens = r.MaxTokens
+		prompt = r.Request
+	case *model.UpdateMessageRequest:
+		conversationId = r.ConversationId
+		selectedModel = r.Model
+		temperature = r.Temperature
+		maxTokens = r.MaxTokens
+		prompt = r.Request
+		messageId, err = uuid.Parse(r.Id)
+		if err != nil {
+			return nil, err
+		}
+	default:
+		return nil, errors.New("invalid request")
+	}
+
 	h := NewHistory(ctx, acc, conversationId, instruction)
-	err := h.Load()
+	err = h.Load()
 	if err != nil {
 		return nil, err
 	}
@@ -87,36 +124,37 @@ func (cli *ConversationClient) StreamChatWithHistory(ctx context.Context, acc *e
 		return nil, errors.New(config.MSG_ERROR_QUOTA_LIMIT)
 	}
 
-	if req.Model == "" {
-		req.Model = DEFAULT_MODEL
+	if selectedModel == "" {
+		selectedModel = DEFAULT_MODEL
 	}
-	if req.Temperature == 0 {
-		req.Temperature = 1
+	if temperature == 0 {
+		temperature = 1
 	}
-	if req.MaxTokens == 0 {
-		req.MaxTokens = 2000
+	if maxTokens == 0 {
+		maxTokens = 2000
 	}
 
-	if err := h.summaryMessages(req.Model, req.Request); err != nil {
+	// build request
+	if err := h.summaryMessages(selectedModel, prompt); err != nil {
 		return nil, err
 	}
-	reqMsg := h.buildRequestMessages(req.Request)
-
+	reqMsg := h.buildRequestMessages(prompt)
 	chatReq := openai.ChatCompletionRequest{
-		Model:       req.Model,
+		Model:       selectedModel,
 		Messages:    reqMsg,
 		Stream:      true,
-		MaxTokens:   int(req.MaxTokens),
-		Temperature: req.Temperature,
+		MaxTokens:   int(maxTokens),
+		Temperature: float32(temperature),
 	}
-
 	conversationMessage := &ent.ConversationMessage{
+		UUID:           messageId,
 		ConversationID: h.ConversationId,
 		UserID:         acc.UUID,
-		Request:        req.Request,
-		Model:          req.Model,
+		Request:        prompt,
+		Model:          selectedModel,
 	}
 
+	// stream result
 	streamResp, err := cli.CreateChatCompletionStream(ctx, chatReq)
 	if err != nil {
 		return conversationMessage, err
@@ -125,14 +163,12 @@ func (cli *ConversationClient) StreamChatWithHistory(ctx context.Context, acc *e
 	for {
 		response, err := streamResp.Recv()
 		if errors.Is(err, io.EOF) {
-			// todo save conversation message
-			logger.SugaredLogger.Debugw("Stream chat EOF")
 			conversationMessage.Response = sb.String()
-
 			msg := &Message{
-				Request:  req.Request,
+				Id:       messageId,
+				Request:  prompt,
 				Response: sb.String(),
-				Model:    req.Model,
+				Model:    selectedModel,
 			}
 			h.append(msg)
 			h.saveToCache()
@@ -149,9 +185,20 @@ func (cli *ConversationClient) StreamChatWithHistory(ctx context.Context, acc *e
 		sb.WriteString(msg)
 		conversationMessage.Response = msg
 		dto := ConversationMessageDTOFromDB(conversationMessage)
-		if err = stream.Send(dto.ToPB()); err != nil {
-			logger.SugaredLogger.Errorw("Stream chat send error", "error", err)
-			return conversationMessage, err
+		// nolint:staticcheck
+		switch stream := s.(type) {
+		case pb.Service_CreateMessageServer:
+			if err = stream.Send(dto.ToPB()); err != nil {
+				logger.SugaredLogger.Errorw("Stream chat send error", "error", err)
+				return conversationMessage, err
+			}
+		case pb.Service_UpdateMessageServer:
+			if err = stream.Send(dto.ToPB()); err != nil {
+				logger.SugaredLogger.Errorw("Stream chat send error", "error", err)
+				return conversationMessage, err
+			}
+		default:
+			return conversationMessage, errors.New("invalid stream")
 		}
 	}
 }

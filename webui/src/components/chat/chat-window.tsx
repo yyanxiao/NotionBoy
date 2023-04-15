@@ -1,22 +1,37 @@
 import { useToast } from "@/hooks/use-toast";
-import { Conversation, Message } from "@/lib/pb/model/conversation.pb";
+import { Message } from "@/lib/pb/model/conversation.pb";
+import { MessageContext } from "@/lib/states/chat-context";
 import { parseDateTime } from "@/lib/utils";
 
 import "highlight.js/styles/github.css";
-import { Bot, Copy, Trash2, User } from "lucide-react";
+import { Bot, Check, Copy, Edit2, Trash2, User } from "lucide-react";
 
-import { useEffect, useRef } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import { Button } from "../ui/button";
+import { Input } from "../ui/input";
 
 import { MarkdownComponent } from "./markdown";
 
-type Props = {
-	messages: Message[] | undefined;
-	selectedConversation: Conversation;
-	onMessageDelete: (conversationId: string, messageId: string) => void;
-};
+export default function ChatWindow() {
+	const {
+		selectedConversation,
+		isLoading,
+		messages,
+		model,
+		temperature,
+		maxTokens,
+		setModel,
+		setTemperature,
+		setMaxTokens,
+		onMessageSend,
+		onMessageUpdate,
+		onMessageDelete,
+	} = useContext(MessageContext);
 
-export default function ChatWindow(props: Props) {
+	const [isEditing, setIsEditing] = useState<boolean>(false);
+	const [inputValue, setInputValue] = useState<string>("");
+	const [selectedMessage, setSelectedMessage] = useState<Message>();
+
 	const messagesEndRef = useRef<HTMLDivElement | null>(null);
 	const { toast } = useToast();
 	useEffect(() => {
@@ -26,13 +41,45 @@ export default function ChatWindow(props: Props) {
 				behavior: "smooth",
 			});
 		}
-	}, [props.messages, messagesEndRef]);
+	}, [messages, messagesEndRef]);
+
+	useEffect(() => {
+		if (selectedMessage) {
+			setInputValue(selectedMessage.request as string);
+		}
+	}, [selectedMessage]);
 
 	const messageComponents = (message: Message, isResponse: boolean) => {
 		const md = () => {
 			if (isResponse && message.response) {
 				return <MarkdownComponent text={message.response} />;
 			} else if (message.request) {
+				if (isEditing && selectedMessage?.id === message.id) {
+					return (
+						<Input
+							className="w-full disabled:opacity-50"
+							onChange={(e) => setInputValue(e.target.value)}
+							value={inputValue}
+							disabled={isLoading}
+							onBlur={() => {
+								setIsEditing(false);
+							}}
+							onKeyDown={(e) => {
+								// using shift + enter to send a message
+								// using enter to create a new line
+								if (
+									e.key === "Enter" &&
+									inputValue.trim() != ""
+								) {
+									e.preventDefault();
+									handleMessageEdit(message);
+								} else if (e.key === "Escape") {
+									setIsEditing(false);
+								}
+							}}
+						/>
+					);
+				}
 				return <MarkdownComponent text={message.request} />;
 			} else {
 				return null;
@@ -77,13 +124,57 @@ export default function ChatWindow(props: Props) {
 						className="p-0 mx-1"
 						size={"sm"}
 						onClick={() => {
-							props.onMessageDelete(
-								props.selectedConversation.id as string,
+							onMessageDelete(
+								selectedConversation.id as string,
 								message.id as string
 							);
 						}}
 					>
 						<Trash2 size={18} />
+					</Button>
+				</div>
+			);
+		};
+		const handleMessageEdit = (message: Message) => {
+			const newMessage = {
+				...message,
+				request: inputValue,
+				response: "",
+			} as Message;
+			onMessageUpdate(newMessage, model, temperature, maxTokens);
+			setIsEditing(false);
+		};
+
+		const editMessage = (message: Message) => {
+			if (isResponse) {
+				return;
+			}
+			if (isEditing && selectedMessage?.id === message.id) {
+				return (
+					<div className="absolute top-0 right-12">
+						<Button
+							variant="ghost"
+							className="p-0 mx-1"
+							size={"sm"}
+							onClick={() => handleMessageEdit(message)}
+						>
+							<Check size={18} />
+						</Button>
+					</div>
+				);
+			}
+			return (
+				<div className="absolute top-0 right-12">
+					<Button
+						variant="ghost"
+						className="p-0 mx-1"
+						size={"sm"}
+						onClick={() => {
+							setIsEditing(true);
+							setSelectedMessage(message);
+						}}
+					>
+						<Edit2 size={18} />
 					</Button>
 				</div>
 			);
@@ -113,6 +204,7 @@ export default function ChatWindow(props: Props) {
 					</div>
 					{copyMessage()}
 					{deleteMessage()}
+					{editMessage(message)}
 					{md()}
 				</div>
 			</div>
@@ -120,8 +212,8 @@ export default function ChatWindow(props: Props) {
 	};
 
 	const renderMessages = () => {
-		if (props.messages && props.messages.length > 0) {
-			return props.messages.map((message) => {
+		if (messages && messages.length > 0) {
+			return messages.map((message) => {
 				return (
 					<div key={message.id} className="flex flex-col">
 						{message.request && (

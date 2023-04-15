@@ -142,7 +142,6 @@ func (m *conversationMgr) CreateStreamConversationMessage(ctx context.Context, a
 		return status.Errorf(400, "invalid id %s", err.Error())
 	}
 	conversation, err := dao.GetConversation(ctx, id)
-	logger.SugaredLogger.Debugw("get conversation", "conversation", conversation, "err", err)
 	if err != nil {
 		if strings.Contains(err.Error(), "not found") {
 			logger.SugaredLogger.Debugw("conversation not found, create a new one", "conversationId", conversationId)
@@ -150,7 +149,6 @@ func (m *conversationMgr) CreateStreamConversationMessage(ctx context.Context, a
 			if err != nil {
 				return err
 			}
-			logger.SugaredLogger.Debugw("create conversation", "conversationDTO", conversationDTO)
 			conversation = conversationDTO.ToDB()
 		} else {
 			return err
@@ -160,6 +158,35 @@ func (m *conversationMgr) CreateStreamConversationMessage(ctx context.Context, a
 	apiClient := NewApiClient(acc.OpenaiAPIKey)
 
 	conversationMessage, err := apiClient.StreamChatWithHistory(ctx, acc, conversation.Instruction, req, stream)
+	// logger.SugaredLogger.Debugw("chat with history", "message", message, "err", err)
+	if err != nil {
+		logger.SugaredLogger.Debugw("chat with history error", "err", err)
+		return err
+	}
+
+	dto := ConversationMessageDTOFromDB(conversationMessage)
+	if err = stream.Send(dto.ToPB()); err != nil {
+		logger.SugaredLogger.Debugw("send message error", "err", err)
+		return err
+	}
+
+	return nil
+}
+
+func (m *conversationMgr) UpdateStreamConversationMessage(ctx context.Context, acc *ent.Account, stream pb.Service_UpdateMessageServer, req *model.UpdateMessageRequest) error {
+	conversationId := req.GetConversationId()
+	id, err := uuid.Parse(conversationId)
+	if err != nil {
+		return status.Errorf(400, "invalid id %s", err.Error())
+	}
+	conversation, err := dao.GetConversation(ctx, id)
+	if err != nil {
+		return err
+	}
+
+	apiClient := NewApiClient(acc.OpenaiAPIKey)
+
+	conversationMessage, err := apiClient.StreamChatWithHistoryUpdate(ctx, acc, conversation.Instruction, req, stream)
 	// logger.SugaredLogger.Debugw("chat with history", "message", message, "err", err)
 	if err != nil {
 		logger.SugaredLogger.Debugw("chat with history error", "err", err)

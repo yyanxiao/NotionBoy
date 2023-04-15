@@ -36,6 +36,9 @@ type ConversationService interface {
 	// CreateMessage creates a new conversation
 	CreateStreamConversationMessage(ctx context.Context, acc *ent.Account, stream pb.Service_CreateMessageServer, req *model.CreateMessageRequest) error
 
+	// CreateMessage creates a new conversation
+	UpdateStreamConversationMessage(ctx context.Context, acc *ent.Account, stream pb.Service_UpdateMessageServer, req *model.UpdateMessageRequest) error
+
 	// GetMessage gets a conversation by Id
 	GetConversationMessage(ctx context.Context, acc *ent.Account, conversationId, messageId string) (*ConversationMessageDTO, error)
 

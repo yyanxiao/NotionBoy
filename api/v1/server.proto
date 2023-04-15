@@ -146,6 +146,13 @@ service Service {
     };
   }
 
+  rpc UpdateMessage(UpdateMessageRequest) returns (stream Message) {
+    option (google.api.http) = {
+      post: "/v1/conversations/{conversation_id}/messages/{id}"
+      body: "*"
+    };
+  }
+
   rpc GetMessage(GetMessageRequest) returns (Message) {
     option (google.api.http) = {get: "/v1/conversations/{conversation_id}/messages/{id}"};
   }

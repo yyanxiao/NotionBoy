@@ -34,6 +34,7 @@ const (
 	Service_ListConversations_FullMethodName    = "/servicev1.Service/ListConversations"
 	Service_DeleteConversation_FullMethodName   = "/servicev1.Service/DeleteConversation"
 	Service_CreateMessage_FullMethodName        = "/servicev1.Service/CreateMessage"
+	Service_UpdateMessage_FullMethodName        = "/servicev1.Service/UpdateMessage"
 	Service_GetMessage_FullMethodName           = "/servicev1.Service/GetMessage"
 	Service_ListMessages_FullMethodName         = "/servicev1.Service/ListMessages"
 	Service_DeleteMessage_FullMethodName        = "/servicev1.Service/DeleteMessage"
@@ -74,6 +75,7 @@ type ServiceClient interface {
 	ListConversations(ctx context.Context, in *model.ListConversationsRequest, opts ...grpc.CallOption) (*model.ListConversationsResponse, error)
 	DeleteConversation(ctx context.Context, in *model.DeleteConversationRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	CreateMessage(ctx context.Context, in *model.CreateMessageRequest, opts ...grpc.CallOption) (Service_CreateMessageClient, error)
+	UpdateMessage(ctx context.Context, in *model.UpdateMessageRequest, opts ...grpc.CallOption) (Service_UpdateMessageClient, error)
 	GetMessage(ctx context.Context, in *model.GetMessageRequest, opts ...grpc.CallOption) (*model.Message, error)
 	ListMessages(ctx context.Context, in *model.ListMessagesRequest, opts ...grpc.CallOption) (*model.ListMessagesResponse, error)
 	DeleteMessage(ctx context.Context, in *model.DeleteMessageRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
@@ -246,6 +248,38 @@ func (x *serviceCreateMessageClient) Recv() (*model.Message, error) {
 	return m, nil
 }
 
+func (c *serviceClient) UpdateMessage(ctx context.Context, in *model.UpdateMessageRequest, opts ...grpc.CallOption) (Service_UpdateMessageClient, error) {
+	stream, err := c.cc.NewStream(ctx, &Service_ServiceDesc.Streams[1], Service_UpdateMessage_FullMethodName, opts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &serviceUpdateMessageClient{stream}
+	if err := x.ClientStream.SendMsg(in); err != nil {
+		return nil, err
+	}
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	return x, nil
+}
+
+type Service_UpdateMessageClient interface {
+	Recv() (*model.Message, error)
+	grpc.ClientStream
+}
+
+type serviceUpdateMessageClient struct {
+	grpc.ClientStream
+}
+
+func (x *serviceUpdateMessageClient) Recv() (*model.Message, error) {
+	m := new(model.Message)
+	if err := x.ClientStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
 func (c *serviceClient) GetMessage(ctx context.Context, in *model.GetMessageRequest, opts ...grpc.CallOption) (*model.Message, error) {
 	out := new(model.Message)
 	err := c.cc.Invoke(ctx, Service_GetMessage_FullMethodName, in, out, opts...)
@@ -404,6 +438,7 @@ type ServiceServer interface {
 	ListConversations(context.Context, *model.ListConversationsRequest) (*model.ListConversationsResponse, error)
 	DeleteConversation(context.Context, *model.DeleteConversationRequest) (*emptypb.Empty, error)
 	CreateMessage(*model.CreateMessageRequest, Service_CreateMessageServer) error
+	UpdateMessage(*model.UpdateMessageRequest, Service_UpdateMessageServer) error
 	GetMessage(context.Context, *model.GetMessageRequest) (*model.Message, error)
 	ListMessages(context.Context, *model.ListMessagesRequest) (*model.ListMessagesResponse, error)
 	DeleteMessage(context.Context, *model.DeleteMessageRequest) (*emptypb.Empty, error)
@@ -471,6 +506,9 @@ func (UnimplementedServiceServer) DeleteConversation(context.Context, *model.Del
 }
 func (UnimplementedServiceServer) CreateMessage(*model.CreateMessageRequest, Service_CreateMessageServer) error {
 	return status.Errorf(codes.Unimplemented, "method CreateMessage not implemented")
+}
+func (UnimplementedServiceServer) UpdateMessage(*model.UpdateMessageRequest, Service_UpdateMessageServer) error {
+	return status.Errorf(codes.Unimplemented, "method UpdateMessage not implemented")
 }
 func (UnimplementedServiceServer) GetMessage(context.Context, *model.GetMessageRequest) (*model.Message, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetMessage not implemented")
@@ -764,6 +802,27 @@ type serviceCreateMessageServer struct {
 }
 
 func (x *serviceCreateMessageServer) Send(m *model.Message) error {
+	return x.ServerStream.SendMsg(m)
+}
+
+func _Service_UpdateMessage_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(model.UpdateMessageRequest)
+	if err := stream.RecvMsg(m); err != nil {
+		return err
+	}
+	return srv.(ServiceServer).UpdateMessage(m, &serviceUpdateMessageServer{stream})
+}
+
+type Service_UpdateMessageServer interface {
+	Send(*model.Message) error
+	grpc.ServerStream
+}
+
+type serviceUpdateMessageServer struct {
+	grpc.ServerStream
+}
+
+func (x *serviceUpdateMessageServer) Send(m *model.Message) error {
 	return x.ServerStream.SendMsg(m)
 }
 
@@ -1157,6 +1216,11 @@ var Service_ServiceDesc = grpc.ServiceDesc{
 		{
 			StreamName:    "CreateMessage",
 			Handler:       _Service_CreateMessage_Handler,
+			ServerStreams: true,
+		},
+		{
+			StreamName:    "UpdateMessage",
+			Handler:       _Service_UpdateMessage_Handler,
 			ServerStreams: true,
 		},
 	},

@@ -137,3 +137,18 @@ func (s *Server) DeleteMessage(ctx context.Context, req *model.DeleteMessageRequ
 	err := s.ConversationService.DeleteConversationMessage(ctx, acc, req.GetConversationId(), req.GetId())
 	return &emptypb.Empty{}, err
 }
+
+func (s *Server) UpdateMessage(req *model.UpdateMessageRequest, stream pb.Service_UpdateMessageServer) error {
+	ctx := stream.Context()
+	acc := getAccFromContext(ctx)
+	if acc == nil {
+		return status.Errorf(codes.Unauthenticated, "Request unauthenticated")
+	}
+
+	err := s.ConversationService.UpdateStreamConversationMessage(ctx, acc, stream, req)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
