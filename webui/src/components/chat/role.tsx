@@ -13,7 +13,7 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 
 import { Prompt } from "@/lib/pb/model/common.pb";
-import { Conversation } from "@/lib/pb/model/conversation.pb";
+import { CreateConversationRequest } from "@/lib/pb/model/conversation.pb";
 import { Service } from "@/lib/pb/server.pb";
 import { ChatContext } from "@/lib/states/chat-context";
 import { useContext, useEffect, useState } from "react";
@@ -78,14 +78,13 @@ export function RoleDialog() {
 		);
 	}, [searchValue]);
 
-	const handleUpdateConversation = () => {
-		const conversation = {
-			...selectedConversation,
+	const handleCreateConversationWithRole = () => {
+		const createConversationRequest = {
 			instruction: selectedPrompt?.prompt,
 			title: selectedPrompt?.act,
-		} as Conversation;
-		Service.UpdateConversation(conversation)
-			.then(() => {
+		} as CreateConversationRequest;
+		Service.CreateConversation(createConversationRequest)
+			.then((conversation) => {
 				setSelectedConversation(conversation);
 				setConversations(
 					conversations.map((c) => {
@@ -165,7 +164,7 @@ export function RoleDialog() {
 					<Button
 						type="submit"
 						onClick={() => {
-							handleUpdateConversation();
+							handleCreateConversationWithRole();
 							setIsOpen(false);
 						}}
 					>
