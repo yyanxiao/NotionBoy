@@ -11,8 +11,14 @@ import (
 	"time"
 
 	"notionboy/api/pb/model"
+	"notionboy/db/ent"
+	"notionboy/internal/pkg/db/dao"
 	"notionboy/internal/pkg/logger"
 	"notionboy/internal/pkg/utils/cache"
+
+	"github.com/google/uuid"
+	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/types/known/emptypb"
 )
 
 var cacheClient = cache.DefaultClient()
@@ -22,17 +28,24 @@ const (
 	cnPromptURL = "https://ghproxy.com/https://raw.githubusercontent.com/PlexPt/awesome-chatgpt-prompts-zh/main/prompts-zh.json"
 )
 
-type PromptService interface {
-	ListPrompts(context.Context) (*model.ListPromptsResponse, error)
-}
-
-type PromptServiceImpl struct{}
-
-func NewPromptService() PromptService {
-	return &PromptServiceImpl{}
-}
-
-func (s *PromptServiceImpl) ListPrompts(ctx context.Context) (*model.ListPromptsResponse, error) {
+func (s *PromptServiceImpl) ListPrompts(ctx context.Context, acc *ent.Account, req *model.ListPromptsRequest) (*model.ListPromptsResponse, error) {
+	// list user custom prompts
+	if req.IsCustom {
+		prompts, err := dao.ListPrompts(ctx, acc.UUID)
+		if err != nil {
+			logger.SugaredLogger.Errorw("list prompts error", "err", err)
+			return nil, err
+		}
+		var data []*model.Prompt
+		for _, p := range prompts {
+			dto := NewPromptDTO(p)
+			data = append(data, dto.ToProto())
+		}
+		return &model.ListPromptsResponse{
+			Prompts: data,
+		}, err
+	}
+	// list default prompts
 	enData, err := GetPromptsData(enPromptURL)
 	if err != nil {
 		return nil, err
@@ -49,9 +62,51 @@ func (s *PromptServiceImpl) ListPrompts(ctx context.Context) (*model.ListPrompts
 	}, err
 }
 
-type Data struct {
-	Act    string `json:"act" csv:"act"`
-	Prompt string `json:"prompt" csv:"prompt"`
+func (s *PromptServiceImpl) GetPrompt(ctx context.Context, acc *ent.Account, req *model.GetPromptRequest) (*model.Prompt, error) {
+	pid, err := uuid.Parse(req.Id)
+	if err != nil {
+		return nil, status.Errorf(400, "invalid id, %s", err.Error())
+	}
+	p, err := dao.GetPrompt(ctx, pid, acc.UUID)
+	if err != nil {
+		logger.SugaredLogger.Errorw("get prompt error", "err", err, "id", req.Id)
+		return nil, err
+	}
+	dto := NewPromptDTO(p)
+	return dto.ToProto(), nil
+}
+
+func (s *PromptServiceImpl) CreatePrompt(ctx context.Context, acc *ent.Account, req *model.CreatePromptRequest) (*model.Prompt, error) {
+	p, err := dao.CreatePrompt(ctx, acc.UUID, req.Act, req.Prompt)
+	if err != nil {
+		logger.SugaredLogger.Errorw("create prompt error", "err", err, "act", req.Act, "prompt", req.Prompt)
+		return nil, err
+	}
+	dto := NewPromptDTO(p)
+	return dto.ToProto(), nil
+}
+
+func (s *PromptServiceImpl) UpdatePrompt(ctx context.Context, acc *ent.Account, req *model.UpdatePromptRequest) (*model.Prompt, error) {
+	pid, err := uuid.Parse(req.Id)
+	if err != nil {
+		return nil, status.Errorf(400, "invalid id, %s", err.Error())
+	}
+	p, err := dao.UpdatePrompt(ctx, pid, acc.UUID, req.Act, req.Prompt)
+	if err != nil {
+		logger.SugaredLogger.Errorw("update prompt error", "err", err, "id", pid, "act", req.Act, "prompt", req.Prompt, "user_id", acc.UUID)
+		return nil, err
+	}
+	dto := NewPromptDTO(p)
+	return dto.ToProto(), nil
+}
+
+func (s *PromptServiceImpl) DeletePrompt(ctx context.Context, acc *ent.Account, req *model.DeletePromptRequest) (*emptypb.Empty, error) {
+	pid, err := uuid.Parse(req.Id)
+	if err != nil {
+		return nil, status.Errorf(400, "invalid id, %s", err.Error())
+	}
+	err = dao.DeletePrompt(ctx, pid, acc.UUID)
+	return &emptypb.Empty{}, err
 }
 
 func GetPromptsData(url string) ([]*model.Prompt, error) {
@@ -62,6 +117,12 @@ func GetPromptsData(url string) ([]*model.Prompt, error) {
 	}
 
 	var prompts []*model.Prompt
+	prompts = append(prompts, &model.Prompt{
+		Id:       uuid.New().String(),
+		Act:      "ChatGPT",
+		Prompt:   "You are ChatGPT, a large language model trained by OpenAI. Follow the user's instructions carefully. Respond using markdown.",
+		IsCustom: false,
+	})
 
 	// Send a GET request to the URL
 	resp, err := http.Get(url)
@@ -83,7 +144,12 @@ func GetPromptsData(url string) ([]*model.Prompt, error) {
 		// Parse the CSV data into a slice of Data structs
 		for _, row := range records[1:] { // Skip the header row
 			if len(row) >= 2 {
-				d := &model.Prompt{Act: row[0], Prompt: row[1]}
+				d := &model.Prompt{
+					Id:       uuid.New().String(),
+					Act:      row[0],
+					Prompt:   row[1],
+					IsCustom: false,
+				}
 				prompts = append(prompts, d)
 			}
 		}

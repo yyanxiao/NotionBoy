@@ -100,7 +100,19 @@ export class Service {
   static UpdateProduct(req: Servicev1Product.UpdateProductRequest, initReq?: fm.InitReq): Promise<Servicev1Product.Product> {
     return fm.fetchReq<Servicev1Product.UpdateProductRequest, Servicev1Product.Product>(`/v1/products/${req["id"]}`, {...initReq, method: "PATCH", body: JSON.stringify(req, fm.replacer)})
   }
-  static ListPrompts(req: GoogleProtobufEmpty.Empty, initReq?: fm.InitReq): Promise<Servicev1Common.ListPromptsResponse> {
-    return fm.fetchReq<GoogleProtobufEmpty.Empty, Servicev1Common.ListPromptsResponse>(`/v1/prompts?${fm.renderURLSearchParams(req, [])}`, {...initReq, method: "GET"})
+  static ListPrompts(req: Servicev1Common.ListPromptsRequest, initReq?: fm.InitReq): Promise<Servicev1Common.ListPromptsResponse> {
+    return fm.fetchReq<Servicev1Common.ListPromptsRequest, Servicev1Common.ListPromptsResponse>(`/v1/prompts?${fm.renderURLSearchParams(req, [])}`, {...initReq, method: "GET"})
+  }
+  static GetPrompt(req: Servicev1Common.GetPromptRequest, initReq?: fm.InitReq): Promise<Servicev1Common.Prompt> {
+    return fm.fetchReq<Servicev1Common.GetPromptRequest, Servicev1Common.Prompt>(`/v1/prompts/${req["id"]}?${fm.renderURLSearchParams(req, ["id"])}`, {...initReq, method: "GET"})
+  }
+  static CreatePrompt(req: Servicev1Common.CreatePromptRequest, initReq?: fm.InitReq): Promise<Servicev1Common.Prompt> {
+    return fm.fetchReq<Servicev1Common.CreatePromptRequest, Servicev1Common.Prompt>(`/v1/prompts`, {...initReq, method: "POST", body: JSON.stringify(req, fm.replacer)})
+  }
+  static UpdatePrompt(req: Servicev1Common.UpdatePromptRequest, initReq?: fm.InitReq): Promise<Servicev1Common.Prompt> {
+    return fm.fetchReq<Servicev1Common.UpdatePromptRequest, Servicev1Common.Prompt>(`/v1/prompts/${req["id"]}`, {...initReq, method: "PATCH", body: JSON.stringify(req, fm.replacer)})
+  }
+  static DeletePrompt(req: Servicev1Common.DeletePromptRequest, initReq?: fm.InitReq): Promise<GoogleProtobufEmpty.Empty> {
+    return fm.fetchReq<Servicev1Common.DeletePromptRequest, GoogleProtobufEmpty.Empty>(`/v1/prompts/${req["id"]}`, {...initReq, method: "DELETE"})
   }
 }

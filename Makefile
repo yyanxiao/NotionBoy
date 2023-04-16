@@ -48,27 +48,16 @@ grpc:
 	buf format -w
 	buf generate
 
-mdiff:
-	atlas migrate diff init \
-		--dir "file://db/ent/migrate/migrations" \
-		--to "ent://db/ent/schema" \
-		--dev-url "docker://mysql/8/ent"
+# generate migration files
+mFiles:
+	@echo "create migration files, please input table name: "; \
+	read tableName; \
+	up_file=$$(printf "db/migrations/%s_%s.up.sql" "$$(date +%Y%m%d%H%M%S)" "$$tableName"); \
+	down_file=$$(printf "db/migrations/%s_%s.down.sql" "$$(date +%Y%m%d%H%M%S)" "$$tableName"); \
+	echo "" > $$up_file; \
+	echo "" > $$down_file; \
+	echo "Created $$up_file and $$down_file"
 
-mrehash:
-	atlas migrate hash --dir "file://db/ent/migrate/migrations"
-
-mapply:
-	atlas migrate apply \
-		--dir "file://db/ent/migrate/migrations" \
-		--url "mysql://$(DB_NAME):$(DB_PASSWORD)@$(DB_HOST):$(DB_PORT)/$(DB_NAME)"
-
-mstatus:
-	atlas migrate status \
-		--dir "file://db/ent/migrate/migrations" \
-		--url "mysql://$(DB_NAME):$(DB_PASSWORD)@$(DB_HOST):$(DB_PORT)/$(DB_NAME)"
-
-mlint:
-	atlas migrate lint \
-		--dir "file://db/ent/migrate/migrations" \
-		--dev-url "mysql://$(DB_NAME):$(DB_PASSWORD)@$(DB_HOST):$(DB_PORT)/$(DB_NAME)" \
-		--latest 1
+# migrate database
+migrate:
+	go run ./cmd/migratedb

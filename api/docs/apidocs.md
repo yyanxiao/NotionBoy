@@ -4,18 +4,24 @@
 ## Table of Contents
 
 - [model/common.proto](#model_common-proto)
+    - [CreatePromptRequest](#servicev1-CreatePromptRequest)
+    - [DeletePromptRequest](#servicev1-DeletePromptRequest)
     - [ErrorObject](#servicev1-ErrorObject)
     - [ErrorResponse](#servicev1-ErrorResponse)
     - [GenerateApiKeyResponse](#servicev1-GenerateApiKeyResponse)
     - [GenerateWechatQRCodeResponse](#servicev1-GenerateWechatQRCodeResponse)
     - [GenrateTokenRequest](#servicev1-GenrateTokenRequest)
     - [GenrateTokenResponse](#servicev1-GenrateTokenResponse)
+    - [GetPromptRequest](#servicev1-GetPromptRequest)
+    - [GetPromptResponse](#servicev1-GetPromptResponse)
+    - [ListPromptsRequest](#servicev1-ListPromptsRequest)
     - [ListPromptsResponse](#servicev1-ListPromptsResponse)
     - [OAuthCallbackRequest](#servicev1-OAuthCallbackRequest)
     - [OAuthProvider](#servicev1-OAuthProvider)
     - [OAuthURLRequest](#servicev1-OAuthURLRequest)
     - [OAuthURLResponse](#servicev1-OAuthURLResponse)
     - [Prompt](#servicev1-Prompt)
+    - [UpdatePromptRequest](#servicev1-UpdatePromptRequest)
 
     - [NumericEnum](#servicev1-NumericEnum)
 
@@ -70,6 +76,37 @@
 <p align="right"><a href="#top">Top</a></p>
 
 ## model/common.proto
+
+
+
+<a name="servicev1-CreatePromptRequest"></a>
+
+### CreatePromptRequest
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| act | [string](#string) |  |  |
+| prompt | [string](#string) |  |  |
+
+
+
+
+
+
+<a name="servicev1-DeletePromptRequest"></a>
+
+### DeletePromptRequest
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| id | [string](#string) |  |  |
+
+
+
 
 
 
@@ -169,6 +206,51 @@
 
 
 
+<a name="servicev1-GetPromptRequest"></a>
+
+### GetPromptRequest
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| id | [string](#string) |  |  |
+
+
+
+
+
+
+<a name="servicev1-GetPromptResponse"></a>
+
+### GetPromptResponse
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| prompt | [Prompt](#servicev1-Prompt) |  |  |
+
+
+
+
+
+
+<a name="servicev1-ListPromptsRequest"></a>
+
+### ListPromptsRequest
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| is_custom | [bool](#bool) |  |  |
+
+
+
+
+
+
 <a name="servicev1-ListPromptsResponse"></a>
 
 ### ListPromptsResponse
@@ -249,6 +331,25 @@
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
+| id | [string](#string) |  |  |
+| act | [string](#string) |  |  |
+| prompt | [string](#string) |  |  |
+| is_custom | [bool](#bool) |  |  |
+
+
+
+
+
+
+<a name="servicev1-UpdatePromptRequest"></a>
+
+### UpdatePromptRequest
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| id | [string](#string) |  |  |
 | act | [string](#string) |  |  |
 | prompt | [string](#string) |  |  |
 
@@ -946,7 +1047,11 @@ NumericEnum is one or zero.
 | ListProducts | [ListProductsRequest](#servicev1-ListProductsRequest) | [ListProductsResponse](#servicev1-ListProductsResponse) |  |
 | DeleteProduct | [DeleteProductRequest](#servicev1-DeleteProductRequest) | [.google.protobuf.Empty](#google-protobuf-Empty) |  |
 | UpdateProduct | [UpdateProductRequest](#servicev1-UpdateProductRequest) | [Product](#servicev1-Product) |  |
-| ListPrompts | [.google.protobuf.Empty](#google-protobuf-Empty) | [ListPromptsResponse](#servicev1-ListPromptsResponse) |  |
+| ListPrompts | [ListPromptsRequest](#servicev1-ListPromptsRequest) | [ListPromptsResponse](#servicev1-ListPromptsResponse) |  |
+| GetPrompt | [GetPromptRequest](#servicev1-GetPromptRequest) | [Prompt](#servicev1-Prompt) |  |
+| CreatePrompt | [CreatePromptRequest](#servicev1-CreatePromptRequest) | [Prompt](#servicev1-Prompt) |  |
+| UpdatePrompt | [UpdatePromptRequest](#servicev1-UpdatePromptRequest) | [Prompt](#servicev1-Prompt) |  |
+| DeletePrompt | [DeletePromptRequest](#servicev1-DeletePromptRequest) | [.google.protobuf.Empty](#google-protobuf-Empty) |  |
 
 
 

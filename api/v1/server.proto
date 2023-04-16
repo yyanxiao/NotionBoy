@@ -231,8 +231,30 @@ service Service {
     };
   }
 
-  rpc ListPrompts(google.protobuf.Empty) returns (ListPromptsResponse) {
+  rpc ListPrompts(ListPromptsRequest) returns (ListPromptsResponse) {
     option (google.api.http) = {get: "/v1/prompts"};
+  }
+
+  rpc GetPrompt(GetPromptRequest) returns (Prompt) {
+    option (google.api.http) = {get: "/v1/prompts/{id}"};
+  }
+
+  rpc CreatePrompt(CreatePromptRequest) returns (Prompt) {
+    option (google.api.http) = {
+      post: "/v1/prompts"
+      body: "*"
+    };
+  }
+
+  rpc UpdatePrompt(UpdatePromptRequest) returns (Prompt) {
+    option (google.api.http) = {
+      patch: "/v1/prompts/{id}"
+      body: "*"
+    };
+  }
+
+  rpc DeletePrompt(DeletePromptRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {delete: "/v1/prompts/{id}"};
   }
 }
 

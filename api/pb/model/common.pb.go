@@ -602,8 +602,10 @@ type Prompt struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	Act    string `protobuf:"bytes,1,opt,name=act,proto3" json:"act,omitempty"`
-	Prompt string `protobuf:"bytes,2,opt,name=prompt,proto3" json:"prompt,omitempty"`
+	Id       string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Act      string `protobuf:"bytes,2,opt,name=act,proto3" json:"act,omitempty"`
+	Prompt   string `protobuf:"bytes,3,opt,name=prompt,proto3" json:"prompt,omitempty"`
+	IsCustom bool   `protobuf:"varint,4,opt,name=is_custom,json=isCustom,proto3" json:"is_custom,omitempty"`
 }
 
 func (x *Prompt) Reset() {
@@ -638,6 +640,13 @@ func (*Prompt) Descriptor() ([]byte, []int) {
 	return file_model_common_proto_rawDescGZIP(), []int{10}
 }
 
+func (x *Prompt) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
 func (x *Prompt) GetAct() string {
 	if x != nil {
 		return x.Act
@@ -652,6 +661,60 @@ func (x *Prompt) GetPrompt() string {
 	return ""
 }
 
+func (x *Prompt) GetIsCustom() bool {
+	if x != nil {
+		return x.IsCustom
+	}
+	return false
+}
+
+type ListPromptsRequest struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	IsCustom bool `protobuf:"varint,2,opt,name=is_custom,json=isCustom,proto3" json:"is_custom,omitempty"`
+}
+
+func (x *ListPromptsRequest) Reset() {
+	*x = ListPromptsRequest{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_model_common_proto_msgTypes[11]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *ListPromptsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListPromptsRequest) ProtoMessage() {}
+
+func (x *ListPromptsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_model_common_proto_msgTypes[11]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListPromptsRequest.ProtoReflect.Descriptor instead.
+func (*ListPromptsRequest) Descriptor() ([]byte, []int) {
+	return file_model_common_proto_rawDescGZIP(), []int{11}
+}
+
+func (x *ListPromptsRequest) GetIsCustom() bool {
+	if x != nil {
+		return x.IsCustom
+	}
+	return false
+}
+
 type ListPromptsResponse struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
@@ -663,7 +726,7 @@ type ListPromptsResponse struct {
 func (x *ListPromptsResponse) Reset() {
 	*x = ListPromptsResponse{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_model_common_proto_msgTypes[11]
+		mi := &file_model_common_proto_msgTypes[12]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -676,7 +739,7 @@ func (x *ListPromptsResponse) String() string {
 func (*ListPromptsResponse) ProtoMessage() {}
 
 func (x *ListPromptsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_model_common_proto_msgTypes[11]
+	mi := &file_model_common_proto_msgTypes[12]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -689,7 +752,7 @@ func (x *ListPromptsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListPromptsResponse.ProtoReflect.Descriptor instead.
 func (*ListPromptsResponse) Descriptor() ([]byte, []int) {
-	return file_model_common_proto_rawDescGZIP(), []int{11}
+	return file_model_common_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *ListPromptsResponse) GetPrompts() []*Prompt {
@@ -697,6 +760,265 @@ func (x *ListPromptsResponse) GetPrompts() []*Prompt {
 		return x.Prompts
 	}
 	return nil
+}
+
+type GetPromptRequest struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+}
+
+func (x *GetPromptRequest) Reset() {
+	*x = GetPromptRequest{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_model_common_proto_msgTypes[13]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *GetPromptRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetPromptRequest) ProtoMessage() {}
+
+func (x *GetPromptRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_model_common_proto_msgTypes[13]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetPromptRequest.ProtoReflect.Descriptor instead.
+func (*GetPromptRequest) Descriptor() ([]byte, []int) {
+	return file_model_common_proto_rawDescGZIP(), []int{13}
+}
+
+func (x *GetPromptRequest) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+type GetPromptResponse struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Prompt *Prompt `protobuf:"bytes,1,opt,name=prompt,proto3" json:"prompt,omitempty"`
+}
+
+func (x *GetPromptResponse) Reset() {
+	*x = GetPromptResponse{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_model_common_proto_msgTypes[14]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *GetPromptResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetPromptResponse) ProtoMessage() {}
+
+func (x *GetPromptResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_model_common_proto_msgTypes[14]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetPromptResponse.ProtoReflect.Descriptor instead.
+func (*GetPromptResponse) Descriptor() ([]byte, []int) {
+	return file_model_common_proto_rawDescGZIP(), []int{14}
+}
+
+func (x *GetPromptResponse) GetPrompt() *Prompt {
+	if x != nil {
+		return x.Prompt
+	}
+	return nil
+}
+
+type CreatePromptRequest struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Act    string `protobuf:"bytes,1,opt,name=act,proto3" json:"act,omitempty"`
+	Prompt string `protobuf:"bytes,2,opt,name=prompt,proto3" json:"prompt,omitempty"`
+}
+
+func (x *CreatePromptRequest) Reset() {
+	*x = CreatePromptRequest{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_model_common_proto_msgTypes[15]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *CreatePromptRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CreatePromptRequest) ProtoMessage() {}
+
+func (x *CreatePromptRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_model_common_proto_msgTypes[15]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CreatePromptRequest.ProtoReflect.Descriptor instead.
+func (*CreatePromptRequest) Descriptor() ([]byte, []int) {
+	return file_model_common_proto_rawDescGZIP(), []int{15}
+}
+
+func (x *CreatePromptRequest) GetAct() string {
+	if x != nil {
+		return x.Act
+	}
+	return ""
+}
+
+func (x *CreatePromptRequest) GetPrompt() string {
+	if x != nil {
+		return x.Prompt
+	}
+	return ""
+}
+
+type DeletePromptRequest struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+}
+
+func (x *DeletePromptRequest) Reset() {
+	*x = DeletePromptRequest{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_model_common_proto_msgTypes[16]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *DeletePromptRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DeletePromptRequest) ProtoMessage() {}
+
+func (x *DeletePromptRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_model_common_proto_msgTypes[16]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DeletePromptRequest.ProtoReflect.Descriptor instead.
+func (*DeletePromptRequest) Descriptor() ([]byte, []int) {
+	return file_model_common_proto_rawDescGZIP(), []int{16}
+}
+
+func (x *DeletePromptRequest) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+type UpdatePromptRequest struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Id     string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Act    string `protobuf:"bytes,2,opt,name=act,proto3" json:"act,omitempty"`
+	Prompt string `protobuf:"bytes,3,opt,name=prompt,proto3" json:"prompt,omitempty"`
+}
+
+func (x *UpdatePromptRequest) Reset() {
+	*x = UpdatePromptRequest{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_model_common_proto_msgTypes[17]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *UpdatePromptRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpdatePromptRequest) ProtoMessage() {}
+
+func (x *UpdatePromptRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_model_common_proto_msgTypes[17]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpdatePromptRequest.ProtoReflect.Descriptor instead.
+func (*UpdatePromptRequest) Descriptor() ([]byte, []int) {
+	return file_model_common_proto_rawDescGZIP(), []int{17}
+}
+
+func (x *UpdatePromptRequest) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *UpdatePromptRequest) GetAct() string {
+	if x != nil {
+		return x.Act
+	}
+	return ""
+}
+
+func (x *UpdatePromptRequest) GetPrompt() string {
+	if x != nil {
+		return x.Prompt
+	}
+	return ""
 }
 
 var File_model_common_proto protoreflect.FileDescriptor
@@ -774,24 +1096,48 @@ var file_model_common_proto_rawDesc = []byte{
 	0x64, 0x65, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x10, 0x0a, 0x03, 0x75, 0x72,
 	0x6c, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x03, 0x75, 0x72, 0x6c, 0x12, 0x16, 0x0a, 0x06,
 	0x71, 0x72, 0x63, 0x6f, 0x64, 0x65, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x06, 0x71, 0x72,
-	0x63, 0x6f, 0x64, 0x65, 0x22, 0x32, 0x0a, 0x06, 0x50, 0x72, 0x6f, 0x6d, 0x70, 0x74, 0x12, 0x10,
-	0x0a, 0x03, 0x61, 0x63, 0x74, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x03, 0x61, 0x63, 0x74,
-	0x12, 0x16, 0x0a, 0x06, 0x70, 0x72, 0x6f, 0x6d, 0x70, 0x74, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09,
-	0x52, 0x06, 0x70, 0x72, 0x6f, 0x6d, 0x70, 0x74, 0x22, 0x42, 0x0a, 0x13, 0x4c, 0x69, 0x73, 0x74,
+	0x63, 0x6f, 0x64, 0x65, 0x22, 0x5f, 0x0a, 0x06, 0x50, 0x72, 0x6f, 0x6d, 0x70, 0x74, 0x12, 0x0e,
+	0x0a, 0x02, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x02, 0x69, 0x64, 0x12, 0x10,
+	0x0a, 0x03, 0x61, 0x63, 0x74, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x03, 0x61, 0x63, 0x74,
+	0x12, 0x16, 0x0a, 0x06, 0x70, 0x72, 0x6f, 0x6d, 0x70, 0x74, 0x18, 0x03, 0x20, 0x01, 0x28, 0x09,
+	0x52, 0x06, 0x70, 0x72, 0x6f, 0x6d, 0x70, 0x74, 0x12, 0x1b, 0x0a, 0x09, 0x69, 0x73, 0x5f, 0x63,
+	0x75, 0x73, 0x74, 0x6f, 0x6d, 0x18, 0x04, 0x20, 0x01, 0x28, 0x08, 0x52, 0x08, 0x69, 0x73, 0x43,
+	0x75, 0x73, 0x74, 0x6f, 0x6d, 0x22, 0x31, 0x0a, 0x12, 0x4c, 0x69, 0x73, 0x74, 0x50, 0x72, 0x6f,
+	0x6d, 0x70, 0x74, 0x73, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x1b, 0x0a, 0x09, 0x69,
+	0x73, 0x5f, 0x63, 0x75, 0x73, 0x74, 0x6f, 0x6d, 0x18, 0x02, 0x20, 0x01, 0x28, 0x08, 0x52, 0x08,
+	0x69, 0x73, 0x43, 0x75, 0x73, 0x74, 0x6f, 0x6d, 0x22, 0x42, 0x0a, 0x13, 0x4c, 0x69, 0x73, 0x74,
 	0x50, 0x72, 0x6f, 0x6d, 0x70, 0x74, 0x73, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12,
 	0x2b, 0x0a, 0x07, 0x70, 0x72, 0x6f, 0x6d, 0x70, 0x74, 0x73, 0x18, 0x01, 0x20, 0x03, 0x28, 0x0b,
 	0x32, 0x11, 0x2e, 0x73, 0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x76, 0x31, 0x2e, 0x50, 0x72, 0x6f,
-	0x6d, 0x70, 0x74, 0x52, 0x07, 0x70, 0x72, 0x6f, 0x6d, 0x70, 0x74, 0x73, 0x2a, 0x20, 0x0a, 0x0b,
-	0x4e, 0x75, 0x6d, 0x65, 0x72, 0x69, 0x63, 0x45, 0x6e, 0x75, 0x6d, 0x12, 0x08, 0x0a, 0x04, 0x5a,
-	0x45, 0x52, 0x4f, 0x10, 0x00, 0x12, 0x07, 0x0a, 0x03, 0x4f, 0x4e, 0x45, 0x10, 0x01, 0x42, 0x78,
-	0x0a, 0x0d, 0x63, 0x6f, 0x6d, 0x2e, 0x73, 0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x76, 0x31, 0x42,
-	0x0b, 0x43, 0x6f, 0x6d, 0x6d, 0x6f, 0x6e, 0x50, 0x72, 0x6f, 0x74, 0x6f, 0x50, 0x01, 0x5a, 0x16,
-	0x6e, 0x6f, 0x74, 0x69, 0x6f, 0x6e, 0x62, 0x6f, 0x79, 0x2f, 0x61, 0x70, 0x69, 0x2f, 0x70, 0x62,
-	0x2f, 0x6d, 0x6f, 0x64, 0x65, 0x6c, 0xa2, 0x02, 0x03, 0x53, 0x58, 0x58, 0xaa, 0x02, 0x09, 0x53,
-	0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x76, 0x31, 0xca, 0x02, 0x09, 0x53, 0x65, 0x72, 0x76, 0x69,
-	0x63, 0x65, 0x76, 0x31, 0xe2, 0x02, 0x15, 0x53, 0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x76, 0x31,
-	0x5c, 0x47, 0x50, 0x42, 0x4d, 0x65, 0x74, 0x61, 0x64, 0x61, 0x74, 0x61, 0xea, 0x02, 0x09, 0x53,
-	0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x76, 0x31, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
+	0x6d, 0x70, 0x74, 0x52, 0x07, 0x70, 0x72, 0x6f, 0x6d, 0x70, 0x74, 0x73, 0x22, 0x22, 0x0a, 0x10,
+	0x47, 0x65, 0x74, 0x50, 0x72, 0x6f, 0x6d, 0x70, 0x74, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74,
+	0x12, 0x0e, 0x0a, 0x02, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x02, 0x69, 0x64,
+	0x22, 0x3e, 0x0a, 0x11, 0x47, 0x65, 0x74, 0x50, 0x72, 0x6f, 0x6d, 0x70, 0x74, 0x52, 0x65, 0x73,
+	0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x29, 0x0a, 0x06, 0x70, 0x72, 0x6f, 0x6d, 0x70, 0x74, 0x18,
+	0x01, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x11, 0x2e, 0x73, 0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x76,
+	0x31, 0x2e, 0x50, 0x72, 0x6f, 0x6d, 0x70, 0x74, 0x52, 0x06, 0x70, 0x72, 0x6f, 0x6d, 0x70, 0x74,
+	0x22, 0x3f, 0x0a, 0x13, 0x43, 0x72, 0x65, 0x61, 0x74, 0x65, 0x50, 0x72, 0x6f, 0x6d, 0x70, 0x74,
+	0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x10, 0x0a, 0x03, 0x61, 0x63, 0x74, 0x18, 0x01,
+	0x20, 0x01, 0x28, 0x09, 0x52, 0x03, 0x61, 0x63, 0x74, 0x12, 0x16, 0x0a, 0x06, 0x70, 0x72, 0x6f,
+	0x6d, 0x70, 0x74, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x06, 0x70, 0x72, 0x6f, 0x6d, 0x70,
+	0x74, 0x22, 0x25, 0x0a, 0x13, 0x44, 0x65, 0x6c, 0x65, 0x74, 0x65, 0x50, 0x72, 0x6f, 0x6d, 0x70,
+	0x74, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x0e, 0x0a, 0x02, 0x69, 0x64, 0x18, 0x01,
+	0x20, 0x01, 0x28, 0x09, 0x52, 0x02, 0x69, 0x64, 0x22, 0x4f, 0x0a, 0x13, 0x55, 0x70, 0x64, 0x61,
+	0x74, 0x65, 0x50, 0x72, 0x6f, 0x6d, 0x70, 0x74, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12,
+	0x0e, 0x0a, 0x02, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x02, 0x69, 0x64, 0x12,
+	0x10, 0x0a, 0x03, 0x61, 0x63, 0x74, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x03, 0x61, 0x63,
+	0x74, 0x12, 0x16, 0x0a, 0x06, 0x70, 0x72, 0x6f, 0x6d, 0x70, 0x74, 0x18, 0x03, 0x20, 0x01, 0x28,
+	0x09, 0x52, 0x06, 0x70, 0x72, 0x6f, 0x6d, 0x70, 0x74, 0x2a, 0x20, 0x0a, 0x0b, 0x4e, 0x75, 0x6d,
+	0x65, 0x72, 0x69, 0x63, 0x45, 0x6e, 0x75, 0x6d, 0x12, 0x08, 0x0a, 0x04, 0x5a, 0x45, 0x52, 0x4f,
+	0x10, 0x00, 0x12, 0x07, 0x0a, 0x03, 0x4f, 0x4e, 0x45, 0x10, 0x01, 0x42, 0x78, 0x0a, 0x0d, 0x63,
+	0x6f, 0x6d, 0x2e, 0x73, 0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x76, 0x31, 0x42, 0x0b, 0x43, 0x6f,
+	0x6d, 0x6d, 0x6f, 0x6e, 0x50, 0x72, 0x6f, 0x74, 0x6f, 0x50, 0x01, 0x5a, 0x16, 0x6e, 0x6f, 0x74,
+	0x69, 0x6f, 0x6e, 0x62, 0x6f, 0x79, 0x2f, 0x61, 0x70, 0x69, 0x2f, 0x70, 0x62, 0x2f, 0x6d, 0x6f,
+	0x64, 0x65, 0x6c, 0xa2, 0x02, 0x03, 0x53, 0x58, 0x58, 0xaa, 0x02, 0x09, 0x53, 0x65, 0x72, 0x76,
+	0x69, 0x63, 0x65, 0x76, 0x31, 0xca, 0x02, 0x09, 0x53, 0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x76,
+	0x31, 0xe2, 0x02, 0x15, 0x53, 0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x76, 0x31, 0x5c, 0x47, 0x50,
+	0x42, 0x4d, 0x65, 0x74, 0x61, 0x64, 0x61, 0x74, 0x61, 0xea, 0x02, 0x09, 0x53, 0x65, 0x72, 0x76,
+	0x69, 0x63, 0x65, 0x76, 0x31, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
@@ -807,7 +1153,7 @@ func file_model_common_proto_rawDescGZIP() []byte {
 }
 
 var file_model_common_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_model_common_proto_msgTypes = make([]protoimpl.MessageInfo, 12)
+var file_model_common_proto_msgTypes = make([]protoimpl.MessageInfo, 18)
 var file_model_common_proto_goTypes = []interface{}{
 	(NumericEnum)(0),                     // 0: servicev1.NumericEnum
 	(*ErrorResponse)(nil),                // 1: servicev1.ErrorResponse
@@ -821,17 +1167,24 @@ var file_model_common_proto_goTypes = []interface{}{
 	(*OAuthURLResponse)(nil),             // 9: servicev1.OAuthURLResponse
 	(*GenerateWechatQRCodeResponse)(nil), // 10: servicev1.GenerateWechatQRCodeResponse
 	(*Prompt)(nil),                       // 11: servicev1.Prompt
-	(*ListPromptsResponse)(nil),          // 12: servicev1.ListPromptsResponse
+	(*ListPromptsRequest)(nil),           // 12: servicev1.ListPromptsRequest
+	(*ListPromptsResponse)(nil),          // 13: servicev1.ListPromptsResponse
+	(*GetPromptRequest)(nil),             // 14: servicev1.GetPromptRequest
+	(*GetPromptResponse)(nil),            // 15: servicev1.GetPromptResponse
+	(*CreatePromptRequest)(nil),          // 16: servicev1.CreatePromptRequest
+	(*DeletePromptRequest)(nil),          // 17: servicev1.DeletePromptRequest
+	(*UpdatePromptRequest)(nil),          // 18: servicev1.UpdatePromptRequest
 }
 var file_model_common_proto_depIdxs = []int32{
 	2,  // 0: servicev1.ErrorResponse.error:type_name -> servicev1.ErrorObject
 	8,  // 1: servicev1.OAuthURLResponse.providers:type_name -> servicev1.OAuthProvider
 	11, // 2: servicev1.ListPromptsResponse.prompts:type_name -> servicev1.Prompt
-	3,  // [3:3] is the sub-list for method output_type
-	3,  // [3:3] is the sub-list for method input_type
-	3,  // [3:3] is the sub-list for extension type_name
-	3,  // [3:3] is the sub-list for extension extendee
-	0,  // [0:3] is the sub-list for field type_name
+	11, // 3: servicev1.GetPromptResponse.prompt:type_name -> servicev1.Prompt
+	4,  // [4:4] is the sub-list for method output_type
+	4,  // [4:4] is the sub-list for method input_type
+	4,  // [4:4] is the sub-list for extension type_name
+	4,  // [4:4] is the sub-list for extension extendee
+	0,  // [0:4] is the sub-list for field type_name
 }
 
 func init() { file_model_common_proto_init() }
@@ -973,7 +1326,79 @@ func file_model_common_proto_init() {
 			}
 		}
 		file_model_common_proto_msgTypes[11].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*ListPromptsRequest); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_model_common_proto_msgTypes[12].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*ListPromptsResponse); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_model_common_proto_msgTypes[13].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*GetPromptRequest); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_model_common_proto_msgTypes[14].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*GetPromptResponse); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_model_common_proto_msgTypes[15].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*CreatePromptRequest); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_model_common_proto_msgTypes[16].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*DeletePromptRequest); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_model_common_proto_msgTypes[17].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*UpdatePromptRequest); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -991,7 +1416,7 @@ func file_model_common_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_model_common_proto_rawDesc,
 			NumEnums:      1,
-			NumMessages:   12,
+			NumMessages:   18,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

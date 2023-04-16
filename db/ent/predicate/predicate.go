@@ -24,6 +24,9 @@ type Order func(*sql.Selector)
 // Product is the predicate function for product builders.
 type Product func(*sql.Selector)
 
+// Prompt is the predicate function for prompt builders.
+type Prompt func(*sql.Selector)
+
 // Quota is the predicate function for quota builders.
 type Quota func(*sql.Selector)
 

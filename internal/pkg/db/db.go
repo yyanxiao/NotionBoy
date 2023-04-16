@@ -70,14 +70,3 @@ func openDB() (*ent.Client, error) {
 	db.SetConnMaxLifetime(time.Hour)
 	return ent.NewClient(ent.Driver(drv)), nil
 }
-
-// func migrateDB() {
-// 	ctx := context.Background()
-// 	if err := client.Debug().Schema.Create(
-// 		ctx,
-// 		migrate.WithDropColumn(true),
-// 		migrate.WithDropIndex(true),
-// 	); err != nil {
-// 		logger.SugaredLogger.Fatalw("Failed creating schema resources", "err", err)
-// 	}
-// }

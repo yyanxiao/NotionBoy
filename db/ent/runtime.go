@@ -9,6 +9,7 @@ import (
 	"notionboy/db/ent/conversationmessage"
 	"notionboy/db/ent/order"
 	"notionboy/db/ent/product"
+	"notionboy/db/ent/prompt"
 	"notionboy/db/ent/quota"
 	"notionboy/db/ent/schema"
 	"notionboy/db/ent/wechatsession"
@@ -177,6 +178,27 @@ func init() {
 	productDescStorage := productFields[5].Descriptor()
 	// product.DefaultStorage holds the default value on creation for the storage field.
 	product.DefaultStorage = productDescStorage.Default.(int64)
+	promptMixin := schema.Prompt{}.Mixin()
+	promptMixinFields0 := promptMixin[0].Fields()
+	_ = promptMixinFields0
+	promptMixinFields1 := promptMixin[1].Fields()
+	_ = promptMixinFields1
+	promptFields := schema.Prompt{}.Fields()
+	_ = promptFields
+	// promptDescCreatedAt is the schema descriptor for created_at field.
+	promptDescCreatedAt := promptMixinFields0[0].Descriptor()
+	// prompt.DefaultCreatedAt holds the default value on creation for the created_at field.
+	prompt.DefaultCreatedAt = promptDescCreatedAt.Default.(func() time.Time)
+	// promptDescUpdatedAt is the schema descriptor for updated_at field.
+	promptDescUpdatedAt := promptMixinFields0[1].Descriptor()
+	// prompt.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	prompt.DefaultUpdatedAt = promptDescUpdatedAt.Default.(func() time.Time)
+	// prompt.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	prompt.UpdateDefaultUpdatedAt = promptDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// promptDescDeleted is the schema descriptor for deleted field.
+	promptDescDeleted := promptMixinFields1[0].Descriptor()
+	// prompt.DefaultDeleted holds the default value on creation for the deleted field.
+	prompt.DefaultDeleted = promptDescDeleted.Default.(bool)
 	quotaMixin := schema.Quota{}.Mixin()
 	quotaMixinFields0 := quotaMixin[0].Fields()
 	_ = quotaMixinFields0

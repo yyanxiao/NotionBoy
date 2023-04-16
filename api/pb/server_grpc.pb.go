@@ -50,6 +50,10 @@ const (
 	Service_DeleteProduct_FullMethodName        = "/servicev1.Service/DeleteProduct"
 	Service_UpdateProduct_FullMethodName        = "/servicev1.Service/UpdateProduct"
 	Service_ListPrompts_FullMethodName          = "/servicev1.Service/ListPrompts"
+	Service_GetPrompt_FullMethodName            = "/servicev1.Service/GetPrompt"
+	Service_CreatePrompt_FullMethodName         = "/servicev1.Service/CreatePrompt"
+	Service_UpdatePrompt_FullMethodName         = "/servicev1.Service/UpdatePrompt"
+	Service_DeletePrompt_FullMethodName         = "/servicev1.Service/DeletePrompt"
 )
 
 // ServiceClient is the client API for Service service.
@@ -97,7 +101,11 @@ type ServiceClient interface {
 	ListProducts(ctx context.Context, in *model.ListProductsRequest, opts ...grpc.CallOption) (*model.ListProductsResponse, error)
 	DeleteProduct(ctx context.Context, in *model.DeleteProductRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	UpdateProduct(ctx context.Context, in *model.UpdateProductRequest, opts ...grpc.CallOption) (*model.Product, error)
-	ListPrompts(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*model.ListPromptsResponse, error)
+	ListPrompts(ctx context.Context, in *model.ListPromptsRequest, opts ...grpc.CallOption) (*model.ListPromptsResponse, error)
+	GetPrompt(ctx context.Context, in *model.GetPromptRequest, opts ...grpc.CallOption) (*model.Prompt, error)
+	CreatePrompt(ctx context.Context, in *model.CreatePromptRequest, opts ...grpc.CallOption) (*model.Prompt, error)
+	UpdatePrompt(ctx context.Context, in *model.UpdatePromptRequest, opts ...grpc.CallOption) (*model.Prompt, error)
+	DeletePrompt(ctx context.Context, in *model.DeletePromptRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
 type serviceClient struct {
@@ -406,9 +414,45 @@ func (c *serviceClient) UpdateProduct(ctx context.Context, in *model.UpdateProdu
 	return out, nil
 }
 
-func (c *serviceClient) ListPrompts(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*model.ListPromptsResponse, error) {
+func (c *serviceClient) ListPrompts(ctx context.Context, in *model.ListPromptsRequest, opts ...grpc.CallOption) (*model.ListPromptsResponse, error) {
 	out := new(model.ListPromptsResponse)
 	err := c.cc.Invoke(ctx, Service_ListPrompts_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *serviceClient) GetPrompt(ctx context.Context, in *model.GetPromptRequest, opts ...grpc.CallOption) (*model.Prompt, error) {
+	out := new(model.Prompt)
+	err := c.cc.Invoke(ctx, Service_GetPrompt_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *serviceClient) CreatePrompt(ctx context.Context, in *model.CreatePromptRequest, opts ...grpc.CallOption) (*model.Prompt, error) {
+	out := new(model.Prompt)
+	err := c.cc.Invoke(ctx, Service_CreatePrompt_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *serviceClient) UpdatePrompt(ctx context.Context, in *model.UpdatePromptRequest, opts ...grpc.CallOption) (*model.Prompt, error) {
+	out := new(model.Prompt)
+	err := c.cc.Invoke(ctx, Service_UpdatePrompt_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *serviceClient) DeletePrompt(ctx context.Context, in *model.DeletePromptRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, Service_DeletePrompt_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -460,7 +504,11 @@ type ServiceServer interface {
 	ListProducts(context.Context, *model.ListProductsRequest) (*model.ListProductsResponse, error)
 	DeleteProduct(context.Context, *model.DeleteProductRequest) (*emptypb.Empty, error)
 	UpdateProduct(context.Context, *model.UpdateProductRequest) (*model.Product, error)
-	ListPrompts(context.Context, *emptypb.Empty) (*model.ListPromptsResponse, error)
+	ListPrompts(context.Context, *model.ListPromptsRequest) (*model.ListPromptsResponse, error)
+	GetPrompt(context.Context, *model.GetPromptRequest) (*model.Prompt, error)
+	CreatePrompt(context.Context, *model.CreatePromptRequest) (*model.Prompt, error)
+	UpdatePrompt(context.Context, *model.UpdatePromptRequest) (*model.Prompt, error)
+	DeletePrompt(context.Context, *model.DeletePromptRequest) (*emptypb.Empty, error)
 	mustEmbedUnimplementedServiceServer()
 }
 
@@ -552,8 +600,20 @@ func (UnimplementedServiceServer) DeleteProduct(context.Context, *model.DeletePr
 func (UnimplementedServiceServer) UpdateProduct(context.Context, *model.UpdateProductRequest) (*model.Product, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateProduct not implemented")
 }
-func (UnimplementedServiceServer) ListPrompts(context.Context, *emptypb.Empty) (*model.ListPromptsResponse, error) {
+func (UnimplementedServiceServer) ListPrompts(context.Context, *model.ListPromptsRequest) (*model.ListPromptsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListPrompts not implemented")
+}
+func (UnimplementedServiceServer) GetPrompt(context.Context, *model.GetPromptRequest) (*model.Prompt, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetPrompt not implemented")
+}
+func (UnimplementedServiceServer) CreatePrompt(context.Context, *model.CreatePromptRequest) (*model.Prompt, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreatePrompt not implemented")
+}
+func (UnimplementedServiceServer) UpdatePrompt(context.Context, *model.UpdatePromptRequest) (*model.Prompt, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdatePrompt not implemented")
+}
+func (UnimplementedServiceServer) DeletePrompt(context.Context, *model.DeletePromptRequest) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeletePrompt not implemented")
 }
 func (UnimplementedServiceServer) mustEmbedUnimplementedServiceServer() {}
 
@@ -1079,7 +1139,7 @@ func _Service_UpdateProduct_Handler(srv interface{}, ctx context.Context, dec fu
 }
 
 func _Service_ListPrompts_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(emptypb.Empty)
+	in := new(model.ListPromptsRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -1091,7 +1151,79 @@ func _Service_ListPrompts_Handler(srv interface{}, ctx context.Context, dec func
 		FullMethod: Service_ListPrompts_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ServiceServer).ListPrompts(ctx, req.(*emptypb.Empty))
+		return srv.(ServiceServer).ListPrompts(ctx, req.(*model.ListPromptsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Service_GetPrompt_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(model.GetPromptRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ServiceServer).GetPrompt(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Service_GetPrompt_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ServiceServer).GetPrompt(ctx, req.(*model.GetPromptRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Service_CreatePrompt_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(model.CreatePromptRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ServiceServer).CreatePrompt(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Service_CreatePrompt_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ServiceServer).CreatePrompt(ctx, req.(*model.CreatePromptRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Service_UpdatePrompt_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(model.UpdatePromptRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ServiceServer).UpdatePrompt(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Service_UpdatePrompt_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ServiceServer).UpdatePrompt(ctx, req.(*model.UpdatePromptRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Service_DeletePrompt_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(model.DeletePromptRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ServiceServer).DeletePrompt(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Service_DeletePrompt_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ServiceServer).DeletePrompt(ctx, req.(*model.DeletePromptRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -1210,6 +1342,22 @@ var Service_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ListPrompts",
 			Handler:    _Service_ListPrompts_Handler,
+		},
+		{
+			MethodName: "GetPrompt",
+			Handler:    _Service_GetPrompt_Handler,
+		},
+		{
+			MethodName: "CreatePrompt",
+			Handler:    _Service_CreatePrompt_Handler,
+		},
+		{
+			MethodName: "UpdatePrompt",
+			Handler:    _Service_UpdatePrompt_Handler,
+		},
+		{
+			MethodName: "DeletePrompt",
+			Handler:    _Service_DeletePrompt_Handler,
 		},
 	},
 	Streams: []grpc.StreamDesc{

@@ -16,6 +16,7 @@ import (
 	"notionboy/db/ent/conversationmessage"
 	"notionboy/db/ent/order"
 	"notionboy/db/ent/product"
+	"notionboy/db/ent/prompt"
 	"notionboy/db/ent/quota"
 	"notionboy/db/ent/wechatsession"
 
@@ -44,6 +45,8 @@ type Client struct {
 	Order *OrderClient
 	// Product is the client for interacting with the Product builders.
 	Product *ProductClient
+	// Prompt is the client for interacting with the Prompt builders.
+	Prompt *PromptClient
 	// Quota is the client for interacting with the Quota builders.
 	Quota *QuotaClient
 	// WechatSession is the client for interacting with the WechatSession builders.
@@ -67,6 +70,7 @@ func (c *Client) init() {
 	c.ConversationMessage = NewConversationMessageClient(c.config)
 	c.Order = NewOrderClient(c.config)
 	c.Product = NewProductClient(c.config)
+	c.Prompt = NewPromptClient(c.config)
 	c.Quota = NewQuotaClient(c.config)
 	c.WechatSession = NewWechatSessionClient(c.config)
 }
@@ -157,6 +161,7 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 		ConversationMessage: NewConversationMessageClient(cfg),
 		Order:               NewOrderClient(cfg),
 		Product:             NewProductClient(cfg),
+		Prompt:              NewPromptClient(cfg),
 		Quota:               NewQuotaClient(cfg),
 		WechatSession:       NewWechatSessionClient(cfg),
 	}, nil
@@ -184,6 +189,7 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 		ConversationMessage: NewConversationMessageClient(cfg),
 		Order:               NewOrderClient(cfg),
 		Product:             NewProductClient(cfg),
+		Prompt:              NewPromptClient(cfg),
 		Quota:               NewQuotaClient(cfg),
 		WechatSession:       NewWechatSessionClient(cfg),
 	}, nil
@@ -216,7 +222,7 @@ func (c *Client) Close() error {
 func (c *Client) Use(hooks ...Hook) {
 	for _, n := range []interface{ Use(...Hook) }{
 		c.Account, c.ChatHistory, c.Conversation, c.ConversationMessage, c.Order,
-		c.Product, c.Quota, c.WechatSession,
+		c.Product, c.Prompt, c.Quota, c.WechatSession,
 	} {
 		n.Use(hooks...)
 	}
@@ -227,7 +233,7 @@ func (c *Client) Use(hooks ...Hook) {
 func (c *Client) Intercept(interceptors ...Interceptor) {
 	for _, n := range []interface{ Intercept(...Interceptor) }{
 		c.Account, c.ChatHistory, c.Conversation, c.ConversationMessage, c.Order,
-		c.Product, c.Quota, c.WechatSession,
+		c.Product, c.Prompt, c.Quota, c.WechatSession,
 	} {
 		n.Intercept(interceptors...)
 	}
@@ -248,6 +254,8 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 		return c.Order.mutate(ctx, m)
 	case *ProductMutation:
 		return c.Product.mutate(ctx, m)
+	case *PromptMutation:
+		return c.Prompt.mutate(ctx, m)
 	case *QuotaMutation:
 		return c.Quota.mutate(ctx, m)
 	case *WechatSessionMutation:
@@ -997,6 +1005,124 @@ func (c *ProductClient) mutate(ctx context.Context, m *ProductMutation) (Value, 
 	}
 }
 
+// PromptClient is a client for the Prompt schema.
+type PromptClient struct {
+	config
+}
+
+// NewPromptClient returns a client for the Prompt from the given config.
+func NewPromptClient(c config) *PromptClient {
+	return &PromptClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `prompt.Hooks(f(g(h())))`.
+func (c *PromptClient) Use(hooks ...Hook) {
+	c.hooks.Prompt = append(c.hooks.Prompt, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `prompt.Intercept(f(g(h())))`.
+func (c *PromptClient) Intercept(interceptors ...Interceptor) {
+	c.inters.Prompt = append(c.inters.Prompt, interceptors...)
+}
+
+// Create returns a builder for creating a Prompt entity.
+func (c *PromptClient) Create() *PromptCreate {
+	mutation := newPromptMutation(c.config, OpCreate)
+	return &PromptCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of Prompt entities.
+func (c *PromptClient) CreateBulk(builders ...*PromptCreate) *PromptCreateBulk {
+	return &PromptCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for Prompt.
+func (c *PromptClient) Update() *PromptUpdate {
+	mutation := newPromptMutation(c.config, OpUpdate)
+	return &PromptUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *PromptClient) UpdateOne(pr *Prompt) *PromptUpdateOne {
+	mutation := newPromptMutation(c.config, OpUpdateOne, withPrompt(pr))
+	return &PromptUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *PromptClient) UpdateOneID(id int) *PromptUpdateOne {
+	mutation := newPromptMutation(c.config, OpUpdateOne, withPromptID(id))
+	return &PromptUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for Prompt.
+func (c *PromptClient) Delete() *PromptDelete {
+	mutation := newPromptMutation(c.config, OpDelete)
+	return &PromptDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *PromptClient) DeleteOne(pr *Prompt) *PromptDeleteOne {
+	return c.DeleteOneID(pr.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *PromptClient) DeleteOneID(id int) *PromptDeleteOne {
+	builder := c.Delete().Where(prompt.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &PromptDeleteOne{builder}
+}
+
+// Query returns a query builder for Prompt.
+func (c *PromptClient) Query() *PromptQuery {
+	return &PromptQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypePrompt},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a Prompt entity by its id.
+func (c *PromptClient) Get(ctx context.Context, id int) (*Prompt, error) {
+	return c.Query().Where(prompt.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *PromptClient) GetX(ctx context.Context, id int) *Prompt {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// Hooks returns the client hooks.
+func (c *PromptClient) Hooks() []Hook {
+	return c.hooks.Prompt
+}
+
+// Interceptors returns the client interceptors.
+func (c *PromptClient) Interceptors() []Interceptor {
+	return c.inters.Prompt
+}
+
+func (c *PromptClient) mutate(ctx context.Context, m *PromptMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&PromptCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&PromptUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&PromptUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&PromptDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown Prompt mutation op: %q", m.Op())
+	}
+}
+
 // QuotaClient is a client for the Quota schema.
 type QuotaClient struct {
 	config
@@ -1236,12 +1362,12 @@ func (c *WechatSessionClient) mutate(ctx context.Context, m *WechatSessionMutati
 // hooks and interceptors per client, for fast access.
 type (
 	hooks struct {
-		Account, ChatHistory, Conversation, ConversationMessage, Order, Product, Quota,
-		WechatSession []ent.Hook
+		Account, ChatHistory, Conversation, ConversationMessage, Order, Product, Prompt,
+		Quota, WechatSession []ent.Hook
 	}
 	inters struct {
-		Account, ChatHistory, Conversation, ConversationMessage, Order, Product, Quota,
-		WechatSession []ent.Interceptor
+		Account, ChatHistory, Conversation, ConversationMessage, Order, Product, Prompt,
+		Quota, WechatSession []ent.Interceptor
 	}
 )
 

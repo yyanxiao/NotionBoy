@@ -57,10 +57,39 @@ export type GenerateWechatQRCodeResponse = {
 }
 
 export type Prompt = {
+  id?: string
   act?: string
   prompt?: string
+  isCustom?: boolean
+}
+
+export type ListPromptsRequest = {
+  isCustom?: boolean
 }
 
 export type ListPromptsResponse = {
   prompts?: Prompt[]
+}
+
+export type GetPromptRequest = {
+  id?: string
+}
+
+export type GetPromptResponse = {
+  prompt?: Prompt
+}
+
+export type CreatePromptRequest = {
+  act?: string
+  prompt?: string
+}
+
+export type DeletePromptRequest = {
+  id?: string
+}
+
+export type UpdatePromptRequest = {
+  id?: string
+  act?: string
+  prompt?: string
 }

@@ -80,10 +80,38 @@ message GenerateWechatQRCodeResponse {
 }
 
 message Prompt {
+  string id = 1;
+  string act = 2;
+  string prompt = 3;
+  bool is_custom = 4;
+}
+
+message ListPromptsRequest {
+  bool is_custom = 2;
+}
+message ListPromptsResponse {
+  repeated Prompt prompts = 1;
+}
+
+message GetPromptRequest {
+  string id = 1;
+}
+
+message GetPromptResponse {
+  Prompt prompt = 1;
+}
+
+message CreatePromptRequest {
   string act = 1;
   string prompt = 2;
 }
 
-message ListPromptsResponse {
-  repeated Prompt prompts = 1;
+message DeletePromptRequest {
+  string id = 1;
+}
+
+message UpdatePromptRequest {
+  string id = 1;
+  string act = 2;
+  string prompt = 3;
 }
