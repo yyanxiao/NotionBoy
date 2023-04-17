@@ -1,7 +1,7 @@
 import { siteConfig } from "@/config/site";
 
 import { ChatContext } from "@/lib/states/chat-context";
-import { Home, LogOut, Plus } from "lucide-react";
+import { Home, LogOut, MessageSquare } from "lucide-react";
 import Link from "next/link";
 import { useContext } from "react";
 import { AuthLoginButton } from "../auth";
@@ -25,10 +25,13 @@ export function SideBarComponent() {
 				<div className="sticky top-0 left-0 flex flex-row items-center justify-center">
 					<Button
 						variant="ghost"
-						className="self-center"
+						className="w-1/2 my-2 hover:bg-[#3da9fc]"
 						onClick={handleCreateConversation}
 					>
-						<Plus />
+						<div className="flex flex-row items-center space-x-2">
+							<MessageSquare />
+							<span>新会话</span>
+						</div>
 					</Button>
 				</div>
 				<Separator />

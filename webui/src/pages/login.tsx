@@ -72,6 +72,7 @@ export default function SignIn() {
 			} as GenrateTokenRequest)
 				.then((resp) => {
 					clearInterval(interval);
+					clearTimeout(timeout);
 					Cookies.set(TOKEN, resp.token as string);
 					Cookies.set(TOKEN_EXPIRE, resp.expiry as string);
 					setIsLoggedIn(true);
@@ -80,9 +81,9 @@ export default function SignIn() {
 				.catch((err) => {
 					console.log("GenrateToken error: ", err);
 				});
-		}, 5000);
+		}, 2000);
 
-		setTimeout(() => {
+		const timeout = setTimeout(() => {
 			clearInterval(interval);
 			toast({
 				variant: "destructive",
@@ -90,6 +91,10 @@ export default function SignIn() {
 				description: "Sign In with QRCode timeout",
 			});
 		}, 1000 * 60 * 5);
+		return () => {
+			clearInterval(interval);
+			clearTimeout(timeout);
+		};
 	};
 
 	if (isLoggedIn) {

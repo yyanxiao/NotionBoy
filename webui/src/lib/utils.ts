@@ -20,7 +20,17 @@ export function absoluteUrl(path: string) {
 
 export function isLogin() {
 	const token = Cookies.get("token");
-	return token != undefined;
+	if (!token) {
+		return false;
+	}
+	const tokenExpire = Cookies.get("tokenExpire");
+	if (!tokenExpire) {
+		return false;
+	}
+	if (Date.now() > new Date(tokenExpire).getTime()) {
+		return false;
+	}
+	return true;
 }
 
 export function currentTime() {
