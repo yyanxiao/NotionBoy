@@ -340,11 +340,11 @@ export function RoleDialog() {
 					<span>🎭 选择角色</span>
 				</Button>
 			</DialogTrigger>
-			<DialogContent className="w-3/4 h-3/4">
+			<DialogContent className="w-3/4 h-5/6 md:h-3/4">
 				<DialogHeader>
 					<DialogTitle>角色 🎭 扮演</DialogTitle>
 					<DialogDescription>
-						你期望 ChatGPT 以哪个角色来回复你的消息？
+						你期望 ChatGPT 以哪个角色来回复？
 					</DialogDescription>
 				</DialogHeader>
 				<div className="grid items-center grid-cols-2 gap-2 justify-items-center">
@@ -374,7 +374,7 @@ export function RoleDialog() {
 					{filteredPrompts.map((p) => (
 						<div
 							key={p.prompt}
-							className={`relative h-20 rounded-lg ${
+							className={`relative h-12 rounded-lg ${
 								selectedPrompt.prompt == p.prompt
 									? "bg-[#3da9fc]"
 									: ""
@@ -382,8 +382,8 @@ export function RoleDialog() {
 						>
 							<Button
 								variant={"outline"}
-								size="lg"
-								className="w-full h-20"
+								size="sm"
+								className="w-full h-12"
 								value={p.act}
 								onClick={(e) => {
 									setSelectedPrompt(p);
