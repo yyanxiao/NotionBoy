@@ -19,6 +19,21 @@ import (
 )
 
 func (s *CompletionServiceImpl) Completions(ctx context.Context, w http.ResponseWriter, acc *ent.Account, req *openai.ChatCompletionRequest) {
+	isRateLimited, err := checkQuota(ctx, acc, req)
+	if err != nil {
+		logger.SugaredLogger.Errorw("Proxy Completions error", "err", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		// nolint:errcheck
+		w.Write([]byte(err.Error()))
+		return
+	}
+	if isRateLimited {
+		w.WriteHeader(http.StatusTooManyRequests)
+		// nolint:errcheck
+		w.Write([]byte("额度已用完，请点击公众号菜单栏服务中的 VIP 进行充值"))
+		return
+	}
+
 	if req.Stream {
 		s.chatStream(ctx, w, acc, req)
 	} else {
@@ -138,4 +153,33 @@ func updateTokenUsage(ctx context.Context, acc *ent.Account, usage int64) {
 	if err := dao.IncrUsedTokenQuota(db.GetClient(), ctx, acc.ID, usage); err != nil {
 		logger.SugaredLogger.Errorw("IncrUsedTokenQuota error", "err", err)
 	}
+}
+
+// checkQuota check if the account is rate limited
+func checkQuota(ctx context.Context, acc *ent.Account, req *openai.ChatCompletionRequest) (bool, error) {
+	quota, err := dao.QueryQuota(ctx, acc.ID)
+	if err != nil {
+		return true, err
+	}
+	if quota.TokenUsed >= quota.Token {
+		return true, nil
+	}
+
+	tokens := calcuteTokenUsage(req, "")
+	switch req.Model {
+	case openai.GPT4, openai.GPT40314:
+		if ((tokens + 1000) * 15) > (quota.Token - quota.TokenUsed) {
+			return true, nil
+		}
+
+	case openai.GPT432K, openai.GPT432K0314:
+		if ((tokens + 1000) * 30) > (quota.Token - quota.TokenUsed) {
+			return true, nil
+		}
+	default:
+		if ((tokens + 1000) * 1) > (quota.Token - quota.TokenUsed) {
+			return true, nil
+		}
+	}
+	return false, nil
 }
