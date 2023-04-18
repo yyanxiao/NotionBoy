@@ -1,0 +1,12 @@
+services:
+  notionboy:
+    image: ghcr.io/vaayne/notionboy:latest
+    ports:
+      - 8081
+
+  browserless:
+    image: browserless/chrome
+    environment:
+      - CONNECTION_TIMEOUT=300000
+    ports:
+      - 23000:3000

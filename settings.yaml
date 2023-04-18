@@ -1,28 +1,87 @@
-SERVICE:
-  NAME: notion-boy
-  HOST: "0.0.0.0"
-  PORT: 8001
-  URL: http://localhost:8001
+service:
+    name: notion-boy
+    host: "0.0.0.0"
+    port: 8001
+    url: http://localhost:8001
 
-WECHAT:
-  APP_ID:
-  APP_SECRET:
-  TOKEN:
-  ENCODING_AES_KEY:
+wechat:
+    appID:
+    appSecret:
+    token:
+    encodingAesKey:
+    # 作者的微信二维码在素材库中的 ID，用于 SOS 返回作者个人的微信
+    authorID:
+    adminUserID:
+    # 微信支付相关配置
+    mchID:
+    mchCertificateSerialNumber:
+    mchAPIv3Key:
+    mchPrivateKeyPath:
 
-DATABASES:
-  SQLITE:
-    FILE: data.db
-  MYSQL:
-    HOST:
-    PORT:
-    USER:
-    PASS:
-    DATABASE:
+database:
+    driver: sqlite
+    sqlite:
+        file: data.db
+    mysql:
+        host:
+        port:
+        user:
+        pass:
+        db:
 
-NOTION_OAUTH:
-  CLIENT_ID:
-  CLIENT_SECRET:
-  REDIRECT_URI:
-  AUTH_URL: https://api.notion.com/v1/oauth/authorize?owner=user
-  TOKEN_URL: https://api.notion.com/v1/oauth/token
+notionTestPage:
+    DatabaseID:
+    Token:
+
+r2:
+    url:
+    token:
+
+storage:
+    endpoint:
+    accessKey:
+    secretKey:
+    region:
+    bucketName:
+    domain:
+
+log:
+    level: info
+# devToolsURL: ws://browserless:3000
+
+chatGPT:
+    apiKey:
+    model:
+
+telegram:
+    token:
+
+zlib:
+    host:
+    ipfsGateways:
+        - https://ipfs.io
+        - https://cloudflare-ipfs.com
+        - https://ipfs.infura.io
+        - https://dweb.link
+        - https://gateway.pinata.cloud
+        - https://cf-ipfs.com
+
+readability:
+    host:
+
+jwt:
+    SigningKey: example key must be changed
+    ExpireTime: 3600
+
+oauth:
+    github:
+        clientID:
+        clientSecret:
+        state:
+    notion:
+        clientID:
+        clientSecret:
+        urlRedirect:
+        authUrl: https://api.notion.com/v1/oauth/authorize?owner=user
+        authToken: https://api.notion.com/v1/oauth/token
+        state:

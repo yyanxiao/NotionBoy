@@ -1,0 +1,137 @@
+syntax = "proto3";
+
+package servicev1;
+
+import "google/api/annotations.proto";
+import "protoc-gen-openapiv2/options/annotations.proto";
+import "validate/validate.proto";
+
+option go_package = "notionboy/api/pb/v1/conversation;conversation";
+
+message Message {
+  // id uuid of the message
+  string id = 1 [(validate.rules).string.min_len = 1];
+  // conversation_id uuid of the conversation
+  string conversation_id = 2;
+  // user_id uuid of the user
+  string request = 3 [(validate.rules).string.min_len = 1];
+  string response = 4 [(validate.rules).string.min_len = 1];
+  string created_at = 5;
+  string updated_at = 6;
+  int32 token_usage = 7;
+  string model = 8;
+}
+
+message ConversationWithoutMessages {
+  // id uuid of the conversation
+  string id = 1 [(validate.rules).string.min_len = 1];
+  // user_id uuid of the user
+  string created_at = 2;
+  string updated_at = 3;
+  string instruction = 4;
+  string title = 5;
+}
+
+message Conversation {
+  // id uuid of the conversation
+  string id = 1 [(validate.rules).string.min_len = 1];
+  string created_at = 2;
+  string updated_at = 3;
+  string instruction = 4;
+  string title = 5;
+  repeated Message messages = 6;
+  int32 token_usage = 7;
+}
+
+message ListConversationsRequest {
+  int32 limit = 1;
+  int32 offset = 2;
+}
+
+message ListConversationsResponse {
+  repeated ConversationWithoutMessages conversations = 1;
+}
+
+message GetConversationRequest {
+  // id uuid of the conversation
+  string id = 1 [(validate.rules).string.min_len = 1];
+}
+
+message CreateConversationRequest {
+  // instruction instruction of the conversation, if this is empty, the
+  // conversation will be created with a default instruction
+  string instruction = 1;
+  string title = 2;
+}
+
+message UpdateConversationRequest {
+  // id uuid of the conversation
+  string id = 1 [(validate.rules).string.min_len = 1];
+  // instruction instruction of the conversation, if this is empty, the
+  // conversation will be created with a default instruction
+  string instruction = 2;
+  string title = 3;
+}
+
+message DeleteConversationRequest {
+  // id uuid of the conversation
+  string id = 1 [(validate.rules).string.min_len = 1];
+}
+
+message CreateMessageRequest {
+  // conversation_id uuid of the conversation
+  string conversation_id = 1;
+  string model = 2;
+  // request request of the message
+  string request = 3;
+  // temperature What sampling temperature to use, between 0 and 2.
+  // Higher values like 0.8 will make the output more random, while lower values
+  // like 0.2 will make it more focused and deterministic. default 1
+  float temperature = 4;
+  // max_tokens The maximum number of tokens to generate in the chat completion.
+  // default 2000
+  int32 max_tokens = 5;
+}
+
+message UpdateMessageRequest {
+  // conversation_id uuid of the conversation
+  string conversation_id = 1;
+  // id uuid of the message
+  string id = 2;
+  // model model of the message
+  string model = 3;
+  // request request of the message
+  string request = 4;
+  // temperature What sampling temperature to use, between 0 and 2.
+  // Higher values like 0.8 will make the output more random, while lower values
+  // like 0.2 will make it more focused and deterministic. default 1
+  float temperature = 5;
+  // max_tokens The maximum number of tokens to generate in the chat completion.
+  // default 2000
+  int32 max_tokens = 6;
+}
+
+message ListMessagesRequest {
+  // conversation_id uuid of the conversation
+  string conversation_id = 2;
+  int32 limit = 3;
+  int32 offset = 4;
+}
+
+message ListMessagesResponse {
+  repeated Message messages = 1;
+}
+
+message GetMessageRequest {
+  // id uuid of the message
+  string id = 1 [(validate.rules).string.min_len = 1];
+  // conversation_id uuid of the conversation
+  string conversation_id = 2;
+}
+
+message DeleteMessageRequest {
+  // id uuid of the message
+  string id = 1 [(validate.rules).string.min_len = 1];
+  // conversation_id uuid of the conversation
+  string conversation_id = 2;
+}

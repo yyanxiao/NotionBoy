@@ -1,0 +1,117 @@
+syntax = "proto3";
+
+package servicev1;
+
+import "google/api/annotations.proto";
+import "protoc-gen-openapiv2/options/annotations.proto";
+import "validate/validate.proto";
+
+option go_package = "notionboy/api/pb/v1:servicev1";
+
+message ErrorResponse {
+  string correlationId = 1 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
+    pattern:
+      "^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-"
+      "9A-F]{12}$",
+    title: "x-correlation-id",
+    description: "Unique event identifier for server requests",
+    format: "uuid",
+    example: "\"2438ac3c-37eb-4902-adef-ed16b4431030\""
+  }];
+  ErrorObject error = 2;
+}
+
+message ErrorObject {
+  int32 code = 1 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
+    pattern: "^[0-9]$",
+    title: "code",
+    description: "Response code",
+    format: "integer"
+  }];
+  string message = 2 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
+    pattern: "^[a-zA-Z0-9]{1, 32}$",
+    title: "message",
+    description: "Response message"
+  }];
+}
+
+// NumericEnum is one or zero.
+enum NumericEnum {
+  // ZERO means 0
+  ZERO = 0;
+  // ONE means 1
+  ONE = 1;
+}
+
+message GenrateTokenRequest {
+  string magicCode = 1 [(validate.rules).string.pattern = "^[a-zA-Z0-9]{1, 32}$"];
+  string qrcode = 2 [(validate.rules).string.pattern = "^[a-zA-Z0-9]{1, 32}$"];
+}
+
+message GenrateTokenResponse {
+  string token = 1;
+  string type = 2;
+  string expiry = 3;
+}
+
+message GenerateApiKeyResponse {
+  string api_key = 1;
+}
+
+message OAuthCallbackRequest {
+  string code = 1;
+  string state = 2;
+}
+
+message OAuthURLRequest {}
+
+message OAuthProvider {
+  string name = 1;
+  string url = 2;
+}
+
+message OAuthURLResponse {
+  repeated OAuthProvider providers = 1;
+}
+
+message GenerateWechatQRCodeResponse {
+  string url = 1;
+  string qrcode = 2;
+}
+
+message Prompt {
+  string id = 1;
+  string act = 2;
+  string prompt = 3;
+  bool is_custom = 4;
+}
+
+message ListPromptsRequest {
+  bool is_custom = 2;
+}
+message ListPromptsResponse {
+  repeated Prompt prompts = 1;
+}
+
+message GetPromptRequest {
+  string id = 1;
+}
+
+message GetPromptResponse {
+  Prompt prompt = 1;
+}
+
+message CreatePromptRequest {
+  string act = 1;
+  string prompt = 2;
+}
+
+message DeletePromptRequest {
+  string id = 1;
+}
+
+message UpdatePromptRequest {
+  string id = 1;
+  string act = 2;
+  string prompt = 3;
+}

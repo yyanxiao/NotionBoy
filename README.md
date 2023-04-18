@@ -1,24 +1,32 @@
 # NotionBoy
 
-Notion Boy 是一个基于微信公众号和 Notion 快速笔记应用。
+NotionBoy 是一个基于微信公众号和 Notion 的快速笔记应用，也是你的 AI 助手。
 
-完整介绍可以参考 [NotionBoy 的前世今生](https://www.theboys.tech/notion-boy)
+
+## Features
+
+- 连接微信和 Notion，快速创建笔记
+- 支持标签
+- 支持剪辑网页全文
+- 支持 ChatGPT 机器人，自动回复
+- 支持 Z-Library 搜索，快速查找电子书
+
+
+## 关注 NotionBoy
+
+### 微信公众号
+
+![微信公众号](https://s3.theboys.tech/notionboy/IMG_0847.JPG)
+
+### Telegram Bot
+
+[https://t.me/TheNotionBoyBot](https://t.me/TheNotionBoyBot)
+
+### Web 版
+
+[https://notionboy.theboys.tech](https://notionboy.theboys.tech)
 
 ---
-## 使用 NotionBoy 
+## 使用 NotionBoy
 
-### 绑定微信公众号
-
-微信搜索 `NotionBoy` 并且关注，或者直接扫码关注
-
-![qrcode_for_gh.jpg](./docs/imgs/qrcode_for_gh.jpg)
-
-关注之后，会提示绑定
-
-### 开始记录你的想法
-
-记录想就和聊天一样，如果想把这条记录归类，可以加上 #作为标签，不加没有任何影响，支持任意位置多个 #标签。如图
-
-![notionboy_usage1.jpg](./docs/imgs/notionboy_usage1.jpg)
-
-![notionboy_usage2.jpg](./docs/imgs/notionboy_usage2.jpg)
+使用教程请参考 [概念男孩（NotionBoy） Wiki](https://vaayne.notion.site/07c3385eb59348218d2174a8983de475)

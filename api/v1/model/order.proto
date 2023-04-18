@@ -1,0 +1,74 @@
+syntax = "proto3";
+
+package servicev1;
+
+import "google/api/annotations.proto";
+import "model/product.proto";
+import "protoc-gen-openapiv2/options/annotations.proto";
+import "validate/validate.proto";
+
+option go_package = "notionboy/api/pb/v1/conversation;conversation";
+
+message Order {
+  string id = 1;
+  string created_at = 2;
+  string updated_at = 3;
+  string deleted = 4;
+  string uuid = 5;
+  string user_id = 6;
+  float price = 7;
+  string status = 8;
+  string note = 9;
+  string payment_method = 10;
+  Product product = 11;
+}
+
+message CreateOrderRequest {
+  string product_id = 1;
+  string note = 2;
+}
+
+message ListOrdersRequest {
+  string status = 1;
+  int32 limit = 2;
+  int32 offset = 3;
+}
+
+message ListOrdersResponse {
+  repeated Order orders = 1;
+}
+
+message GetOrderRequest {
+  string id = 1;
+  bool is_check_payment = 2;
+}
+
+message DeleteOrderRequest {
+  string id = 1;
+}
+
+message UpdateOrderRequest {
+  string id = 1;
+  string note = 2;
+}
+
+message PayOrderRequest {
+  string id = 1;
+  string payment_method = 2;
+}
+
+message PayOrderConfig {
+  string timestamp = 1;
+  string nonce_str = 2;
+  string pre_pay_id = 3;
+  string sign_type = 4;
+  string package = 5;
+  string pay_sign = 6;
+  string app_id = 7;
+}
+
+message PayOrderResponse {
+  string status = 1;
+  string qrcode = 2;
+  PayOrderConfig config = 3;
+}

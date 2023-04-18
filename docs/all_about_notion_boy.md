@@ -25,7 +25,7 @@ flomo是新一代「卡片笔记工具」，秉承尼克拉斯 · 卢曼（Nikla
 
 最终，经过这些准备工作，和少量的开发之后，`NotionBoy`  面世了。
 
-已实现的功能：
+已实现的功能:
 
 - 关注微信公众号后，绑定自己的 Notion
 - 像聊天一样，随时记录自己的想法
@@ -42,9 +42,9 @@ flomo是新一代「卡片笔记工具」，秉承尼克拉斯 · 卢曼（Nikla
 
 [Start building with the Notion API](https://developers.notion.com/docs/getting-started)
 
-主要步骤如下：
+主要步骤如下:
 
-1. 进入 [https://www.notion.com/my-integrations](https://www.notion.com/my-integrations) 
+1. 进入 [https://www.notion.com/my-integrations](https://www.notion.com/my-integrations)
 2. 新建集成机器人，输入名字（这个随便输入都行）
 3. 选择一个想机器人写入的 Workspace （可以新建一个，如果担心数据安全问题）
 4. 点击确定之后，就会看到 `Internal Integration Token`，Token 以 `secret_` 开头，复制并保存这个 Token，后面需要使用
@@ -54,7 +54,7 @@ flomo是新一代「卡片笔记工具」，秉承尼克拉斯 · 卢曼（Nikla
 8. 获取 DatabaseID，复制这个数据库页面的 URL，类似 [`https://www.notion.so/myworkspace/a8aec43384f447ed84390e8e42c2e089?v=](https://www.notion.so/a8aec43384f447ed84390e8e42c2e089)...` 这种，这里面的 `a8aec43384f447ed84390e8e42c2e089` 就是 DatabaseID
 9. 到这就完成了 Token 和 DatabaseID 的获取了，虽然写的比较多，但是实际很简单
 
-可以参考官方动图 
+可以参考官方动图
 
 ![NotionBoy%200a4c7970dea048bdbf38e673e4f0465f/Untitled.gif](./docs/imgs/notionapi_new.gif)
 

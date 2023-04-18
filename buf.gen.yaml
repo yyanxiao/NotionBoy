@@ -1,0 +1,37 @@
+version: v1
+managed:
+    enabled: true
+    go_package_prefix:
+        default: notionboy/api/pb
+        except:
+            - buf.build/googleapis/googleapis
+            - buf.build/grpc-ecosystem/grpc-gateway
+            - buf.build/envoyproxy/protoc-gen-validate
+plugins:
+    # generate go code
+    - plugin: buf.build/grpc/go
+      out: api/pb
+      opt: paths=source_relative
+    - plugin: buf.build/protocolbuffers/go
+      out: api/pb
+      opt: paths=source_relative
+    - plugin: buf.build/grpc-ecosystem/gateway
+      out: api/pb
+      opt: paths=source_relative
+    - plugin: buf.build/bufbuild/validate-go
+      out: api/pb
+      opt:
+          - paths=source_relative
+    # generate swagger
+    - plugin: buf.build/grpc-ecosystem/openapiv2
+      # https://grpc-ecosystem.github.io/grpc-gateway/docs/mapping/customizing_openapi_output/#customizing-openapi-output
+      out: api/docs
+      opt: allow_merge=true
+    # generate markdown for api docs
+    - plugin: buf.build/community/pseudomuto-doc
+      out: api/docs
+      opt: markdown,apidocs.md
+    # generate ts code
+    - name: grpc-gateway-ts
+      out: webui/src/lib/pb
+      opt: paths=source_relative

@@ -18,6 +18,13 @@ dma-auth-service
 .note/
 Pipfile
 .vscode/
+vendor
 __debug_bin
+vendor/
 settings*local*
 .env
+.envrc
+data.db
+settings_*
+docker-compose.override.yaml
+.local

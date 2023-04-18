@@ -1,14 +1,17 @@
-FROM golang:1.17 as build_base
+FROM golang:1.19 as build
 
-WORKDIR /go/src/github.com/Vaayne/Notion-Boy
+WORKDIR /go/src/app
+
+COPY go.mod go.mod
+COPY go.sum go.sum
+RUN go mod download
+
 COPY . .
-RUN CGO_ENABLED=1 GOOS=linux go build -a -ldflags '-linkmode external -extldflags "-static"' -o ./app cmd/wxgzh/main.go
+RUN go build -o /go/bin/app cmd/notionboy/main.go
 
-
-FROM alpine:latest
-RUN apk --no-cache add ca-certificates
+FROM gcr.io/distroless/base-debian11
 WORKDIR /service/
-RUN touch data.db
-COPY --from=build_base /go/src/github.com/Vaayne/Notion-Boy/app ./app
+
+COPY --from=build /go/bin/app .
 COPY settings.yaml settings.yaml
 CMD ["./app"]
