@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"sync"
 	"time"
 
 	"notionboy/db/ent"
@@ -16,7 +15,6 @@ import (
 	"notionboy/internal/pkg/utils/cache"
 
 	"github.com/google/uuid"
-	"github.com/pkoukk/tiktoken-go"
 	"github.com/sashabaranov/go-openai"
 )
 
@@ -36,11 +34,6 @@ const (
 )
 
 var cacheClient = cache.DefaultClient()
-
-var (
-	tk   *tiktoken.Tiktoken
-	once sync.Once
-)
 
 type History struct {
 	Ctx            context.Context
@@ -74,57 +67,22 @@ func (m *Message) toChatMessage() []openai.ChatCompletionMessage {
 	}
 }
 
-func getTiktoken() *tiktoken.Tiktoken {
-	if tk == nil {
-		var err error
-		once.Do(func() {
-			tk, err = tiktoken.GetEncoding("cl100k_base")
-			if err != nil {
-				logger.SugaredLogger.Errorw("tiktoken.EncodingForModel", "error", err)
-			}
-		})
-	}
-	return tk
-}
-
-func calculateTokens(msg string) int {
-	tk = getTiktoken()
-	return len(tk.Encode(msg, nil, nil))
-}
-
 func (h *History) calculateTokens(m *Message) int64 {
 	usage := m.Usage
-	if usage == nil {
-		promptTokens := 0
-		completionTokens := 0
-		tk = getTiktoken()
-		promptTokens += calculateTokens(h.Instruction)
-		for _, tm := range h.Messages[:len(h.Messages)-1] {
-			promptTokens += calculateTokens(tm.Request)
-			promptTokens += calculateTokens(tm.Response)
-		}
-		promptTokens += calculateTokens(m.Request)
-		completionTokens += calculateTokens(m.Response)
-		usage = &openai.Usage{
-			PromptTokens:     promptTokens,
-			CompletionTokens: completionTokens,
-			TotalTokens:      promptTokens + completionTokens,
-		}
+	if usage != nil {
+		tokens := calculateTotalTokensRequired(usage.PromptTokens, usage.CompletionTokens, m.Model)
+		return int64(tokens)
 	}
 
-	totalTokens := 0
-
-	// https://openai.com/pricing#faq-token
-	switch m.Model {
-	case openai.GPT3Dot5Turbo, openai.GPT3Dot5Turbo0301:
-		totalTokens = usage.TotalTokens
-	case openai.GPT4, openai.GPT40314:
-		totalTokens = usage.PromptTokens*15 + usage.CompletionTokens*30
-	case openai.GPT432K, openai.GPT432K0314:
-		totalTokens = usage.PromptTokens*30 + usage.CompletionTokens*60
+	// calculate tokens usage before save to db
+	// need delete the last message from history messages as it is the new message
+	// logger.SugaredLogger.Debugw("Calculate tokens usage", "historyMessages", h.Messages, "prompt", m.Request, "model", m.Model, "response", m.Response)
+	messages := h.Messages[:]
+	if len(messages) > 0 {
+		messages = messages[:len(messages)-1]
 	}
-
-	return int64(totalTokens)
+	tokens := calculateTotalTokensForMessages(messages, m.Model, h.Instruction, m.Request, m.Response)
+	return int64(tokens)
 }
 
 func NewHistory(ctx context.Context, acc *ent.Account, conversationId, instruction string) *History {
@@ -261,7 +219,7 @@ func (h *History) saveMessageToDB(message *Message) (*ent.ConversationMessage, e
 		// update existing
 		msg, err = tx.ConversationMessage.Query().Where(conversationmessage.UUIDEQ(message.Id)).Only(h.Ctx)
 		if err != nil {
-			logger.SugaredLogger.Errorw("Update ConversationMessage error", "err", err)
+			logger.SugaredLogger.Errorw("Update ConversationMessage error", "err", err, "message", message)
 			if e := tx.Rollback(); e != nil {
 				return nil, e
 			}
@@ -336,20 +294,10 @@ func (h *History) saveMessageToDB(message *Message) (*ent.ConversationMessage, e
 }
 
 func (h *History) append(message *Message) {
-	if message.Id == uuid.Nil {
-		h.Messages = append(h.Messages, message)
-		return
-	}
-	// discard message behide the message with same id
-	for i, msg := range h.Messages {
-		if msg.Id == message.Id {
-			h.Messages = append(h.Messages[:i+1], message)
-			break
-		}
-	}
+	h.Messages = append(h.Messages, message)
 }
 
-func (h *History) buildRequestMessages(prompt string) []openai.ChatCompletionMessage {
+func (h *History) buildRequestMessages(prompt string) ([]openai.ChatCompletionMessage, int) {
 	messages := make([]openai.ChatCompletionMessage, 0)
 	messages = append(messages, openai.ChatCompletionMessage{
 		Role:    ROLE_SYSTEM,
@@ -358,92 +306,66 @@ func (h *History) buildRequestMessages(prompt string) []openai.ChatCompletionMes
 	for _, message := range h.Messages {
 		messages = append(messages, message.toChatMessage()...)
 	}
-	messages = append(messages, openai.ChatCompletionMessage{
+	latestMessage := openai.ChatCompletionMessage{
 		Role:    ROLE_USER,
 		Content: prompt,
-	})
-
-	return messages
+	}
+	messages = append(messages, latestMessage)
+	// messages already contain instruction and prompt, so we only need to calculate the total tokens for messages
+	promptTokens := calculateTotalTokens(messages, openai.GPT3Dot5Turbo, "", "", "")
+	return messages, promptTokens
 }
 
 // summaryMessages summary messages to fit model limit
 func (h *History) summaryMessages(model, prompt string) error {
-	tokens := 0
-	for _, message := range h.Messages {
-		tokens += calculateTokens(message.Request)
-		tokens += calculateTokens(message.Response)
+	logger.SugaredLogger.Info("history too long, summary message")
+	// summary messages
+	maxSummaryTokens := 1000
+	symmaryTemperture := 0.5
+	req, err := buildChatCompletionRequest(h.Messages, prompt, model, h.Instruction, maxSummaryTokens, float32(symmaryTemperture), false, h.Quota)
+	if err != nil {
+		logger.SugaredLogger.Errorw("summaryMessages", "err", err)
+		return err
 	}
-	tokens += calculateTokens(prompt)
-
-	// if tokens is more than quota limit , return error
-	var modelLimit int
-
-	switch model {
-	case openai.GPT4, openai.GPT40314:
-		modelLimit = 4096
-		if ((tokens + 1000) * 15) > int(h.Quota.Token-h.Quota.TokenUsed) {
-			return errors.New(config.MSG_ERROR_QUOTA_NOT_ENOUGH)
-		}
-
-	case openai.GPT432K, openai.GPT432K0314:
-		modelLimit = 8192
-		if ((tokens + 1000) * 30) > int(h.Quota.Token-h.Quota.TokenUsed) {
-			return errors.New(config.MSG_ERROR_QUOTA_NOT_ENOUGH)
-		}
-	default:
-		modelLimit = 2000
-		if ((tokens + 1000) * 1) > int(h.Quota.Token-h.Quota.TokenUsed) {
-			return errors.New(config.MSG_ERROR_QUOTA_NOT_ENOUGH)
-		}
+	resp, err := defaultApiClient.CreateChatCompletion(h.Ctx, *req)
+	if err != nil {
+		logger.SugaredLogger.Errorw("summaryMessages", "err", err)
+		return err
+	}
+	// update cache
+	logger.SugaredLogger.Infow("summaryMessages", "resp", resp)
+	h.Messages = []*Message{
+		{
+			Request:  "The summary of our previous conversation",
+			Response: getResponse(&resp),
+			Model:    model,
+		},
 	}
 
-	if tokens > modelLimit {
-		logger.SugaredLogger.Debugw("history too long, summary message", "tokens", tokens, "modelLimit", modelLimit)
-		// summary messages
-		req := openai.ChatCompletionRequest{
-			Model:    openai.GPT3Dot5Turbo,
-			Messages: h.buildRequestMessages("Please summary the conversation to less than 1000 tokens"),
-		}
-
-		resp, err := defaultApiClient.CreateChatCompletion(h.Ctx, req)
-		if err != nil {
-			logger.SugaredLogger.Errorw("summaryMessages", "err", err)
+	// update toke nusage in db
+	tx, err := db.GetClient().Tx(h.Ctx)
+	if err != nil {
+		logger.SugaredLogger.Errorw("Init transaction for symmary message error", "err", err)
+		return err
+	}
+	err = dao.IncrUsedTokenQuota(tx.Client(), h.Ctx, h.Account.ID, int64(resp.Usage.TotalTokens))
+	if err != nil {
+		logger.SugaredLogger.Errorw("IncrUsedTokenQuota for symmary message error", "err", err)
+		if e := tx.Rollback(); e != nil {
 			return err
 		}
-		logger.SugaredLogger.Infow("summaryMessages", "resp", resp)
-		h.Messages = []*Message{
-			{
-				Request:  "The summary of our previous conversation",
-				Response: getResponse(&resp),
-				Model:    model,
-			},
-		}
-
-		// update toke nusage
-		tx, err := db.GetClient().Tx(h.Ctx)
-		if err != nil {
-			logger.SugaredLogger.Errorw("Init transaction for symmary message error", "err", err)
+		return err
+	}
+	if err := dao.IncrConversationUsedToken(tx.Client(), h.Ctx, h.ConversationId, int64(resp.Usage.TotalTokens)); err != nil {
+		logger.SugaredLogger.Errorw("IncrConversationUsedToken for symmary message error", "err", err)
+		if e := tx.Rollback(); e != nil {
 			return err
 		}
-		err = dao.IncrUsedTokenQuota(tx.Client(), h.Ctx, h.Account.ID, int64(resp.Usage.TotalTokens))
-		if err != nil {
-			logger.SugaredLogger.Errorw("IncrUsedTokenQuota for symmary message error", "err", err)
-			if e := tx.Rollback(); e != nil {
-				return err
-			}
-			return err
-		}
-		if err := dao.IncrConversationUsedToken(tx.Client(), h.Ctx, h.ConversationId, int64(resp.Usage.TotalTokens)); err != nil {
-			logger.SugaredLogger.Errorw("IncrConversationUsedToken for symmary message error", "err", err)
-			if e := tx.Rollback(); e != nil {
-				return err
-			}
-			return err
-		}
-		if err := tx.Commit(); err != nil {
-			logger.SugaredLogger.Errorw("Commit on update token for summary message error", "err", err)
-			return err
-		}
+		return err
+	}
+	if err := tx.Commit(); err != nil {
+		logger.SugaredLogger.Errorw("Commit on update token for summary message error", "err", err)
+		return err
 	}
 	return nil
 }
@@ -453,4 +375,21 @@ func getResponse(resp *openai.ChatCompletionResponse) string {
 		return resp.Choices[0].Message.Content
 	}
 	return ""
+}
+
+func buildChatCompletionRequest(messages []*Message, model, instruction, prompt string, maxTokens int, temperature float32, isStream bool, quota *ent.Quota) (*openai.ChatCompletionRequest, error) {
+	promptTokens := calculateTotalTokensForMessages(messages, openai.GPT3Dot5Turbo, instruction, prompt, "")
+	if (promptTokens + 1000) > int(quota.Token-quota.TokenUsed) {
+		logger.SugaredLogger.Debugw("history too long, summary message", "tokens", promptTokens)
+		return nil, errors.New(config.MSG_ERROR_QUOTA_NOT_ENOUGH)
+	}
+	reqMsg := make([]openai.ChatCompletionMessage, 0)
+	chatReq := &openai.ChatCompletionRequest{
+		Model:       model,
+		Messages:    reqMsg,
+		Stream:      isStream,
+		MaxTokens:   calculateMaxReturnTokens(promptTokens, maxTokens, model),
+		Temperature: temperature,
+	}
+	return chatReq, nil
 }

@@ -160,13 +160,13 @@ func (m *conversationMgr) CreateStreamConversationMessage(ctx context.Context, a
 	conversationMessage, err := apiClient.StreamChatWithHistory(ctx, acc, conversation.Instruction, req, stream)
 	// logger.SugaredLogger.Debugw("chat with history", "message", message, "err", err)
 	if err != nil {
-		logger.SugaredLogger.Debugw("chat with history error", "err", err)
+		logger.SugaredLogger.Errorw("chat with history error", "err", err)
 		return err
 	}
 
 	dto := ConversationMessageDTOFromDB(conversationMessage)
 	if err = stream.Send(dto.ToPB()); err != nil {
-		logger.SugaredLogger.Debugw("send message error", "err", err)
+		logger.SugaredLogger.Errorw("send message error", "err", err)
 		return err
 	}
 
@@ -189,7 +189,7 @@ func (m *conversationMgr) UpdateStreamConversationMessage(ctx context.Context, a
 	conversationMessage, err := apiClient.StreamChatWithHistoryUpdate(ctx, acc, conversation.Instruction, req, stream)
 	// logger.SugaredLogger.Debugw("chat with history", "message", message, "err", err)
 	if err != nil {
-		logger.SugaredLogger.Debugw("chat with history error", "err", err)
+		logger.SugaredLogger.Errorw("chat with history error", "err", err)
 		return err
 	}
 

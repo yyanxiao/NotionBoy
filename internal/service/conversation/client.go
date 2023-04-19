@@ -56,12 +56,12 @@ func (cli *ConversationClient) ChatWithHistory(ctx context.Context, acc *ent.Acc
 	if err := history.summaryMessages(selectModel, prompt); err != nil {
 		return nil, err
 	}
-	reqMsg := history.buildRequestMessages(prompt)
+	reqMsg, tokens := history.buildRequestMessages(prompt)
 
 	req := openai.ChatCompletionRequest{
 		Model:     selectModel,
 		Messages:  reqMsg,
-		MaxTokens: 2000,
+		MaxTokens: calculateMaxReturnTokens(tokens, getDefaultModelMaxReturnToken(selectModel), selectModel),
 	}
 
 	resp, err := cli.CreateChatCompletion(ctx, req)
@@ -89,28 +89,30 @@ func streamChatWithHistory(ctx context.Context, cli *ConversationClient, acc *en
 	var conversationId string
 	var selectedModel string
 	var temperature float32
-	var maxTokens int32
+	var maxTokens int
 	var prompt string
 	var messageId uuid.UUID
 	var err error
+	isUpdate := false
 
 	switch r := req.(type) {
 	case *model.CreateMessageRequest:
 		conversationId = r.ConversationId
 		selectedModel = r.Model
 		temperature = r.Temperature
-		maxTokens = r.MaxTokens
+		maxTokens = int(r.MaxTokens)
 		prompt = r.Request
 	case *model.UpdateMessageRequest:
 		conversationId = r.ConversationId
 		selectedModel = r.Model
 		temperature = r.Temperature
-		maxTokens = r.MaxTokens
+		maxTokens = int(r.MaxTokens)
 		prompt = r.Request
 		messageId, err = uuid.Parse(r.Id)
 		if err != nil {
 			return nil, err
 		}
+		isUpdate = true
 	default:
 		return nil, errors.New("invalid request")
 	}
@@ -124,6 +126,17 @@ func streamChatWithHistory(ctx context.Context, cli *ConversationClient, acc *en
 		return nil, errors.New(config.MSG_ERROR_QUOTA_LIMIT)
 	}
 
+	// for update message, it should remove the last message
+	if isUpdate {
+		// discard message after the updated message
+		for i, msg := range h.Messages {
+			if msg.Id == messageId {
+				h.Messages = h.Messages[:i]
+				break
+			}
+		}
+	}
+
 	if selectedModel == "" {
 		selectedModel = DEFAULT_MODEL
 	}
@@ -131,14 +144,16 @@ func streamChatWithHistory(ctx context.Context, cli *ConversationClient, acc *en
 		temperature = 1
 	}
 	if maxTokens == 0 {
-		maxTokens = 2000
+		maxTokens = getModelMaxTokens(selectedModel) / 2
 	}
 
-	// build request
-	if err := h.summaryMessages(selectedModel, prompt); err != nil {
-		return nil, err
+	promptTokens := calculateTotalTokensForMessages(h.Messages, openai.GPT3Dot5Turbo, h.Instruction, prompt, "")
+	if promptTokens >= maxTokens {
+		if err := h.summaryMessages(selectedModel, prompt); err != nil {
+			return nil, err
+		}
 	}
-	reqMsg := h.buildRequestMessages(prompt)
+	reqMsg, _ := h.buildRequestMessages(prompt)
 	chatReq := openai.ChatCompletionRequest{
 		Model:       selectedModel,
 		Messages:    reqMsg,
